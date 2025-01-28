@@ -1,10 +1,11 @@
 import Layout from "@/components/Layout";
+import TabsContainer from "@/components/TabsContainer";
 
 const Settlement = () => {
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Settlement</h1>
+        <TabsContainer />
       </div>
     </Layout>
   );
