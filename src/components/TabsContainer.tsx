@@ -21,7 +21,11 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <TabsList className="w-full justify-start overflow-x-auto">
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+            <TabsTrigger 
+              key={tab.value} 
+              value={tab.value}
+              className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+            >
               {tab.label}
             </TabsTrigger>
           ))}

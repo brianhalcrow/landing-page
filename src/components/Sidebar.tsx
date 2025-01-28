@@ -5,8 +5,6 @@ import {
   LineChart,
   BarChart3,
   FileText,
-  ChevronLeft,
-  ChevronRight,
   Shield,
   DollarSign,
   FileCheck,
@@ -16,12 +14,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-interface SidebarProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-}
-
-const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
+const Sidebar = () => {
   const location = useLocation();
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/" },
@@ -58,38 +51,16 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   ];
 
   return (
-    <div
-      className={cn(
-        "bg-sidebar-DEFAULT text-sidebar-foreground h-screen transition-all duration-300 flex flex-col",
-        isOpen ? "w-64" : "w-20"
-      )}
-    >
-      <div className="p-4 flex items-center justify-between">
-        <h1 className={cn("font-bold text-xl", !isOpen && "hidden")}>
-          Dashboard
-        </h1>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-lg hover:text-primary transition-colors"
-        >
-          {isOpen ? (
-            <ChevronLeft className="h-5 w-5" />
-          ) : (
-            <ChevronRight className="h-5 w-5" />
-          )}
-        </button>
-      </div>
-      <nav className="mt-8 flex-1 flex flex-col">
-        <div className="flex-1">
+    <div className="h-full bg-sidebar-DEFAULT text-sidebar-foreground">
+      <nav className="mt-8 flex-1 flex flex-col h-[calc(100vh-4rem)]">
+        <div className="flex-1 overflow-y-auto">
           {navItems.map((item, index) => (
             <div key={item.label} className={cn("mb-2", item.type === "section" && "mt-4")}>
               {item.type === "section" ? (
                 <>
-                  {isOpen && (
-                    <span className="px-4 text-xs font-medium text-gray-900">
-                      {item.label}
-                    </span>
-                  )}
+                  <span className="px-4 text-xs font-medium text-gray-900">
+                    {item.label}
+                  </span>
                   <div className="mt-2">
                     {item.items?.map((subItem) => (
                       <Link
@@ -97,11 +68,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                         to={subItem.href}
                         className={cn(
                           "flex items-center px-4 py-2 text-gray-700 hover:text-primary transition-colors rounded-md",
-                          location.pathname === subItem.href && "bg-gray-100"
+                          location.pathname === subItem.href && "bg-white text-primary"
                         )}
                       >
                         <subItem.icon className="h-5 w-5" />
-                        {isOpen && <span className="ml-4">{subItem.label}</span>}
+                        <span className="ml-4">{subItem.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -111,11 +82,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                   to={item.href}
                   className={cn(
                     "flex items-center px-4 py-2 text-gray-700 hover:text-primary transition-colors rounded-md",
-                    location.pathname === item.href && "bg-gray-100"
+                    location.pathname === item.href && "bg-white text-primary"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
-                  {isOpen && <span className="ml-4">{item.label}</span>}
+                  <span className="ml-4">{item.label}</span>
                 </Link>
               )}
             </div>
@@ -125,11 +96,11 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           to="/settings"
           className={cn(
             "flex items-center px-4 py-2 text-gray-700 hover:text-primary transition-colors rounded-md mb-4",
-            location.pathname === "/settings" && "bg-gray-100"
+            location.pathname === "/settings" && "bg-white text-primary"
           )}
         >
           <Settings className="h-5 w-5" />
-          {isOpen && <span className="ml-4">Settings</span>}
+          <span className="ml-4">Settings</span>
         </Link>
       </nav>
     </div>
