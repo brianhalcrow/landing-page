@@ -5,9 +5,7 @@ import { tabsConfig } from "@/config/tabsConfig";
 const Monitor = () => {
   return (
     <Layout>
-      <div className="p-6">
-        <TabsContainer tabs={tabsConfig["monitor"]} />
-      </div>
+      <TabsContainer tabs={tabsConfig["monitor"]} />
     </Layout>
   );
 };

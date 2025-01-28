@@ -5,10 +5,7 @@ import { tabsConfig } from "@/config/tabsConfig";
 const DataSources = () => {
   return (
     <Layout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Data Sources</h1>
-        <TabsContainer tabs={tabsConfig["data-sources"]} />
-      </div>
+      <TabsContainer tabs={tabsConfig["data-sources"]} />
     </Layout>
   );
 };

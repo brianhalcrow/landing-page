@@ -5,9 +5,7 @@ import { tabsConfig } from "@/config/tabsConfig";
 const Forecast = () => {
   return (
     <Layout>
-      <div className="p-6">
-        <TabsContainer tabs={tabsConfig["forecast"]} />
-      </div>
+      <TabsContainer tabs={tabsConfig["forecast"]} />
     </Layout>
   );
 };
