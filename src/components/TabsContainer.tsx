@@ -20,13 +20,13 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
 
   return (
     <Tabs defaultValue={defaultTab || tabs[0].value} className="w-full">
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <TabsList className="justify-start overflow-x-auto">
+      <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <TabsList className="justify-start overflow-x-auto bg-gray-100 dark:bg-gray-800">
           {tabs.map((tab, index) => (
             <React.Fragment key={tab.value}>
               <TabsTrigger 
                 value={tab.value}
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
               >
                 {tab.label}
               </TabsTrigger>
