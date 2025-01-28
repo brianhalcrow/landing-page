@@ -3,7 +3,6 @@ import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
 import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
-import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -18,7 +17,7 @@ export const tabsConfig = {
     { value: "failed", label: "Failed", content: <div>Failed Settlements</div> },
   ],
   "data-sources": [
-    { value: "connections", label: "Connections", content: <ConnectionsTab /> },
+    { value: "connections", label: "Connections", content: <div>Data Source Connections</div> },
     { value: "history", label: "History", content: <div>Connection History</div> },
   ],
   "configuration": [
