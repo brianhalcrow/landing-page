@@ -48,6 +48,7 @@ const OverviewTab = () => {
 
   const fetchHedgeRequests = async () => {
     try {
+      console.log('Fetching hedge requests...');
       const { data, error } = await supabase
         .from('pre_trade_sfx_hedge_request')
         .select('*');
@@ -56,10 +57,12 @@ const OverviewTab = () => {
         throw error;
       }
 
+      console.log('Received hedge requests:', data);
+
       // Add an id field for MUI DataGrid
       const hedgeRequestsWithId = (data || []).map((request, index) => ({
         ...request,
-        id: index + 1, // MUI DataGrid requires a unique id field
+        id: index + 1,
       }));
 
       setHedgeRequests(hedgeRequestsWithId);
@@ -75,27 +78,32 @@ const OverviewTab = () => {
 
   useEffect(() => {
     // Initial fetch
+    console.log('Component mounted, fetching initial data...');
     fetchHedgeRequests();
 
     // Set up realtime subscription
+    console.log('Setting up realtime subscription...');
     const channel = supabase
       .channel('hedge-requests-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'pre_trade_sfx_hedge_request'
         },
-        () => {
-          // Refetch data when any change occurs
-          fetchHedgeRequests();
+        (payload) => {
+          console.log('Received realtime update:', payload);
+          fetchHedgeRequests(); // Refetch data when any change occurs
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     // Cleanup subscription on component unmount
     return () => {
+      console.log('Cleaning up subscription...');
       supabase.removeChannel(channel);
     };
   }, [toast]);
