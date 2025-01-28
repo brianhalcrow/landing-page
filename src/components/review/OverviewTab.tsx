@@ -87,7 +87,7 @@ const OverviewTab = () => {
     console.log('📡 Performing initial data fetch...');
     fetchHedgeRequests();
 
-    // Set up realtime subscription with reconnection handling
+    // Set up realtime subscription
     console.log('🔌 Setting up realtime subscription...');
     const channel = supabase
       .channel('hedge-requests-changes')
@@ -101,12 +101,19 @@ const OverviewTab = () => {
         (payload) => {
           console.log('📨 Received realtime update:', payload);
           console.log('🔄 Type of change:', payload.eventType);
-          console.log('📝 Changed record:', payload.new);
+          
+          // Show toast notification for the update
+          toast({
+            title: "Data Updated",
+            description: `Hedge request ${payload.eventType.toLowerCase()}d`,
+          });
+          
+          // Fetch fresh data
           fetchHedgeRequests();
         }
       )
-      .subscribe(async (status) => {
-        console.log('📡 Subscription status changed to:', status);
+      .subscribe((status) => {
+        console.log('📡 Subscription status:', status);
         
         if (status === 'SUBSCRIBED') {
           console.log('✅ Successfully subscribed to realtime updates');
@@ -117,35 +124,19 @@ const OverviewTab = () => {
         }
         
         if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          console.log('⚠️ Subscription closed or errored, attempting to reconnect...');
-          
-          // Wait a bit before attempting to reconnect
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          try {
-            console.log('🔄 Attempting to reconnect...');
-            await channel.subscribe();
-            console.log('✅ Successfully reconnected');
-            toast({
-              title: "Reconnected",
-              description: "Real-time connection restored",
-            });
-          } catch (error) {
-            console.error('❌ Failed to reconnect:', error);
-            toast({
-              title: "Connection Error",
-              description: "Lost connection to real-time updates. Please refresh the page.",
-              variant: "destructive",
-            });
-          }
+          console.log('⚠️ Subscription closed or errored');
+          toast({
+            title: "Connection Lost",
+            description: "Lost connection to real-time updates",
+            variant: "destructive",
+          });
         }
       });
 
-    // Cleanup subscription on component unmount
+    // Cleanup subscription on unmount
     return () => {
       console.log('🧹 Cleaning up subscription...');
       supabase.removeChannel(channel);
-      console.log('✅ Cleanup completed');
     };
   }, [toast]);
 

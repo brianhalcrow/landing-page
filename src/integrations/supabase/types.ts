@@ -481,7 +481,7 @@ export type Database = {
           settlement_date: string | null
           strategy: string | null
           trade_date: string | null
-          trade_request_id: string | null
+          trade_request_id: string
         }
         Insert: {
           base_currency?: string | null
@@ -498,7 +498,7 @@ export type Database = {
           settlement_date?: string | null
           strategy?: string | null
           trade_date?: string | null
-          trade_request_id?: string | null
+          trade_request_id: string
         }
         Update: {
           base_currency?: string | null
@@ -515,7 +515,7 @@ export type Database = {
           settlement_date?: string | null
           strategy?: string | null
           trade_date?: string | null
-          trade_request_id?: string | null
+          trade_request_id?: string
         }
         Relationships: []
       }
