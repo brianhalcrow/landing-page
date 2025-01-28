@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Moon, Sun, MessageSquare, Minimize2, Maximize2 } from "lucide-react";
+import { Search, Moon, Sun, MessageSquare, Minimize2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import Sidebar from "./Sidebar";
 import { Button } from "./ui/button";
@@ -15,13 +15,23 @@ const Layout = ({ children }: LayoutProps) => {
   const [chatExpanded, setChatExpanded] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-900 flex">
-      <div className="border-r border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-white flex">
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       </div>
       <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-6">
-          <div className="flex-1 flex items-center justify-between">
+        <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center px-6 sticky top-0 z-10 w-full">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mr-4"
+          >
+            {sidebarOpen ? (
+              <ChevronLeft className="h-5 w-5" />
+            ) : (
+              <ChevronRight className="h-5 w-5" />
+            )}
+          </button>
+          <div className="flex-1 flex items-center justify-end space-x-4">
             <div className="relative w-96">
               <input
                 type="text"
@@ -30,24 +40,21 @@ const Layout = ({ children }: LayoutProps) => {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-            <div className="flex items-center justify-center flex-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="hover:bg-transparent"
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
-            <div className="w-96" /> {/* Spacer to balance the search bar */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hover:bg-transparent"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
           </div>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-white p-6">
           {children}
         </main>
         <div 
