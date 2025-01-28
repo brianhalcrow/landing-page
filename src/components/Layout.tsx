@@ -2,6 +2,7 @@ import { Search, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import Sidebar from "./Sidebar";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,7 +13,18 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
-      <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-end px-6 w-full z-20">
+      <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 w-full z-20">
+        <div className="flex-1"></div>
+        <div className="flex items-center gap-4 mr-[5cm]">
+          <div className="relative w-64">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="pl-8 w-full bg-gray-50"
+            />
+          </div>
+        </div>
         <Button
           variant="ghost"
           size="icon"
