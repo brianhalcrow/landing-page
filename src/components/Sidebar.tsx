@@ -51,7 +51,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="h-full bg-sidebar-DEFAULT text-sidebar-foreground">
+    <div className="h-full bg-sidebar-DEFAULT text-sidebar-foreground pt-16">
       <nav className="mt-8 flex-1 flex flex-col h-[calc(100vh-4rem)]">
         <div className="flex-1 overflow-y-auto">
           {navItems.map((item, index) => (
