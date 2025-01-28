@@ -48,7 +48,20 @@ export const tabsConfig = {
     { value: "limits", label: "Limits", content: <div>Review Limits</div> },
     { value: "reports", label: "Reports", content: <div>Review Reports</div> },
   ],
+
   "control": [
-    { value: "overview", label: "Overview", content: <div>Control Overview</div> },
+    { value: "general", label: "General", content: <div>Control Overview</div> },
+  ],
+  "execution": [
+    { value: "general", label: "General", content: <div>Execution Overview</div> },
+  ],
+  "confirmation": [
+    { value: "general", label: "General", content: <div>Confirmation Overview</div> },
+  ],
+  "hedge-accounting": [
+    { value: "general", label: "General", content: <div>Hedge Accounting Overview</div> },
+  ],
+  "settings": [
+    { value: "general", label: "General", content: <div>Settings Overview</div> },
   ],
 };
