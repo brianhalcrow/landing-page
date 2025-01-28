@@ -4,6 +4,10 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { ColDef } from "ag-grid-community";
+import { Database } from "@/integrations/supabase/types";
+
+type TableConnection = Database['public']['Tables']['table_connections']['Row'];
 
 const ConnectionsTab = () => {
   const { data: connections, isLoading } = useQuery({
@@ -18,11 +22,27 @@ const ConnectionsTab = () => {
     },
   });
 
-  const columnDefs = [
-    { field: "table_name", headerName: "Table Name", flex: 1 },
-    { field: "type", headerName: "Type", width: 120 },
-    { field: "status", headerName: "Status", width: 120 },
-    { field: "size", headerName: "Size", width: 100 },
+  const columnDefs: ColDef<TableConnection>[] = [
+    { 
+      field: "table_name", 
+      headerName: "Table Name", 
+      flex: 1 
+    },
+    { 
+      field: "type", 
+      headerName: "Type", 
+      width: 120 
+    },
+    { 
+      field: "status", 
+      headerName: "Status", 
+      width: 120 
+    },
+    { 
+      field: "size", 
+      headerName: "Size", 
+      width: 100 
+    },
     { 
       field: "record_count", 
       headerName: "Records", 
@@ -33,7 +53,7 @@ const ConnectionsTab = () => {
       field: "last_update", 
       headerName: "Last Update",
       width: 180,
-      valueFormatter: (params: any) => {
+      valueFormatter: (params) => {
         return params.value ? format(new Date(params.value), 'PPpp') : '';
       }
     },
@@ -41,7 +61,7 @@ const ConnectionsTab = () => {
       field: "next_update", 
       headerName: "Next Update",
       width: 180,
-      valueFormatter: (params: any) => {
+      valueFormatter: (params) => {
         return params.value ? format(new Date(params.value), 'PPpp') : '';
       }
     },
@@ -59,7 +79,7 @@ const ConnectionsTab = () => {
 
   return (
     <div className="h-[600px] w-full ag-theme-alpine">
-      <AgGridReact
+      <AgGridReact<TableConnection>
         rowData={connections}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
