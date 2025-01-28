@@ -48,16 +48,18 @@ const OverviewTab = () => {
 
   const fetchHedgeRequests = async () => {
     try {
-      console.log('Fetching hedge requests...');
+      console.log('🔄 Fetching hedge requests...');
       const { data, error } = await supabase
         .from('pre_trade_sfx_hedge_request')
         .select('*');
 
       if (error) {
+        console.error('❌ Error fetching data:', error);
         throw error;
       }
 
-      console.log('Received hedge requests:', data);
+      console.log('✅ Received hedge requests:', data);
+      console.log('📊 Number of records:', data?.length || 0);
 
       // Add an id field for MUI DataGrid
       const hedgeRequestsWithId = (data || []).map((request, index) => ({
@@ -65,9 +67,11 @@ const OverviewTab = () => {
         id: index + 1,
       }));
 
+      console.log('🔄 Updating state with new data');
       setHedgeRequests(hedgeRequestsWithId);
+      console.log('✅ State updated successfully');
     } catch (error) {
-      console.error('Error fetching hedge requests:', error);
+      console.error('❌ Error in fetchHedgeRequests:', error);
       toast({
         title: "Error",
         description: "Failed to fetch hedge request data",
@@ -77,12 +81,14 @@ const OverviewTab = () => {
   };
 
   useEffect(() => {
+    console.log('🚀 Component mounted, initializing...');
+    
     // Initial fetch
-    console.log('Component mounted, fetching initial data...');
+    console.log('📡 Performing initial data fetch...');
     fetchHedgeRequests();
 
     // Set up realtime subscription with reconnection handling
-    console.log('Setting up realtime subscription...');
+    console.log('🔌 Setting up realtime subscription...');
     const channel = supabase
       .channel('hedge-requests-changes')
       .on(
@@ -93,28 +99,39 @@ const OverviewTab = () => {
           table: 'pre_trade_sfx_hedge_request'
         },
         (payload) => {
-          console.log('Received realtime update:', payload);
+          console.log('📨 Received realtime update:', payload);
+          console.log('🔄 Type of change:', payload.eventType);
+          console.log('📝 Changed record:', payload.new);
           fetchHedgeRequests();
         }
       )
       .subscribe(async (status) => {
-        console.log('Subscription status:', status);
+        console.log('📡 Subscription status changed to:', status);
         
         if (status === 'SUBSCRIBED') {
-          console.log('Successfully subscribed to realtime updates');
+          console.log('✅ Successfully subscribed to realtime updates');
+          toast({
+            title: "Connected",
+            description: "Real-time updates are now active",
+          });
         }
         
         if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          console.log('Subscription closed or errored, attempting to reconnect...');
+          console.log('⚠️ Subscription closed or errored, attempting to reconnect...');
           
           // Wait a bit before attempting to reconnect
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           try {
+            console.log('🔄 Attempting to reconnect...');
             await channel.subscribe();
-            console.log('Successfully reconnected');
+            console.log('✅ Successfully reconnected');
+            toast({
+              title: "Reconnected",
+              description: "Real-time connection restored",
+            });
           } catch (error) {
-            console.error('Failed to reconnect:', error);
+            console.error('❌ Failed to reconnect:', error);
             toast({
               title: "Connection Error",
               description: "Lost connection to real-time updates. Please refresh the page.",
@@ -126,8 +143,9 @@ const OverviewTab = () => {
 
     // Cleanup subscription on component unmount
     return () => {
-      console.log('Cleaning up subscription...');
+      console.log('🧹 Cleaning up subscription...');
       supabase.removeChannel(channel);
+      console.log('✅ Cleanup completed');
     };
   }, [toast]);
 
