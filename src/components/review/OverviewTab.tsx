@@ -1,50 +1,13 @@
-import { useEffect, useState } from "react";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-
-interface HedgeRequest {
-  entity_id: string | null;
-  entity_name: string | null;
-  instrument: string | null;
-  strategy: string | null;
-  base_currency: string | null;
-  quote_currency: string | null;
-  currency_pair: string | null;
-  trade_date: string | null;
-  settlement_date: string | null;
-  buy_sell: string | null;
-  buy_sell_currency_code: string | null;
-  buy_sell_amount: number | null;
-  created_by: string | null;
-  trade_request_id: string | null;
-}
+import { HedgeRequest } from "./types";
+import HedgeRequestsGrid from "./HedgeRequestsGrid";
+import RealtimeSubscription from "./RealtimeSubscription";
 
 const OverviewTab = () => {
   const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
   const { toast } = useToast();
-
-  const columns: GridColDef[] = [
-    { field: 'entity_id', headerName: 'Entity ID', width: 130 },
-    { field: 'entity_name', headerName: 'Entity Name', width: 150 },
-    { field: 'instrument', headerName: 'Instrument', width: 130 },
-    { field: 'strategy', headerName: 'Strategy', width: 130 },
-    { field: 'base_currency', headerName: 'Base Currency', width: 130 },
-    { field: 'quote_currency', headerName: 'Quote Currency', width: 130 },
-    { field: 'currency_pair', headerName: 'Currency Pair', width: 130 },
-    { field: 'trade_date', headerName: 'Trade Date', width: 130 },
-    { field: 'settlement_date', headerName: 'Settlement Date', width: 150 },
-    { field: 'buy_sell', headerName: 'Buy/Sell', width: 100 },
-    { field: 'buy_sell_currency_code', headerName: 'Buy/Sell Currency', width: 150 },
-    { 
-      field: 'buy_sell_amount', 
-      headerName: 'Buy/Sell Amount', 
-      width: 150,
-      type: 'number',
-    },
-    { field: 'created_by', headerName: 'Created By', width: 150 },
-    { field: 'trade_request_id', headerName: 'Trade Request ID', width: 150 },
-  ];
 
   const fetchHedgeRequests = async () => {
     try {
@@ -61,7 +24,6 @@ const OverviewTab = () => {
       console.log('✅ Received hedge requests:', data);
       console.log('📊 Number of records:', data?.length || 0);
 
-      // Add an id field for MUI DataGrid
       const hedgeRequestsWithId = (data || []).map((request, index) => ({
         ...request,
         id: index + 1,
@@ -80,81 +42,11 @@ const OverviewTab = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('🚀 Component mounted, initializing...');
-    
-    // Initial fetch
-    console.log('📡 Performing initial data fetch...');
-    fetchHedgeRequests();
-
-    // Set up realtime subscription
-    console.log('🔌 Setting up realtime subscription...');
-    const channel = supabase
-      .channel('hedge-requests-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pre_trade_sfx_hedge_request'
-        },
-        (payload) => {
-          console.log('📨 Received database change:', payload);
-          console.log('Event type:', payload.eventType);
-          console.log('Table:', payload.table);
-          console.log('Schema:', payload.schema);
-          console.log('Payload:', JSON.stringify(payload, null, 2));
-          
-          toast({
-            title: `${payload.eventType} Event`,
-            description: `Hedge request ${payload.eventType.toLowerCase()}`,
-          });
-          fetchHedgeRequests();
-        }
-      )
-      .subscribe((status) => {
-        console.log('📡 Subscription status:', status);
-        
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Successfully subscribed to realtime updates');
-          toast({
-            title: "Connected",
-            description: "Real-time updates are now active",
-          });
-        }
-        
-        if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          console.log('⚠️ Subscription closed or errored:', status);
-          toast({
-            title: "Connection Lost",
-            description: "Lost connection to real-time updates",
-            variant: "destructive",
-          });
-        }
-      });
-
-    // Cleanup subscription on unmount
-    return () => {
-      console.log('🧹 Cleaning up subscription...');
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
-
   return (
-    <div className="h-[600px] w-full">
-      <DataGrid
-        rows={hedgeRequests}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[5, 10, 20, 50]}
-        checkboxSelection
-        disableRowSelectionOnClick
-      />
-    </div>
+    <>
+      <RealtimeSubscription onDataChange={fetchHedgeRequests} />
+      <HedgeRequestsGrid hedgeRequests={hedgeRequests} />
+    </>
   );
 };
 
