@@ -46,35 +46,58 @@ const OverviewTab = () => {
     { field: 'trade_request_id', headerName: 'Trade Request ID', width: 150 },
   ];
 
-  useEffect(() => {
-    const fetchHedgeRequests = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('pre_trade_sfx_hedge_request')
-          .select('*');
+  const fetchHedgeRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('pre_trade_sfx_hedge_request')
+        .select('*');
 
-        if (error) {
-          throw error;
-        }
-
-        // Add an id field for MUI DataGrid
-        const hedgeRequestsWithId = (data || []).map((request, index) => ({
-          ...request,
-          id: index + 1, // MUI DataGrid requires a unique id field
-        }));
-
-        setHedgeRequests(hedgeRequestsWithId);
-      } catch (error) {
-        console.error('Error fetching hedge requests:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch hedge request data",
-          variant: "destructive",
-        });
+      if (error) {
+        throw error;
       }
-    };
 
+      // Add an id field for MUI DataGrid
+      const hedgeRequestsWithId = (data || []).map((request, index) => ({
+        ...request,
+        id: index + 1, // MUI DataGrid requires a unique id field
+      }));
+
+      setHedgeRequests(hedgeRequestsWithId);
+    } catch (error) {
+      console.error('Error fetching hedge requests:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch hedge request data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch
     fetchHedgeRequests();
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('hedge-requests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'pre_trade_sfx_hedge_request'
+        },
+        () => {
+          // Refetch data when any change occurs
+          fetchHedgeRequests();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [toast]);
 
   return (

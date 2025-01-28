@@ -476,6 +476,7 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           instrument: string | null
+          m: string | null
           quote_currency: string | null
           settlement_date: string | null
           strategy: string | null
@@ -492,6 +493,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          m?: string | null
           quote_currency?: string | null
           settlement_date?: string | null
           strategy?: string | null
@@ -508,6 +510,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          m?: string | null
           quote_currency?: string | null
           settlement_date?: string | null
           strategy?: string | null
