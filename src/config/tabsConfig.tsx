@@ -42,4 +42,13 @@ export const tabsConfig = {
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Hedge Requests</div> },
   ],
+  "review": [
+    { value: "overview", label: "Overview", content: <div>Review Overview</div> },
+    { value: "positions", label: "Positions", content: <div>Review Positions</div> },
+    { value: "limits", label: "Limits", content: <div>Review Limits</div> },
+    { value: "reports", label: "Reports", content: <div>Review Reports</div> },
+  ],
+  "control": [
+    { value: "overview", label: "Overview", content: <div>Control Overview</div> },
+  ],
 };

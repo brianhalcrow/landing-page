@@ -50,30 +50,45 @@ const Layout = ({ children }: LayoutProps) => {
         <main className="flex-1 overflow-auto">
           {children}
         </main>
-        <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-all duration-300 ${chatExpanded ? 'h-96' : 'h-16'}`}>
-          <div className="flex items-center p-4 h-16">
-            <MessageSquare className="h-6 w-6 text-gray-500 dark:text-gray-400 mr-3" />
-            <Input 
-              placeholder="Type your message..." 
-              className="flex-1 mr-3 dark:bg-gray-700 dark:text-white"
-            />
+        <div 
+          className={`fixed bottom-4 right-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg transition-all duration-300 ${
+            chatExpanded 
+              ? 'w-96 h-[500px]' 
+              : 'w-12 h-12'
+          }`}
+        >
+          {chatExpanded ? (
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <span className="font-medium">Chat</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setChatExpanded(false)}
+                  className="hover:bg-transparent"
+                >
+                  <Minimize2 className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-auto p-4">
+                {/* Chat messages will go here */}
+              </div>
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                <Input 
+                  placeholder="Type your message..." 
+                  className="w-full dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          ) : (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setChatExpanded(!chatExpanded)}
-              className="hover:bg-transparent"
+              onClick={() => setChatExpanded(true)}
+              className="w-full h-full hover:bg-transparent flex items-center justify-center"
             >
-              {chatExpanded ? (
-                <Minimize2 className="h-5 w-5" />
-              ) : (
-                <Maximize2 className="h-5 w-5" />
-              )}
+              <MessageSquare className="h-6 w-6" />
             </Button>
-          </div>
-          {chatExpanded && (
-            <div className="h-80 p-4 overflow-auto">
-              {/* Chat messages will go here */}
-            </div>
           )}
         </div>
       </div>
