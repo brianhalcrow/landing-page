@@ -16,14 +16,11 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="min-h-screen bg-white flex">
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
-        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      </div>
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center px-6 sticky top-0 z-10 w-full">
+      <div className={`transition-all duration-300 border-r border-gray-200 dark:border-gray-700 ${sidebarOpen ? 'w-52' : 'w-16'}`}>
+        <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mr-4"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             {sidebarOpen ? (
               <ChevronLeft className="h-5 w-5" />
@@ -31,7 +28,12 @@ const Layout = ({ children }: LayoutProps) => {
               <ChevronRight className="h-5 w-5" />
             )}
           </button>
-          <div className="flex-1 flex items-center justify-end space-x-4">
+        </div>
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      </div>
+      <div className="flex-1 flex flex-col">
+        <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center px-6 sticky top-0 z-10 w-full">
+          <div className="flex-1 flex items-center space-x-4">
             <div className="relative w-96">
               <input
                 type="text"
@@ -40,6 +42,7 @@ const Layout = ({ children }: LayoutProps) => {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
+            <div className="flex-1" />
             <Button
               variant="ghost"
               size="icon"
