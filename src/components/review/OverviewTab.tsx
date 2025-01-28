@@ -81,7 +81,7 @@ const OverviewTab = () => {
     console.log('Component mounted, fetching initial data...');
     fetchHedgeRequests();
 
-    // Set up realtime subscription
+    // Set up realtime subscription with reconnection handling
     console.log('Setting up realtime subscription...');
     const channel = supabase
       .channel('hedge-requests-changes')
@@ -94,11 +94,34 @@ const OverviewTab = () => {
         },
         (payload) => {
           console.log('Received realtime update:', payload);
-          fetchHedgeRequests(); // Refetch data when any change occurs
+          fetchHedgeRequests();
         }
       )
-      .subscribe((status) => {
+      .subscribe(async (status) => {
         console.log('Subscription status:', status);
+        
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to realtime updates');
+        }
+        
+        if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          console.log('Subscription closed or errored, attempting to reconnect...');
+          
+          // Wait a bit before attempting to reconnect
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          try {
+            await channel.subscribe();
+            console.log('Successfully reconnected');
+          } catch (error) {
+            console.error('Failed to reconnect:', error);
+            toast({
+              title: "Connection Error",
+              description: "Lost connection to real-time updates. Please refresh the page.",
+              variant: "destructive",
+            });
+          }
+        }
       });
 
     // Cleanup subscription on component unmount
