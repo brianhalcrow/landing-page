@@ -24,7 +24,10 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
         <div className="flex items-center gap-4 mr-[5cm]">
           <div className="relative w-64">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Search 
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" 
+              aria-hidden="true"
+            />
             <Input
               type="search"
               placeholder="Search..."
@@ -39,9 +42,9 @@ const Layout = ({ children }: LayoutProps) => {
           className="hover:bg-transparent"
         >
           {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
+            <Sun className="h-5 w-5" aria-hidden="true" />
           ) : (
-            <Moon className="h-5 w-5" />
+            <Moon className="h-5 w-5" aria-hidden="true" />
           )}
         </Button>
       </header>
