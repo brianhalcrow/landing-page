@@ -41,4 +41,9 @@ export const tabsConfig = {
     { value: "rejected", label: "Rejected", content: <div>Rejected Content</div> },
     { value: "history", label: "History", content: <div>History Content</div> },
   ],
+  "settlement": [
+    { value: "pending", label: "Pending", content: <div>Pending Settlements</div> },
+    { value: "completed", label: "Completed", content: <div>Completed Settlements</div> },
+    { value: "failed", label: "Failed", content: <div>Failed Settlements</div> },
+  ],
 };
