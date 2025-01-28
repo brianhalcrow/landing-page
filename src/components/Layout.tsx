@@ -3,6 +3,7 @@ import { useTheme } from "next-themes";
 import Sidebar from "./Sidebar";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import ChatBot from "./ChatBot";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -46,6 +47,7 @@ const Layout = ({ children }: LayoutProps) => {
           {children}
         </main>
       </div>
+      <ChatBot />
     </div>
   );
 };
