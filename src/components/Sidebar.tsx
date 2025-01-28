@@ -13,6 +13,7 @@ import {
   FileSpreadsheet,
   Wallet
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -84,34 +85,34 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
             {item.type === "section" ? (
               <>
                 {isOpen && (
-                  <span className="px-4 text-xs text-gray-500 font-medium">
+                  <span className="px-4 text-xs font-medium text-gray-900">
                     {item.label}
                   </span>
                 )}
                 <div className="mt-2">
                   {item.items?.map((subItem) => (
-                    <a
+                    <Link
                       key={subItem.label}
-                      href={subItem.href}
-                      className="flex items-center px-4 py-2 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-colors"
+                      to={subItem.href}
+                      className="flex items-center px-4 py-2 text-gray-900 hover:bg-sidebar-hover hover:text-gray-900 transition-colors"
                     >
                       <subItem.icon className="h-5 w-5" />
                       {isOpen && <span className="ml-4">{subItem.label}</span>}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </>
             ) : (
-              <a
-                href={item.href}
+              <Link
+                to={item.href}
                 className={cn(
-                  "flex items-center px-4 py-2 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-colors",
+                  "flex items-center px-4 py-2 text-gray-900 hover:bg-sidebar-hover hover:text-gray-900 transition-colors",
                   item.isBottom && "mt-auto"
                 )}
               >
                 <item.icon className="h-5 w-5" />
                 {isOpen && <span className="ml-4">{item.label}</span>}
-              </a>
+              </Link>
             )}
           </div>
         ))}
