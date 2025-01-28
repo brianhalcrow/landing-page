@@ -90,51 +90,24 @@ const OverviewTab = () => {
     // Set up realtime subscription
     console.log('🔌 Setting up realtime subscription...');
     const channel = supabase
-      .channel('hedge-requests-changes-' + Math.random())
+      .channel('hedge-requests-changes')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'pre_trade_sfx_hedge_request'
         },
         (payload) => {
-          console.log('📨 Received INSERT update:', payload);
+          console.log('📨 Received database change:', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('Table:', payload.table);
+          console.log('Schema:', payload.schema);
+          console.log('Payload:', JSON.stringify(payload, null, 2));
+          
           toast({
-            title: "New Record",
-            description: "New hedge request added",
-          });
-          fetchHedgeRequests();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'pre_trade_sfx_hedge_request'
-        },
-        (payload) => {
-          console.log('📨 Received UPDATE:', payload);
-          toast({
-            title: "Record Updated",
-            description: "Hedge request updated",
-          });
-          fetchHedgeRequests();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'pre_trade_sfx_hedge_request'
-        },
-        (payload) => {
-          console.log('📨 Received DELETE:', payload);
-          toast({
-            title: "Record Deleted",
-            description: "Hedge request deleted",
+            title: `${payload.eventType} Event`,
+            description: `Hedge request ${payload.eventType.toLowerCase()}`,
           });
           fetchHedgeRequests();
         }
@@ -151,7 +124,7 @@ const OverviewTab = () => {
         }
         
         if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          console.log('⚠️ Subscription closed or errored');
+          console.log('⚠️ Subscription closed or errored:', status);
           toast({
             title: "Connection Lost",
             description: "Lost connection to real-time updates",
