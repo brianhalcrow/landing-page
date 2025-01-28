@@ -16,4 +16,8 @@ export const tabsConfig = {
     { value: "completed", label: "Completed", content: <div>Completed Settlements</div> },
     { value: "failed", label: "Failed", content: <div>Failed Settlements</div> },
   ],
+  "data-sources": [
+    { value: "connections", label: "Connections", content: <div>Data Source Connections</div> },
+    { value: "history", label: "History", content: <div>Connection History</div> },
+  ],
 };

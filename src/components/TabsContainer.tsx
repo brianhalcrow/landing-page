@@ -12,6 +12,10 @@ interface TabsContainerProps {
 }
 
 const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
+  if (!tabs || tabs.length === 0) {
+    return <div>No tabs configured</div>;
+  }
+
   return (
     <Tabs defaultValue={defaultTab || tabs[0].value} className="w-full">
       <TabsList className="w-full justify-start overflow-x-auto">
