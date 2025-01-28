@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import Sidebar from "./Sidebar";
+import { Button } from "./ui/button";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,13 +10,14 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col">
         <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6">
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 flex items-center justify-between">
             <div className="relative w-96">
               <input
                 type="text"
@@ -23,9 +26,20 @@ const Layout = ({ children }: LayoutProps) => {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
           </div>
         </header>
-        <main className="flex-1 p-6">
+        <main className="flex-1">
           {children}
         </main>
       </div>
