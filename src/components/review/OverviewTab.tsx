@@ -90,25 +90,52 @@ const OverviewTab = () => {
     // Set up realtime subscription
     console.log('🔌 Setting up realtime subscription...');
     const channel = supabase
-      .channel('hedge-requests-changes')
+      .channel('hedge-requests-changes-' + Math.random())
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'pre_trade_sfx_hedge_request'
         },
         (payload) => {
-          console.log('📨 Received realtime update:', payload);
-          console.log('🔄 Type of change:', payload.eventType);
-          
-          // Show toast notification for the update
+          console.log('📨 Received INSERT update:', payload);
           toast({
-            title: "Data Updated",
-            description: `Hedge request ${payload.eventType.toLowerCase()}d`,
+            title: "New Record",
+            description: "New hedge request added",
           });
-          
-          // Fetch fresh data
+          fetchHedgeRequests();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'pre_trade_sfx_hedge_request'
+        },
+        (payload) => {
+          console.log('📨 Received UPDATE:', payload);
+          toast({
+            title: "Record Updated",
+            description: "Hedge request updated",
+          });
+          fetchHedgeRequests();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'pre_trade_sfx_hedge_request'
+        },
+        (payload) => {
+          console.log('📨 Received DELETE:', payload);
+          toast({
+            title: "Record Deleted",
+            description: "Hedge request deleted",
+          });
           fetchHedgeRequests();
         }
       )
