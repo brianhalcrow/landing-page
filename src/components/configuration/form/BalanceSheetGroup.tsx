@@ -11,7 +11,7 @@ const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
     <div className="space-y-6">
       <CheckboxGroup
         form={form}
-        title="Monetary Exposure"
+        title="Balance Sheet"
         titleColor="text-green-800"
         mainField="net_monetary"
         dependentFields={["monetary_assets", "monetary_liabilities"]}
