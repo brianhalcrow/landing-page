@@ -3,6 +3,7 @@ import { useConfigurationForm } from "@/hooks/useConfigurationForm";
 import FormHeader from "./FormHeader";
 import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ConfigurationForm = () => {
   const {
@@ -15,6 +16,10 @@ const ConfigurationForm = () => {
     handleCsvUploadComplete,
     onSubmit,
   } = useConfigurationForm();
+
+  if (isLoadingEntities) {
+    return <Skeleton className="h-[400px] w-full" />;
+  }
 
   return (
     <Form {...form}>
