@@ -1,7 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import CheckboxField from "./CheckboxField";
 import { FormValues } from "../types";
-import { FormMessage } from "@/components/ui/form";
 
 interface BalanceSheetGroupProps {
   form: UseFormReturn<FormValues>;
@@ -16,30 +15,6 @@ const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
         // If checking net_monetary, check the other two
         form.setValue('monetary_assets', true);
         form.setValue('monetary_liabilities', true);
-      } else {
-        // Only allow unchecking net_monetary if either assets or liabilities is false
-        const assets = form.getValues('monetary_assets');
-        const liabilities = form.getValues('monetary_liabilities');
-        if (!assets || !liabilities) {
-          form.setValue('monetary_assets', false);
-          form.setValue('monetary_liabilities', false);
-        } else {
-          // If both are true, prevent unchecking net_monetary
-          form.setValue('net_monetary', true);
-        }
-      }
-    } else {
-      // If unchecking either monetary_assets or monetary_liabilities
-      if (!currentValue) {
-        // Uncheck net_monetary if either monetary_assets or monetary_liabilities is unchecked
-        form.setValue('net_monetary', false);
-      } else {
-        // If both monetary_assets and monetary_liabilities are checked, check net_monetary
-        const otherField = field === 'monetary_assets' ? 'monetary_liabilities' : 'monetary_assets';
-        const otherValue = form.getValues(otherField);
-        if (otherValue) {
-          form.setValue('net_monetary', true);
-        }
       }
     }
   };
@@ -53,13 +28,11 @@ const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
             form={form} 
             name="monetary_assets" 
             label="Monetary Assets" 
-            onCheckedChange={() => handleCheckboxChange('monetary_assets')}
           />
           <CheckboxField 
             form={form} 
             name="monetary_liabilities" 
             label="Monetary Liabilities" 
-            onCheckedChange={() => handleCheckboxChange('monetary_liabilities')}
           />
           <CheckboxField 
             form={form} 
@@ -67,7 +40,6 @@ const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
             label="Net Monetary" 
             onCheckedChange={() => handleCheckboxChange('net_monetary')}
           />
-          <FormMessage>{form.formState.errors.net_monetary?.message}</FormMessage>
         </div>
       </div>
     </div>
