@@ -166,8 +166,8 @@ const ConfigurationForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-1 border rounded-lg p-6 bg-blue-50">
+        <div className="grid grid-cols-4 gap-6">
+          <div className="col-span-2 border rounded-lg p-6 bg-blue-50">
             <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
             <CashflowGroup form={form} />
           </div>
@@ -178,7 +178,7 @@ const ConfigurationForm = () => {
           </div>
 
           <div className="border rounded-lg p-6 bg-purple-50">
-            <h2 className="text-xl font-semibold mb-4 text-purple-900">Intramonth</h2>
+            <h2 className="text-xl font-semibold mb-4 text-purple-900">Settlement</h2>
             <RealizedGroup form={form} />
           </div>
         </div>
