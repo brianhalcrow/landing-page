@@ -15,7 +15,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const columnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Entity Information',
-      headerClass: 'text-center wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text',
       children: [
         { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
         { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
@@ -24,7 +24,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     },
     {
       headerName: 'Monetary Exposure',
-      headerClass: 'text-center wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text',
       children: [
         {
           headerName: 'Balance Sheet',
@@ -39,7 +39,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     },
     {
       headerName: 'Cashflow Exposure',
-      headerClass: 'text-center wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text',
       children: [
         {
           headerName: 'Highly Probable Transactions',
@@ -64,7 +64,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     },
     {
       headerName: 'Settlement Exposure',
-      headerClass: 'text-center wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text',
       children: [
         {
           headerName: 'Intramonth',
@@ -125,6 +125,10 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
           }
           .ag-header-group-cell-label {
             justify-content: center;
+          }
+          .main-header {
+            font-weight: 600;
+            background-color: #f8f9fa;
           }
         `}
       </style>
