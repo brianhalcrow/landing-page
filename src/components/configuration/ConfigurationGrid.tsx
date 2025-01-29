@@ -28,7 +28,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
       children: [
         {
           headerName: 'Balance Sheet',
-          headerClass: 'text-center wrap-header-text',
+          headerClass: 'text-center wrap-header-text ag-header-group-text-center',
           children: [
             { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
             { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
@@ -43,7 +43,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
       children: [
         {
           headerName: 'Highly Probable Transactions',
-          headerClass: 'text-center wrap-header-text',
+          headerClass: 'text-center wrap-header-text ag-header-group-text-center',
           children: [
             { field: 'revenue', headerName: 'Revenue', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
             { field: 'costs', headerName: 'Costs', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
@@ -52,7 +52,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
         },
         {
           headerName: 'Firm Commitments',
-          headerClass: 'text-center wrap-header-text',
+          headerClass: 'text-center wrap-header-text ag-header-group-text-center',
           children: [
             { field: 'po', headerName: 'Purchase Orders', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
             { field: 'ap', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
@@ -68,7 +68,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
       children: [
         {
           headerName: 'Intramonth',
-          headerClass: 'text-center wrap-header-text',
+          headerClass: 'text-center wrap-header-text ag-header-group-text-center',
           children: [
             { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
             { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
@@ -138,6 +138,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
             align-items: center;
             justify-content: center;
             height: 100%;
+            text-align: center;
           }
           .ag-checkbox-center {
             text-align: center;
