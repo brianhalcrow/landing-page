@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
@@ -24,6 +24,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<Navigate to="/" replace />} />
           <Route
             path="/"
             element={
