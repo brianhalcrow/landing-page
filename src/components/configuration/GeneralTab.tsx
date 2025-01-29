@@ -3,7 +3,6 @@ import ConfigurationForm from "./form/ConfigurationForm";
 import ConfigurationGrid from "./ConfigurationGrid";
 import { useEntities } from "@/hooks/useEntities";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 const GeneralTab = () => {
   const { entities, isLoading, refetch } = useEntities();
@@ -21,7 +20,6 @@ const GeneralTab = () => {
         (payload) => {
           console.log('Real-time update received:', payload);
           refetch();
-          toast.success('Configuration updated successfully');
         }
       )
       .subscribe();
