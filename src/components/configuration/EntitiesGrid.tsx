@@ -108,10 +108,9 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
   };
 
   const wrapHeaderText = (params: any) => {
+    const displayName = params.displayName || '';
     return {
-      template: `<div class="ag-header-cell-label" style="white-space: normal; line-height: 1.2em;">
-                  ${params.displayName.split(' ').join('<br/>')}
-                </div>`
+      template: `<div class="ag-header-cell-label" style="white-space: normal; line-height: 1.2em;">${displayName.split(' ').join('<br/>')}</div>`
     };
   };
 
