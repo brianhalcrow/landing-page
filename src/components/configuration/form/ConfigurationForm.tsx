@@ -84,7 +84,7 @@ const ConfigurationForm = () => {
           monetary_liabilities: data.monetary_liabilities || false,
         });
         setIsUpdating(true);
-        setFormChanged(false); // Reset form changed state when loading new data
+        setFormChanged(false);
       } else {
         form.reset({
           entity_id: entityId,
@@ -185,13 +185,15 @@ const ConfigurationForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex justify-between items-start gap-4">
-          <EntitySelectionFields 
-            form={form}
-            entities={entities}
-            isLoadingEntities={isLoadingEntities}
-            onFetchConfig={fetchExistingConfig}
-          />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <EntitySelectionFields 
+              form={form}
+              entities={entities}
+              isLoadingEntities={isLoadingEntities}
+              onFetchConfig={fetchExistingConfig}
+            />
+          </div>
           <CsvOperations onUploadComplete={handleCsvUploadComplete} />
         </div>
 
