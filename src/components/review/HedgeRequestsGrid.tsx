@@ -1,12 +1,16 @@
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { HedgeRequest } from "./types";
+import { useEffect } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import { ColDef } from 'ag-grid-community';
+import { HedgeRequest } from './types';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface HedgeRequestsGridProps {
   hedgeRequests: HedgeRequest[];
 }
 
 const HedgeRequestsGrid = ({ hedgeRequests }: HedgeRequestsGridProps) => {
-  const columns: GridColDef[] = [
+  const columnDefs: ColDef[] = [
     { field: 'entity_id', headerName: 'Entity ID', width: 100 },
     { field: 'entity_name', headerName: 'Entity Name', width: 120 },
     { field: 'instrument', headerName: 'Instrument', width: 100 },
@@ -22,25 +26,27 @@ const HedgeRequestsGrid = ({ hedgeRequests }: HedgeRequestsGridProps) => {
       field: 'buy_sell_amount', 
       headerName: 'Amount', 
       width: 100,
-      type: 'number',
+      type: 'numericColumn',
     },
     { field: 'created_by', headerName: 'Created By', width: 120 },
     { field: 'trade_request_id', headerName: 'Request ID', width: 120 },
   ];
 
+  const defaultColDef = {
+    sortable: true,
+    filter: true,
+    resizable: true,
+  };
+
   return (
-    <div className="h-[600px] w-full">
-      <DataGrid
-        rows={hedgeRequests}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[5, 10, 20, 50]}
-        checkboxSelection
-        disableRowSelectionOnClick
+    <div className="h-[600px] w-full ag-theme-alpine dark:ag-theme-alpine-dark">
+      <AgGridReact
+        rowData={hedgeRequests}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        pagination={true}
+        paginationPageSize={10}
+        rowSelection="multiple"
       />
     </div>
   );
