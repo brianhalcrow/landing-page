@@ -42,9 +42,18 @@ const ConfigurationForm = () => {
     };
   }, [refetchEntities]);
 
+  const handleSubmit = async (values: any) => {
+    try {
+      await onSubmit(values);
+      toast.success(isUpdating ? 'Configuration updated successfully' : 'Configuration saved successfully');
+    } catch (error) {
+      toast.error('Failed to save configuration. Please try again.');
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <FormHeader 
           form={form}
           entities={entities}

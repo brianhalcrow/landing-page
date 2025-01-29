@@ -51,6 +51,7 @@ export const useConfigurationForm = () => {
       
       if (error) {
         console.error('Error fetching entities:', error);
+        toast.error('Failed to fetch entities');
         throw error;
       }
       
@@ -66,7 +67,10 @@ export const useConfigurationForm = () => {
         .eq("entity_id", entityId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        toast.error('Failed to fetch existing configuration');
+        throw error;
+      }
 
       if (data) {
         form.reset({
@@ -87,6 +91,7 @@ export const useConfigurationForm = () => {
         });
         setIsUpdating(true);
         setFormChanged(false);
+        toast.success('Configuration loaded successfully');
       } else {
         form.reset({
           entity_id: entityId,
@@ -106,10 +111,11 @@ export const useConfigurationForm = () => {
         });
         setIsUpdating(false);
         setFormChanged(false);
+        toast.info('No existing configuration found. Creating new configuration.');
       }
     } catch (error) {
       console.error("Error fetching configuration:", error);
-      toast.error("Failed to fetch configuration");
+      toast.error('Failed to fetch configuration');
     }
   };
 
@@ -117,6 +123,7 @@ export const useConfigurationForm = () => {
     const currentEntityId = form.getValues("entity_id");
     if (currentEntityId && updatedEntityIds.includes(currentEntityId)) {
       fetchExistingConfig(currentEntityId);
+      toast.success('Configuration updated from CSV');
     }
   };
 
@@ -168,17 +175,12 @@ export const useConfigurationForm = () => {
 
       if (error) throw error;
       
-      toast.success(isUpdating 
-        ? "Hedge configuration updated successfully"
-        : "Hedge configuration saved successfully"
-      );
-      
       setIsUpdating(true);
       setFormChanged(false);
       
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
-      toast.error("Failed to save hedge configuration");
+      throw error;
     }
   };
 
