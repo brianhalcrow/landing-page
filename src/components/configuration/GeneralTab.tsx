@@ -73,12 +73,10 @@ const GeneralTab = () => {
     try {
       const { error } = await supabase
         .from("pre_trade_sfx_config_exposures")
-        .upsert([
-          {
-            ...data,
-            created_at: new Date().toISOString(),
-          },
-        ], {
+        .upsert({
+          ...data,
+          created_at: new Date().toISOString(),
+        }, {
           onConflict: 'entity_id',
         });
 
