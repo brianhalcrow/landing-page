@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formSchema, FormValues } from "../types";
 import FirmCommitmentsGroup from "./FirmCommitmentsGroup";
 import HighlyProbableGroup from "./HighlyProbableGroup";
@@ -110,6 +111,13 @@ const ConfigurationForm = () => {
     }
   };
 
+  const handleEntityIdInput = (value: string) => {
+    const entity = entities?.find(e => e.entity_id === value);
+    if (entity) {
+      form.setValue("entity_id", entity.entity_id || "");
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -118,8 +126,25 @@ const ConfigurationForm = () => {
             control={form.control}
             name="entity_id"
             render={({ field }) => (
-              <FormItem className="flex-1 max-w-[400px]">
-                <FormLabel>Entity</FormLabel>
+              <FormItem className="flex-1">
+                <FormLabel>Entity ID</FormLabel>
+                <Input
+                  placeholder="Enter entity ID"
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                    handleEntityIdInput(e.target.value);
+                  }}
+                  value={field.value}
+                />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="entity_id"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Entity Name</FormLabel>
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
