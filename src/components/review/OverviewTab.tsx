@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { HedgeRequest } from "./types";
 import HedgeRequestsGrid from "./HedgeRequestsGrid";
 import RealtimeSubscription from "./RealtimeSubscription";
@@ -8,8 +8,7 @@ import RealtimeSubscription from "./RealtimeSubscription";
 export const OverviewTab = () => {
   const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-
+  
   // Track mount status to prevent state updates after unmount
   const [isMounted, setIsMounted] = useState(true);
 
@@ -45,18 +44,14 @@ export const OverviewTab = () => {
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch hedge request data",
-          variant: "destructive",
-        });
+        toast.error("Failed to fetch hedge request data");
       }
     } finally {
       if (isMounted) {
         setIsLoading(false);
       }
     }
-  }, [toast, isMounted]);
+  }, [isMounted]);
 
   // Debug log for state updates
   useEffect(() => {

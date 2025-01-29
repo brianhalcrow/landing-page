@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { HedgeRequest } from "./types";
 import PositionsGrid from "./PositionsGrid";
 import RealtimeSubscription from "./RealtimeSubscription";
@@ -8,7 +8,6 @@ import RealtimeSubscription from "./RealtimeSubscription";
 export const PositionsTab = () => {
   const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
   const [isMounted, setIsMounted] = useState(true);
 
   useEffect(() => {
@@ -43,18 +42,14 @@ export const PositionsTab = () => {
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch hedge request data",
-          variant: "destructive",
-        });
+        toast.error("Failed to fetch hedge request data");
       }
     } finally {
       if (isMounted) {
         setIsLoading(false);
       }
     }
-  }, [toast, isMounted]);
+  }, [isMounted]);
 
   useEffect(() => {
     console.log("🏁 PositionsTab mounted");
