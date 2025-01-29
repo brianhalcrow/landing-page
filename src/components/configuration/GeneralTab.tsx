@@ -75,33 +75,39 @@ const GeneralTab = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       console.log("Submitting values:", values);
-      const { error } = await supabase
+      
+      // First, check if a record exists for this entity_id
+      const { data: existingRecord, error: checkError } = await supabase
         .from("pre_trade_sfx_config_exposures")
-        .insert({
-          ...values,
-          created_at: new Date().toISOString(),
-        })
-        .select();
+        .select()
+        .eq("entity_id", values.entity_id)
+        .single();
 
-      if (error) {
-        console.error("Supabase error:", error);
-        if (error.code === "23505") { // Unique violation code
-          // If record exists, try to update it
-          const { error: updateError } = await supabase
-            .from("pre_trade_sfx_config_exposures")
-            .update({
-              ...values,
-              created_at: new Date().toISOString(),
-            })
-            .eq("entity_id", values.entity_id);
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned
+        throw checkError;
+      }
 
-          if (updateError) {
-            console.error("Update error:", updateError);
-            throw updateError;
-          }
-        } else {
-          throw error;
-        }
+      if (existingRecord) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from("pre_trade_sfx_config_exposures")
+          .update({
+            ...values,
+            created_at: new Date().toISOString(),
+          })
+          .eq("entity_id", values.entity_id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Insert new record
+        const { error: insertError } = await supabase
+          .from("pre_trade_sfx_config_exposures")
+          .insert({
+            ...values,
+            created_at: new Date().toISOString(),
+          });
+
+        if (insertError) throw insertError;
       }
 
       toast.success("Hedge configuration saved successfully");
