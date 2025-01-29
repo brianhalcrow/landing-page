@@ -162,7 +162,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       editable: true,
       width: 120,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     { 
@@ -171,7 +171,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       editable: true,
       width: 150,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     { 
@@ -180,7 +180,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       editable: true,
       width: 100,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -190,7 +190,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 80,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -200,7 +200,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 80,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -210,7 +210,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 80,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -220,7 +220,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 80,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -230,7 +230,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 100,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -240,7 +240,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 80,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -250,7 +250,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 110,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -260,7 +260,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 110,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -270,7 +270,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 110,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -280,7 +280,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 110,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -290,7 +290,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 120,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -300,7 +300,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 130,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     },
     {
@@ -310,7 +310,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       cellRenderer: 'agCheckboxCellRenderer',
       width: 140,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       headerComponentParams: { template: wrapHeaderText }
     }
   ];
