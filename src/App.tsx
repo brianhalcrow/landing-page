@@ -3,9 +3,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Configuration from "./pages/Configuration";
-import Dashboard from "./pages/Dashboard";
-import Trades from "./pages/Trades";
-import Reports from "./pages/Reports";
+import Index from "./pages/Index";
 import Settings from "./pages/Settings";
 
 function App() {
@@ -18,7 +16,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Index />
               </ProtectedRoute>
             }
           />
@@ -27,22 +25,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Configuration />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/trades"
-            element={
-              <ProtectedRoute>
-                <Trades />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <Reports />
               </ProtectedRoute>
             }
           />
