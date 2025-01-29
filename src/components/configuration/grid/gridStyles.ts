@@ -18,6 +18,7 @@ export const gridStyles = `
   }
   .main-header {
     background-color: #f8f9fa;
+    border: 1px solid #e2e8f0;
   }
   .ag-header-group-text-center {
     display: flex;
@@ -31,5 +32,11 @@ export const gridStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .ag-header-group-cell {
+    border-right: 1px solid #e2e8f0 !important;
+  }
+  .ag-header-cell {
+    border-right: 1px solid #e2e8f0 !important;
   }
 `;
