@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import EntitiesGrid from './EntitiesGrid';
+import CsvOperations from './CsvOperations';
 import { Tables } from '@/integrations/supabase/types';
 
 const EntitiesTab = () => {
@@ -20,7 +21,12 @@ const EntitiesTab = () => {
     return <div>Loading entities...</div>;
   }
 
-  return <EntitiesGrid entities={entities || []} />;
+  return (
+    <div className="space-y-4">
+      <CsvOperations />
+      <EntitiesGrid entities={entities || []} />
+    </div>
+  );
 };
 
 export default EntitiesTab;
