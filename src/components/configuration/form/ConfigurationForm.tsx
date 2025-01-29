@@ -1,5 +1,7 @@
 import { Form } from "@/components/ui/form";
-import { useConfigurationForm } from "@/hooks/useConfigurationForm";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "../types";
 import FormHeader from "./FormHeader";
 import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
@@ -8,22 +10,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const ConfigurationForm = () => {
-  const {
-    form,
-    entities,
-    isLoadingEntities,
-    isUpdating,
-    formChanged,
-    fetchExistingConfig,
-    handleCsvUploadComplete,
-    onSubmit,
-    refetchEntities,
-  } = useConfigurationForm();
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      entity_id: "",
+      entity_name: "",
+      functional_currency: "",
+      po: false,
+      ap: false,
+      ar: false,
+      other: false,
+      revenue: false,
+      costs: false,
+      net_income: false,
+      ap_realized: false,
+      ar_realized: false,
+      fx_realized: false,
+      net_monetary: false,
+      monetary_assets: false,
+      monetary_liabilities: false,
+    },
+  });
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && refetchEntities) {
-        refetchEntities();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        // Handle sign in if needed
+        toast.success('Signed in successfully');
       }
     });
 
@@ -40,30 +53,27 @@ const ConfigurationForm = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [refetchEntities]);
+  }, []);
 
-  const handleSubmit = async (values: any) => {
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      toast.error('Failed to save configuration. Please try again.');
-    }
+  const onSubmit = async (values: any) => {
+    toast.info('Form submission disabled temporarily');
+    console.log('Form values:', values);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormHeader 
           form={form}
-          entities={entities}
-          isLoadingEntities={isLoadingEntities}
-          onFetchConfig={fetchExistingConfig}
-          onUploadComplete={handleCsvUploadComplete}
+          entities={[]}
+          isLoadingEntities={false}
+          onFetchConfig={() => {}}
+          onUploadComplete={() => {}}
         />
         <FormCategories form={form} />
         <FormFooter 
-          isUpdating={isUpdating}
-          formChanged={formChanged}
+          isUpdating={false}
+          formChanged={false}
         />
       </form>
     </Form>
