@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { formSchema, FormValues } from "../types";
 import FirmCommitmentsGroup from "./FirmCommitmentsGroup";
 import HighlyProbableGroup from "./HighlyProbableGroup";
@@ -104,38 +103,34 @@ const ConfigurationForm = () => {
     }
   };
 
-  const handleEntityChange = (value: string) => {
-    const entity = entities?.find(e => e.entity_id === value || e.entity_name === value);
-    if (entity) {
-      form.setValue("entity_id", entity.entity_id || "");
-    }
-  };
-
-  const handleEntityIdInput = (value: string) => {
-    const entity = entities?.find(e => e.entity_id === value);
-    if (entity) {
-      form.setValue("entity_id", entity.entity_id || "");
-    }
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex gap-4 items-start">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex gap-4 items-start max-w-2xl">
           <FormField
             control={form.control}
             name="entity_id"
             render={({ field }) => (
-              <FormItem className="flex-1">
+              <FormItem className="w-1/2">
                 <FormLabel>Entity ID</FormLabel>
-                <Input
-                  placeholder="Enter entity ID"
-                  onChange={(e) => {
-                    field.onChange(e.target.value);
-                    handleEntityIdInput(e.target.value);
-                  }}
+                <Select
+                  onValueChange={field.onChange}
                   value={field.value}
-                />
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select ID" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {entities?.map((entity) => (
+                      <SelectItem 
+                        key={entity.entity_id} 
+                        value={entity.entity_id || ""}
+                      >
+                        {entity.entity_id}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />
@@ -143,17 +138,14 @@ const ConfigurationForm = () => {
             control={form.control}
             name="entity_id"
             render={({ field }) => (
-              <FormItem className="flex-1">
+              <FormItem className="w-1/2">
                 <FormLabel>Entity Name</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    handleEntityChange(value);
-                  }}
+                  onValueChange={field.onChange}
                   value={field.value}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an entity" />
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select name" />
                   </SelectTrigger>
                   <SelectContent>
                     {entities?.map((entity) => (
@@ -171,11 +163,39 @@ const ConfigurationForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <FirmCommitmentsGroup form={form} />
-          <HighlyProbableGroup form={form} />
-          <RealizedGroup form={form} />
-          <BalanceSheetGroup form={form} />
+        <div className="space-y-8">
+          {/* Cashflow Section */}
+          <div className="border rounded-lg p-6 bg-blue-50">
+            <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <h3 className="font-medium mb-4 text-blue-800">Highly Probable Transactions</h3>
+                <HighlyProbableGroup form={form} />
+              </div>
+              <div>
+                <h3 className="font-medium mb-4 text-blue-800">Firm Commitments</h3>
+                <FirmCommitmentsGroup form={form} />
+              </div>
+            </div>
+          </div>
+
+          {/* Balance Sheet Section */}
+          <div className="border rounded-lg p-6 bg-green-50">
+            <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
+            <div>
+              <h3 className="font-medium mb-4 text-green-800">Monetary Exposure</h3>
+              <BalanceSheetGroup form={form} />
+            </div>
+          </div>
+
+          {/* Intramonth Section */}
+          <div className="border rounded-lg p-6 bg-purple-50">
+            <h2 className="text-xl font-semibold mb-4 text-purple-900">Intramonth</h2>
+            <div>
+              <h3 className="font-medium mb-4 text-purple-800">Realized FX</h3>
+              <RealizedGroup form={form} />
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end space-x-4">
