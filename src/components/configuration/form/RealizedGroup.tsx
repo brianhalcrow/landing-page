@@ -12,9 +12,9 @@ const RealizedGroup = ({ form }: RealizedGroupProps) => {
       <div>
         <h3 className="text-lg font-medium mb-4 text-purple-800">Intramonth</h3>
         <div className="space-y-4">
-          <CheckboxField form={form} name="ap_realized" label="AP" />
-          <CheckboxField form={form} name="ar_realized" label="AR" />
-          <CheckboxField form={form} name="fx_realized" label="FX" />
+          <CheckboxField form={form} name="ap_realized" label="Accounts Payable" />
+          <CheckboxField form={form} name="ar_realized" label="Accounts Receivable" />
+          <CheckboxField form={form} name="fx_realized" label="FX Conversions" />
         </div>
       </div>
     </div>

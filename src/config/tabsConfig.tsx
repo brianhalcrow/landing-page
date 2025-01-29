@@ -5,9 +5,7 @@ import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
-import EntitiesTab from "@/components/configuration/EntitiesTab";
 import GeneralTab from "@/components/configuration/GeneralTab";
-import IntegrationsTab from "@/components/configuration/IntegrationsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -26,9 +24,7 @@ export const tabsConfig = {
     { value: "history", label: "History", content: <div>Connection History</div> },
   ],
   "configuration": [
-    { value: "entities", label: "Entities", content: <EntitiesTab /> },
-    { value: "general", label: "General", content: <GeneralTab /> },
-    { value: "integrations", label: "Integrations", content: <IntegrationsTab /> },
+    { value: "general", label: "Entity Configuration", content: <GeneralTab /> },
   ],
   "exposure": [
     { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
