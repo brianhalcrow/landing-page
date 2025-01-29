@@ -8,7 +8,6 @@ import { Tables } from '@/integrations/supabase/types';
 import { useRef, useState } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import 'ag-grid-community/styles/ag-theme-alpine-dark.css';
 
 interface EntitiesGridProps {
   entities: Tables<'pre_trade_sfx_config_exposures'>[];
@@ -30,7 +29,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
     const node = gridApi?.getRowNode(entityId);
     if (node) {
       node.setRowHeight(45);
-      gridApi?.refreshRows([node]);
+      gridApi?.redrawRows({ rowNodes: [node] });
     }
   };
 
@@ -75,7 +74,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
 
   const handleAdd = async () => {
     const newRow = {
-      entity_id: '',
+      entity_id: crypto.randomUUID(),
       entity_name: '',
       functional_currency: '',
       created_at: new Date().toISOString(),
@@ -271,7 +270,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
     width: '100%',
   };
 
-  const gridThemeClass = 'ag-theme-alpine-dark';
+  const gridThemeClass = 'ag-theme-alpine';
 
   if (!entities.length) {
     return (
