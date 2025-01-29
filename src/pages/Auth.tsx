@@ -85,6 +85,8 @@ const Auth = () => {
       if (provider === 'azure') {
         // Generate PKCE values
         const codeVerifier = generateRandomString(64);
+        // Store code verifier in session storage to persist through redirect
+        sessionStorage.setItem('pkce_verifier', codeVerifier);
         const codeChallenge = await generateCodeChallenge(codeVerifier);
 
         const { error } = await supabase.auth.signInWithOAuth({
@@ -97,7 +99,6 @@ const Auth = () => {
               prompt: 'select_account',
               code_challenge: codeChallenge,
               code_challenge_method: 'S256',
-              code_verifier: codeVerifier,
             },
           },
         });
@@ -113,7 +114,8 @@ const Auth = () => {
         if (error) throw error;
       }
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Auth error:', error);
+      toast.error(error.message || 'Authentication failed. Please try again.');
     }
   };
 
