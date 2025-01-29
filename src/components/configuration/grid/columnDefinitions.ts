@@ -16,7 +16,7 @@ const createColumn = (field: string, headerName: string, width: number, cellClas
 
 export const getColumnDefs = (): (ColDef | ColGroupDef)[] => [
   createHeaderGroup('Entity Information', [
-    createColumn('entity_name', 'Entity Name', 150, 'text-left'),
+    createColumn('entity_name', 'Entity Name', 250, 'text-left'),
     createColumn('entity_id', 'Entity ID', 110, 'text-center'),
     { ...createColumn('functional_currency', 'FCCY', 100, 'text-center'), cellClass: 'ag-checkbox-center right-border' },
   ]),
