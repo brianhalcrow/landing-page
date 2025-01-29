@@ -22,13 +22,13 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   };
 
   const columnState = [
-    { colId: 'entity_name', width: 195 },
+    { colId: 'entity_name', width: 250 },
     { colId: 'entity_id', width: 110 },
     { colId: 'functional_currency', width: 100 },
     { colId: 'monetary_assets', width: 130 },
     { colId: 'monetary_liabilities', width: 130 },
     { colId: 'net_monetary', width: 120 },
-    { colId: 'revenue', width: 110 },
+    { colId: 'revenue', width: 130 },
     { colId: 'costs', width: 100 },
     { colId: 'net_income', width: 110 },
     { colId: 'po', width: 130 },
