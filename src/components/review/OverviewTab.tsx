@@ -93,5 +93,6 @@ export const OverviewTab = () => {
       )}
     </div>
   );
+};
 
 export default OverviewTab;
