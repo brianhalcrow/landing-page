@@ -14,12 +14,16 @@ const CsvOperations = () => {
 
     setIsUploading(true);
     try {
+      toast.info('Processing CSV file...');
       // Parse CSV file
       Papa.parse(file, {
         complete: async (results) => {
           const data = results.data as any[];
           // Skip header row and filter out empty rows
           const rows = data.slice(1).filter(row => row.length > 1);
+          
+          let successCount = 0;
+          let errorCount = 0;
           
           // Insert each row into the database
           for (const row of rows) {
@@ -52,10 +56,17 @@ const CsvOperations = () => {
 
             if (error) {
               console.error('Error uploading row:', error);
-              toast.error(`Failed to upload row for entity ${entity_id}`);
+              errorCount++;
+            } else {
+              successCount++;
             }
           }
-          toast.success('CSV data uploaded successfully');
+          
+          if (errorCount === 0) {
+            toast.success(`Successfully uploaded ${successCount} configurations`);
+          } else {
+            toast.warning(`Uploaded ${successCount} configurations with ${errorCount} errors`);
+          }
         },
         error: (error) => {
           console.error('Error parsing CSV:', error);
@@ -73,6 +84,7 @@ const CsvOperations = () => {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
+      toast.info('Preparing CSV download...');
       const { data, error } = await supabase
         .from('pre_trade_sfx_config_exposures')
         .select('*');

@@ -50,7 +50,6 @@ export const useConfigurationForm = () => {
         .select("*");
       
       if (error) {
-        console.error('Error fetching entities:', error);
         toast.error('Failed to fetch entities');
         throw error;
       }
@@ -166,20 +165,30 @@ export const useConfigurationForm = () => {
           .update(submitData)
           .eq("entity_id", values.entity_id);
         error = updateError;
+        if (!error) {
+          toast.success('Configuration updated successfully');
+        }
       } else {
         const { error: insertError } = await supabase
           .from("pre_trade_sfx_config_exposures")
           .insert(submitData);
         error = insertError;
+        if (!error) {
+          toast.success('Configuration saved successfully');
+        }
       }
 
-      if (error) throw error;
+      if (error) {
+        toast.error('Failed to save configuration');
+        throw error;
+      }
       
       setIsUpdating(true);
       setFormChanged(false);
       
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
+      toast.error('Failed to save configuration');
       throw error;
     }
   };

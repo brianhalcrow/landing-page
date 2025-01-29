@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import ChatBot from "./ChatBot";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Toaster } from "sonner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
+      <Toaster position="top-right" richColors />
       <header className="h-16 bg-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 w-full z-20">
         <div className="flex-1 flex items-center">
           <img 
