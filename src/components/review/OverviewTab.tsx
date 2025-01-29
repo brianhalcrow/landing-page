@@ -37,11 +37,7 @@ export const OverviewTab = () => {
 
       const hedgeRequestsWithId = (data || []).map((request) => ({
         ...request,
-        // Use existing ID or generate a unique one if needed
-        id:
-          request.id ||
-          request.hedge_request_id ||
-          `hr-${Date.now()}-${Math.random()}`,
+        id: `hr-${Date.now()}-${Math.random()}`,
       }));
 
       console.log("✅ Fetched hedge requests:", hedgeRequestsWithId);
@@ -87,8 +83,6 @@ export const OverviewTab = () => {
       ) : (
         <HedgeRequestsGrid 
           hedgeRequests={hedgeRequests}
-          // Remove the key prop since it's causing type issues
-          // If you need to force re-render, consider a different approach
         />
       )}
     </div>
