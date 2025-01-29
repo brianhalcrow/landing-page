@@ -7,6 +7,7 @@ import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
 import GeneralTab from "@/components/configuration/GeneralTab";
+import IntegrationsTab from "@/components/configuration/IntegrationsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -27,7 +28,7 @@ export const tabsConfig = {
   "configuration": [
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
     { value: "general", label: "General", content: <GeneralTab /> },
-    { value: "integrations", label: "Integrations", content: <div>Integrations Configuration</div> },
+    { value: "integrations", label: "Integrations", content: <IntegrationsTab /> },
   ],
   "exposure": [
     { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
