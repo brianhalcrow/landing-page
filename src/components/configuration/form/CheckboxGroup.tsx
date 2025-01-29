@@ -32,27 +32,24 @@ const CheckboxGroup = ({
   return (
     <div className={className}>
       <h3 className={`text-lg font-medium mb-4 ${titleColor}`}>{title}</h3>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <CheckboxField 
           form={form} 
           name={dependentFields[0]} 
           label={labels.first}
           onCheckedChange={() => handleCheckboxChange(dependentFields[0])}
-          className="items-center"
         />
         <CheckboxField 
           form={form} 
           name={dependentFields[1]} 
           label={labels.second}
           onCheckedChange={() => handleCheckboxChange(dependentFields[1])}
-          className="items-center"
         />
         <CheckboxField 
           form={form} 
           name={mainField} 
           label={labels.main}
           onCheckedChange={() => handleCheckboxChange(mainField)}
-          className="items-center"
         />
         <FormMessage>{form.formState.errors[mainField]?.message}</FormMessage>
       </div>

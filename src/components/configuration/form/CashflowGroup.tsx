@@ -24,30 +24,26 @@ const CashflowGroup = ({ form }: CashflowGroupProps) => {
       />
       <div>
         <h3 className="text-lg font-medium mb-4 text-blue-800">Firm Commitments</h3>
-        <div className="space-y-4">
+        <div className="space-y-3">
           <CheckboxField 
             form={form} 
             name="po" 
-            label="Purchase Orders" 
-            className="items-center"
+            label="Purchase Orders"
           />
           <CheckboxField 
             form={form} 
             name="ap" 
-            label="Accounts Payable" 
-            className="items-center"
+            label="Accounts Payable"
           />
           <CheckboxField 
             form={form} 
             name="ar" 
-            label="Accounts Receivable" 
-            className="items-center"
+            label="Accounts Receivable"
           />
           <CheckboxField 
             form={form} 
             name="other" 
-            label="Other" 
-            className="items-center"
+            label="Other"
           />
         </div>
       </div>

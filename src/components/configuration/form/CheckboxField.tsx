@@ -18,7 +18,7 @@ const CheckboxField = ({ form, name, label, onCheckedChange, className }: Checkb
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex items-center space-x-3", className)}>
+        <FormItem className={cn("flex flex-row items-start gap-2", className)}>
           <FormControl>
             <Checkbox
               checked={field.value as boolean}
@@ -28,7 +28,7 @@ const CheckboxField = ({ form, name, label, onCheckedChange, className }: Checkb
               }}
             />
           </FormControl>
-          <FormLabel className="font-normal leading-none mt-0">{label}</FormLabel>
+          <FormLabel className="text-sm font-normal leading-none pt-[2px]">{label}</FormLabel>
         </FormItem>
       )}
     />
