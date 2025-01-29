@@ -28,6 +28,7 @@ export const useEntities = () => {
       
       return data as Tables<'pre_trade_sfx_config_exposures'>[];
     },
+    refetchOnWindowFocus: false,
   });
 
   return {
