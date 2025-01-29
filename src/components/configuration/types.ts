@@ -21,18 +21,14 @@ export const formSchema = z.object({
   monetary_liabilities: z.boolean().default(false),
 }).refine(
   (data) => {
-    // If net_income is true, both revenue and costs must be true
-    if (data.net_income) {
-      return data.revenue && data.costs;
-    }
-    // If either revenue or costs is true, net_income must be true
-    if (data.revenue || data.costs) {
+    // If both revenue and costs are true, net_income must be true
+    if (data.revenue && data.costs) {
       return data.net_income;
     }
     return true;
   },
   {
-    message: "Net Income, Revenue, and Costs must be selected together",
+    message: "When both Revenue and Costs are selected, Net Income must also be selected",
     path: ["net_income"],
   }
 ).refine(
