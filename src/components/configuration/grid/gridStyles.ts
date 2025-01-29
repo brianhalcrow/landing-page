@@ -39,4 +39,10 @@ export const gridStyles = `
   .ag-header-cell {
     border-right: 1px solid #e2e8f0 !important;
   }
+  .right-border {
+    border-right: 1px solid #e2e8f0 !important;
+  }
+  .ag-row .right-border {
+    border-right: 1px solid #e2e8f0;
+  }
 `;

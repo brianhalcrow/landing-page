@@ -18,33 +18,33 @@ export const getColumnDefs = (): (ColDef | ColGroupDef)[] => [
   createHeaderGroup('Entity Information', [
     createColumn('entity_name', 'Entity Name', 150, 'text-left'),
     createColumn('entity_id', 'Entity ID', 110, 'text-center'),
-    createColumn('functional_currency', 'FCCY', 100, 'text-center'),
+    { ...createColumn('functional_currency', 'FCCY', 100, 'text-center'), cellClass: 'ag-checkbox-center right-border' },
   ]),
   createHeaderGroup('Monetary Exposure', [
     createHeaderGroup('Balance Sheet', [
       createColumn('monetary_assets', 'Monetary Assets', 130),
       createColumn('monetary_liabilities', 'Monetary Liabs', 130),
-      createColumn('net_monetary', 'Net Monetary', 120),
+      { ...createColumn('net_monetary', 'Net Monetary', 120), cellClass: 'ag-checkbox-center right-border' },
     ]),
   ]),
   createHeaderGroup('Cashflow Exposure', [
     createHeaderGroup('Highly Probable Transactions', [
       createColumn('revenue', 'Revenue', 100),
       createColumn('costs', 'Costs', 100),
-      createColumn('net_income', 'Net Income', 110),
+      { ...createColumn('net_income', 'Net Income', 110), cellClass: 'ag-checkbox-center right-border' },
     ]),
     createHeaderGroup('Firm Commitments', [
       createColumn('po', 'Purchase Orders', 130),
       createColumn('ap', 'Accounts Payable', 130),
       createColumn('ar', 'Accounts Receivable', 140),
-      createColumn('other', 'Other', 100),
+      { ...createColumn('other', 'Other', 100), cellClass: 'ag-checkbox-center right-border' },
     ]),
   ]),
   createHeaderGroup('Settlement Exposure', [
     createHeaderGroup('Intramonth', [
       createColumn('ap_realized', 'Accounts Payable', 130),
       createColumn('ar_realized', 'Accounts Receivable', 140),
-      createColumn('fx_realized', 'FX Conversions', 130),
+      { ...createColumn('fx_realized', 'FX Conversions', 130), cellClass: 'ag-checkbox-center right-border' },
     ]),
   ]),
 ];
