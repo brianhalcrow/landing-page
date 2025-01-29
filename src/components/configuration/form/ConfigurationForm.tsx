@@ -97,15 +97,15 @@ const ConfigurationForm = () => {
           .eq("entity_id", values.entity_id);
 
         if (updateError) throw updateError;
+        toast.success("Hedge configuration updated successfully");
       } else {
         const { error: insertError } = await supabase
           .from("pre_trade_sfx_config_exposures")
           .insert(submitData);
 
         if (insertError) throw insertError;
+        toast.success("Hedge configuration saved successfully");
       }
-
-      toast.success("Hedge configuration saved successfully");
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
       toast.error("Failed to save hedge configuration");

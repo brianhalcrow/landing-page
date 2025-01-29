@@ -254,8 +254,8 @@ export type Database = {
           entity_id: string
           entity_name: string
           fx_realized: boolean | null
-          "monetary liabilities": boolean | null
           monetary_assets: boolean | null
+          monetary_liabilities: boolean | null
           net_income: boolean | null
           net_monetary: boolean | null
           other: boolean | null
@@ -272,8 +272,8 @@ export type Database = {
           entity_id: string
           entity_name: string
           fx_realized?: boolean | null
-          "monetary liabilities"?: boolean | null
           monetary_assets?: boolean | null
+          monetary_liabilities?: boolean | null
           net_income?: boolean | null
           net_monetary?: boolean | null
           other?: boolean | null
@@ -290,8 +290,8 @@ export type Database = {
           entity_id?: string
           entity_name?: string
           fx_realized?: boolean | null
-          "monetary liabilities"?: boolean | null
           monetary_assets?: boolean | null
+          monetary_liabilities?: boolean | null
           net_income?: boolean | null
           net_monetary?: boolean | null
           other?: boolean | null

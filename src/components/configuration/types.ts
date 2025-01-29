@@ -41,8 +41,8 @@ export const formSchema = z.object({
     if (data.net_income) {
       return data.revenue && data.costs;
     }
-    // If both revenue and costs are true, net_income must be true
-    if (data.revenue && data.costs) {
+    // If either revenue or costs is true, net_income must be true
+    if (data.revenue || data.costs) {
       return data.net_income;
     }
     return true;
