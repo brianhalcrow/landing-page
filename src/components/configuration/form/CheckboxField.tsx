@@ -2,21 +2,23 @@ import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/for
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../types";
+import { cn } from "@/lib/utils";
 
 interface CheckboxFieldProps {
   form: UseFormReturn<FormValues>;
   name: keyof FormValues;
   label: string;
   onCheckedChange?: (checked: boolean) => void;
+  className?: string;
 }
 
-const CheckboxField = ({ form, name, label, onCheckedChange }: CheckboxFieldProps) => {
+const CheckboxField = ({ form, name, label, onCheckedChange, className }: CheckboxFieldProps) => {
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-row items-center space-x-2">
+        <FormItem className={cn("flex flex-row space-x-2", className)}>
           <FormControl>
             <Checkbox
               checked={field.value as boolean}

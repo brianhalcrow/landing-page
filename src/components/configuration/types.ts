@@ -33,7 +33,23 @@ export const formSchema = z.object({
   },
   {
     message: "Net Monetary, Monetary Assets, and Monetary Liabilities must be selected together",
-    path: ["net_monetary"], // This will show the error message under the net_monetary field
+    path: ["net_monetary"],
+  }
+).refine(
+  (data) => {
+    // If net_income is true, both revenue and costs must be true
+    if (data.net_income) {
+      return data.revenue && data.costs;
+    }
+    // If both revenue and costs are true, net_income must be true
+    if (data.revenue && data.costs) {
+      return data.net_income;
+    }
+    return true;
+  },
+  {
+    message: "Net Income, Revenue, and Costs must be selected together",
+    path: ["net_income"],
   }
 );
 
