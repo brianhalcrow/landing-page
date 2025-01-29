@@ -11,8 +11,11 @@ import RealizedGroup from "./RealizedGroup";
 import BalanceSheetGroup from "./BalanceSheetGroup";
 import EntitySelectionFields from "./EntitySelectionFields";
 import CsvOperations from "./CsvOperations";
+import { useState } from "react";
 
 const ConfigurationForm = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,6 +47,45 @@ const ConfigurationForm = () => {
     },
   });
 
+  const fetchExistingConfig = async (entityId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("pre_trade_sfx_config_exposures")
+        .select()
+        .eq("entity_id", entityId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        form.reset({
+          entity_id: data.entity_id,
+          po: data.po || false,
+          ap: data.ap || false,
+          ar: data.ar || false,
+          other: data.other || false,
+          revenue: data.revenue || false,
+          costs: data.costs || false,
+          net_income: data.net_income || false,
+          ap_realized: data.ap_realized || false,
+          ar_realized: data.ar_realized || false,
+          fx_realized: data.fx_realized || false,
+          net_monetary: data.net_monetary || false,
+          monetary_assets: data.monetary_assets || false,
+          monetary_liabilities: data.monetary_liabilities || false,
+        });
+        setIsUpdating(true);
+        toast.success("Configuration loaded successfully");
+      } else {
+        setIsUpdating(false);
+        toast.info("No existing configuration found for this entity");
+      }
+    } catch (error) {
+      console.error("Error fetching configuration:", error);
+      toast.error("Failed to fetch configuration");
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     try {
       if (!values.entity_id) {
@@ -56,14 +98,6 @@ const ConfigurationForm = () => {
         toast.error("Selected entity not found");
         return;
       }
-
-      const { data: existingRecord, error: checkError } = await supabase
-        .from("pre_trade_sfx_config_exposures")
-        .select()
-        .eq("entity_id", values.entity_id)
-        .maybeSingle();
-
-      if (checkError) throw checkError;
 
       const submitData = {
         entity_id: values.entity_id,
@@ -84,7 +118,7 @@ const ConfigurationForm = () => {
         created_at: new Date().toISOString(),
       };
 
-      if (existingRecord) {
+      if (isUpdating) {
         const { error: updateError } = await supabase
           .from("pre_trade_sfx_config_exposures")
           .update(submitData)
@@ -114,6 +148,7 @@ const ConfigurationForm = () => {
             form={form}
             entities={entities}
             isLoadingEntities={isLoadingEntities}
+            onFetchConfig={fetchExistingConfig}
           />
           <CsvOperations />
         </div>
@@ -136,7 +171,9 @@ const ConfigurationForm = () => {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button type="submit">Save Configuration</Button>
+          <Button type="submit">
+            {isUpdating ? "Update Configuration" : "Save Configuration"}
+          </Button>
         </div>
       </form>
     </Form>
