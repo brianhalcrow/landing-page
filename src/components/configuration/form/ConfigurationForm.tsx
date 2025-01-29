@@ -3,24 +3,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { formSchema, FormValues } from "../types";
 import CashflowGroup from "./CashflowGroup";
 import RealizedGroup from "./RealizedGroup";
 import BalanceSheetGroup from "./BalanceSheetGroup";
+import EntitySelectionFields from "./EntitySelectionFields";
+import CsvOperations from "./CsvOperations";
 
 const ConfigurationForm = () => {
   const form = useForm<FormValues>({
@@ -73,9 +63,7 @@ const ConfigurationForm = () => {
         .eq("entity_id", values.entity_id)
         .maybeSingle();
 
-      if (checkError) {
-        throw checkError;
-      }
+      if (checkError) throw checkError;
 
       const submitData = {
         entity_id: values.entity_id,
@@ -121,64 +109,12 @@ const ConfigurationForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex gap-4 items-start">
-          <FormField
-            control={form.control}
-            name="entity_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Entity Name</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={isLoadingEntities}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select name" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem 
-                        key={entity.entity_id} 
-                        value={entity.entity_id || ""}
-                      >
-                        {entity.entity_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="entity_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Entity ID</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={isLoadingEntities}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select ID" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem 
-                        key={entity.entity_id} 
-                        value={entity.entity_id || ""}
-                      >
-                        {entity.entity_id}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-        </div>
+        <CsvOperations />
+        <EntitySelectionFields 
+          form={form}
+          entities={entities}
+          isLoadingEntities={isLoadingEntities}
+        />
 
         <div className="grid grid-cols-4 gap-6">
           <div className="col-span-2 border rounded-lg p-6 bg-blue-50">
