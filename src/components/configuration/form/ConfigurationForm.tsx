@@ -18,8 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { formSchema, FormValues } from "../types";
-import FirmCommitmentsGroup from "./FirmCommitmentsGroup";
-import HighlyProbableGroup from "./HighlyProbableGroup";
+import CashflowGroup from "./CashflowGroup";
 import RealizedGroup from "./RealizedGroup";
 import BalanceSheetGroup from "./BalanceSheetGroup";
 
@@ -163,26 +162,20 @@ const ConfigurationForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-3 gap-6">
           {/* Cashflow Section - Column 1 */}
-          <div className="border rounded-lg p-6 bg-blue-50">
+          <div className="col-span-1 border rounded-lg p-6 bg-blue-50">
             <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
-            <HighlyProbableGroup form={form} />
+            <CashflowGroup form={form} />
           </div>
 
-          {/* Cashflow Section - Column 2 */}
-          <div className="border rounded-lg p-6 bg-blue-50">
-            <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
-            <FirmCommitmentsGroup form={form} />
-          </div>
-
-          {/* Balance Sheet Section - Column 3 */}
+          {/* Balance Sheet Section - Column 2 */}
           <div className="border rounded-lg p-6 bg-green-50">
             <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
             <BalanceSheetGroup form={form} />
           </div>
 
-          {/* Intramonth Section - Column 4 */}
+          {/* Intramonth Section - Column 3 */}
           <div className="border rounded-lg p-6 bg-purple-50">
             <h2 className="text-xl font-semibold mb-4 text-purple-900">Intramonth</h2>
             <RealizedGroup form={form} />
