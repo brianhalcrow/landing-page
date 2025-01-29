@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formSchema, FormValues } from "../types";
 import FirmCommitmentsGroup from "./FirmCommitmentsGroup";
 import HighlyProbableGroup from "./HighlyProbableGroup";
@@ -61,7 +62,9 @@ const ConfigurationForm = () => {
         .eq("entity_id", values.entity_id)
         .maybeSingle();
 
-      if (checkError) throw checkError;
+      if (checkError) {
+        throw checkError;
+      }
 
       const submitData = {
         entity_id: values.entity_id,
@@ -102,37 +105,37 @@ const ConfigurationForm = () => {
   };
 
   const handleEntityChange = (value: string) => {
-    form.setValue("entity_id", value);
+    const entity = entities?.find(e => e.entity_id === value || e.entity_name === value);
+    if (entity) {
+      form.setValue("entity_id", entity.entity_id || "");
+    }
+  };
+
+  const handleEntityIdInput = (value: string) => {
+    const entity = entities?.find(e => e.entity_id === value);
+    if (entity) {
+      form.setValue("entity_id", entity.entity_id || "");
+    }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex gap-4 items-start max-w-2xl mx-auto">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex gap-4 items-start">
           <FormField
             control={form.control}
             name="entity_id"
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormLabel>Entity ID</FormLabel>
-                <Select
-                  onValueChange={handleEntityChange}
+                <Input
+                  placeholder="Enter entity ID"
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                    handleEntityIdInput(e.target.value);
+                  }}
                   value={field.value}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select an ID" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem 
-                        key={entity.entity_id} 
-                        value={entity.entity_id || ""}
-                      >
-                        {entity.entity_id}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </FormItem>
             )}
           />
@@ -143,10 +146,13 @@ const ConfigurationForm = () => {
               <FormItem className="flex-1">
                 <FormLabel>Entity Name</FormLabel>
                 <Select
-                  onValueChange={handleEntityChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleEntityChange(value);
+                  }}
                   value={field.value}
                 >
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select an entity" />
                   </SelectTrigger>
                   <SelectContent>
@@ -165,38 +171,14 @@ const ConfigurationForm = () => {
           />
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          <img 
-            src="/lovable-uploads/4f983486-df40-4c59-a985-75f537049b5e.png" 
-            alt="Hedge Types Flowchart" 
-            className="w-full mb-8"
-          />
-          
-          <div className="grid grid-cols-2 gap-8">
-            <div className="space-y-8">
-              <div className="bg-green-50 p-6 rounded-lg">
-                <h2 className="text-lg font-semibold text-green-800 mb-4">Transaction Exposure (Current)</h2>
-                <FirmCommitmentsGroup form={form} />
-              </div>
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h2 className="text-lg font-semibold text-blue-800 mb-4">Highly Probable Transactions</h2>
-                <HighlyProbableGroup form={form} />
-              </div>
-            </div>
-            <div className="space-y-8">
-              <div className="bg-orange-50 p-6 rounded-lg">
-                <h2 className="text-lg font-semibold text-orange-800 mb-4">Transaction Exposure (Realized)</h2>
-                <RealizedGroup form={form} />
-              </div>
-              <div className="bg-yellow-50 p-6 rounded-lg">
-                <h2 className="text-lg font-semibold text-yellow-800 mb-4">Balance Sheet Exposure</h2>
-                <BalanceSheetGroup form={form} />
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-6">
+          <FirmCommitmentsGroup form={form} />
+          <HighlyProbableGroup form={form} />
+          <RealizedGroup form={form} />
+          <BalanceSheetGroup form={form} />
         </div>
 
-        <div className="flex justify-end max-w-5xl mx-auto mt-8">
+        <div className="flex justify-end space-x-4">
           <Button type="submit">Save Configuration</Button>
         </div>
       </form>
