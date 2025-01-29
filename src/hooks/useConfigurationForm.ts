@@ -59,8 +59,23 @@ export const useConfigurationForm = () => {
       }
 
       const submitData = {
-        ...values,
+        entity_id: values.entity_id,
+        entity_name: values.entity_name,
+        functional_currency: values.functional_currency,
         created_at: new Date().toISOString(),
+        po: values.po,
+        ap: values.ap,
+        ar: values.ar,
+        other: values.other,
+        revenue: values.revenue,
+        costs: values.costs,
+        net_income: values.net_income,
+        ap_realized: values.ap_realized,
+        ar_realized: values.ar_realized,
+        fx_realized: values.fx_realized,
+        net_monetary: values.net_monetary,
+        monetary_assets: values.monetary_assets,
+        monetary_liabilities: values.monetary_liabilities,
       };
 
       let error;
