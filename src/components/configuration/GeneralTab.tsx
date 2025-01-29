@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   entity_id: z.string({
@@ -95,32 +96,50 @@ const GeneralTab = () => {
       <h2 className="text-2xl font-bold mb-6">Hedge Configuration</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="entity_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Entity</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+          <div className="flex gap-4 items-start">
+            <FormField
+              control={form.control}
+              name="entity_id"
+              render={({ field }) => (
+                <FormItem className="flex-1 max-w-[400px]">
+                  <FormLabel>Entity</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an entity" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {entities?.map((entity) => (
+                        <SelectItem key={entity.entity_id} value={entity.entity_id || ""}>
+                          {entity.entity_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="entity_id"
+              render={({ field }) => (
+                <FormItem className="flex-1 max-w-[200px]">
+                  <FormLabel>Entity ID</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an entity" />
-                    </SelectTrigger>
+                    <Input
+                      {...field}
+                      disabled
+                      className="bg-gray-50"
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem key={entity.entity_id} value={entity.entity_id || ""}>
-                        {entity.entity_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
