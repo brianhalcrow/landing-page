@@ -11,10 +11,11 @@ import RealizedGroup from "./RealizedGroup";
 import BalanceSheetGroup from "./BalanceSheetGroup";
 import EntitySelectionFields from "./EntitySelectionFields";
 import CsvOperations from "./CsvOperations";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ConfigurationForm = () => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [formChanged, setFormChanged] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -35,6 +36,14 @@ const ConfigurationForm = () => {
       monetary_liabilities: false,
     },
   });
+
+  // Watch for form changes
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      setFormChanged(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
 
   const { data: entities, isLoading: isLoadingEntities } = useQuery({
     queryKey: ["entities"],
@@ -75,6 +84,7 @@ const ConfigurationForm = () => {
           monetary_liabilities: data.monetary_liabilities || false,
         });
         setIsUpdating(true);
+        setFormChanged(false); // Reset form changed state when loading new data
       } else {
         form.reset({
           entity_id: entityId,
@@ -93,6 +103,7 @@ const ConfigurationForm = () => {
           monetary_liabilities: false,
         });
         setIsUpdating(false);
+        setFormChanged(false);
       }
     } catch (error) {
       console.error("Error fetching configuration:", error);
@@ -194,7 +205,10 @@ const ConfigurationForm = () => {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button type="submit">
+          <Button 
+            type="submit"
+            disabled={isUpdating && !formChanged} // Disable button when updating and form hasn't changed
+          >
             {isUpdating ? "Update Configuration" : "Save Configuration"}
           </Button>
         </div>
