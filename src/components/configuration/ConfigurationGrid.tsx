@@ -15,64 +15,64 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const columnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Entity Information',
-      headerClass: 'text-center',
+      headerClass: 'text-center wrap-header-text',
       children: [
-        { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center' },
-        { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center' },
-        { field: 'functional_currency', headerName: 'FCCY', width: 100, headerClass: 'text-center' },
+        { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+        { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+        { field: 'functional_currency', headerName: 'FCCY', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
       ]
     },
     {
       headerName: 'Monetary Exposure',
-      headerClass: 'text-center',
+      headerClass: 'text-center wrap-header-text',
       children: [
         {
           headerName: 'Balance Sheet',
-          headerClass: 'text-center',
+          headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center' },
-            { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center' },
-            { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center' },
+            { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
           ]
         }
       ]
     },
     {
       headerName: 'Cashflow Exposure',
-      headerClass: 'text-center',
+      headerClass: 'text-center wrap-header-text',
       children: [
         {
           headerName: 'Highly Probable Transactions',
-          headerClass: 'text-center',
+          headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'revenue', headerName: 'Revenue', width: 100, headerClass: 'text-center' },
-            { field: 'costs', headerName: 'Costs', width: 100, headerClass: 'text-center' },
-            { field: 'net_income', headerName: 'Net Income', width: 110, headerClass: 'text-center' },
+            { field: 'revenue', headerName: 'Revenue', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'costs', headerName: 'Costs', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'net_income', headerName: 'Net Income', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
           ]
         },
         {
           headerName: 'Firm Commitments',
-          headerClass: 'text-center',
+          headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'po', headerName: 'Purchase Orders', width: 130, headerClass: 'text-center' },
-            { field: 'ap', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center' },
-            { field: 'ar', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center' },
-            { field: 'other', headerName: 'Other', width: 100, headerClass: 'text-center' },
+            { field: 'po', headerName: 'Purchase Orders', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'ap', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'ar', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'other', headerName: 'Other', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
           ]
         },
       ]
     },
     {
       headerName: 'Settlement Exposure',
-      headerClass: 'text-center',
+      headerClass: 'text-center wrap-header-text',
       children: [
         {
           headerName: 'Intramonth',
-          headerClass: 'text-center',
+          headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center' },
-            { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center' },
-            { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center' },
+            { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
           ]
         }
       ]
@@ -115,6 +115,16 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
           .ag-header-cell-text {
             width: 100%;
             text-align: center;
+          }
+          .wrap-header-text .ag-header-cell-text {
+            white-space: normal !important;
+            line-height: 1.2;
+          }
+          .text-center {
+            text-align: center;
+          }
+          .ag-header-group-cell-label {
+            justify-content: center;
           }
         `}
       </style>
