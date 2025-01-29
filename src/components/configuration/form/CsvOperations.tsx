@@ -24,10 +24,23 @@ const CsvOperations = () => {
   const processCsvUpload = async (data: FormValues[]) => {
     setIsUploading(true);
     try {
+      // Process each row
       for (const row of data) {
-        const { error } = await supabase
+        // Delete existing record if it exists
+        const { error: deleteError } = await supabase
           .from("pre_trade_sfx_config_exposures")
-          .upsert({
+          .delete()
+          .eq("entity_id", row.entity_id);
+
+        if (deleteError) {
+          console.error("Error deleting existing record:", deleteError);
+          throw deleteError;
+        }
+
+        // Insert new record
+        const { error: insertError } = await supabase
+          .from("pre_trade_sfx_config_exposures")
+          .insert({
             entity_id: row.entity_id,
             entity_name: row.entity_id, // We'll get the name from the entity table
             po: row.po || false,
@@ -46,7 +59,10 @@ const CsvOperations = () => {
             created_at: new Date().toISOString(),
           });
 
-        if (error) throw error;
+        if (insertError) {
+          console.error("Error inserting new record:", insertError);
+          throw insertError;
+        }
       }
       toast.success("CSV data uploaded successfully");
     } catch (error) {
@@ -55,6 +71,7 @@ const CsvOperations = () => {
     } finally {
       setIsUploading(false);
       setPendingCsvData([]);
+      setShowOverwriteDialog(false);
     }
   };
 
