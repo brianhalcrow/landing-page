@@ -16,6 +16,8 @@ const ConfigurationForm = () => {
       entity_id: "",
       entity_name: "",
       functional_currency: "",
+      exposed_currency: "",
+      created_at: new Date().toISOString(),
       po: false,
       ap: false,
       ar: false,

@@ -7,9 +7,9 @@ export const formSchema = z.object({
   entity_name: z.string({
     required_error: "Entity name is required",
   }),
-  functional_currency: z.string(),
-  exposed_currency: z.string(),
-  created_at: z.string(),
+  functional_currency: z.string().optional(),
+  exposed_currency: z.string().optional(),
+  created_at: z.string().optional(),
   po: z.boolean().default(false),
   ap: z.boolean().default(false),
   ar: z.boolean().default(false),
