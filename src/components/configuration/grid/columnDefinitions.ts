@@ -29,7 +29,7 @@ export const getColumnDefs = (): (ColDef | ColGroupDef)[] => [
   ]),
   createHeaderGroup('Cashflow Exposure', [
     createHeaderGroup('Highly Probable Transactions', [
-      createColumn('revenue', 'Revenue', 100),
+      createColumn('revenue', 'Revenue', 130),
       createColumn('costs', 'Costs', 100),
       { ...createColumn('net_income', 'Net Income', 110), cellClass: 'ag-checkbox-center right-border' },
     ]),

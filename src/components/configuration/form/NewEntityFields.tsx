@@ -12,20 +12,6 @@ const NewEntityFields = ({ form }: NewEntityFieldsProps) => {
     <>
       <FormField
         control={form.control}
-        name="entity_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Entity ID</FormLabel>
-            <Input 
-              placeholder="Enter new ID" 
-              {...field}
-              className="w-[100px]"
-            />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
         name="entity_name"
         render={({ field }) => (
           <FormItem>
@@ -34,6 +20,20 @@ const NewEntityFields = ({ form }: NewEntityFieldsProps) => {
               placeholder="Enter entity name" 
               {...field}
               className="w-[300px]"
+            />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="entity_id"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Entity ID</FormLabel>
+            <Input 
+              placeholder="Enter new ID" 
+              {...field}
+              className="w-[100px]"
             />
           </FormItem>
         )}
