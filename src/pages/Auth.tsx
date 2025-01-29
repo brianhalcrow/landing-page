@@ -27,6 +27,13 @@ const Auth = () => {
       }
     });
 
+    // Handle OAuth callback
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    if (accessToken) {
+      navigate('/');
+    }
+
     return () => {
       authListener?.subscription.unsubscribe();
     };
@@ -67,7 +74,10 @@ const Auth = () => {
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
+          queryParams: provider === 'azure' ? {
+            response_type: 'token',
+            scope: 'email profile openid',
+          } : {
             access_type: 'offline',
             prompt: 'consent',
           },
