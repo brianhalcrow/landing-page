@@ -91,6 +91,13 @@ const GeneralTab = () => {
     }
   };
 
+  const handleEntityChange = (value: string) => {
+    const entity = entities?.find(e => e.entity_id === value || e.entity_name === value);
+    if (entity) {
+      form.setValue("entity_id", entity.entity_id || "");
+    }
+  };
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Hedge Configuration</h2>
@@ -104,8 +111,11 @@ const GeneralTab = () => {
                 <FormItem className="flex-1 max-w-[400px]">
                   <FormLabel>Entity</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      handleEntityChange(value);
+                    }}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -114,7 +124,10 @@ const GeneralTab = () => {
                     </FormControl>
                     <SelectContent>
                       {entities?.map((entity) => (
-                        <SelectItem key={entity.entity_id} value={entity.entity_id || ""}>
+                        <SelectItem 
+                          key={entity.entity_id} 
+                          value={entity.entity_id || ""}
+                        >
                           {entity.entity_name}
                         </SelectItem>
                       ))}
@@ -132,8 +145,11 @@ const GeneralTab = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      disabled
-                      className="bg-gray-50"
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                        handleEntityChange(e.target.value);
+                      }}
+                      className="bg-white"
                     />
                   </FormControl>
                 </FormItem>
