@@ -32,11 +32,6 @@ const EntitySelectionFields = ({
 
   return (
     <div className="space-y-4">
-      <EntityModeToggle 
-        isNewEntity={isNewEntity} 
-        onToggle={handleModeToggle} 
-      />
-
       <div className="flex gap-4 items-end">
         {isNewEntity ? (
           <NewEntityFields form={form} />
@@ -49,6 +44,10 @@ const EntitySelectionFields = ({
           />
         )}
         <FunctionalCurrencyField form={form} />
+        <EntityModeToggle 
+          isNewEntity={isNewEntity} 
+          onToggle={handleModeToggle} 
+        />
       </div>
     </div>
   );
