@@ -111,6 +111,13 @@ const ConfigurationForm = () => {
     }
   };
 
+  const handleCsvUploadComplete = (updatedEntityIds: string[]) => {
+    const currentEntityId = form.getValues("entity_id");
+    if (currentEntityId && updatedEntityIds.includes(currentEntityId)) {
+      fetchExistingConfig(currentEntityId);
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     try {
       if (!values.entity_id) {
@@ -167,6 +174,7 @@ const ConfigurationForm = () => {
       );
       
       setIsUpdating(true);
+      setFormChanged(false);
       
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
@@ -184,7 +192,7 @@ const ConfigurationForm = () => {
             isLoadingEntities={isLoadingEntities}
             onFetchConfig={fetchExistingConfig}
           />
-          <CsvOperations />
+          <CsvOperations onUploadComplete={handleCsvUploadComplete} />
         </div>
 
         <div className="grid grid-cols-4 gap-6">
@@ -207,7 +215,7 @@ const ConfigurationForm = () => {
         <div className="flex justify-end space-x-4">
           <Button 
             type="submit"
-            disabled={isUpdating && !formChanged} // Disable button when updating and form hasn't changed
+            disabled={isUpdating && !formChanged}
           >
             {isUpdating ? "Update Configuration" : "Save Configuration"}
           </Button>

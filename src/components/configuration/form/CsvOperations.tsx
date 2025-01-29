@@ -15,7 +15,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const CsvOperations = () => {
+interface CsvOperationsProps {
+  onUploadComplete?: (updatedEntityIds: string[]) => void;
+}
+
+const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
@@ -23,6 +27,7 @@ const CsvOperations = () => {
 
   const processCsvUpload = async (data: FormValues[]) => {
     setIsUploading(true);
+    const updatedEntityIds: string[] = [];
     try {
       // Process each row
       for (const row of data) {
@@ -31,6 +36,8 @@ const CsvOperations = () => {
           console.error("Row missing entity_id:", row);
           throw new Error("All rows must have an entity_id");
         }
+
+        updatedEntityIds.push(row.entity_id);
 
         // Delete existing record if it exists
         const { error: deleteError } = await supabase
@@ -48,7 +55,7 @@ const CsvOperations = () => {
           .from("pre_trade_sfx_config_exposures")
           .insert({
             entity_id: row.entity_id,
-            entity_name: row.entity_id, // We'll get the name from the entity table
+            entity_name: row.entity_id,
             po: row.po || false,
             ap: row.ap || false,
             ar: row.ar || false,
@@ -71,6 +78,8 @@ const CsvOperations = () => {
         }
       }
       toast.success("CSV data uploaded successfully");
+      // Notify parent component about the upload completion
+      onUploadComplete?.(updatedEntityIds);
     } catch (error) {
       console.error("Error uploading CSV:", error);
       toast.error(error instanceof Error ? error.message : "Failed to upload CSV data");
