@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Github, Mail, Microsoft } from "lucide-react";
+import { Github, Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Auth = () => {
@@ -101,7 +101,7 @@ const Auth = () => {
             onClick={() => handleSocialAuth('azure')}
             className="w-full"
           >
-            <Microsoft className="h-5 w-5 mr-2" />
+            <Mail className="h-5 w-5 mr-2" />
             Microsoft
           </Button>
 
