@@ -16,8 +16,18 @@ const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
         // If checking net_monetary, check the other two
         form.setValue('monetary_assets', true);
         form.setValue('monetary_liabilities', true);
+      } else {
+        // Only allow unchecking net_monetary if either assets or liabilities is false
+        const assets = form.getValues('monetary_assets');
+        const liabilities = form.getValues('monetary_liabilities');
+        if (!assets || !liabilities) {
+          form.setValue('monetary_assets', false);
+          form.setValue('monetary_liabilities', false);
+        } else {
+          // If both are true, prevent unchecking net_monetary
+          form.setValue('net_monetary', true);
+        }
       }
-      // If unchecking net_monetary, leave the other checkboxes as they are
     } else {
       // If unchecking either monetary_assets or monetary_liabilities
       if (!currentValue) {
