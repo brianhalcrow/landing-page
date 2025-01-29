@@ -11,25 +11,25 @@ interface PositionsGridProps {
 
 const PositionsGrid = ({ hedgeRequests }: PositionsGridProps) => {
   const columnDefs: ColDef[] = [
-    { field: 'entity_id', headerName: 'Entity ID', width: 100 },
-    { field: 'entity_name', headerName: 'Entity Name', width: 120 },
-    { field: 'instrument', headerName: 'Instrument', width: 100 },
-    { field: 'strategy', headerName: 'Strategy', width: 100 },
-    { field: 'base_currency', headerName: 'Base', width: 70 },
-    { field: 'quote_currency', headerName: 'Quote', width: 70 },
-    { field: 'currency_pair', headerName: 'Pair', width: 80 },
-    { field: 'trade_date', headerName: 'Trade Date', width: 100 },
-    { field: 'settlement_date', headerName: 'Settlement', width: 100 },
-    { field: 'buy_sell', headerName: 'B/S', width: 60 },
-    { field: 'buy_sell_currency_code', headerName: 'B/S Curr', width: 80 },
+    { field: 'entity_id', headerName: 'Entity ID', width: 110 },
+    { field: 'entity_name', headerName: 'Entity Name', width: 150 },
+    { field: 'instrument', headerName: 'Instrument', width: 120 },
+    { field: 'strategy', headerName: 'Strategy', width: 120 },
+    { field: 'base_currency', headerName: 'Base', width: 90 },
+    { field: 'quote_currency', headerName: 'Quote', width: 90 },
+    { field: 'currency_pair', headerName: 'Pair', width: 100 },
+    { field: 'trade_date', headerName: 'Trade Date', width: 120 },
+    { field: 'settlement_date', headerName: 'Settlement', width: 120 },
+    { field: 'buy_sell', headerName: 'B/S', width: 80 },
+    { field: 'buy_sell_currency_code', headerName: 'B/S Curr', width: 100 },
     { 
       field: 'buy_sell_amount', 
       headerName: 'Amount', 
-      width: 100,
+      width: 120,
       type: 'numericColumn',
     },
-    { field: 'created_by', headerName: 'Created By', width: 120 },
-    { field: 'trade_request_id', headerName: 'Request ID', width: 120 },
+    { field: 'created_by', headerName: 'Created By', width: 140 },
+    { field: 'trade_request_id', headerName: 'Request ID', width: 140 },
   ];
 
   const defaultColDef = {
