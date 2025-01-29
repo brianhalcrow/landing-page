@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { HedgeRequest } from "./types";
@@ -9,7 +9,7 @@ const OverviewTab = () => {
   const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
   const { toast } = useToast();
 
-  const fetchHedgeRequests = async () => {
+  const fetchHedgeRequests = useCallback(async () => {
     try {
       console.log('🔄 Fetching hedge requests...');
       const { data, error } = await supabase
@@ -26,6 +26,7 @@ const OverviewTab = () => {
         id: index + 1,
       }));
 
+      console.log('✅ Fetched hedge requests:', hedgeRequestsWithId);
       setHedgeRequests(hedgeRequestsWithId);
     } catch (error) {
       console.error('❌ Error in fetchHedgeRequests:', error);
@@ -35,11 +36,12 @@ const OverviewTab = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchHedgeRequests();
-  }, []);
+  }, [fetchHedgeRequests]);
 
   return (
     <>

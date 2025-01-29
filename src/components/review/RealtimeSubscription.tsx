@@ -10,23 +10,40 @@ const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('🔌 Setting up realtime subscription...');
+    
     const channel = supabase
       .channel('hedge-requests-changes')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'pre_trade_sfx_hedge_request'
         },
         (payload) => {
-          console.log('📨 Database change received:', payload.eventType);
+          console.log('📨 Received database change:', payload);
+          console.log('Event type:', payload.eventType);
+          
+          // Show a toast notification for the event
+          toast({
+            title: `Hedge Request ${payload.eventType}`,
+            description: `A hedge request was ${payload.eventType.toLowerCase()}d`,
+          });
+          
+          // Trigger data refresh
           onDataChange();
         }
       )
       .subscribe((status) => {
+        console.log('📡 Subscription status:', status);
+        
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Successfully subscribed to real-time updates');
+          console.log('✅ Successfully subscribed to realtime updates');
+          toast({
+            title: "Connected",
+            description: "Real-time updates are now active",
+          });
         }
       });
 
@@ -34,7 +51,7 @@ const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
       console.log('🧹 Cleaning up subscription...');
       supabase.removeChannel(channel);
     };
-  }, [onDataChange]);
+  }, [onDataChange, toast]);
 
   return null;
 };
