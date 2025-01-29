@@ -28,7 +28,7 @@ const CheckboxField = ({ form, name, label, onCheckedChange, className }: Checkb
               }}
             />
           </FormControl>
-          <FormLabel className="font-normal">{label}</FormLabel>
+          <FormLabel className="font-normal leading-none my-auto">{label}</FormLabel>
         </FormItem>
       )}
     />
