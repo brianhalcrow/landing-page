@@ -24,7 +24,7 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const columnState = [
     { colId: 'entity_name', width: 250 },
     { colId: 'entity_id', width: 110 },
-    { colId: 'functional_currency', width: 140 }, // Updated width to 140px
+    { colId: 'functional_currency', width: 120 }, // Updated width to 120px
     { colId: 'monetary_assets', width: 130 },
     { colId: 'monetary_liabilities', width: 130 },
     { colId: 'net_monetary', width: 120 },
