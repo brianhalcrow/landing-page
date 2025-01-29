@@ -28,6 +28,7 @@ const formSchema = z.object({
     required_error: "Please select an entity",
   }),
   exposed_currency: z.string().optional(),
+  created_at: z.string().optional(),
   po: z.boolean().default(false),
   ap: z.boolean().default(false),
   ar: z.boolean().default(false),
@@ -73,17 +74,20 @@ const GeneralTab = () => {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     try {
+      const data = {
+        ...values,
+        entity_id: values.entity_id, // ensure entity_id is present
+        created_at: new Date().toISOString(),
+      };
+  
       const { error } = await supabase
         .from("pre_trade_sfx_config_exposures")
-        .upsert({
-          ...data,
-          created_at: new Date().toISOString(),
-        }, {
+        .upsert(data, {
           onConflict: 'entity_id',
         });
-
+  
       if (error) throw error;
       toast.success("Hedge configuration saved successfully");
     } catch (error) {
@@ -134,25 +138,6 @@ const GeneralTab = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="entity_id"
-              render={({ field }) => (
-                <FormItem className="flex-1 max-w-[200px]">
-                  <FormLabel>Entity ID</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
-                        handleEntityChange(e.target.value);
-                      }}
-                      className="bg-white"
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />
