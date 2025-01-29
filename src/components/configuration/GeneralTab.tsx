@@ -81,20 +81,33 @@ const GeneralTab = () => {
         .from("pre_trade_sfx_config_exposures")
         .select()
         .eq("entity_id", values.entity_id)
-        .single();
+        .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned
+      if (checkError) {
         throw checkError;
       }
+
+      const submitData = {
+        entity_id: values.entity_id,
+        po: values.po,
+        ap: values.ap,
+        ar: values.ar,
+        other: values.other,
+        revenue: values.revenue,
+        costs: values.costs,
+        net_income: values.net_income,
+        ap_realized: values.ap_realized,
+        ar_realized: values.ar_realized,
+        fx_realized: values.fx_realized,
+        net_monetary: values.net_monetary,
+        created_at: new Date().toISOString(),
+      };
 
       if (existingRecord) {
         // Update existing record
         const { error: updateError } = await supabase
           .from("pre_trade_sfx_config_exposures")
-          .update({
-            ...values,
-            created_at: new Date().toISOString(),
-          })
+          .update(submitData)
           .eq("entity_id", values.entity_id);
 
         if (updateError) throw updateError;
@@ -102,10 +115,7 @@ const GeneralTab = () => {
         // Insert new record
         const { error: insertError } = await supabase
           .from("pre_trade_sfx_config_exposures")
-          .insert({
-            ...values,
-            created_at: new Date().toISOString(),
-          });
+          .insert(submitData);
 
         if (insertError) throw insertError;
       }
