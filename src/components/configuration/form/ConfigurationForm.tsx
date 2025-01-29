@@ -38,6 +38,8 @@ const ConfigurationForm = () => {
       ar_realized: false,
       fx_realized: false,
       net_monetary: false,
+      monetary_assets: false,
+      monetary_liabilities: false,
     },
   });
 
@@ -77,6 +79,8 @@ const ConfigurationForm = () => {
         ar_realized: values.ar_realized,
         fx_realized: values.fx_realized,
         net_monetary: values.net_monetary,
+        monetary_assets: values.monetary_assets,
+        monetary_liabilities: values.monetary_liabilities,
         created_at: new Date().toISOString(),
       };
 
@@ -163,19 +167,16 @@ const ConfigurationForm = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-6">
-          {/* Cashflow Section - Column 1 */}
           <div className="col-span-1 border rounded-lg p-6 bg-blue-50">
             <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
             <CashflowGroup form={form} />
           </div>
 
-          {/* Balance Sheet Section - Column 2 */}
           <div className="border rounded-lg p-6 bg-green-50">
             <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
             <BalanceSheetGroup form={form} />
           </div>
 
-          {/* Intramonth Section - Column 3 */}
           <div className="border rounded-lg p-6 bg-purple-50">
             <h2 className="text-xl font-semibold mb-4 text-purple-900">Intramonth</h2>
             <RealizedGroup form={form} />

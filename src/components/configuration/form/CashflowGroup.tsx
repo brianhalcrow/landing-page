@@ -8,7 +8,7 @@ interface CashflowGroupProps {
 
 const CashflowGroup = ({ form }: CashflowGroupProps) => {
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-2 gap-6">
       <div>
         <h3 className="text-lg font-medium mb-4 text-blue-800">Highly Probable Transactions</h3>
         <div className="space-y-4">

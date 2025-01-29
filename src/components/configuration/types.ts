@@ -17,6 +17,8 @@ export const formSchema = z.object({
   ar_realized: z.boolean().default(false),
   fx_realized: z.boolean().default(false),
   net_monetary: z.boolean().default(false),
+  monetary_assets: z.boolean().default(false),
+  monetary_liabilities: z.boolean().default(false),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
