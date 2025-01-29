@@ -21,7 +21,11 @@ export const getColumnDefs = (): (ColDef | ColGroupDef)[] => [
   createHeaderGroup('Entity Information', [
     createColumn('entity_name', 'Entity Name', 250, 'text-left'),
     createColumn('entity_id', 'Entity ID', 110, 'text-center'),
-    { ...createColumn('functional_currency', 'Functional Currency', 180, 'text-center'), cellClass: 'ag-checkbox-center right-border' },
+    { 
+      ...createColumn('functional_currency', 'Functional\nCurrency', 140, 'text-center'), 
+      cellClass: 'ag-checkbox-center right-border',
+      headerClass: 'text-center wrap-header-text whitespace-pre-line', // Added whitespace-pre-line for line breaks
+    },
   ]),
   createHeaderGroup('Monetary Exposure', [
     createHeaderGroup('Balance Sheet', [
