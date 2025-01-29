@@ -18,7 +18,7 @@ const CheckboxField = ({ form, name, label }: CheckboxFieldProps) => {
         <FormItem className="flex flex-row items-center space-x-2">
           <FormControl>
             <Checkbox
-              checked={field.value}
+              checked={field.value as boolean}
               onCheckedChange={field.onChange}
             />
           </FormControl>
