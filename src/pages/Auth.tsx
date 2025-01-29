@@ -70,6 +70,8 @@ const Auth = () => {
           queryParams: provider === 'azure' ? {
             response_type: 'code',
             scope: 'email profile openid',
+            prompt: 'select_account',
+            code_challenge_method: 'S256', // Enable PKCE
           } : undefined,
         },
       });
