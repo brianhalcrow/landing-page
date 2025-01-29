@@ -15,64 +15,64 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const columnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Entity Information',
-      headerClass: 'text-center main-header wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text ag-header-group-text-center',
       children: [
-        { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+        { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center wrap-header-text', cellClass: 'text-left' },
         { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
         { field: 'functional_currency', headerName: 'FCCY', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
       ]
     },
     {
       headerName: 'Monetary Exposure',
-      headerClass: 'text-center main-header wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text ag-header-group-text-center',
       children: [
         {
           headerName: 'Balance Sheet',
           headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
           ]
         }
       ]
     },
     {
       headerName: 'Cashflow Exposure',
-      headerClass: 'text-center main-header wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text ag-header-group-text-center',
       children: [
         {
           headerName: 'Highly Probable Transactions',
           headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'revenue', headerName: 'Revenue', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'costs', headerName: 'Costs', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'net_income', headerName: 'Net Income', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'revenue', headerName: 'Revenue', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'costs', headerName: 'Costs', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'net_income', headerName: 'Net Income', width: 110, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
           ]
         },
         {
           headerName: 'Firm Commitments',
           headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'po', headerName: 'Purchase Orders', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'ap', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'ar', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'other', headerName: 'Other', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'po', headerName: 'Purchase Orders', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'ap', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'ar', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'other', headerName: 'Other', width: 100, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
           ]
         },
       ]
     },
     {
       headerName: 'Settlement Exposure',
-      headerClass: 'text-center main-header wrap-header-text',
+      headerClass: 'text-center main-header wrap-header-text ag-header-group-text-center',
       children: [
         {
           headerName: 'Intramonth',
           headerClass: 'text-center wrap-header-text',
           children: [
-            { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
-            { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'text-center' },
+            { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
+            { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center wrap-header-text', cellClass: 'ag-checkbox-center' },
           ]
         }
       ]
@@ -123,12 +123,27 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
           .text-center {
             text-align: center;
           }
+          .text-left {
+            text-align: left;
+          }
           .ag-header-group-cell-label {
             justify-content: center;
           }
           .main-header {
             font-weight: 600;
             background-color: #f8f9fa;
+          }
+          .ag-header-group-text-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+          }
+          .ag-checkbox-center {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         `}
       </style>
