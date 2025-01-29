@@ -38,13 +38,22 @@ export const useConfigurationForm = () => {
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
-  const { data: entities, isLoading: isLoadingEntities } = useQuery({
+  const { 
+    data: entities, 
+    isLoading: isLoadingEntities,
+    refetch: refetchEntities 
+  } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pre_trade_sfx_config_entity")
         .select("*");
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error fetching entities:', error);
+        throw error;
+      }
+      
       return data;
     },
   });
@@ -182,5 +191,6 @@ export const useConfigurationForm = () => {
     fetchExistingConfig,
     handleCsvUploadComplete,
     onSubmit,
+    refetchEntities,
   };
 };

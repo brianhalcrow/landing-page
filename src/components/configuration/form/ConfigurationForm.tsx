@@ -3,6 +3,9 @@ import { useConfigurationForm } from "@/hooks/useConfigurationForm";
 import FormHeader from "./FormHeader";
 import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const ConfigurationForm = () => {
   const {
@@ -14,7 +17,30 @@ const ConfigurationForm = () => {
     fetchExistingConfig,
     handleCsvUploadComplete,
     onSubmit,
+    refetchEntities,
   } = useConfigurationForm();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && refetchEntities) {
+        refetchEntities();
+      }
+    });
+
+    // Check current auth status
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        toast.error('Authentication error. Please try logging in again.');
+      }
+    };
+    
+    checkAuth();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [refetchEntities]);
 
   return (
     <Form {...form}>

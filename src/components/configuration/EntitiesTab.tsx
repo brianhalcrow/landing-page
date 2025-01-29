@@ -4,22 +4,53 @@ import EntitiesGrid from './EntitiesGrid';
 import CsvOperations from './CsvOperations';
 import { Tables } from '@/integrations/supabase/types';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect } from 'react';
+import { toast } from "sonner";
 
 const EntitiesTab = () => {
-  const { data: entities, isLoading, error } = useQuery({
+  const { data: entities, isLoading, error, refetch } = useQuery({
     queryKey: ['entities'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pre_trade_sfx_config_entity')
         .select('*');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No entities found');
+      }
+      
       return data as Tables<'pre_trade_sfx_config_entity'>[];
     },
   });
 
+  // Handle auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        refetch();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [refetch]);
+
   if (error) {
-    return <div className="p-4 text-red-500">Error loading entities: {error.message}</div>;
+    toast.error(`Error loading entities: ${error.message}`);
+    return (
+      <div className="p-4 space-y-4">
+        <CsvOperations />
+        <div className="text-red-500">
+          Error loading entities. Please try refreshing the page.
+        </div>
+      </div>
+    );
   }
 
   return (
