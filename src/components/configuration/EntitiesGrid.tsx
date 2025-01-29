@@ -6,7 +6,7 @@ import { Tables } from '@/integrations/supabase/types';
 import { useRef, useEffect } from 'react';
 
 interface EntitiesGridProps {
-  entities: Tables<'pre_trade_sfx_config_entity'>[];
+  entities: Tables<'pre_trade_sfx_config_exposures'>[];
 }
 
 const EntitiesGrid = ({ entities }: EntitiesGridProps) => {

@@ -8,10 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormValues } from "../types";
+import { Tables } from '@/integrations/supabase/types';
 
 interface ExistingEntityFieldsProps {
   form: UseFormReturn<FormValues>;
-  entities: any[] | undefined;
+  entities: Tables<'pre_trade_sfx_config_exposures'>[] | undefined;
   isLoadingEntities: boolean;
   onFetchConfig: (entityId: string) => Promise<void>;
 }

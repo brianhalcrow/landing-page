@@ -11,8 +11,9 @@ export const useEntityQuery = () => {
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("pre_trade_sfx_config_entity")
-        .select("*");
+        .from("pre_trade_sfx_config_exposures")
+        .select("entity_id, entity_name, functional_currency")
+        .order('entity_name');
       
       if (error) {
         toast.error('Failed to fetch entities');
