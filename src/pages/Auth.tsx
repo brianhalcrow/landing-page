@@ -75,7 +75,7 @@ const Auth = () => {
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: provider === 'azure' ? {
-            response_type: 'token',
+            response_type: 'code',
             scope: 'email profile openid',
           } : {
             access_type: 'offline',
