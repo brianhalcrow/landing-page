@@ -1,5 +1,5 @@
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Tables } from '@/integrations/supabase/types';
@@ -12,10 +12,16 @@ interface ConfigurationGridProps {
 const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
 
-  const columnDefs: ColDef[] = [
-    { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center' },
-    { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center' },
-    { field: 'functional_currency', headerName: 'Functional Currency', width: 120, headerClass: 'text-center' },
+  const columnDefs: (ColDef | ColGroupDef)[] = [
+    {
+      headerName: 'Entity Information',
+      headerClass: 'text-center',
+      children: [
+        { field: 'entity_id', headerName: 'Entity ID', width: 110, headerClass: 'text-center' },
+        { field: 'entity_name', headerName: 'Entity Name', width: 150, headerClass: 'text-center' },
+        { field: 'functional_currency', headerName: 'Functional Currency', width: 120, headerClass: 'text-center' },
+      ]
+    },
     { field: 'po', headerName: 'PO', width: 100, headerClass: 'text-center' },
     { field: 'ap', headerName: 'AP', width: 100, headerClass: 'text-center' },
     { field: 'ar', headerName: 'AR', width: 100, headerClass: 'text-center' },
