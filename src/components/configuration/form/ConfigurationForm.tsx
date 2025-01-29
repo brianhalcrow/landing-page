@@ -43,7 +43,7 @@ const ConfigurationForm = () => {
     },
   });
 
-  const { data: entities } = useQuery({
+  const { data: entities, isLoading: isLoadingEntities } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -56,9 +56,15 @@ const ConfigurationForm = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
+      if (!values.entity_id) {
+        toast.error("Please select an entity");
+        return;
+      }
+
       const selectedEntity = entities?.find(e => e.entity_id === values.entity_id);
       if (!selectedEntity) {
-        throw new Error("Selected entity not found");
+        toast.error("Selected entity not found");
+        return;
       }
 
       const { data: existingRecord, error: checkError } = await supabase
@@ -125,6 +131,7 @@ const ConfigurationForm = () => {
                 <Select
                   onValueChange={field.onChange}
                   value={field.value}
+                  disabled={isLoadingEntities}
                 >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Select ID" />
@@ -152,6 +159,7 @@ const ConfigurationForm = () => {
                 <Select
                   onValueChange={field.onChange}
                   value={field.value}
+                  disabled={isLoadingEntities}
                 >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Select name" />
