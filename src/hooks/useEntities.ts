@@ -12,23 +12,24 @@ export const useEntities = () => {
   } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
+      console.log('Fetching entities...');
       const { data, error } = await supabase
         .from("pre_trade_sfx_config_exposures")
         .select("*")
         .order('entity_name');
       
       if (error) {
+        console.error('Error fetching entities:', error);
         toast.error('Failed to fetch entities');
         throw error;
       }
       
-      if (!data || data.length === 0) {
-        console.log('No entities found');
-      }
-      
+      console.log('Entities fetched:', data);
       return data as Tables<'pre_trade_sfx_config_exposures'>[];
     },
     refetchOnWindowFocus: false,
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   return {
