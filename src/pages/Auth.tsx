@@ -6,6 +6,25 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 
+// Function to generate random string for PKCE
+const generateRandomString = (length: number) => {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const values = crypto.getRandomValues(new Uint8Array(length));
+  return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+};
+
+// Function to generate code challenge from verifier
+const generateCodeChallenge = async (verifier: string) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -63,19 +82,36 @@ const Auth = () => {
 
   const handleSocialAuth = async (provider: 'google' | 'azure') => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: provider === 'azure' ? {
-            response_type: 'code',
-            scope: 'email profile openid',
-            prompt: 'select_account',
-            code_challenge_method: 'S256', // Enable PKCE
-          } : undefined,
-        },
-      });
-      if (error) throw error;
+      if (provider === 'azure') {
+        // Generate PKCE values
+        const codeVerifier = generateRandomString(64);
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+            queryParams: {
+              response_type: 'code',
+              scope: 'email profile openid',
+              prompt: 'select_account',
+              code_challenge: codeChallenge,
+              code_challenge_method: 'S256',
+              code_verifier: codeVerifier,
+            },
+          },
+        });
+        if (error) throw error;
+      } else {
+        // Google auth remains unchanged
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) throw error;
+      }
     } catch (error: any) {
       toast.error(error.message);
     }
