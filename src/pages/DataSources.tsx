@@ -1,28 +1,25 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import IntegrationsGrid from "@/components/integrations/IntegrationsGrid";
-import { useEntities } from '@/hooks/useEntities';
+import { TabItem } from "@/components/TabsContainer";
+import TabsContainer from "@/components/TabsContainer";
 
 const DataSources = () => {
-  const { entities, isLoading, error } = useEntities();
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="text-red-500">
-          Error loading entities. Please try refreshing the page.
+  const tabs: TabItem[] = [
+    {
+      value: "data-sources",
+      label: "Data Sources",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">Data Sources</h2>
+          <p className="text-gray-600">
+            Configure and manage your data source connections.
+          </p>
         </div>
-      </div>
-    );
-  }
+      ),
+    },
+  ];
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Data Sources</h1>
-      {isLoading ? (
-        <Skeleton className="h-[600px] w-full" />
-      ) : (
-        <IntegrationsGrid entities={entities || []} />
-      )}
+    <div className="h-full">
+      <TabsContainer tabs={tabs} defaultTab="data-sources" />
     </div>
   );
 };
