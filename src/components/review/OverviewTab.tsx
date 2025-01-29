@@ -1,4 +1,5 @@
-import { useState } from "react";
+// OverviewTab.tsx
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { HedgeRequest } from "./types";
@@ -29,7 +30,6 @@ const OverviewTab = () => {
         id: index + 1,
       }));
 
-      console.log('🔄 Updating state with new data');
       setHedgeRequests(hedgeRequestsWithId);
       console.log('✅ State updated successfully');
     } catch (error) {
@@ -42,6 +42,11 @@ const OverviewTab = () => {
     }
   };
 
+  // Initial fetch when component mounts
+  useEffect(() => {
+    fetchHedgeRequests();
+  }, []);
+
   return (
     <>
       <RealtimeSubscription onDataChange={fetchHedgeRequests} />
@@ -51,3 +56,43 @@ const OverviewTab = () => {
 };
 
 export default OverviewTab;
+
+// RealtimeSubscription.tsx
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface RealtimeSubscriptionProps {
+  onDataChange: () => void;
+}
+
+const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
+  useEffect(() => {
+    // Set up the subscription
+    const subscription = supabase
+      .channel('hedge-requests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'pre_trade_sfx_hedge_request',
+        },
+        () => {
+          console.log('🔄 Received real-time update');
+          onDataChange();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
+
+    // Cleanup subscription on component unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [onDataChange]);
+
+  return null;
+};
+
+export default RealtimeSubscription;
