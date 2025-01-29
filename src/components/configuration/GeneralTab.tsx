@@ -47,6 +47,7 @@ const GeneralTab = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      entity_id: "",
       po: false,
       ap: false,
       ar: false,
