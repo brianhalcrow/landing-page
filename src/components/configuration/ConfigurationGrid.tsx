@@ -17,23 +17,33 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const defaultColDef = {
     sortable: true,
     filter: true,
-    resizable: true,
+    resizable: false, // Disable column resizing
+    suppressSizeToFit: true, // Prevent columns from auto-fitting
   };
 
   useEffect(() => {
-    const savedState = localStorage.getItem('configurationGridColumnState');
-    if (savedState && gridRef.current?.columnApi) {
-      const columnState = JSON.parse(savedState);
+    if (gridRef.current?.columnApi) {
+      const columnState = [
+        { colId: 'entity_name', width: 150 },
+        { colId: 'entity_id', width: 110 },
+        { colId: 'functional_currency', width: 100 },
+        { colId: 'monetary_assets', width: 130 },
+        { colId: 'monetary_liabilities', width: 130 },
+        { colId: 'net_monetary', width: 120 },
+        { colId: 'revenue', width: 100 },
+        { colId: 'costs', width: 100 },
+        { colId: 'net_income', width: 110 },
+        { colId: 'po', width: 130 },
+        { colId: 'ap', width: 130 },
+        { colId: 'ar', width: 140 },
+        { colId: 'other', width: 100 },
+        { colId: 'ap_realized', width: 130 },
+        { colId: 'ar_realized', width: 140 },
+        { colId: 'fx_realized', width: 130 },
+      ];
       gridRef.current.columnApi.applyColumnState({ state: columnState });
     }
   }, []);
-
-  const onColumnResized = () => {
-    if (gridRef.current?.columnApi) {
-      const columnState = gridRef.current.columnApi.getColumnState();
-      localStorage.setItem('configurationGridColumnState', JSON.stringify(columnState));
-    }
-  };
 
   if (!entities.length) {
     return <EmptyGridMessage />;
@@ -48,7 +58,6 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
         columnDefs={getColumnDefs()}
         defaultColDef={defaultColDef}
         animateRows={true}
-        onColumnResized={onColumnResized}
       />
     </div>
   );
