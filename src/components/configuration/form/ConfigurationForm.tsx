@@ -45,9 +45,8 @@ const ConfigurationForm = () => {
   const handleSubmit = async (values: any) => {
     try {
       await onSubmit(values);
-      toast.success(isUpdating ? 'Configuration updated successfully' : 'Configuration saved successfully');
     } catch (error) {
-      toast.error('Failed to save configuration. Please try again.');
+      // Error toast is already handled in useConfigurationForm
     }
   };
 
