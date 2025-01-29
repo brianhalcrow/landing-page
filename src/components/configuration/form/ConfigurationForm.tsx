@@ -132,15 +132,8 @@ const ConfigurationForm = () => {
         created_at: new Date().toISOString(),
       };
 
-      // Check if a configuration already exists for this entity
-      const { data: existingConfig } = await supabase
-        .from("pre_trade_sfx_config_exposures")
-        .select()
-        .eq("entity_id", values.entity_id)
-        .maybeSingle();
-
       let error;
-      if (existingConfig) {
+      if (isUpdating) {
         // Update existing configuration
         const { error: updateError } = await supabase
           .from("pre_trade_sfx_config_exposures")
@@ -157,13 +150,12 @@ const ConfigurationForm = () => {
 
       if (error) throw error;
       
-      toast.success(existingConfig 
+      toast.success(isUpdating 
         ? "Hedge configuration updated successfully"
         : "Hedge configuration saved successfully"
       );
       
-      // Update the isUpdating state based on the operation performed
-      setIsUpdating(!!existingConfig);
+      setIsUpdating(true);
       
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
