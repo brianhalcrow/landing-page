@@ -108,10 +108,11 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
   };
 
   const wrapHeaderText = (params: any) => {
-    const displayName = params.displayName;
-    return `<div class="ag-header-cell-label" style="white-space: normal; line-height: 1.2em;">
-              ${displayName.split(' ').join('<br/>')}
-            </div>`;
+    return {
+      template: `<div class="ag-header-cell-label" style="white-space: normal; line-height: 1.2em;">
+                  ${params.displayName.split(' ').join('<br/>')}
+                </div>`
+    };
   };
 
   const columnDefs: ColDef[] = [
@@ -120,7 +121,7 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       field: 'actions',
       width: 120,
       suppressSizeToFit: true,
-      suppressResize: true,
+      resizable: false,
       cellRenderer: (params: any) => {
         const entityId = params.data.entity_id;
         const isEditing = editingRow === entityId;

@@ -35,12 +35,10 @@ const ConfigurationForm = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
-        // Handle sign in if needed
         toast.success('Signed in successfully');
       }
     });
 
-    // Check current auth status
     const checkAuth = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
@@ -60,6 +58,11 @@ const ConfigurationForm = () => {
     console.log('Form values:', values);
   };
 
+  const onFetchConfig = async (entityId: string) => {
+    // Placeholder for future implementation
+    console.log('Fetching config for entity:', entityId);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -67,7 +70,7 @@ const ConfigurationForm = () => {
           form={form}
           entities={[]}
           isLoadingEntities={false}
-          onFetchConfig={() => {}}
+          onFetchConfig={onFetchConfig}
           onUploadComplete={() => {}}
         />
         <FormCategories form={form} />
