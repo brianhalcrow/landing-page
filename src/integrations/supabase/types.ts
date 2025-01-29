@@ -252,7 +252,7 @@ export type Database = {
           costs: boolean | null
           created_at: string | null
           entity_id: string
-          entity_name: string | null
+          entity_name: string
           fx_realized: boolean | null
           "monetary liabilities": boolean | null
           monetary_assets: boolean | null
@@ -270,7 +270,7 @@ export type Database = {
           costs?: boolean | null
           created_at?: string | null
           entity_id: string
-          entity_name?: string | null
+          entity_name: string
           fx_realized?: boolean | null
           "monetary liabilities"?: boolean | null
           monetary_assets?: boolean | null
@@ -288,7 +288,7 @@ export type Database = {
           costs?: boolean | null
           created_at?: string | null
           entity_id?: string
-          entity_name?: string | null
+          entity_name?: string
           fx_realized?: boolean | null
           "monetary liabilities"?: boolean | null
           monetary_assets?: boolean | null

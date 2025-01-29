@@ -19,6 +19,22 @@ export const formSchema = z.object({
   net_monetary: z.boolean().default(false),
   monetary_assets: z.boolean().default(false),
   monetary_liabilities: z.boolean().default(false),
-});
+}).refine(
+  (data) => {
+    // If net_monetary is true, both monetary_assets and monetary_liabilities must be true
+    if (data.net_monetary) {
+      return data.monetary_assets && data.monetary_liabilities;
+    }
+    // If either monetary_assets or monetary_liabilities is true, net_monetary must be true
+    if (data.monetary_assets || data.monetary_liabilities) {
+      return data.net_monetary;
+    }
+    return true;
+  },
+  {
+    message: "Net Monetary, Monetary Assets, and Monetary Liabilities must be selected together",
+    path: ["net_monetary"], // This will show the error message under the net_monetary field
+  }
+);
 
 export type FormValues = z.infer<typeof formSchema>;

@@ -7,9 +7,10 @@ interface CheckboxFieldProps {
   form: UseFormReturn<FormValues>;
   name: keyof FormValues;
   label: string;
+  onCheckedChange?: (checked: boolean) => void;
 }
 
-const CheckboxField = ({ form, name, label }: CheckboxFieldProps) => {
+const CheckboxField = ({ form, name, label, onCheckedChange }: CheckboxFieldProps) => {
   return (
     <FormField
       control={form.control}
@@ -19,7 +20,10 @@ const CheckboxField = ({ form, name, label }: CheckboxFieldProps) => {
           <FormControl>
             <Checkbox
               checked={field.value as boolean}
-              onCheckedChange={field.onChange}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+                onCheckedChange?.(checked as boolean);
+              }}
             />
           </FormControl>
           <FormLabel className="font-normal">{label}</FormLabel>
