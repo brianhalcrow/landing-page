@@ -86,7 +86,8 @@ const CsvOperations = () => {
     if (!file) return;
 
     Papa.parse(file, {
-      header: true,
+      header: true, // This tells Papa Parse to use the first row as headers
+      skipEmptyLines: true, // Skip empty lines
       complete: async (results) => {
         // Filter out empty rows and validate data
         const data = (results.data as FormValues[])
