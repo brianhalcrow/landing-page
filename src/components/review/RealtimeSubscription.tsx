@@ -33,10 +33,8 @@ export const RealtimeSubscription = ({
             description: `A hedge request was ${payload.eventType.toLowerCase()}d`,
           });
 
-          // Trigger data refresh
-          console.log("Calling onDataChange...");
+          // Trigger data refresh to get all rows
           await onDataChange();
-          console.log("onDataChange completed");
         }
       )
       .subscribe((status) => {
