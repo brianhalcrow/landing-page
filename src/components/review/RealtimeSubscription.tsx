@@ -21,7 +21,7 @@ const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
           schema: 'public',
           table: 'pre_trade_sfx_hedge_request'
         },
-        (payload) => {
+        async (payload) => {
           console.log('📨 Received database change:', payload);
           console.log('Event type:', payload.eventType);
           
@@ -31,7 +31,7 @@ const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
             description: `A hedge request was ${payload.eventType.toLowerCase()}d`,
           });
           
-          // Trigger data refresh
+          // Trigger data refresh to get all rows
           onDataChange();
         }
       )
