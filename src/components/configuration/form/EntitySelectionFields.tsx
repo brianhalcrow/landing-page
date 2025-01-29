@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FormValues } from "../types";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface EntitySelectionFieldsProps {
   form: UseFormReturn<FormValues>;
@@ -34,7 +32,12 @@ const EntitySelectionFields = ({
           <FormItem>
             <FormLabel>Entity Name</FormLabel>
             <Select
-              onValueChange={field.onChange}
+              onValueChange={(value) => {
+                field.onChange(value);
+                if (value) {
+                  onFetchConfig(value);
+                }
+              }}
               value={field.value}
               disabled={isLoadingEntities}
             >
@@ -63,7 +66,12 @@ const EntitySelectionFields = ({
             <FormLabel>Entity ID</FormLabel>
             <div className="flex gap-2">
               <Select
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  if (value) {
+                    onFetchConfig(value);
+                  }
+                }}
                 value={field.value}
                 disabled={isLoadingEntities}
               >

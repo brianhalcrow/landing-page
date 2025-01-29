@@ -75,7 +75,6 @@ const ConfigurationForm = () => {
           monetary_liabilities: data.monetary_liabilities || false,
         });
         setIsUpdating(true);
-        toast.success("Configuration loaded successfully");
       } else {
         form.reset({
           entity_id: entityId,
@@ -94,7 +93,6 @@ const ConfigurationForm = () => {
           monetary_liabilities: false,
         });
         setIsUpdating(false);
-        toast.info("No existing configuration found for this entity");
       }
     } catch (error) {
       console.error("Error fetching configuration:", error);
