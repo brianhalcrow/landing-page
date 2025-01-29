@@ -9,7 +9,6 @@ interface FirmCommitmentsGroupProps {
 const FirmCommitmentsGroup = ({ form }: FirmCommitmentsGroupProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">Firm Commitments</h3>
       <CheckboxField form={form} name="po" label="Purchase Orders" />
       <CheckboxField form={form} name="ap" label="Accounts Payable" />
       <CheckboxField form={form} name="ar" label="Accounts Receivable" />

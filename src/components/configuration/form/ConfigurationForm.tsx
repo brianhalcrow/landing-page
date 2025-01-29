@@ -106,12 +106,12 @@ const ConfigurationForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex gap-4 items-start max-w-2xl">
+        <div className="flex gap-4 items-start">
           <FormField
             control={form.control}
             name="entity_id"
             render={({ field }) => (
-              <FormItem className="w-1/2">
+              <FormItem>
                 <FormLabel>Entity ID</FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -138,7 +138,7 @@ const ConfigurationForm = () => {
             control={form.control}
             name="entity_id"
             render={({ field }) => (
-              <FormItem className="w-1/2">
+              <FormItem>
                 <FormLabel>Entity Name</FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -163,38 +163,29 @@ const ConfigurationForm = () => {
           />
         </div>
 
-        <div className="space-y-8">
-          {/* Cashflow Section */}
+        <div className="grid grid-cols-4 gap-6">
+          {/* Cashflow Section - Column 1 */}
           <div className="border rounded-lg p-6 bg-blue-50">
             <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-medium mb-4 text-blue-800">Highly Probable Transactions</h3>
-                <HighlyProbableGroup form={form} />
-              </div>
-              <div>
-                <h3 className="font-medium mb-4 text-blue-800">Firm Commitments</h3>
-                <FirmCommitmentsGroup form={form} />
-              </div>
-            </div>
+            <HighlyProbableGroup form={form} />
           </div>
 
-          {/* Balance Sheet Section */}
+          {/* Cashflow Section - Column 2 */}
+          <div className="border rounded-lg p-6 bg-blue-50">
+            <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
+            <FirmCommitmentsGroup form={form} />
+          </div>
+
+          {/* Balance Sheet Section - Column 3 */}
           <div className="border rounded-lg p-6 bg-green-50">
             <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
-            <div>
-              <h3 className="font-medium mb-4 text-green-800">Monetary Exposure</h3>
-              <BalanceSheetGroup form={form} />
-            </div>
+            <BalanceSheetGroup form={form} />
           </div>
 
-          {/* Intramonth Section */}
+          {/* Intramonth Section - Column 4 */}
           <div className="border rounded-lg p-6 bg-purple-50">
             <h2 className="text-xl font-semibold mb-4 text-purple-900">Intramonth</h2>
-            <div>
-              <h3 className="font-medium mb-4 text-purple-800">Realized FX</h3>
-              <RealizedGroup form={form} />
-            </div>
+            <RealizedGroup form={form} />
           </div>
         </div>
 

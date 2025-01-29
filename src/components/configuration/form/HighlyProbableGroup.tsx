@@ -9,7 +9,6 @@ interface HighlyProbableGroupProps {
 const HighlyProbableGroup = ({ form }: HighlyProbableGroupProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">Highly Probable</h3>
       <CheckboxField form={form} name="revenue" label="Revenue" />
       <CheckboxField form={form} name="costs" label="Costs" />
       <CheckboxField form={form} name="net_income" label="Net Income" />
