@@ -26,6 +26,12 @@ const CsvOperations = () => {
     try {
       // Process each row
       for (const row of data) {
+        // Validate required entity_id
+        if (!row.entity_id) {
+          console.error("Row missing entity_id:", row);
+          throw new Error("All rows must have an entity_id");
+        }
+
         // Delete existing record if it exists
         const { error: deleteError } = await supabase
           .from("pre_trade_sfx_config_exposures")
@@ -67,7 +73,7 @@ const CsvOperations = () => {
       toast.success("CSV data uploaded successfully");
     } catch (error) {
       console.error("Error uploading CSV:", error);
-      toast.error("Failed to upload CSV data");
+      toast.error(error instanceof Error ? error.message : "Failed to upload CSV data");
     } finally {
       setIsUploading(false);
       setPendingCsvData([]);
@@ -82,7 +88,14 @@ const CsvOperations = () => {
     Papa.parse(file, {
       header: true,
       complete: async (results) => {
-        const data = results.data as FormValues[];
+        // Filter out empty rows and validate data
+        const data = (results.data as FormValues[])
+          .filter(row => row.entity_id && Object.keys(row).length > 0);
+        
+        if (data.length === 0) {
+          toast.error("No valid data found in CSV file");
+          return;
+        }
         
         // Check if any of the entities already have configurations
         const { data: existingConfigs, error } = await supabase
