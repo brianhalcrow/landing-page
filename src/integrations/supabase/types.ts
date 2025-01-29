@@ -252,7 +252,7 @@ export type Database = {
           costs: boolean | null
           created_at: string | null
           entity_id: string
-          exposed_currency: string | null
+          entity_name: string | null
           fx_realized: boolean | null
           net_income: boolean | null
           net_monetary: boolean | null
@@ -268,7 +268,7 @@ export type Database = {
           costs?: boolean | null
           created_at?: string | null
           entity_id: string
-          exposed_currency?: string | null
+          entity_name?: string | null
           fx_realized?: boolean | null
           net_income?: boolean | null
           net_monetary?: boolean | null
@@ -284,7 +284,7 @@ export type Database = {
           costs?: boolean | null
           created_at?: string | null
           entity_id?: string
-          exposed_currency?: string | null
+          entity_name?: string | null
           fx_realized?: boolean | null
           net_income?: boolean | null
           net_monetary?: boolean | null

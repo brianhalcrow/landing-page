@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   entity_id: z.string({
@@ -76,19 +74,36 @@ const GeneralTab = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const data = {
-        ...values,
-        entity_id: values.entity_id, // ensure entity_id is present
-        created_at: new Date().toISOString(),
-      };
-  
+      console.log("Submitting values:", values);
       const { error } = await supabase
         .from("pre_trade_sfx_config_exposures")
-        .upsert(data, {
-          onConflict: 'entity_id',
-        });
-  
-      if (error) throw error;
+        .insert({
+          ...values,
+          created_at: new Date().toISOString(),
+        })
+        .select();
+
+      if (error) {
+        console.error("Supabase error:", error);
+        if (error.code === "23505") { // Unique violation code
+          // If record exists, try to update it
+          const { error: updateError } = await supabase
+            .from("pre_trade_sfx_config_exposures")
+            .update({
+              ...values,
+              created_at: new Date().toISOString(),
+            })
+            .eq("entity_id", values.entity_id);
+
+          if (updateError) {
+            console.error("Update error:", updateError);
+            throw updateError;
+          }
+        } else {
+          throw error;
+        }
+      }
+
       toast.success("Hedge configuration saved successfully");
     } catch (error) {
       console.error("Error saving hedge configuration:", error);
