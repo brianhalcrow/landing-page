@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { FormValues } from "../types";
 
 interface EntitySelectionFieldsProps {
@@ -64,41 +63,30 @@ const EntitySelectionFields = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Entity ID</FormLabel>
-            <div className="flex gap-2">
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  if (value) {
-                    onFetchConfig(value);
-                  }
-                }}
-                value={field.value}
-                disabled={isLoadingEntities}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Select ID" />
-                </SelectTrigger>
-                <SelectContent>
-                  {entities?.map((entity) => (
-                    <SelectItem 
-                      key={entity.entity_id} 
-                      value={entity.entity_id || ""}
-                    >
-                      {entity.entity_id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => field.value && onFetchConfig(field.value)}
-                  disabled={!field.value || isLoadingEntities}
-                >
-                  Fetch Config
-                </Button>
-              </div>
-            </div>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                if (value) {
+                  onFetchConfig(value);
+                }
+              }}
+              value={field.value}
+              disabled={isLoadingEntities}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Select ID" />
+              </SelectTrigger>
+              <SelectContent>
+                {entities?.map((entity) => (
+                  <SelectItem 
+                    key={entity.entity_id} 
+                    value={entity.entity_id || ""}
+                  >
+                    {entity.entity_id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FormItem>
         )}
       />

@@ -35,6 +35,18 @@ export const formSchema = z.object({
     message: "Net Income, Revenue, and Costs must be selected together",
     path: ["net_income"],
   }
+).refine(
+  (data) => {
+    // If both monetary_assets and monetary_liabilities are true, net_monetary must be true
+    if (data.monetary_assets && data.monetary_liabilities) {
+      return data.net_monetary;
+    }
+    return true;
+  },
+  {
+    message: "When both Monetary Assets and Liabilities are selected, Net Monetary must be selected",
+    path: ["net_monetary"],
+  }
 );
 
 export type FormValues = z.infer<typeof formSchema>;
