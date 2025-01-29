@@ -12,7 +12,7 @@ const FormCategories = ({ form }: FormCategoriesProps) => {
   return (
     <div className="grid grid-cols-4 gap-6">
       <div className="border rounded-lg p-6 bg-green-50">
-        <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
+        <h2 className="text-xl font-semibold mb-4 text-green-900">Monetary</h2>
         <BalanceSheetGroup form={form} />
       </div>
 
