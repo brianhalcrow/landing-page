@@ -77,6 +77,22 @@ const ConfigurationForm = () => {
         setIsUpdating(true);
         toast.success("Configuration loaded successfully");
       } else {
+        form.reset({
+          entity_id: entityId,
+          po: false,
+          ap: false,
+          ar: false,
+          other: false,
+          revenue: false,
+          costs: false,
+          net_income: false,
+          ap_realized: false,
+          ar_realized: false,
+          fx_realized: false,
+          net_monetary: false,
+          monetary_assets: false,
+          monetary_liabilities: false,
+        });
         setIsUpdating(false);
         toast.info("No existing configuration found for this entity");
       }

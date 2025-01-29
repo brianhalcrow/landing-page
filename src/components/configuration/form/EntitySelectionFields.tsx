@@ -81,13 +81,15 @@ const EntitySelectionFields = ({
                   ))}
                 </SelectContent>
               </Select>
-              <Button 
-                variant="outline" 
-                onClick={() => field.value && onFetchConfig(field.value)}
-                disabled={!field.value || isLoadingEntities}
-              >
-                Fetch Config
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => field.value && onFetchConfig(field.value)}
+                  disabled={!field.value || isLoadingEntities}
+                >
+                  Fetch Config
+                </Button>
+              </div>
             </div>
           </FormItem>
         )}
