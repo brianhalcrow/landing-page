@@ -4,6 +4,7 @@ import CompletedTab from "@/components/monitor/CompletedTab";
 import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
+import PositionsTab from "@/components/review/PositionsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -45,7 +46,7 @@ export const tabsConfig = {
   ],
   "review": [
     { value: "overview", label: "Overview", content: <OverviewTab /> },
-    { value: "positions", label: "Positions", content: <div>Review Positions</div> },
+    { value: "positions", label: "Positions", content: <PositionsTab /> },
     { value: "limits", label: "Limits", content: <div>Review Limits</div> },
     { value: "reports", label: "Reports", content: <div>Review Reports</div> },
   ],
