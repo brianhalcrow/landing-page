@@ -6,6 +6,7 @@ import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
+import GeneralTab from "@/components/configuration/GeneralTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -25,7 +26,7 @@ export const tabsConfig = {
   ],
   "configuration": [
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
-    { value: "general", label: "General", content: <div>General Configuration</div> },
+    { value: "general", label: "General", content: <GeneralTab /> },
     { value: "integrations", label: "Integrations", content: <div>Integrations Configuration</div> },
   ],
   "exposure": [
