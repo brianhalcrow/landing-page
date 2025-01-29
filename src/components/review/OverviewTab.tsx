@@ -26,7 +26,7 @@ export const OverviewTab = () => {
       const { data, error } = await supabase
         .from("pre_trade_sfx_hedge_request")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("trade_request_id", { ascending: false });
 
       if (!isMounted) return;
 
