@@ -26,9 +26,15 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
       headerName: 'Monetary Exposure',
       headerClass: 'text-center',
       children: [
-        { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center' },
-        { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center' },
-        { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center' },
+        {
+          headerName: 'Balance Sheet',
+          headerClass: 'text-center',
+          children: [
+            { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130, headerClass: 'text-center' },
+            { field: 'monetary_liabilities', headerName: 'Monetary Liabs', width: 130, headerClass: 'text-center' },
+            { field: 'net_monetary', headerName: 'Net Monetary', width: 120, headerClass: 'text-center' },
+          ]
+        }
       ]
     },
     {
@@ -66,9 +72,9 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
           children: [
             { field: 'ap_realized', headerName: 'Accounts Payable', width: 130, headerClass: 'text-center' },
             { field: 'ar_realized', headerName: 'Accounts Receivable', width: 140, headerClass: 'text-center' },
+            { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center' },
           ]
-        },
-        { field: 'fx_realized', headerName: 'FX Conversions', width: 130, headerClass: 'text-center' },
+        }
       ]
     },
   ];
