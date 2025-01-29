@@ -24,13 +24,13 @@ export const getColumnDefs = (): (ColDef | ColGroupDef)[] => [
     { 
       ...createColumn('functional_currency', 'Functional\nCurrency', 120, 'text-center'), 
       cellClass: 'ag-checkbox-center right-border',
-      headerClass: 'text-center wrap-header-text whitespace-pre-line', // Added whitespace-pre-line for line breaks
+      headerClass: 'text-center wrap-header-text whitespace-pre-line',
     },
   ]),
   createHeaderGroup('Monetary Exposure', [
     createHeaderGroup('Balance Sheet', [
       createColumn('monetary_assets', 'Monetary Assets', 130),
-      createColumn('monetary_liabilities', 'Monetary Liabs', 130),
+      createColumn('monetary_liabilities', 'Monetary Liabilities', 130),
       { ...createColumn('net_monetary', 'Net Monetary', 120), cellClass: 'ag-checkbox-center right-border' },
     ]),
   ]),
