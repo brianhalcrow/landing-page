@@ -4,7 +4,9 @@ export const formSchema = z.object({
   entity_id: z.string({
     required_error: "Please select an entity",
   }),
-  entity_name: z.string().optional(),
+  entity_name: z.string({
+    required_error: "Entity name is required",
+  }),
   functional_currency: z.string().optional(),
   exposed_currency: z.string().optional(),
   created_at: z.string().optional(),
@@ -23,7 +25,6 @@ export const formSchema = z.object({
   monetary_liabilities: z.boolean().default(false),
 }).refine(
   (data) => {
-    // If both revenue and costs are true, net_income must be true
     if (data.revenue && data.costs) {
       return data.net_income;
     }
@@ -35,11 +36,9 @@ export const formSchema = z.object({
   }
 ).refine(
   (data) => {
-    // If net_monetary is true, both monetary_assets and monetary_liabilities must be true
     if (data.net_monetary) {
       return data.monetary_assets && data.monetary_liabilities;
     }
-    // If both monetary_assets and monetary_liabilities are true, net_monetary must be true
     if (data.monetary_assets && data.monetary_liabilities) {
       return data.net_monetary;
     }
