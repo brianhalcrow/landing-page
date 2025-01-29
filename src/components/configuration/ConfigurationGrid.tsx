@@ -24,13 +24,13 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   useEffect(() => {
     if (gridRef.current?.columnApi) {
       const columnState = [
-        { colId: 'entity_name', width: 150 },
+        { colId: 'entity_name', width: 195 }, // Increased by 30% from 150
         { colId: 'entity_id', width: 110 },
         { colId: 'functional_currency', width: 100 },
         { colId: 'monetary_assets', width: 130 },
         { colId: 'monetary_liabilities', width: 130 },
         { colId: 'net_monetary', width: 120 },
-        { colId: 'revenue', width: 100 },
+        { colId: 'revenue', width: 110 }, // Increased by 10% from 100
         { colId: 'costs', width: 100 },
         { colId: 'net_income', width: 110 },
         { colId: 'po', width: 130 },
