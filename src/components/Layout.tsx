@@ -78,7 +78,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="w-64 border-r border-gray-200 dark:border-gray-700">
           <Sidebar />
         </div>
-        <main className="flex-1 bg-white overflow-hidden">
+        <main className="flex-1 bg-white overflow-y-auto">
           {children}
         </main>
       </div>

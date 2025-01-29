@@ -11,14 +11,14 @@ interface FormCategoriesProps {
 const FormCategories = ({ form }: FormCategoriesProps) => {
   return (
     <div className="grid grid-cols-4 gap-6">
-      <div className="col-span-2 border rounded-lg p-6 bg-blue-50">
-        <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
-        <CashflowGroup form={form} />
-      </div>
-
       <div className="border rounded-lg p-6 bg-green-50">
         <h2 className="text-xl font-semibold mb-4 text-green-900">Balance Sheet</h2>
         <BalanceSheetGroup form={form} />
+      </div>
+
+      <div className="col-span-2 border rounded-lg p-6 bg-blue-50">
+        <h2 className="text-xl font-semibold mb-4 text-blue-900">Cashflow</h2>
+        <CashflowGroup form={form} />
       </div>
 
       <div className="border rounded-lg p-6 bg-purple-50">
