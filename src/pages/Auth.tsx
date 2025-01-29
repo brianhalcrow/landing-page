@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Github, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Auth = () => {
@@ -41,7 +41,7 @@ const Auth = () => {
     }
   };
 
-  const handleSocialAuth = async (provider: 'google' | 'github' | 'azure') => {
+  const handleSocialAuth = async (provider: 'google' | 'azure') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -69,7 +69,7 @@ const Auth = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Button
             variant="outline"
             onClick={() => handleSocialAuth('google')}
@@ -101,17 +101,13 @@ const Auth = () => {
             onClick={() => handleSocialAuth('azure')}
             className="w-full"
           >
-            <Mail className="h-5 w-5 mr-2" />
+            <svg className="h-5 w-5 mr-2" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#f25022" d="M1 1h9v9H1z"/>
+              <path fill="#00a4ef" d="M1 11h9v9H1z"/>
+              <path fill="#7fba00" d="M11 1h9v9h-9z"/>
+              <path fill="#ffb900" d="M11 11h9v9h-9z"/>
+            </svg>
             Microsoft
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => handleSocialAuth('github')}
-            className="w-full"
-          >
-            <Github className="h-5 w-5 mr-2" />
-            GitHub
           </Button>
         </div>
 
