@@ -58,14 +58,14 @@ const OverviewTab = () => {
 export default OverviewTab;
 
 // RealtimeSubscription.tsx
-import { useEffect } from 'react';
+import { FC } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RealtimeSubscriptionProps {
   onDataChange: () => void;
 }
 
-const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
+const RealtimeSubscription: FC<RealtimeSubscriptionProps> = ({ onDataChange }) => {
   useEffect(() => {
     // Set up the subscription
     const subscription = supabase
@@ -93,6 +93,9 @@ const RealtimeSubscription = ({ onDataChange }: RealtimeSubscriptionProps) => {
   }, [onDataChange]);
 
   return null;
+};
+
+export default RealtimeSubscription;
 };
 
 export default RealtimeSubscription;
