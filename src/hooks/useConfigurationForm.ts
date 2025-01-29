@@ -53,8 +53,8 @@ export const useConfigurationForm = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      if (!values.entity_id) {
-        toast.error("Please select an entity");
+      if (!values.entity_id || !values.entity_name) {
+        toast.error("Please provide both Entity ID and Entity Name");
         return;
       }
 

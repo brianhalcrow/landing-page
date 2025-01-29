@@ -4,7 +4,9 @@ export const formSchema = z.object({
   entity_id: z.string({
     required_error: "Please select an entity",
   }),
-  entity_name: z.string().optional(),
+  entity_name: z.string({
+    required_error: "Entity name is required",
+  }),
   functional_currency: z.string().optional(),
   exposed_currency: z.string().optional(),
   created_at: z.string().optional(),
