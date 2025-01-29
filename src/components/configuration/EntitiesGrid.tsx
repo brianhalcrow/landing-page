@@ -16,6 +16,30 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { field: 'entity_id', headerName: 'Entity ID', width: 110 },
     { field: 'entity_name', headerName: 'Entity Name', width: 150 },
     { field: 'functional_currency', headerName: 'Functional Currency', width: 120 },
+    { field: 'po', headerName: 'PO', width: 100 },
+    { field: 'ap', headerName: 'AP', width: 100 },
+    { field: 'ar', headerName: 'AR', width: 100 },
+    { field: 'other', headerName: 'Other', width: 100 },
+    { field: 'revenue', headerName: 'Revenue', width: 100 },
+    { field: 'costs', headerName: 'Costs', width: 100 },
+    { field: 'net_income', headerName: 'Net Income', width: 100 },
+    { field: 'ap_realized', headerName: 'AP Realized', width: 110 },
+    { field: 'ar_realized', headerName: 'AR Realized', width: 110 },
+    { field: 'fx_realized', headerName: 'FX Realized', width: 110 },
+    { field: 'net_monetary', headerName: 'Net Monetary', width: 120 },
+    { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130 },
+    { field: 'monetary_liabilities', headerName: 'Monetary Liabilities', width: 140 },
+    { 
+      field: 'created_at', 
+      headerName: 'Created At', 
+      width: 160,
+      valueFormatter: (params) => {
+        if (params.value) {
+          return new Date(params.value).toLocaleString();
+        }
+        return '';
+      }
+    },
   ];
 
   const defaultColDef = {
