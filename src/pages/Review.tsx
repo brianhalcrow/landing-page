@@ -1,13 +1,8 @@
-import Layout from "@/components/Layout";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 
 const Review = () => {
-  return (
-    <Layout>
-      <TabsContainer tabs={tabsConfig["review"]} />
-    </Layout>
-  );
+  return <TabsContainer tabs={tabsConfig["review"]} />;
 };
 
 export default Review;
