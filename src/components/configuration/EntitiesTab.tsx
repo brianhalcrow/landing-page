@@ -12,7 +12,7 @@ const EntitiesTab = () => {
     queryKey: ['entities'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('pre_trade_sfx_config_exposures')
+        .from('pre_trade_sfx_config_entity')
         .select('*');
       
       if (error) {
@@ -24,7 +24,7 @@ const EntitiesTab = () => {
         console.log('No entities found');
       }
       
-      return data as Tables<'pre_trade_sfx_config_exposures'>[];
+      return data as Tables<'pre_trade_sfx_config_entity'>[];
     },
   });
 
@@ -59,7 +59,7 @@ const EntitiesTab = () => {
       {isLoading ? (
         <Skeleton className="h-[600px] w-full" />
       ) : (
-        <EntitiesGrid entities={entities || []} onRefresh={refetch} />
+        <EntitiesGrid entities={entities || []} />
       )}
     </div>
   );
