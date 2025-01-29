@@ -21,16 +21,12 @@ const OverviewTab = () => {
         throw error;
       }
 
-      console.log('✅ Received hedge requests:', data);
-      console.log('📊 Number of records:', data?.length || 0);
-
       const hedgeRequestsWithId = (data || []).map((request, index) => ({
         ...request,
         id: index + 1,
       }));
 
       setHedgeRequests(hedgeRequestsWithId);
-      console.log('✅ State updated successfully');
     } catch (error) {
       console.error('❌ Error in fetchHedgeRequests:', error);
       toast({
@@ -41,7 +37,6 @@ const OverviewTab = () => {
     }
   };
 
-  // Initial fetch when component mounts
   useEffect(() => {
     fetchHedgeRequests();
   }, []);
