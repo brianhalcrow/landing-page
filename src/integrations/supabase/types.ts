@@ -253,6 +253,7 @@ export type Database = {
           created_at: string | null
           entity_id: string
           entity_name: string
+          functional_currency: string | null
           fx_realized: boolean | null
           monetary_assets: boolean | null
           monetary_liabilities: boolean | null
@@ -271,6 +272,7 @@ export type Database = {
           created_at?: string | null
           entity_id: string
           entity_name: string
+          functional_currency?: string | null
           fx_realized?: boolean | null
           monetary_assets?: boolean | null
           monetary_liabilities?: boolean | null
@@ -289,6 +291,7 @@ export type Database = {
           created_at?: string | null
           entity_id?: string
           entity_name?: string
+          functional_currency?: string | null
           fx_realized?: boolean | null
           monetary_assets?: boolean | null
           monetary_liabilities?: boolean | null

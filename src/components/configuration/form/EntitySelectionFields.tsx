@@ -1,5 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -87,6 +88,20 @@ const EntitySelectionFields = ({
                 ))}
               </SelectContent>
             </Select>
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="functional_currency"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Functional Currency</FormLabel>
+            <Input 
+              placeholder="e.g. USD" 
+              {...field} 
+              className="w-[100px]"
+            />
           </FormItem>
         )}
       />

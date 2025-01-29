@@ -28,7 +28,7 @@ const CsvOperations = () => {
           // Insert each row into the database
           for (const row of rows) {
             const [
-              entity_id, entity_name, po, ap, ar, other, revenue, costs,
+              entity_id, entity_name, functional_currency, po, ap, ar, other, revenue, costs,
               net_income, ap_realized, ar_realized, fx_realized, net_monetary,
               monetary_assets, monetary_liabilities
             ] = row;
@@ -38,6 +38,7 @@ const CsvOperations = () => {
               .upsert({
                 entity_id,
                 entity_name,
+                functional_currency,
                 po: po === 'true',
                 ap: ap === 'true',
                 ar: ar === 'true',
