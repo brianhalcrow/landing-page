@@ -87,7 +87,7 @@ const CsvOperations = () => {
   };
 
   return (
-    <div className="flex gap-4 mb-6">
+    <div className="flex gap-2">
       <div>
         <input
           type="file"
@@ -101,6 +101,7 @@ const CsvOperations = () => {
             type="button"
             variant="outline"
             disabled={isUploading}
+            size="sm"
             asChild
           >
             <span>{isUploading ? "Uploading..." : "Upload CSV"}</span>
@@ -112,6 +113,7 @@ const CsvOperations = () => {
         variant="outline"
         onClick={handleDownload}
         disabled={isDownloading}
+        size="sm"
       >
         {isDownloading ? "Downloading..." : "Download CSV"}
       </Button>

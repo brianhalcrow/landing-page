@@ -109,12 +109,14 @@ const ConfigurationForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <CsvOperations />
-        <EntitySelectionFields 
-          form={form}
-          entities={entities}
-          isLoadingEntities={isLoadingEntities}
-        />
+        <div className="flex justify-between items-start gap-4">
+          <EntitySelectionFields 
+            form={form}
+            entities={entities}
+            isLoadingEntities={isLoadingEntities}
+          />
+          <CsvOperations />
+        </div>
 
         <div className="grid grid-cols-4 gap-6">
           <div className="col-span-2 border rounded-lg p-6 bg-blue-50">
