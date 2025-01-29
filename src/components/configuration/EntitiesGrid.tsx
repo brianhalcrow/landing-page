@@ -21,7 +21,6 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
 
   const onGridReady = (params: GridReadyEvent) => {
     setGridApi(params.api);
-    params.api.sizeColumnsToFit();
   };
 
   const handleEdit = (entityId: string) => {
@@ -108,11 +107,20 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
     }
   };
 
+  const wrapHeaderText = (params: any) => {
+    const displayName = params.displayName;
+    return `<div class="ag-header-cell-label" style="white-space: normal; line-height: 1.2em;">
+              ${displayName.split(' ').join('<br/>')}
+            </div>`;
+  };
+
   const columnDefs: ColDef[] = [
     {
       headerName: 'Actions',
       field: 'actions',
       width: 120,
+      suppressSizeToFit: true,
+      suppressResize: true,
       cellRenderer: (params: any) => {
         const entityId = params.data.entity_id;
         const isEditing = editingRow === entityId;
@@ -151,117 +159,165 @@ const EntitiesGrid = ({ entities, onRefresh }: EntitiesGridProps) => {
       field: 'entity_id',
       headerName: 'Entity ID',
       editable: true,
-      width: 120 
+      width: 120,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     { 
       field: 'entity_name',
       headerName: 'Entity Name',
       editable: true,
-      width: 150 
+      width: 150,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     { 
       field: 'functional_currency',
       headerName: 'Currency',
       editable: true,
-      width: 100 
+      width: 100,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'po',
       headerName: 'PO',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 80
+      width: 80,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'ap',
       headerName: 'AP',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 80
+      width: 80,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'ar',
       headerName: 'AR',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 80
+      width: 80,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'other',
       headerName: 'Other',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 80
+      width: 80,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'revenue',
       headerName: 'Revenue',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 100
+      width: 100,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'costs',
       headerName: 'Costs',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 80
+      width: 80,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'net_income',
       headerName: 'Net Income',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 110
+      width: 110,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'ap_realized',
       headerName: 'AP Realized',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 110
+      width: 110,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'ar_realized',
       headerName: 'AR Realized',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 110
+      width: 110,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'fx_realized',
       headerName: 'FX Realized',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 110
+      width: 110,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'net_monetary',
       headerName: 'Net Monetary',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 120
+      width: 120,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'monetary_assets',
       headerName: 'Monetary Assets',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 130
+      width: 130,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     },
     {
       field: 'monetary_liabilities',
       headerName: 'Monetary Liabilities',
       editable: true,
       cellRenderer: 'agCheckboxCellRenderer',
-      width: 140
+      width: 140,
+      suppressSizeToFit: true,
+      suppressResize: true,
+      headerComponentParams: { template: wrapHeaderText }
     }
   ];
 
   const defaultColDef = {
     sortable: true,
     filter: true,
-    resizable: true,
+    resizable: false,
     suppressMovable: true,
   };
 
