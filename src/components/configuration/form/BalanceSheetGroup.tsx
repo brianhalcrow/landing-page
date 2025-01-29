@@ -10,26 +10,26 @@ interface BalanceSheetGroupProps {
 const BalanceSheetGroup = ({ form }: BalanceSheetGroupProps) => {
   const handleCheckboxChange = (field: keyof FormValues) => {
     const currentValue = form.getValues(field);
+    
     if (field === 'net_monetary') {
-      if (!currentValue) {
-        // If unchecking net_monetary, uncheck the other two
-        form.setValue('monetary_assets', false);
-        form.setValue('monetary_liabilities', false);
-      } else {
+      if (currentValue) {
         // If checking net_monetary, check the other two
         form.setValue('monetary_assets', true);
         form.setValue('monetary_liabilities', true);
       }
+      // If unchecking net_monetary, leave the other checkboxes as they are
     } else {
-      // If checking either monetary_assets or monetary_liabilities
-      if (currentValue) {
-        form.setValue('net_monetary', true);
-        // Also check the other monetary field
-        const otherField = field === 'monetary_assets' ? 'monetary_liabilities' : 'monetary_assets';
-        form.setValue(otherField, true);
-      } else {
-        // If unchecking either, uncheck net_monetary
+      // If unchecking either monetary_assets or monetary_liabilities
+      if (!currentValue) {
+        // Uncheck net_monetary if either monetary_assets or monetary_liabilities is unchecked
         form.setValue('net_monetary', false);
+      } else {
+        // If both monetary_assets and monetary_liabilities are checked, check net_monetary
+        const otherField = field === 'monetary_assets' ? 'monetary_liabilities' : 'monetary_assets';
+        const otherValue = form.getValues(otherField);
+        if (otherValue) {
+          form.setValue('net_monetary', true);
+        }
       }
     }
   };

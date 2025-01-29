@@ -56,6 +56,11 @@ const ConfigurationForm = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
+      const selectedEntity = entities?.find(e => e.entity_id === values.entity_id);
+      if (!selectedEntity) {
+        throw new Error("Selected entity not found");
+      }
+
       const { data: existingRecord, error: checkError } = await supabase
         .from("pre_trade_sfx_config_exposures")
         .select()
@@ -68,6 +73,7 @@ const ConfigurationForm = () => {
 
       const submitData = {
         entity_id: values.entity_id,
+        entity_name: selectedEntity.entity_name || '',
         po: values.po,
         ap: values.ap,
         ar: values.ar,
