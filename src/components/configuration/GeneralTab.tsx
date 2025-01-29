@@ -1,6 +1,4 @@
-import { Suspense } from "react";
 import ConfigurationForm from "./form/ConfigurationForm";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const GeneralTab = () => {
   return (

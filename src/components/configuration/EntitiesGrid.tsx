@@ -1,5 +1,5 @@
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, ColumnState } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Tables } from '@/integrations/supabase/types';
@@ -39,6 +39,14 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       localStorage.setItem('entitiesGridColumnState', JSON.stringify(columnState));
     }
   };
+
+  if (!entities.length) {
+    return (
+      <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
+        No entities found. Please upload entities using the CSV operations above.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[600px] ag-theme-alpine">
