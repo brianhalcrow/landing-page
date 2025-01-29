@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Auth = () => {
@@ -15,17 +14,22 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
-    // Check if we're on the callback route
-    const hash = window.location.hash;
-    const query = new URLSearchParams(window.location.search);
-    
-    if (hash || query.get('code')) {
-      supabase.auth.getSession().then(({ data: { session }}) => {
-        if (session) {
-          navigate('/');
-        }
-      });
-    }
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/');
+      }
+    });
+
+    // Check if we're already authenticated
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/');
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -37,6 +41,9 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (error) throw error;
         toast.success("Check your email for the confirmation link!");
@@ -46,7 +53,6 @@ const Auth = () => {
           password,
         });
         if (error) throw error;
-        navigate("/");
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -65,7 +71,7 @@ const Auth = () => {
             access_type: 'offline',
             prompt: 'consent',
           },
-        }
+        },
       });
       if (error) throw error;
     } catch (error: any) {
