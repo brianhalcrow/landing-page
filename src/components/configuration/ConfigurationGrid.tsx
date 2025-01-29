@@ -21,29 +21,31 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     suppressSizeToFit: true, // Prevent columns from auto-fitting
   };
 
+  const columnState = [
+    { colId: 'entity_name', width: 195 },
+    { colId: 'entity_id', width: 110 },
+    { colId: 'functional_currency', width: 100 },
+    { colId: 'monetary_assets', width: 130 },
+    { colId: 'monetary_liabilities', width: 130 },
+    { colId: 'net_monetary', width: 120 },
+    { colId: 'revenue', width: 110 },
+    { colId: 'costs', width: 100 },
+    { colId: 'net_income', width: 110 },
+    { colId: 'po', width: 130 },
+    { colId: 'ap', width: 130 },
+    { colId: 'ar', width: 140 },
+    { colId: 'other', width: 100 },
+    { colId: 'ap_realized', width: 130 },
+    { colId: 'ar_realized', width: 140 },
+    { colId: 'fx_realized', width: 130 },
+  ];
+
+  // Apply column state when grid is ready and when entities update
   useEffect(() => {
     if (gridRef.current?.columnApi) {
-      const columnState = [
-        { colId: 'entity_name', width: 195 }, // Increased by 30% from 150
-        { colId: 'entity_id', width: 110 },
-        { colId: 'functional_currency', width: 100 },
-        { colId: 'monetary_assets', width: 130 },
-        { colId: 'monetary_liabilities', width: 130 },
-        { colId: 'net_monetary', width: 120 },
-        { colId: 'revenue', width: 110 }, // Increased by 10% from 100
-        { colId: 'costs', width: 100 },
-        { colId: 'net_income', width: 110 },
-        { colId: 'po', width: 130 },
-        { colId: 'ap', width: 130 },
-        { colId: 'ar', width: 140 },
-        { colId: 'other', width: 100 },
-        { colId: 'ap_realized', width: 130 },
-        { colId: 'ar_realized', width: 140 },
-        { colId: 'fx_realized', width: 130 },
-      ];
       gridRef.current.columnApi.applyColumnState({ state: columnState });
     }
-  }, []);
+  }, [entities]);
 
   if (!entities.length) {
     return <EmptyGridMessage />;
