@@ -1,18 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Tables } from '@/integrations/supabase/types';
 
-export const useEntityQuery = () => {
+export const useEntities = () => {
   const { 
     data: entities, 
-    isLoading: isLoadingEntities,
-    refetch: refetchEntities 
+    isLoading, 
+    error,
+    refetch 
   } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pre_trade_sfx_config_exposures")
-        .select("entity_id, entity_name, functional_currency")
+        .select("*")
         .order('entity_name');
       
       if (error) {
@@ -20,13 +22,18 @@ export const useEntityQuery = () => {
         throw error;
       }
       
-      return data;
+      if (!data || data.length === 0) {
+        console.log('No entities found');
+      }
+      
+      return data as Tables<'pre_trade_sfx_config_exposures'>[];
     },
   });
 
   return {
     entities,
-    isLoadingEntities,
-    refetchEntities
+    isLoading,
+    error,
+    refetch
   };
 };

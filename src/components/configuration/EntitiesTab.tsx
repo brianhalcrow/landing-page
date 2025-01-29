@@ -1,32 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import EntitiesGrid from './EntitiesGrid';
 import CsvOperations from './CsvOperations';
-import { Tables } from '@/integrations/supabase/types';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from 'react';
 import { toast } from "sonner";
+import { useEntities } from '@/hooks/useEntities';
 
 const EntitiesTab = () => {
-  const { data: entities, isLoading, error, refetch } = useQuery({
-    queryKey: ['entities'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pre_trade_sfx_config_exposures')
-        .select('*');
-      
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-      
-      if (!data || data.length === 0) {
-        console.log('No entities found');
-      }
-      
-      return data as Tables<'pre_trade_sfx_config_exposures'>[];
-    },
-  });
+  const { entities, isLoading, error, refetch } = useEntities();
 
   // Handle auth state changes
   useEffect(() => {

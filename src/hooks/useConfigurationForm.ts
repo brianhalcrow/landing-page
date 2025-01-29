@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema, FormValues } from "@/components/configuration/types";
 import { useState, useEffect } from "react";
-import { useEntityQuery } from "./useEntityQuery";
+import { useEntities } from "./useEntities";
 import { useEntityManagement } from "./useEntityManagement";
 import { useConfigurationSubmit } from "./useConfigurationSubmit";
 
@@ -31,7 +31,7 @@ export const useConfigurationForm = () => {
     },
   });
 
-  const { entities, isLoadingEntities, refetchEntities } = useEntityQuery();
+  const { entities, isLoading: isLoadingEntities, refetch: refetchEntities } = useEntities();
   const { 
     isUpdating, 
     setIsUpdating, 
