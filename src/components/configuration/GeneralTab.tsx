@@ -23,7 +23,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
-  entity_id: z.string(),
+  entity_id: z.string({
+    required_error: "Please select an entity",
+  }),
   exposed_currency: z.string().optional(),
   po: z.boolean().default(false),
   ap: z.boolean().default(false),
