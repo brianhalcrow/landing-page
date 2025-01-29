@@ -33,6 +33,7 @@ const EntitySelectionFields = ({
     // Reset form fields when toggling
     form.reset({
       entity_id: "",
+      entity_name: "",
       functional_currency: "",
     });
   };
@@ -120,7 +121,7 @@ const EntitySelectionFields = ({
                       {entities?.map((entity) => (
                         <SelectItem 
                           key={entity.entity_id} 
-                          value={entity.entity_id || ""}
+                          value={entity.entity_id}
                         >
                           {entity.entity_name}
                         </SelectItem>
@@ -159,7 +160,7 @@ const EntitySelectionFields = ({
                       {entities?.map((entity) => (
                         <SelectItem 
                           key={entity.entity_id} 
-                          value={entity.entity_id || ""}
+                          value={entity.entity_id}
                         >
                           {entity.entity_id}
                         </SelectItem>
