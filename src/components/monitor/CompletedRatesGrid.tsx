@@ -22,21 +22,26 @@ interface FXRate {
 
 const CompletedRatesGrid = () => {
   const [rowData, setRowData] = useState<FXRate[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRates = async () => {
       try {
+        console.log('Fetching FX rates...');
         const response = await fetch('https://api.sensefx.io/pre_trade_rates');
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
+        console.log('Received FX rates:', data);
         setRowData(data);
-      } catch (error) {
-        console.error('Error fetching FX rates:', error);
-        setError('Failed to load FX rates');
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching FX rates:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch FX rates');
       } finally {
         setLoading(false);
       }
@@ -46,11 +51,11 @@ const CompletedRatesGrid = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading FX rates...</div>;
+    return <div className="w-full text-center py-4">Loading FX rates...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="w-full text-center py-4 text-red-500">Error: {error}</div>;
   }
 
   return (
