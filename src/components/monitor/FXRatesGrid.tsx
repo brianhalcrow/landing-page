@@ -122,7 +122,7 @@ const FXRatesGrid = () => {
   }
 
   return (
-    <div className="w-full h-96 ag-theme-alpine">
+    <div className="w-full h-[600px] ag-theme-alpine">
       <AgGridReact<FXRate>
         rowData={rowData}
         columnDefs={columnDefs}
