@@ -34,7 +34,7 @@ const CsvOperations = () => {
             ] = row;
 
             const { error } = await supabase
-              .from('pre_trade_sfx_config_exposures')
+              .from('config_exposures')
               .upsert({
                 entity_id,
                 entity_name,
@@ -87,7 +87,7 @@ const CsvOperations = () => {
     try {
       toast.info('Preparing CSV download...');
       const { data, error } = await supabase
-        .from('pre_trade_sfx_config_exposures')
+        .from('config_exposures')
         .select('*');
 
       if (error) throw error;
