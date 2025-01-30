@@ -22,11 +22,15 @@ const EntitiesTab = () => {
     };
   }, [refetch]);
 
+  const handleUploadComplete = (updatedEntityIds: string[]) => {
+    refetch();
+  };
+
   if (error) {
     toast.error(`Error loading entities: ${error.message}`);
     return (
       <div className="p-4 space-y-4">
-        <CsvOperations />
+        <CsvOperations onUploadComplete={handleUploadComplete} />
         <div className="text-red-500">
           Error loading entities. Please try refreshing the page.
         </div>
@@ -36,7 +40,7 @@ const EntitiesTab = () => {
 
   return (
     <div className="space-y-4 p-4">
-      <CsvOperations />
+      <CsvOperations onUploadComplete={handleUploadComplete} />
       {isLoading ? (
         <Skeleton className="h-[600px] w-full" />
       ) : (
