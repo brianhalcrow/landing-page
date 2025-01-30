@@ -7,6 +7,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Select,
@@ -52,7 +53,10 @@ const HedgeRequestForm = () => {
         .select("*")
         .order("entity_name");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching entities:", error);
+        throw error;
+      }
       return data;
     },
   });
@@ -67,7 +71,11 @@ const HedgeRequestForm = () => {
         .eq("entity_id", form.watch("entity_id"))
         .order("exposure_category_level_2");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching criteria:", error);
+        throw error;
+      }
+      console.log("Criteria data:", data);
       return data;
     },
     enabled: !!form.watch("entity_id"),
@@ -92,8 +100,40 @@ const HedgeRequestForm = () => {
 
   const getUniqueValues = (field: keyof FormValues) => {
     if (!criteriaData) return [];
-    const uniqueValues = new Set(criteriaData.map(item => item[field]));
-    return Array.from(uniqueValues).filter(Boolean);
+
+    if (field === "exposure_category_level_3") {
+      const level2Value = form.watch("exposure_category_level_2");
+      const filteredData = criteriaData.filter(item => 
+        item.exposure_category_level_2 === level2Value
+      );
+
+      // If Balance Sheet is selected, only show Monetary and Settlement
+      if (level2Value === "Balance Sheet") {
+        return Array.from(new Set(filteredData
+          .map(item => item.exposure_category_level_3)))
+          .filter(value => value === "Monetary" || value === "Settlement");
+      }
+
+      return Array.from(new Set(filteredData.map(item => item[field])));
+    }
+
+    if (field === "exposure_category_level_4") {
+      const level2Value = form.watch("exposure_category_level_2");
+      const level3Value = form.watch("exposure_category_level_3");
+      return Array.from(new Set(criteriaData
+        .filter(item => 
+          item.exposure_category_level_2 === level2Value &&
+          item.exposure_category_level_3 === level3Value
+        )
+        .map(item => item[field])
+      ));
+    }
+
+    if (field === "exposure_category_level_2") {
+      return Array.from(new Set(criteriaData.map(item => item[field])));
+    }
+
+    return Array.from(new Set(criteriaData.map(item => item[field]))).filter(Boolean);
   };
 
   const handleSubmit = (values: FormValues) => {
@@ -111,7 +151,6 @@ const HedgeRequestForm = () => {
     }
 
     console.log("Form submitted:", values);
-    // TODO: Handle form submission
   };
 
   return (
@@ -144,6 +183,7 @@ const HedgeRequestForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -174,6 +214,7 @@ const HedgeRequestForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -185,7 +226,11 @@ const HedgeRequestForm = () => {
               <FormItem>
                 <FormLabel>Category Level 2</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue("exposure_category_level_3", "");
+                    form.setValue("exposure_category_level_4", "");
+                  }}
                   value={field.value}
                   disabled={!form.getValues("entity_id")}
                 >
@@ -202,6 +247,7 @@ const HedgeRequestForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -213,7 +259,10 @@ const HedgeRequestForm = () => {
               <FormItem>
                 <FormLabel>Category Level 3</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue("exposure_category_level_4", "");
+                  }}
                   value={field.value}
                   disabled={!form.getValues("exposure_category_level_2")}
                 >
@@ -230,6 +279,7 @@ const HedgeRequestForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -258,6 +308,7 @@ const HedgeRequestForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
