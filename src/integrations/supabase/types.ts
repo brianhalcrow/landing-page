@@ -306,6 +306,8 @@ export type Database = {
       pre_trade_sfx_criteria: {
         Row: {
           account_category_level_1: string | null
+          entity_id: string | null
+          entity_name: string | null
           exposure_category_level_1: string | null
           exposure_category_level_2: string | null
           exposure_category_level_3: string | null
@@ -316,16 +318,20 @@ export type Database = {
         }
         Insert: {
           account_category_level_1?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
           exposure_category_level_1?: string | null
           exposure_category_level_2?: string | null
           exposure_category_level_3?: string | null
           exposure_category_level_4?: string | null
           exposure_config?: string | null
-          id: number
+          id?: number
           subsystem_code?: string | null
         }
         Update: {
           account_category_level_1?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
           exposure_category_level_1?: string | null
           exposure_category_level_2?: string | null
           exposure_category_level_3?: string | null
@@ -550,6 +556,12 @@ export type Database = {
         Relationships: []
       }
       pre_trade_sfx_im_forecast: {
+        Row: {}
+        Insert: {}
+        Update: {}
+        Relationships: []
+      }
+      pre_trade_sfx_instruments: {
         Row: {}
         Insert: {}
         Update: {}
