@@ -15,16 +15,23 @@ const GeneralTab = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'pre_trade_sfx_config_exposures'
+          table: 'config_exposures'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Real-time update received:', payload);
-          refetch();
+          console.log("Event type:", payload.eventType);
+          console.log("Full payload:", JSON.stringify(payload, null, 2));
+
+          // Trigger data refresh to get all rows
+          await refetch();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
 
     return () => {
+      console.log("Cleaning up subscription...");
       supabase.removeChannel(channel);
     };
   }, [refetch]);
