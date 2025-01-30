@@ -4,15 +4,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { FormValues, formSchema, Entity, Criteria } from "./types";
 import EntitySelection from "./EntitySelection";
 import CategorySelection from "./CategorySelection";
 
+// Define simpler types directly instead of using complex zod schemas
+interface FormValues {
+  entity_id: string;
+  entity_name: string;
+  exposure_category_level_2: string;
+  exposure_category_level_3: string;
+  exposure_category_level_4: string;
+}
+
+interface Entity {
+  entity_id: string;
+  entity_name: string;
+}
+
+interface Criteria {
+  entity_id: string;
+  exposure_category_level_2: string;
+  exposure_category_level_3: string;
+  exposure_category_level_4: string;
+}
+
 const HedgeRequestForm = () => {
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
       entity_id: "",
       entity_name: "",
