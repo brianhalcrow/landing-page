@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -14,32 +15,57 @@ interface FXRate {
   bs_month: string;
 }
 
-const columnDefs = [
-  { field: 'currency_pair', headerName: 'Currency Pair', sortable: true, filter: true },
-  { field: 'base_currency', headerName: 'Base Currency', sortable: true, filter: true },
-  { field: 'quote_currency', headerName: 'Quote Currency', sortable: true, filter: true },
+const columnDefs: ColDef<FXRate>[] = [
   { 
-    field: 'closing_rate', 
-    headerName: 'Rate', 
-    sortable: true, 
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: any) => params.value?.toFixed(4)
+    field: 'currency_pair',
+    headerName: 'Currency Pair',
+    sortable: true,
+    filter: true 
   },
   { 
-    field: 'rate_date', 
-    headerName: 'Date', 
-    sortable: true, 
+    field: 'base_currency',
+    headerName: 'Base Currency',
+    sortable: true,
+    filter: true 
+  },
+  { 
+    field: 'quote_currency',
+    headerName: 'Quote Currency',
+    sortable: true,
+    filter: true 
+  },
+  { 
+    field: 'closing_rate',
+    headerName: 'Rate',
+    sortable: true,
+    filter: 'agNumberColumnFilter',
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(4)
+  },
+  { 
+    field: 'rate_date',
+    headerName: 'Date',
+    sortable: true,
     filter: true,
-    valueFormatter: (params: any) => {
+    valueFormatter: (params: { value: string }) => {
       if (!params.value) return '';
       return new Date(params.value).toLocaleDateString();
     }
   },
-  { field: 'pl_month', headerName: 'P&L Month', sortable: true, filter: true },
-  { field: 'bs_month', headerName: 'B/S Month', sortable: true, filter: true },
+  { 
+    field: 'pl_month',
+    headerName: 'P&L Month',
+    sortable: true,
+    filter: true 
+  },
+  { 
+    field: 'bs_month',
+    headerName: 'B/S Month',
+    sortable: true,
+    filter: true 
+  },
 ];
 
-const defaultColDef = {
+const defaultColDef: ColDef<FXRate> = {
   flex: 1,
   minWidth: 100,
   resizable: true,
@@ -71,7 +97,7 @@ const FXRatesGrid = () => {
 
   return (
     <div className="w-full h-[600px] ag-theme-alpine">
-      <AgGridReact
+      <AgGridReact<FXRate>
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
