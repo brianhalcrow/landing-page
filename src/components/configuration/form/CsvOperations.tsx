@@ -41,7 +41,7 @@ const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
 
         // Delete existing record if it exists
         const { error: deleteError } = await supabase
-          .from("pre_trade_sfx_config_exposures")
+          .from("config_exposures")
           .delete()
           .eq("entity_id", row.entity_id);
 
@@ -52,7 +52,7 @@ const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
 
         // Insert new record
         const { error: insertError } = await supabase
-          .from("pre_trade_sfx_config_exposures")
+          .from("config_exposures")
           .insert({
             entity_id: row.entity_id,
             entity_name: row.entity_id,
@@ -109,7 +109,7 @@ const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
         
         // Check if any of the entities already have configurations
         const { data: existingConfigs, error } = await supabase
-          .from("pre_trade_sfx_config_exposures")
+          .from("config_exposures")
           .select("entity_id")
           .in("entity_id", data.map(row => row.entity_id));
 
@@ -137,7 +137,7 @@ const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
     setIsDownloading(true);
     try {
       const { data, error } = await supabase
-        .from("pre_trade_sfx_config_exposures")
+        .from("config_exposures")
         .select("*");
 
       if (error) throw error;
