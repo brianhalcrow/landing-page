@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
+// Define the form schema outside the component
 const formSchema = z.object({
   entity_id: z.string().min(1, "Entity ID is required"),
   entity_name: z.string().min(1, "Entity name is required"),
@@ -30,7 +31,14 @@ const formSchema = z.object({
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+// Explicitly type the form values
+type FormValues = {
+  entity_id: string;
+  entity_name: string;
+  exposure_category_level_2: string;
+  exposure_category_level_3: string;
+  exposure_category_level_4: string;
+};
 
 const HedgeRequestForm = () => {
   const form = useForm<FormValues>({
@@ -44,7 +52,7 @@ const HedgeRequestForm = () => {
     },
   });
 
-  // Fetch entities
+  // Fetch entities with explicit typing
   const { data: entities } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
@@ -61,7 +69,7 @@ const HedgeRequestForm = () => {
     },
   });
 
-  // Fetch criteria based on selected entity
+  // Fetch criteria with explicit typing
   const { data: criteriaData } = useQuery({
     queryKey: ["criteria", form.watch("entity_id")],
     queryFn: async () => {
@@ -75,7 +83,6 @@ const HedgeRequestForm = () => {
         console.error("Error fetching criteria:", error);
         throw error;
       }
-      console.log("Criteria data:", data);
       return data;
     },
     enabled: !!form.watch("entity_id"),
@@ -98,7 +105,8 @@ const HedgeRequestForm = () => {
     }
   };
 
-  const getUniqueValues = (field: keyof FormValues) => {
+  // Simplified getUniqueValues function with explicit return type
+  const getUniqueValues = (field: keyof FormValues): string[] => {
     if (!criteriaData) return [];
 
     if (field === "exposure_category_level_3") {
@@ -107,14 +115,13 @@ const HedgeRequestForm = () => {
         item.exposure_category_level_2 === level2Value
       );
 
-      // If Balance Sheet is selected, only show Monetary and Settlement
       if (level2Value === "Balance Sheet") {
         return Array.from(new Set(filteredData
           .map(item => item.exposure_category_level_3)))
           .filter(value => value === "Monetary" || value === "Settlement");
       }
 
-      return Array.from(new Set(filteredData.map(item => item[field])));
+      return Array.from(new Set(filteredData.map(item => item[field] || "")));
     }
 
     if (field === "exposure_category_level_4") {
@@ -125,19 +132,18 @@ const HedgeRequestForm = () => {
           item.exposure_category_level_2 === level2Value &&
           item.exposure_category_level_3 === level3Value
         )
-        .map(item => item[field])
+        .map(item => item[field] || "")
       ));
     }
 
     if (field === "exposure_category_level_2") {
-      return Array.from(new Set(criteriaData.map(item => item[field])));
+      return Array.from(new Set(criteriaData.map(item => item[field] || "")));
     }
 
-    return Array.from(new Set(criteriaData.map(item => item[field]))).filter(Boolean);
+    return Array.from(new Set(criteriaData.map(item => item[field] || ""))).filter(Boolean);
   };
 
   const handleSubmit = (values: FormValues) => {
-    // Validate against criteria table
     const isValidCombination = criteriaData?.some(criteria => 
       criteria.entity_id === values.entity_id &&
       criteria.exposure_category_level_2 === values.exposure_category_level_2 &&
