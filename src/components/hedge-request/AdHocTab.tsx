@@ -6,7 +6,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { gridStyles } from '../configuration/grid/gridStyles';
 import EmptyGridMessage from '../configuration/grid/EmptyGridMessage';
 import { ColDef, ValueGetterParams, ValueSetterParams } from 'ag-grid-community';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 const AdHocTab = () => {
   const gridRef = useRef<AgGridReact>(null);
