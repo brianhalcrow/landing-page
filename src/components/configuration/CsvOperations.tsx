@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import Papa from 'papaparse';
 
-const CsvOperations = () => {
+interface CsvOperationsProps {
+  onUploadComplete: (updatedEntityIds: string[]) => void;
+}
+
+const CsvOperations = ({ onUploadComplete }: CsvOperationsProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -24,6 +28,7 @@ const CsvOperations = () => {
           
           let successCount = 0;
           let errorCount = 0;
+          let updatedIds: string[] = [];
           
           // Insert each row into the database
           for (const row of rows) {
@@ -60,6 +65,7 @@ const CsvOperations = () => {
               errorCount++;
             } else {
               successCount++;
+              updatedIds.push(entity_id);
             }
           }
           
@@ -68,6 +74,8 @@ const CsvOperations = () => {
           } else {
             toast.warning(`Uploaded ${successCount} configurations with ${errorCount} errors`);
           }
+          
+          onUploadComplete(updatedIds);
         },
         error: (error) => {
           console.error('Error parsing CSV:', error);
