@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../types";
 import EntitySelectionFields from "./EntitySelectionFields";
 import DeleteEntityButton from "./DeleteEntityButton";
-import CsvOperations from "../csv/CsvOperations";
+import CsvOperations from "../CsvOperations";
 
 interface FormHeaderProps {
   form: UseFormReturn<FormValues>;
