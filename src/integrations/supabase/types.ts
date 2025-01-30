@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      pre_trade_sfx_cf_firmcom_ap: {
+      cf_firmcom_ap: {
         Row: {
           cost_centre: string | null
           country_currency_id: number | null
@@ -84,7 +84,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_cf_firmcom_ar: {
+      cf_firmcom_ar: {
         Row: {
           cost_centre: string | null
           country_currency_id: number | null
@@ -150,7 +150,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_cf_firmcom_po: {
+      cf_firmcom_po: {
         Row: {
           cost_centre: string | null
           country_currency_id: number | null
@@ -205,12 +205,12 @@ export type Database = {
           po_id?: string | null
           subsystem_code?: string | null
           subtotal?: number | null
-          vendor_id?: string
+          vendor_id?: string | null
           vendor_name?: string | null
         }
         Relationships: []
       }
-      pre_trade_sfx_config_currencies: {
+      config_currencies: {
         Row: {
           entity_id: string
           exposed_currency: string | null
@@ -225,7 +225,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_config_entity: {
+      config_entity: {
         Row: {
           entity_id: string | null
           entity_name: string | null
@@ -243,7 +243,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_config_exposures: {
+      config_exposures: {
         Row: {
           ap: boolean | null
           ap_realized: boolean | null
@@ -303,7 +303,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_criteria: {
+      criteria: {
         Row: {
           account_category_level_1: string | null
           entity_id: string | null
@@ -342,7 +342,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_forecast_category: {
+      forecast_category: {
         Row: {
           forecast_category: string
           id: number
@@ -357,7 +357,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_gl_actual: {
+      gl_actual: {
         Row: {
           account_category_level_4: string | null
           account_name: string | null
@@ -417,7 +417,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_gl_forecast: {
+      gl_forecast: {
         Row: {
           account_category_level_4: string | null
           account_name: string | null
@@ -480,7 +480,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_hedge_request: {
+      hedge_request: {
         Row: {
           base_currency: string | null
           buy_sell: string | null
@@ -531,7 +531,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_hedge_strategy: {
+      hedge_strategy: {
         Row: {
           exposure_category_level_2: string | null
           strategy: string | null
@@ -549,25 +549,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_im_actual: {
-        Row: {}
-        Insert: {}
-        Update: {}
-        Relationships: []
-      }
-      pre_trade_sfx_im_forecast: {
-        Row: {}
-        Insert: {}
-        Update: {}
-        Relationships: []
-      }
-      pre_trade_sfx_instruments: {
-        Row: {}
-        Insert: {}
-        Update: {}
-        Relationships: []
-      }
-      pre_trade_sfx_rates: {
+      rates: {
         Row: {
           base_currency: string | null
           bs_month: string | null
@@ -603,7 +585,7 @@ export type Database = {
         }
         Relationships: []
       }
-      pre_trade_sfx_trade_register: {
+      trade_register: {
         Row: {
           base_currency: string | null
           base_currency_amount: number | null
@@ -739,10 +721,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<

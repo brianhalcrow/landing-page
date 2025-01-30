@@ -37,7 +37,7 @@ const BalanceSheetTab = () => {
       try {
         setIsLoading(true);
         const { data: hedgeRequests, error } = await supabase
-          .from("pre_trade_sfx_hedge_request")
+          .from("hedge_request")
           .select("*")
           .eq("strategy", "Balance Sheet");
 
