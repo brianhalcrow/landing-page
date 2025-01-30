@@ -8,7 +8,7 @@ import { gridStyles } from './grid/gridStyles';
 import EmptyGridMessage from './grid/EmptyGridMessage';
 
 interface ConfigurationGridProps {
-  entities: Tables<'pre_trade_sfx_config_exposures'>[];
+  entities: Tables<'config_exposures'>[];
 }
 
 const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {

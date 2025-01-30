@@ -205,7 +205,7 @@ export type Database = {
           po_id?: string | null
           subsystem_code?: string | null
           subtotal?: number | null
-          vendor_id?: string | null
+          vendor_id?: string
           vendor_name?: string | null
         }
         Relationships: []
@@ -549,6 +549,24 @@ export type Database = {
         }
         Relationships: []
       }
+      im_actual: {
+        Row: {}
+        Insert: {}
+        Update: {}
+        Relationships: []
+      }
+      im_forecast: {
+        Row: {}
+        Insert: {}
+        Update: {}
+        Relationships: []
+      }
+      instruments: {
+        Row: {}
+        Insert: {}
+        Update: {}
+        Relationships: []
+      }
       rates: {
         Row: {
           base_currency: string | null
@@ -582,6 +600,39 @@ export type Database = {
           quote_currency?: string | null
           rate_date?: string | null
           timestamp?: string | null
+        }
+        Relationships: []
+      }
+      table_connections: {
+        Row: {
+          column_count: number
+          last_update: string
+          next_update: string
+          record_count: number
+          size: string
+          status: string
+          table_name: string
+          type: string
+        }
+        Insert: {
+          column_count: number
+          last_update: string
+          next_update: string
+          record_count: number
+          size: string
+          status: string
+          table_name: string
+          type: string
+        }
+        Update: {
+          column_count?: number
+          last_update?: string
+          next_update?: string
+          record_count?: number
+          size?: string
+          status?: string
+          table_name?: string
+          type?: string
         }
         Relationships: []
       }
@@ -651,39 +702,6 @@ export type Database = {
         }
         Relationships: []
       }
-      table_connections: {
-        Row: {
-          column_count: number
-          last_update: string
-          next_update: string
-          record_count: number
-          size: string
-          status: string
-          table_name: string
-          type: string
-        }
-        Insert: {
-          column_count: number
-          last_update: string
-          next_update: string
-          record_count: number
-          size: string
-          status: string
-          table_name: string
-          type: string
-        }
-        Update: {
-          column_count?: number
-          last_update?: string
-          next_update?: string
-          record_count?: number
-          size?: string
-          status?: string
-          table_name?: string
-          type?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -721,10 +739,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<

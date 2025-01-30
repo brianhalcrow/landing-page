@@ -14,7 +14,7 @@ export const useEntities = () => {
     queryFn: async () => {
       console.log('Fetching entities...');
       const { data, error } = await supabase
-        .from("pre_trade_sfx_config_exposures")
+        .from("config_exposures")
         .select("*")
         .order('entity_name');
       
@@ -25,7 +25,7 @@ export const useEntities = () => {
       }
       
       console.log('Entities fetched:', data);
-      return data as Tables<'pre_trade_sfx_config_exposures'>[];
+      return data as Tables<'config_exposures'>[];
     },
     refetchOnWindowFocus: false,
     gcTime: 0,

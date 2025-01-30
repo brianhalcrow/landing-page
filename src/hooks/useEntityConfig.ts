@@ -10,7 +10,7 @@ export const useEntityConfig = (form: UseFormReturn<FormValues>) => {
   const fetchExistingConfig = async (entityId: string) => {
     try {
       const { data, error } = await supabase
-        .from("pre_trade_sfx_config_exposures")
+        .from("config_exposures")
         .select()
         .eq("entity_id", entityId)
         .maybeSingle();

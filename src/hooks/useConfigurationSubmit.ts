@@ -33,7 +33,7 @@ export const useConfigurationSubmit = () => {
       let error;
       if (isUpdating) {
         const { error: updateError } = await supabase
-          .from("pre_trade_sfx_config_exposures")
+          .from("config_exposures")
           .update(submitData)
           .eq("entity_id", values.entity_id);
         error = updateError;
@@ -42,7 +42,7 @@ export const useConfigurationSubmit = () => {
         }
       } else {
         const { error: insertError } = await supabase
-          .from("pre_trade_sfx_config_exposures")
+          .from("config_exposures")
           .insert(submitData);
         error = insertError;
         if (!error) {

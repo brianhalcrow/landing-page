@@ -21,7 +21,7 @@ export const PositionsTab = () => {
       setIsLoading(true);
 
       const { data, error } = await supabase
-        .from("pre_trade_sfx_hedge_request")
+        .from("hedge_request")
         .select("*")
         .order("trade_request_id", { ascending: false });
 
