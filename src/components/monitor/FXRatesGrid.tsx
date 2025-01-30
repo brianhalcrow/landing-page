@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
+import { supabase } from "@/integrations/supabase/client";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -74,15 +75,22 @@ const defaultColDef: ColDef<FXRate> = {
 const FXRatesGrid = () => {
   const [rowData, setRowData] = useState<FXRate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const response = await fetch('https://api.sensefx.io/pre_trade_rates');
-        const data = await response.json();
-        setRowData(data);
+        const { data, error } = await supabase
+          .from('pre_trade_sfx_rates')
+          .select('*')
+          .order('timestamp', { ascending: false });
+
+        if (error) throw error;
+
+        setRowData(data || []);
       } catch (error) {
         console.error('Error fetching FX rates:', error);
+        setError('Failed to load FX rates');
       } finally {
         setLoading(false);
       }
@@ -93,6 +101,10 @@ const FXRatesGrid = () => {
 
   if (loading) {
     return <div>Loading FX rates...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
