@@ -17,7 +17,12 @@ export interface Entity {
 
 export interface Criteria {
   entity_id: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
+  entity_name: string;
+  exposure_category_level_1: string | null;
+  exposure_category_level_2: string | null;
+  exposure_category_level_3: string | null;
+  exposure_category_level_4: string | null;
+  account_category_level_1: string | null;
+  subsystem_code: string | null;
+  exposure_config: string | null;
 }

@@ -22,18 +22,15 @@ const HedgeRequestForm = () => {
     },
   });
 
-  const { data: entities } = useQuery<Entity[]>({
+  const { data: entities, isLoading: isLoadingEntities } = useQuery<Entity[]>({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("config_exposures")
-        .select("*")
+        .select("entity_id, entity_name")
         .order("entity_name");
 
-      if (error) {
-        console.error("Error fetching entities:", error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
   });
@@ -47,10 +44,7 @@ const HedgeRequestForm = () => {
         .eq("entity_id", form.watch("entity_id"))
         .order("exposure_category_level_2");
 
-      if (error) {
-        console.error("Error fetching criteria:", error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
     enabled: !!form.watch("entity_id"),
@@ -62,7 +56,8 @@ const HedgeRequestForm = () => {
     );
 
     if (selectedEntity) {
-      form.setValue(field === "entity_id" ? "entity_name" : "entity_id", 
+      form.setValue(
+        field === "entity_id" ? "entity_name" : "entity_id",
         field === "entity_id" ? selectedEntity.entity_name : selectedEntity.entity_id
       );
       
@@ -80,33 +75,29 @@ const HedgeRequestForm = () => {
       const filteredData = criteriaData.filter(item => 
         item.exposure_category_level_2 === level2Value
       );
-
-      if (level2Value === "Balance Sheet") {
-        return Array.from(new Set(filteredData
-          .map(item => item.exposure_category_level_3)))
-          .filter(value => value === "Monetary" || value === "Settlement");
-      }
-
-      return Array.from(new Set(filteredData.map(item => item[field] || "")));
+      return Array.from(new Set(filteredData.map(item => item[field] || ""))).filter(Boolean);
     }
 
     if (field === "exposure_category_level_4") {
       const level2Value = form.watch("exposure_category_level_2");
       const level3Value = form.watch("exposure_category_level_3");
-      return Array.from(new Set(criteriaData
-        .filter(item => 
-          item.exposure_category_level_2 === level2Value &&
-          item.exposure_category_level_3 === level3Value
-        )
-        .map(item => item[field] || "")
-      ));
+      return Array.from(new Set(
+        criteriaData
+          .filter(item => 
+            item.exposure_category_level_2 === level2Value &&
+            item.exposure_category_level_3 === level3Value
+          )
+          .map(item => item[field] || "")
+      )).filter(Boolean);
     }
 
     if (field === "exposure_category_level_2") {
-      return Array.from(new Set(criteriaData.map(item => item[field] || "")));
+      return Array.from(new Set(
+        criteriaData.map(item => item[field] || "")
+      )).filter(Boolean);
     }
 
-    return Array.from(new Set(criteriaData.map(item => item[field] || ""))).filter(Boolean);
+    return [];
   };
 
   const handleSubmit = (values: FormValues) => {
@@ -131,7 +122,7 @@ const HedgeRequestForm = () => {
         <EntitySelection
           form={form}
           entities={entities}
-          isLoading={!entities}
+          isLoading={isLoadingEntities}
           onEntitySelect={handleEntitySelection}
         />
         <CategorySelection
