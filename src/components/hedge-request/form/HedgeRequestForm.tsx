@@ -32,18 +32,17 @@ const formSchema = z.object({
 });
 
 // Define strict types for the data structures
-type Entity = {
+interface Entity {
   entity_id: string;
   entity_name: string;
-};
+}
 
-type Criteria = {
+interface Criteria {
   entity_id: string;
   exposure_category_level_2: string;
   exposure_category_level_3: string;
   exposure_category_level_4: string;
-  [key: string]: any; // for other potential fields
-};
+}
 
 type FormValues = z.infer<typeof formSchema>;
 
