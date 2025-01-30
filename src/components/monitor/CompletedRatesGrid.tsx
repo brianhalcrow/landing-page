@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import { ColDef } from 'ag-grid-community';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface FXRate {
   currency_pair: string;
@@ -15,78 +19,6 @@ interface FXRate {
   all_in_bid: number;
   all_in_ask: number;
 }
-
-const columnDefs: ColDef<FXRate>[] = [
-  { 
-    field: 'currency_pair',
-    headerName: 'Currency Pair',
-    sortable: true,
-    filter: true 
-  },
-  { 
-    field: 'spot_rate',
-    headerName: 'Spot Rate',
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(6)
-  },
-  { 
-    field: 'time',
-    headerName: 'Time',
-    sortable: true,
-    filter: true
-  },
-  { 
-    field: 'tenor',
-    headerName: 'Tenor',
-    sortable: true,
-    filter: true
-  },
-  { 
-    field: 'bid',
-    headerName: 'Bid',
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(3)
-  },
-  { 
-    field: 'ask',
-    headerName: 'Ask',
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(3)
-  },
-  { 
-    field: 'rate_date',
-    headerName: 'Rate Date',
-    sortable: true,
-    filter: true,
-    valueFormatter: (params: { value: string }) => {
-      if (!params.value) return '';
-      return new Date(params.value).toLocaleDateString();
-    }
-  },
-  { 
-    field: 'all_in_bid',
-    headerName: 'All-in Bid',
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(8)
-  },
-  { 
-    field: 'all_in_ask',
-    headerName: 'All-in Ask',
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(8)
-  }
-];
-
-const defaultColDef: ColDef<FXRate> = {
-  flex: 1,
-  minWidth: 100,
-  resizable: true,
-};
 
 const CompletedRatesGrid = () => {
   const [rowData, setRowData] = useState<FXRate[]>([]);
@@ -122,14 +54,37 @@ const CompletedRatesGrid = () => {
   }
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
-      <AgGridReact<FXRate>
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        pagination={true}
-        paginationPageSize={15}
-      />
+    <div className="w-full overflow-auto border rounded-lg">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Currency Pair</TableHead>
+            <TableHead>Spot Rate</TableHead>
+            <TableHead>Time</TableHead>
+            <TableHead>Tenor</TableHead>
+            <TableHead>Bid</TableHead>
+            <TableHead>Ask</TableHead>
+            <TableHead>Rate Date</TableHead>
+            <TableHead>All-in Bid</TableHead>
+            <TableHead>All-in Ask</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rowData.map((rate, index) => (
+            <TableRow key={`${rate.currency_pair}-${index}`}>
+              <TableCell>{rate.currency_pair}</TableCell>
+              <TableCell>{rate.spot_rate.toFixed(6)}</TableCell>
+              <TableCell>{rate.time}</TableCell>
+              <TableCell>{rate.tenor}</TableCell>
+              <TableCell>{rate.bid.toFixed(3)}</TableCell>
+              <TableCell>{rate.ask.toFixed(3)}</TableCell>
+              <TableCell>{new Date(rate.rate_date).toLocaleDateString()}</TableCell>
+              <TableCell>{rate.all_in_bid.toFixed(8)}</TableCell>
+              <TableCell>{rate.all_in_ask.toFixed(8)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
