@@ -88,7 +88,7 @@ const defaultColDef: ColDef<FXRate> = {
   resizable: true,
 };
 
-const FXRatesGrid = () => {
+const CompletedRatesGrid = () => {
   const [rowData, setRowData] = useState<FXRate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,8 +122,8 @@ const FXRatesGrid = () => {
   }
 
   return (
-    <div className="w-full h-96 ag-theme-alpine">
-      <AgGridReact<FXRate>
+    <div className="w-full h-[600px] ag-theme-alpine">
+      <AgGridReact
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
@@ -134,4 +134,4 @@ const FXRatesGrid = () => {
   );
 };
 
-export default FXRatesGrid;
+export default CompletedRatesGrid;
