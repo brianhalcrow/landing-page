@@ -33,6 +33,25 @@ const CsvOperations = () => {
               monetary_assets, monetary_liabilities
             ] = row;
 
+            console.log('Inserting row:', {
+              entity_id,
+              entity_name,
+              functional_currency,
+              po,
+              ap,
+              ar,
+              other,
+              revenue,
+              costs,
+              net_income,
+              ap_realized,
+              ar_realized,
+              fx_realized,
+              net_monetary,
+              monetary_assets,
+              monetary_liabilities
+            });
+
             const { error } = await supabase
               .from('config_exposures')
               .upsert({
