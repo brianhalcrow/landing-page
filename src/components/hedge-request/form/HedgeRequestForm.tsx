@@ -31,14 +31,21 @@ const formSchema = z.object({
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
 });
 
-// Explicitly type the form values
-type FormValues = {
+// Define strict types for the data structures
+type Entity = {
   entity_id: string;
   entity_name: string;
+};
+
+type Criteria = {
+  entity_id: string;
   exposure_category_level_2: string;
   exposure_category_level_3: string;
   exposure_category_level_4: string;
+  [key: string]: any; // for other potential fields
 };
+
+type FormValues = z.infer<typeof formSchema>;
 
 const HedgeRequestForm = () => {
   const form = useForm<FormValues>({
@@ -52,8 +59,7 @@ const HedgeRequestForm = () => {
     },
   });
 
-  // Fetch entities with explicit typing
-  const { data: entities } = useQuery({
+  const { data: entities } = useQuery<Entity[]>({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -69,8 +75,7 @@ const HedgeRequestForm = () => {
     },
   });
 
-  // Fetch criteria with explicit typing
-  const { data: criteriaData } = useQuery({
+  const { data: criteriaData } = useQuery<Criteria[]>({
     queryKey: ["criteria", form.watch("entity_id")],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -105,7 +110,6 @@ const HedgeRequestForm = () => {
     }
   };
 
-  // Simplified getUniqueValues function with explicit return type
   const getUniqueValues = (field: keyof FormValues): string[] => {
     if (!criteriaData) return [];
 
