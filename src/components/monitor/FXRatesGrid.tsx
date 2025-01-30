@@ -5,14 +5,15 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface FXRate {
-  rate_date: string;
-  base_currency: string;
-  quote_currency: string;
-  closing_rate: number;
   currency_pair: string;
-  timestamp: string;
-  pl_month: string;
-  bs_month: string;
+  spot_rate: number;
+  time: string;
+  tenor: string;
+  bid: number;
+  ask: number;
+  rate_date: string;
+  all_in_bid: number;
+  all_in_ask: number;
 }
 
 const columnDefs: ColDef<FXRate>[] = [
@@ -23,27 +24,41 @@ const columnDefs: ColDef<FXRate>[] = [
     filter: true 
   },
   { 
-    field: 'base_currency',
-    headerName: 'Base Currency',
-    sortable: true,
-    filter: true 
-  },
-  { 
-    field: 'quote_currency',
-    headerName: 'Quote Currency',
-    sortable: true,
-    filter: true 
-  },
-  { 
-    field: 'closing_rate',
-    headerName: 'Rate',
+    field: 'spot_rate',
+    headerName: 'Spot Rate',
     sortable: true,
     filter: 'agNumberColumnFilter',
-    valueFormatter: (params: { value: number }) => params.value?.toFixed(4)
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(6)
+  },
+  { 
+    field: 'time',
+    headerName: 'Time',
+    sortable: true,
+    filter: true
+  },
+  { 
+    field: 'tenor',
+    headerName: 'Tenor',
+    sortable: true,
+    filter: true
+  },
+  { 
+    field: 'bid',
+    headerName: 'Bid',
+    sortable: true,
+    filter: 'agNumberColumnFilter',
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(3)
+  },
+  { 
+    field: 'ask',
+    headerName: 'Ask',
+    sortable: true,
+    filter: 'agNumberColumnFilter',
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(3)
   },
   { 
     field: 'rate_date',
-    headerName: 'Date',
+    headerName: 'Rate Date',
     sortable: true,
     filter: true,
     valueFormatter: (params: { value: string }) => {
@@ -52,17 +67,19 @@ const columnDefs: ColDef<FXRate>[] = [
     }
   },
   { 
-    field: 'pl_month',
-    headerName: 'P&L Month',
+    field: 'all_in_bid',
+    headerName: 'All-in Bid',
     sortable: true,
-    filter: true 
+    filter: 'agNumberColumnFilter',
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(8)
   },
   { 
-    field: 'bs_month',
-    headerName: 'B/S Month',
+    field: 'all_in_ask',
+    headerName: 'All-in Ask',
     sortable: true,
-    filter: true 
-  },
+    filter: 'agNumberColumnFilter',
+    valueFormatter: (params: { value: number }) => params.value?.toFixed(8)
+  }
 ];
 
 const defaultColDef: ColDef<FXRate> = {
