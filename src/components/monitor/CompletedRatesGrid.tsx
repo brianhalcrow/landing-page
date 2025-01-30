@@ -123,7 +123,7 @@ const CompletedRatesGrid = () => {
 
   return (
     <div className="w-full h-[600px] ag-theme-alpine">
-      <AgGridReact
+      <AgGridReact<FXRate>
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
