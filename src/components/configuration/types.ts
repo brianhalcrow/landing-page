@@ -25,31 +25,35 @@ export const formSchema = z.object({
   monetary_liabilities: z.boolean().default(false),
 }).refine(
   (data) => {
-    // If both revenue and costs are true, net_income must be true
-    if (data.revenue && data.costs) {
-      return data.net_income;
+    // If net_monetary is true, both monetary_assets and monetary_liabilities must be false
+    if (data.net_monetary) {
+      return !data.monetary_assets && !data.monetary_liabilities;
+    }
+    // If either monetary_assets or monetary_liabilities is true, net_monetary must be false
+    if (data.monetary_assets || data.monetary_liabilities) {
+      return !data.net_monetary;
     }
     return true;
   },
   {
-    message: "When both Revenue and Costs are selected, Net Income must also be selected",
-    path: ["net_income"],
+    message: "Net Monetary cannot be selected together with Monetary Assets or Monetary Liabilities",
+    path: ["net_monetary"],
   }
 ).refine(
   (data) => {
-    // If net_monetary is true, both monetary_assets and monetary_liabilities must be true
-    if (data.net_monetary) {
-      return data.monetary_assets && data.monetary_liabilities;
+    // If net_income is true, both revenue and costs must be false
+    if (data.net_income) {
+      return !data.revenue && !data.costs;
     }
-    // If both monetary_assets and monetary_liabilities are true, net_monetary must be true
-    if (data.monetary_assets && data.monetary_liabilities) {
-      return data.net_monetary;
+    // If either revenue or costs is true, net_income must be false
+    if (data.revenue || data.costs) {
+      return !data.net_income;
     }
     return true;
   },
   {
-    message: "Net Monetary, Monetary Assets, and Monetary Liabilities must be selected together",
-    path: ["net_monetary"],
+    message: "Net Income cannot be selected together with Revenue or Costs",
+    path: ["net_income"],
   }
 );
 
