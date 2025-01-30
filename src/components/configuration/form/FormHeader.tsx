@@ -2,13 +2,14 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../types";
 import EntitySelectionFields from "./EntitySelectionFields";
 import DeleteEntityButton from "./DeleteEntityButton";
+import CsvOperations from "../csv/CsvOperations";
 
 interface FormHeaderProps {
   form: UseFormReturn<FormValues>;
   entities: any[] | undefined;
   isLoadingEntities: boolean;
   onFetchConfig: (entityId: string) => Promise<void>;
-  onUploadComplete: () => void;
+  onUploadComplete: (updatedEntityIds: string[]) => void;
 }
 
 const FormHeader = ({
@@ -24,19 +25,22 @@ const FormHeader = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
-        <EntitySelectionFields
-          form={form}
-          entities={entities}
-          isLoadingEntities={isLoadingEntities}
-          onFetchConfig={onFetchConfig}
-        />
+        <div className="space-y-4 flex-1">
+          <EntitySelectionFields
+            form={form}
+            entities={entities}
+            isLoadingEntities={isLoadingEntities}
+            onFetchConfig={onFetchConfig}
+          />
+          <CsvOperations onUploadComplete={onUploadComplete} />
+        </div>
         {selectedEntityId && selectedEntity && (
           <DeleteEntityButton
             entityId={selectedEntityId}
             entityName={selectedEntity.entity_name}
             onDelete={() => {
               form.reset();
-              onUploadComplete();
+              onUploadComplete([]);
             }}
           />
         )}

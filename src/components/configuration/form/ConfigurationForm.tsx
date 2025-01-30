@@ -58,7 +58,7 @@ const ConfigurationForm = () => {
           entities={entities}
           isLoadingEntities={isLoadingEntities}
           onFetchConfig={fetchExistingConfig}
-          onUploadComplete={() => handleCsvUploadComplete()}
+          onUploadComplete={handleCsvUploadComplete}
         />
         <FormCategories form={form} />
         <FormFooter 
