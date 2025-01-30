@@ -603,6 +603,48 @@ export type Database = {
         }
         Relationships: []
       }
+      sfx_criteria: {
+        Row: {
+          account_category_level_1: string | null
+          created_at: string | null
+          entity_id: string
+          entity_name: string
+          exposure_category_level_1: string | null
+          exposure_category_level_2: string | null
+          exposure_category_level_3: string | null
+          exposure_category_level_4: string | null
+          exposure_config: string | null
+          id: number
+          subsystem_code: string | null
+        }
+        Insert: {
+          account_category_level_1?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_name: string
+          exposure_category_level_1?: string | null
+          exposure_category_level_2?: string | null
+          exposure_category_level_3?: string | null
+          exposure_category_level_4?: string | null
+          exposure_config?: string | null
+          id?: number
+          subsystem_code?: string | null
+        }
+        Update: {
+          account_category_level_1?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_name?: string
+          exposure_category_level_1?: string | null
+          exposure_category_level_2?: string | null
+          exposure_category_level_3?: string | null
+          exposure_category_level_4?: string | null
+          exposure_config?: string | null
+          id?: number
+          subsystem_code?: string | null
+        }
+        Relationships: []
+      }
       table_connections: {
         Row: {
           column_count: number
