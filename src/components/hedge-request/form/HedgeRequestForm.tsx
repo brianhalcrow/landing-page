@@ -1,50 +1,14 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-
-// Define the form schema outside the component
-const formSchema = z.object({
-  entity_id: z.string().min(1, "Entity ID is required"),
-  entity_name: z.string().min(1, "Entity name is required"),
-  exposure_category_level_2: z.string().min(1, "Category level 2 is required"),
-  exposure_category_level_3: z.string().min(1, "Category level 3 is required"),
-  exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
-});
-
-// Define strict types for the data structures
-interface Entity {
-  entity_id: string;
-  entity_name: string;
-}
-
-interface Criteria {
-  entity_id: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
-}
-
-type FormValues = z.infer<typeof formSchema>;
+import { FormValues, formSchema, Entity, Criteria } from "./types";
+import EntitySelection from "./EntitySelection";
+import CategorySelection from "./CategorySelection";
 
 const HedgeRequestForm = () => {
   const form = useForm<FormValues>({
@@ -102,7 +66,6 @@ const HedgeRequestForm = () => {
         field === "entity_id" ? selectedEntity.entity_name : selectedEntity.entity_id
       );
       
-      // Reset category fields when entity changes
       form.setValue("exposure_category_level_2", "");
       form.setValue("exposure_category_level_3", "");
       form.setValue("exposure_category_level_4", "");
@@ -165,164 +128,17 @@ const HedgeRequestForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="entity_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Entity Name</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    handleEntitySelection("entity_name", value);
-                  }}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select entity name" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                        {entity.entity_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="entity_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Entity ID</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    handleEntitySelection("entity_id", value);
-                  }}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select entity ID" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {entities?.map((entity) => (
-                      <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                        {entity.entity_id}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="exposure_category_level_2"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category Level 2</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    form.setValue("exposure_category_level_3", "");
-                    form.setValue("exposure_category_level_4", "");
-                  }}
-                  value={field.value}
-                  disabled={!form.getValues("entity_id")}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category level 2" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {getUniqueValues("exposure_category_level_2").map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="exposure_category_level_3"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category Level 3</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    form.setValue("exposure_category_level_4", "");
-                  }}
-                  value={field.value}
-                  disabled={!form.getValues("exposure_category_level_2")}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category level 3" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {getUniqueValues("exposure_category_level_3").map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="exposure_category_level_4"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category Level 4</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={!form.getValues("exposure_category_level_3")}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category level 4" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {getUniqueValues("exposure_category_level_4").map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
+        <EntitySelection
+          form={form}
+          entities={entities}
+          isLoading={!entities}
+          onEntitySelect={handleEntitySelection}
+        />
+        <CategorySelection
+          form={form}
+          criteriaData={criteriaData}
+          getUniqueValues={getUniqueValues}
+        />
         <Button type="submit" className="w-full">
           Submit
         </Button>
