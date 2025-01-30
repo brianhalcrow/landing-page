@@ -1,13 +1,8 @@
-import Layout from "@/components/Layout";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 
 const Monitor = () => {
-  return (
-    <Layout>
-      <TabsContainer tabs={tabsConfig["monitor"]} />
-    </Layout>
-  );
+  return <TabsContainer tabs={tabsConfig["monitor"]} />;
 };
 
 export default Monitor;

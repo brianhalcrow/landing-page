@@ -1,13 +1,8 @@
-import Layout from "@/components/Layout";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 
 const Execution = () => {
-  return (
-    <Layout>
-      <TabsContainer tabs={tabsConfig["execution"]} />
-    </Layout>
-  );
+  return <TabsContainer tabs={tabsConfig["execution"]} />;
 };
 
 export default Execution;

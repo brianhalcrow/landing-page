@@ -1,13 +1,8 @@
-import Layout from "@/components/Layout";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 
 const Exposure = () => {
-  return (
-    <Layout>
-      <TabsContainer tabs={tabsConfig["exposure"]} />
-    </Layout>
-  );
+  return <TabsContainer tabs={tabsConfig["exposure"]} />;
 };
 
 export default Exposure;

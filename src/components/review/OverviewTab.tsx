@@ -1,29 +1,18 @@
-import { useEffect, useState } from "react";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
+import { HedgeRequest } from "./types";
+import HedgeRequestsGrid from "./HedgeRequestsGrid";
+import RealtimeSubscription from "./RealtimeSubscription";
 
-interface HedgeRequest {
-  entity_id: string | null;
-  entity_name: string | null;
-  instrument: string | null;
-  strategy: string | null;
-  base_currency: string | null;
-  quote_currency: string | null;
-  currency_pair: string | null;
-  trade_date: string | null;
-  settlement_date: string | null;
-  buy_sell: string | null;
-  buy_sell_currency_code: string | null;
-  buy_sell_amount: number | null;
-  created_by: string | null;
-  trade_request_id: string | null;
-}
-
-const OverviewTab = () => {
+export const OverviewTab = () => {
   const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Track mount status to prevent state updates after unmount
+  const [isMounted, setIsMounted] = useState(true);
 
+<<<<<<< HEAD
   const columns: GridColDef[] = [
     { field: "entity_id", headerName: "Entity ID", width: 130 },
     { field: "entity_name", headerName: "Entity Name", width: 150 },
@@ -49,28 +38,50 @@ const OverviewTab = () => {
     { field: "created_by", headerName: "Created By", width: 150 },
     { field: "trade_request_id", headerName: "Trade Request ID", width: 150 },
   ];
+=======
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
 
-  const fetchHedgeRequests = async () => {
+  const fetchHedgeRequests = useCallback(async () => {
     try {
       console.log("🔄 Fetching hedge requests...");
+<<<<<<< HEAD
       const { data, error } = await supabase
         .from("pre_trade_sfx_hedge_request")
         .select("*");
+=======
+      setIsLoading(true);
+
+      const { data, error } = await supabase
+        .from("pre_trade_sfx_hedge_request")
+        .select("*")
+        .order("trade_request_id", { ascending: false });
+
+      if (!isMounted) return;
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
 
       if (error) {
         console.error("❌ Error fetching data:", error);
         throw error;
       }
 
+<<<<<<< HEAD
       console.log("✅ Received hedge requests:", data);
       console.log("📊 Number of records:", data?.length || 0);
 
       // Add an id field for MUI DataGrid
       const hedgeRequestsWithId = (data || []).map((request, index) => ({
+=======
+      const hedgeRequestsWithId = (data || []).map((request) => ({
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
         ...request,
-        id: index + 1,
+        id: `hr-${Date.now()}-${Math.random()}`,
       }));
 
+<<<<<<< HEAD
       console.log("🔄 Updating state with new data");
       setHedgeRequests(hedgeRequestsWithId);
       console.log("✅ State updated successfully");
@@ -81,10 +92,25 @@ const OverviewTab = () => {
         description: `Failed to fetch hedge request data: ${error.message}`,
         variant: "destructive",
       });
+=======
+      console.log("✅ Fetched hedge requests:", hedgeRequestsWithId);
+      setHedgeRequests(hedgeRequestsWithId);
+    } catch (error) {
+      console.error("❌ Error in fetchHedgeRequests:", error);
+      if (isMounted) {
+        toast.error("Failed to fetch hedge request data");
+      }
+    } finally {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
     }
-  };
+  }, [isMounted]);
 
+  // Debug log for state updates
   useEffect(() => {
+<<<<<<< HEAD
     console.log("🚀 Component mounted, initializing...");
 
     // Initial fetch
@@ -141,10 +167,23 @@ const OverviewTab = () => {
     return () => {
       console.log("🧹 Cleaning up subscription...");
       supabase.removeChannel(channel);
+=======
+    console.log("💾 Hedge requests state updated:", hedgeRequests);
+  }, [hedgeRequests]);
+
+  // Initial data fetch
+  useEffect(() => {
+    console.log("🏁 OverviewTab mounted");
+    fetchHedgeRequests();
+
+    return () => {
+      console.log("🔚 OverviewTab unmounted");
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
     };
-  }, [toast]);
+  }, [fetchHedgeRequests]);
 
   return (
+<<<<<<< HEAD
     <div className="h-[600px] w-full">
       <DataGrid
         rows={hedgeRequests}
@@ -170,6 +209,19 @@ const OverviewTab = () => {
           ],
         }}
       />
+=======
+    <div className="space-y-4">
+      <RealtimeSubscription onDataChange={fetchHedgeRequests} />
+      {isLoading ? (
+        <div className="flex items-center justify-center p-4">
+          <span>Loading hedge requests...</span>
+        </div>
+      ) : (
+        <HedgeRequestsGrid 
+          hedgeRequests={hedgeRequests}
+        />
+      )}
+>>>>>>> 92bd70ed37269681defbbb0865a03be190038d99
     </div>
   );
 };
