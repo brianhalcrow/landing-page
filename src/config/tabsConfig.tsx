@@ -6,7 +6,6 @@ import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import GeneralTab from "@/components/configuration/GeneralTab";
-import BalanceSheetTab from "@/components/hedge-request/BalanceSheetTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -40,7 +39,7 @@ export const tabsConfig = {
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Forecast</div> },
   ],
   "hedge-request": [
-    { value: "balance-sheet", label: "Balance Sheet", content: <BalanceSheetTab /> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Hedge Requests</div> },
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Hedge Requests</div> },
