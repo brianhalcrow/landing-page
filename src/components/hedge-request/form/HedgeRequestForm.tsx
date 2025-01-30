@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -18,6 +18,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   entity_id: z.string().min(1, "Entity ID is required"),
@@ -54,14 +55,57 @@ const HedgeRequestForm = () => {
     },
   });
 
-  const getUniqueValues = (field: keyof FormValues) => {
+  const getFilteredValues = (field: keyof FormValues) => {
     if (!criteriaData) return [];
-    const uniqueValues = new Set(criteriaData.map((item) => item[field]));
+    const selectedEntityId = form.getValues("entity_id");
+    const selectedEntityName = form.getValues("entity_name");
+    
+    const filteredData = criteriaData.filter(item => {
+      if (selectedEntityId && item.entity_id !== selectedEntityId) return false;
+      if (selectedEntityName && item.entity_name !== selectedEntityName) return false;
+      return true;
+    });
+
+    const uniqueValues = new Set(filteredData.map((item) => item[field]));
     return Array.from(uniqueValues).filter(Boolean);
+  };
+
+  const handleEntitySelection = (field: "entity_id" | "entity_name", value: string) => {
+    const selectedCriteria = criteriaData?.find(item => 
+      field === "entity_id" ? item.entity_id === value : item.entity_name === value
+    );
+
+    if (selectedCriteria) {
+      form.setValue(field === "entity_id" ? "entity_name" : "entity_id", 
+        field === "entity_id" ? selectedCriteria.entity_name : selectedCriteria.entity_id
+      );
+      
+      // Reset category fields when entity changes
+      form.setValue("exposure_category_level_2", "");
+      form.setValue("exposure_category_level_3", "");
+      form.setValue("exposure_category_level_4", "");
+    }
   };
 
   const handleSubmit = (values: FormValues) => {
     console.log("Form values:", values);
+    // Validate against criteria table
+    const isValidCombination = criteriaData?.some(criteria => 
+      criteria.entity_id === values.entity_id &&
+      criteria.entity_name === values.entity_name &&
+      criteria.exposure_category_level_2 === values.exposure_category_level_2 &&
+      criteria.exposure_category_level_3 === values.exposure_category_level_3 &&
+      criteria.exposure_category_level_4 === values.exposure_category_level_4
+    );
+
+    if (!isValidCombination) {
+      toast({
+        title: "Invalid combination",
+        description: "Please select a valid combination of values from the criteria table.",
+        variant: "destructive"
+      });
+      return;
+    }
     // TODO: Handle form submission
   };
 
@@ -80,8 +124,11 @@ const HedgeRequestForm = () => {
               <FormItem>
                 <FormLabel>Entity Name</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleEntitySelection("entity_name", value);
+                  }}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -89,7 +136,7 @@ const HedgeRequestForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {getUniqueValues("entity_name").map((name) => (
+                    {getFilteredValues("entity_name").map((name) => (
                       <SelectItem key={name} value={name}>
                         {name}
                       </SelectItem>
@@ -107,8 +154,11 @@ const HedgeRequestForm = () => {
               <FormItem>
                 <FormLabel>Entity ID</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    handleEntitySelection("entity_id", value);
+                  }}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -116,7 +166,7 @@ const HedgeRequestForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {getUniqueValues("entity_id").map((id) => (
+                    {getFilteredValues("entity_id").map((id) => (
                       <SelectItem key={id} value={id}>
                         {id}
                       </SelectItem>
@@ -135,7 +185,8 @@ const HedgeRequestForm = () => {
                 <FormLabel>Category Level 2</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={!form.getValues("entity_id")}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -143,7 +194,7 @@ const HedgeRequestForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {getUniqueValues("exposure_category_level_2").map(
+                    {getFilteredValues("exposure_category_level_2").map(
                       (category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -164,7 +215,8 @@ const HedgeRequestForm = () => {
                 <FormLabel>Category Level 3</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={!form.getValues("exposure_category_level_2")}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -172,7 +224,7 @@ const HedgeRequestForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {getUniqueValues("exposure_category_level_3").map(
+                    {getFilteredValues("exposure_category_level_3").map(
                       (category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -193,7 +245,8 @@ const HedgeRequestForm = () => {
                 <FormLabel>Category Level 4</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={!form.getValues("exposure_category_level_3")}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -201,7 +254,7 @@ const HedgeRequestForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {getUniqueValues("exposure_category_level_4").map(
+                    {getFilteredValues("exposure_category_level_4").map(
                       (category) => (
                         <SelectItem key={category} value={category}>
                           {category}
