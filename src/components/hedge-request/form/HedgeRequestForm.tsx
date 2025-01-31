@@ -14,6 +14,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import TradesGrid from "./trades/TradesGrid";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useDraftSelection } from "./hooks/useDraftSelection";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -44,6 +45,8 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
+  const { handleDraftSelect } = useDraftSelection(form);
+
   useEffect(() => {
     const fetchDrafts = async () => {
       const { data, error } = await supabase
@@ -62,59 +65,12 @@ const HedgeRequestForm: React.FC = () => {
     fetchDrafts();
   }, []);
 
-  const handleDraftSelect = async (selectedDraftId: string) => {
+  const onDraftSelect = async (selectedDraftId: string) => {
     setDraftId(selectedDraftId);
-    
-    const { data: draftData, error } = await supabase
-      .from('hedge_request_draft')
-      .select('*')
-      .eq('id', selectedDraftId)
-      .single();
-
-    if (error || !draftData) {
-      toast.error("Failed to load draft");
-      return;
+    const draftData = await handleDraftSelect(selectedDraftId);
+    if (draftData) {
+      setDraftSaved(true);
     }
-
-    // Reset form before setting new values
-    form.reset();
-
-    // First set entity-related fields
-    form.setValue('entity_id', draftData.entity_id || '');
-    form.setValue('entity_name', draftData.entity_name || '');
-    form.setValue('functional_currency', draftData.functional_currency || '');
-
-    // Wait for entity selection effects to complete
-    setTimeout(() => {
-      // Set exposure L1 first and wait
-      form.setValue('exposure_config', draftData.exposure_config || '');
-      
-      // Wait for L1 to trigger its effects
-      setTimeout(() => {
-        // Set L2 and wait
-        form.setValue('exposure_category_level_2', draftData.exposure_category_level_2 || '');
-        
-        // Wait for L2 to trigger its effects
-        setTimeout(() => {
-          // Set L3 and wait
-          form.setValue('exposure_category_level_3', draftData.exposure_category_level_3 || '');
-          
-          // Wait for L3 to trigger its effects
-          setTimeout(() => {
-            // Set L4 and strategy
-            form.setValue('exposure_category_level_4', draftData.exposure_category_level_4 || '');
-            form.setValue('strategy', draftData.strategy || '');
-            
-            // Finally set instrument
-            setTimeout(() => {
-              form.setValue('instrument', draftData.instrument || '');
-            }, 100);
-          }, 100);
-        }, 100);
-      }, 100);
-    }, 100);
-
-    setDraftSaved(true);
   };
 
   useEffect(() => {
@@ -219,7 +175,7 @@ const HedgeRequestForm: React.FC = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="w-80 mb-4">
-          <Select onValueChange={handleDraftSelect} value={draftId || ""}>
+          <Select onValueChange={onDraftSelect} value={draftId || ""}>
             <SelectTrigger className="w-80">
               <SelectValue placeholder="Select a draft" />
             </SelectTrigger>
