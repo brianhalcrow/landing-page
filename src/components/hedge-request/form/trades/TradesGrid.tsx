@@ -28,7 +28,6 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
     const fetchDraftAndTrades = async () => {
       if (!draftId) return;
 
-      // Fetch draft data
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
         .select('entity_id, entity_name, strategy, instrument')
@@ -43,7 +42,6 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
 
       setDraftData(draftData);
 
-      // Fetch trades
       const { data: tradesData, error: tradesError } = await supabase
         .from('hedge_request_draft_trades')
         .select('*')
@@ -55,7 +53,6 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
         return;
       }
 
-      // If no trades exist, create an empty row with draft data
       if (!tradesData || tradesData.length === 0) {
         setRowData([{
           draft_id: draftId,
@@ -84,48 +81,64 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       headerName: 'Draft ID',
       width: 200,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-left right-border',
     },
     {
       field: 'entity_id',
       headerName: 'Entity ID',
       width: 120,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-center',
     },
     {
       field: 'entity_name',
       headerName: 'Entity Name',
       width: 150,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-left',
     },
     {
       field: 'strategy',
       headerName: 'Strategy',
       width: 120,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-center',
     },
     {
       field: 'instrument',
       headerName: 'Instrument',
       width: 120,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-center right-border',
     },
     {
       field: 'base_currency',
       headerName: 'Base Currency',
       editable: true,
       width: 120,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center',
     },
     {
       field: 'quote_currency',
       headerName: 'Quote Currency',
       editable: true,
       width: 120,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center',
     },
     {
       field: 'currency_pair',
       headerName: 'Currency Pair',
       editable: true,
       width: 120,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center right-border',
     },
     {
       field: 'trade_date',
@@ -133,6 +146,8 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       editable: true,
       width: 120,
       type: 'dateColumn',
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center',
     },
     {
       field: 'settlement_date',
@@ -140,6 +155,8 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       editable: true,
       width: 120,
       type: 'dateColumn',
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center right-border',
     },
     {
       field: 'buy_sell',
@@ -147,12 +164,16 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       editable: true,
       width: 100,
       valueSetter: validateBuySell,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center',
     },
     {
       field: 'buy_sell_currency_code',
       headerName: 'Currency Code',
       editable: true,
       width: 120,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center',
     },
     {
       field: 'buy_sell_amount',
@@ -161,18 +182,24 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       width: 120,
       type: 'numericColumn',
       valueSetter: validateAmount,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'ag-cell-focus text-center right-border',
     },
     {
       field: 'created_at',
       headerName: 'Created At',
       width: 160,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-center',
     },
     {
       field: 'updated_at',
       headerName: 'Updated At',
       width: 160,
       editable: false,
+      headerClass: 'text-center main-header wrap-header-text',
+      cellClass: 'text-center',
     }
   ];
 
@@ -180,10 +207,11 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
     sortable: true,
     filter: true,
     resizable: true,
+    suppressSizeToFit: true,
   };
 
   return (
-    <div className="w-full h-[400px] ag-theme-alpine">
+    <div className="w-full h-[600px] ag-theme-alpine">
       <style>{gridStyles}</style>
       <AgGridReact
         ref={gridRef}
