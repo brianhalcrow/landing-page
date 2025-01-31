@@ -12,12 +12,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
+import TradesGrid from "./trades/TradesGrid";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
   const { session } = useAuth();
   const [draftSaved, setDraftSaved] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -125,6 +127,7 @@ const HedgeRequestForm: React.FC = () => {
       }
 
       if (draftData) {
+        setDraftId(draftData.id);
         setDraftSaved(true);
         toast.success("Draft saved successfully");
         console.log('Saved draft:', draftData);
@@ -190,6 +193,12 @@ const HedgeRequestForm: React.FC = () => {
             </p>
           )}
         </div>
+        {draftSaved && draftId && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Trade Details</h3>
+            <TradesGrid draftId={draftId} />
+          </div>
+        )}
       </form>
     </Form>
   );
