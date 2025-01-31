@@ -12,7 +12,7 @@ import {
 import { useEntities } from "@/hooks/useEntities";
 
 interface HedgeRequestData {
-  id: string;
+  id: number;  // Changed from string to number to match database type
   entity_id: string | null;
   entity_name: string | null;
   instrument: string | null;

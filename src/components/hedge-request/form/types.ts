@@ -15,7 +15,7 @@ export const formSchema = z.object({
   exposure_config: z.string().optional(),
   strategy: z.string().optional(),
   instrument: z.string().optional(),
-});
+}).strict(); // Added strict() to prevent excessive type instantiation
 
 export type FormValues = z.infer<typeof formSchema>;
 
