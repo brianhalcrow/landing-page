@@ -8,6 +8,8 @@ import EntitySelection from "./EntitySelection";
 import CategorySelection from "./CategorySelection";
 import StrategyField from "./strategy/StrategyField";
 import InstrumentField from "./instrument/InstrumentField";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -48,6 +50,47 @@ const HedgeRequestForm: React.FC = () => {
     console.log(data);
   };
 
+  const handleSaveDraft = async () => {
+    try {
+      const formData = form.getValues();
+      
+      const { data: draftData, error: draftError } = await supabase
+        .from('hedge_request_draft')
+        .insert([
+          {
+            ...formData,
+            created_by: (await supabase.auth.getUser()).data.user?.id
+          }
+        ])
+        .select()
+        .single();
+
+      if (draftError) {
+        console.error('Error saving draft:', draftError);
+        toast({
+          title: "Error",
+          description: "Failed to save draft",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Draft saved successfully",
+      });
+
+      console.log('Saved draft:', draftData);
+    } catch (error) {
+      console.error('Error in handleSaveDraft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -75,7 +118,14 @@ const HedgeRequestForm: React.FC = () => {
             />
           </div>
         </div>
-        <div className="flex justify-end px-2">
+        <div className="flex justify-end gap-4 px-2">
+          <Button 
+            type="button" 
+            variant="outline"
+            onClick={handleSaveDraft}
+          >
+            Save Draft
+          </Button>
           <Button type="submit">Submit</Button>
         </div>
       </form>

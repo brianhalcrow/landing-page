@@ -578,6 +578,125 @@ export type Database = {
         }
         Relationships: []
       }
+      hedge_request_draft: {
+        Row: {
+          cost_centre: string | null
+          country: string | null
+          created_at: string | null
+          created_by: string | null
+          entity_id: string | null
+          entity_name: string | null
+          exposure_category_level_2: string | null
+          exposure_category_level_3: string | null
+          exposure_category_level_4: string | null
+          exposure_config: string | null
+          functional_currency: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: string
+          instrument: string | null
+          status: string | null
+          strategy: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cost_centre?: string | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          exposure_category_level_2?: string | null
+          exposure_category_level_3?: string | null
+          exposure_category_level_4?: string | null
+          exposure_config?: string | null
+          functional_currency?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: string
+          instrument?: string | null
+          status?: string | null
+          strategy?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cost_centre?: string | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          exposure_category_level_2?: string | null
+          exposure_category_level_3?: string | null
+          exposure_category_level_4?: string | null
+          exposure_config?: string | null
+          functional_currency?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: string
+          instrument?: string | null
+          status?: string | null
+          strategy?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      hedge_request_draft_trades: {
+        Row: {
+          base_currency: string | null
+          buy_sell: string | null
+          buy_sell_amount: number | null
+          buy_sell_currency_code: string | null
+          created_at: string | null
+          currency_pair: string | null
+          draft_id: string | null
+          id: string
+          quote_currency: string | null
+          settlement_date: string | null
+          trade_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_currency?: string | null
+          buy_sell?: string | null
+          buy_sell_amount?: number | null
+          buy_sell_currency_code?: string | null
+          created_at?: string | null
+          currency_pair?: string | null
+          draft_id?: string | null
+          id?: string
+          quote_currency?: string | null
+          settlement_date?: string | null
+          trade_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_currency?: string | null
+          buy_sell?: string | null
+          buy_sell_amount?: number | null
+          buy_sell_currency_code?: string | null
+          created_at?: string | null
+          currency_pair?: string | null
+          draft_id?: string | null
+          id?: string
+          quote_currency?: string | null
+          settlement_date?: string | null
+          trade_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hedge_request_draft_trades_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "hedge_request_draft"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hedge_strategy: {
         Row: {
           exposure_category_level_2: string | null
