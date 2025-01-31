@@ -11,12 +11,13 @@ import InstrumentField from "./instrument/InstrumentField";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
   const { session } = useAuth();
   const [draftSaved, setDraftSaved] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -38,6 +39,36 @@ const HedgeRequestForm: React.FC = () => {
     },
     mode: "onChange",
   });
+
+  // Watch all required fields for changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      const requiredFields = [
+        'entity_id',
+        'entity_name',
+        'exposure_category_level_2',
+        'exposure_category_level_3',
+        'exposure_category_level_4',
+        'exposure_config',
+        'strategy'
+      ];
+
+      const isValid = requiredFields.every(field => {
+        const fieldValue = form.getValues(field);
+        return fieldValue && fieldValue.length > 0;
+      });
+
+      console.log('Form validation state:', {
+        isValid,
+        values: form.getValues(),
+        errors: form.formState.errors
+      });
+
+      setIsFormValid(isValid);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
 
   const handleEntitySelect = (field: "entity_id" | "entity_name", value: string) => {
     const selectedEntity = entities?.find(entity => 
@@ -92,8 +123,6 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  // Check if all required fields are filled
-  const isFormValid = form.formState.isValid;
   const isAuthenticated = !!session?.user;
 
   return (
