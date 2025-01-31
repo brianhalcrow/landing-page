@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import TradesGrid from "./trades/TradesGrid";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -20,6 +21,7 @@ const HedgeRequestForm: React.FC = () => {
   const [draftSaved, setDraftSaved] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<any[]>([]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -42,7 +44,48 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
-  // Watch form fields for completion
+  useEffect(() => {
+    const fetchDrafts = async () => {
+      const { data, error } = await supabase
+        .from('hedge_request_draft')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast.error("Failed to fetch drafts");
+        return;
+      }
+
+      setDrafts(data || []);
+    };
+
+    fetchDrafts();
+  }, []);
+
+  const handleDraftSelect = async (selectedDraftId: string) => {
+    setDraftId(selectedDraftId);
+    
+    const { data: draftData, error } = await supabase
+      .from('hedge_request_draft')
+      .select('*')
+      .eq('id', selectedDraftId)
+      .single();
+
+    if (error || !draftData) {
+      toast.error("Failed to load draft");
+      return;
+    }
+
+    // Populate form with draft data
+    Object.keys(draftData).forEach((key) => {
+      if (key in form.getValues()) {
+        form.setValue(key as keyof FormValues, draftData[key]);
+      }
+    });
+
+    setDraftSaved(true);
+  };
+
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       const values = form.getValues();
@@ -102,7 +145,6 @@ const HedgeRequestForm: React.FC = () => {
     });
 
     try {
-      // For POC, we'll use a mock user ID if no session
       const userId = session?.user?.id || 'mock-user-id';
 
       const formData = form.getValues();
@@ -139,13 +181,27 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  // Simplified button logic for POC
   const canSaveDraft = isFormComplete;
   const canSubmit = draftSaved && isFormComplete;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="w-full mb-4">
+          <Select onValueChange={handleDraftSelect} value={draftId || ""}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a draft" />
+            </SelectTrigger>
+            <SelectContent>
+              {drafts.map((draft) => (
+                <SelectItem key={draft.id} value={draft.id}>
+                  {`${draft.entity_name || 'Unnamed'} - ${new Date(draft.created_at).toLocaleDateString()}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="flex flex-col gap-6">
           <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <EntitySelection 

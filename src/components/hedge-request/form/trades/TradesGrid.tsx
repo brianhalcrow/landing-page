@@ -221,7 +221,7 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
   };
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
+    <div className="w-full h-[120px] ag-theme-alpine">
       <style>{gridStyles}</style>
       <AgGridReact
         ref={gridRef}
@@ -230,6 +230,7 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
         defaultColDef={defaultColDef}
         animateRows={true}
         rowSelection="multiple"
+        domLayout="autoHeight"
       />
     </div>
   );
