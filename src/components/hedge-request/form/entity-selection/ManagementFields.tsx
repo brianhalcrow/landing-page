@@ -1,22 +1,8 @@
 import { UseFormReturn } from "react-hook-form";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { FormValues } from "../types";
 import { ManagementStructure } from "./types";
-import { useEffect } from "react";
+import CostCentreField from "./fields/CostCentreField";
+import CountryField from "./fields/CountryField";
 
 interface ManagementFieldsProps {
   form: UseFormReturn<FormValues>;
@@ -29,74 +15,14 @@ const ManagementFields = ({
   managementStructures,
   onCostCentreSelect 
 }: ManagementFieldsProps) => {
-
-  useEffect(() => {
-    // If there's only one cost centre, automatically select it
-    if (managementStructures.length === 1) {
-      const costCentre = managementStructures[0].cost_centre;
-      form.setValue('cost_centre', costCentre);
-      onCostCentreSelect(costCentre);
-    } else {
-      // Reset cost centre when switching to an entity with multiple cost centres
-      form.setValue('cost_centre', '');
-    }
-  }, [managementStructures, form, onCostCentreSelect]);
-
   return (
     <>
-      <FormField
-        control={form.control}
-        name="cost_centre"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel>Cost Centre</FormLabel>
-            {managementStructures.length > 1 ? (
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  onCostCentreSelect(value);
-                }}
-                value={field.value || ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Cost Centre" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {managementStructures.map((structure) => (
-                    <SelectItem 
-                      key={structure.cost_centre} 
-                      value={structure.cost_centre}
-                    >
-                      {structure.cost_centre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-            )}
-            <FormMessage />
-          </FormItem>
-        )}
+      <CostCentreField 
+        form={form}
+        managementStructures={managementStructures}
+        onCostCentreSelect={onCostCentreSelect}
       />
-
-      <FormField
-        control={form.control}
-        name="country"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel>Country</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <CountryField form={form} />
     </>
   );
 };
