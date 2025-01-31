@@ -14,33 +14,7 @@ interface FormFirstRowProps {
 
 const FormFirstRow = ({ form }: FormFirstRowProps) => {
   return (
-    <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-4">
-      <FormField
-        control={form.control}
-        name="entity_name"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Entity Name</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter entity name" className="w-full" />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="entity_id"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Entity ID</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Enter entity ID" className="w-full" />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-
+    <>
       <FormField
         control={form.control}
         name="functional_currency"
@@ -118,7 +92,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
 
