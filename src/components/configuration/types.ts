@@ -27,28 +27,37 @@ export const formSchema = z.object({
 }).refine(
   async (data) => {
     try {
+      console.log('Starting validation with data:', {
+        providedEntityId: data.entity_id,
+        providedEntityName: data.entity_name,
+        providedCurrency: data.functional_currency
+      });
+
       const { data: entityConfig, error } = await supabase
         .from('config_entity')
         .select('*')
         .eq('entity_id', data.entity_id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('Error validating entity:', error);
+        console.error('Error fetching entity config:', error);
         return false;
       }
 
-      // If no entity config found, validation fails
       if (!entityConfig) {
-        console.error('No entity config found');
+        console.error('No entity config found for ID:', data.entity_id);
         return false;
       }
 
-      // Check if entity_id and entity_name match
+      console.log('Found entity config:', {
+        configEntityId: entityConfig.entity_id,
+        configEntityName: entityConfig.entity_name,
+        configCurrency: entityConfig.functional_currency
+      });
+
+      // Strict comparison of values
       const idMatches = entityConfig.entity_id === data.entity_id;
       const nameMatches = entityConfig.entity_name === data.entity_name;
-      
-      // Only validate functional_currency if it's provided
       const currencyMatches = !data.functional_currency || 
         entityConfig.functional_currency === data.functional_currency;
 
@@ -56,13 +65,18 @@ export const formSchema = z.object({
         idMatches,
         nameMatches,
         currencyMatches,
-        entityConfig,
-        data
+        comparison: {
+          id: `${entityConfig.entity_id} === ${data.entity_id}`,
+          name: `${entityConfig.entity_name} === ${data.entity_name}`,
+          currency: data.functional_currency ? 
+            `${entityConfig.functional_currency} === ${data.functional_currency}` :
+            'Currency validation skipped (optional)'
+        }
       });
 
       return idMatches && nameMatches && currencyMatches;
     } catch (error) {
-      console.error('Validation error:', error);
+      console.error('Unexpected validation error:', error);
       return false;
     }
   },
