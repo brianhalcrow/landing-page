@@ -10,24 +10,32 @@ import CategorySelection from "./CategorySelection";
 import { FormValues, Entity, Criteria } from "./types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./types";
+import { Input } from "@/components/ui/input";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+} from "@/components/ui/form";
 
 const HedgeRequestForm = () => {
-  type FormData = {
-    entity_id: string;
-    entity_name: string;
-    exposure_category_level_2: string;
-    exposure_category_level_3: string;
-    exposure_category_level_4: string;
-  };
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema) as any, // Type assertion to avoid resolver complexity
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       entity_id: "",
       entity_name: "",
+      cost_centre: "",
+      country: "",
+      geo_level_1: "",
+      geo_level_2: "",
+      geo_level_3: "",
+      functional_currency: "",
       exposure_category_level_2: "",
       exposure_category_level_3: "",
       exposure_category_level_4: "",
+      exposure_config: "",
+      strategy: "",
+      instrument: "",
     },
   });
 
@@ -36,7 +44,7 @@ const HedgeRequestForm = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("config_exposures")
-        .select("entity_id, entity_name")
+        .select("entity_id, entity_name, functional_currency")
         .order("entity_name");
 
       if (error) throw error;
@@ -71,82 +79,153 @@ const HedgeRequestForm = () => {
         { shouldValidate: true }
       );
       
+      if (selectedEntity.functional_currency) {
+        form.setValue("functional_currency", selectedEntity.functional_currency);
+      }
+
       // Reset dependent fields
-      form.setValue("exposure_category_level_2", "", { shouldValidate: true });
-      form.setValue("exposure_category_level_3", "", { shouldValidate: true });
-      form.setValue("exposure_category_level_4", "", { shouldValidate: true });
+      form.setValue("exposure_category_level_2", "");
+      form.setValue("exposure_category_level_3", "");
+      form.setValue("exposure_category_level_4", "");
     }
   };
 
-  const getUniqueValues = (field: keyof FormData): string[] => {
-    if (!criteriaData) return [];
-
-    switch (field) {
-      case "exposure_category_level_2":
-        return Array.from(new Set(
-          criteriaData.map(item => item[field] || "")
-        )).filter(Boolean);
-
-      case "exposure_category_level_3": {
-        const level2Value = form.watch("exposure_category_level_2");
-        return Array.from(new Set(
-          criteriaData
-            .filter(item => item.exposure_category_level_2 === level2Value)
-            .map(item => item[field] || "")
-        )).filter(Boolean);
-      }
-
-      case "exposure_category_level_4": {
-        const level2Value = form.watch("exposure_category_level_2");
-        const level3Value = form.watch("exposure_category_level_3");
-        return Array.from(new Set(
-          criteriaData
-            .filter(item => 
-              item.exposure_category_level_2 === level2Value &&
-              item.exposure_category_level_3 === level3Value
-            )
-            .map(item => item[field] || "")
-        )).filter(Boolean);
-      }
-
-      default:
-        return [];
-    }
-  };
-
-  const handleSubmit = (values: FormData) => {
-    const isValidCombination = criteriaData?.some(criteria => 
-      criteria.entity_id === values.entity_id &&
-      criteria.exposure_category_level_2 === values.exposure_category_level_2 &&
-      criteria.exposure_category_level_3 === values.exposure_category_level_3 &&
-      criteria.exposure_category_level_4 === values.exposure_category_level_4
-    );
-
-    if (!isValidCombination) {
-      toast.error("Invalid combination. Please select valid options from the criteria table.");
-      return;
-    }
-
+  const handleSubmit = (values: FormValues) => {
     console.log("Form submitted:", values);
+    toast.success("Form submitted successfully!");
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <EntitySelection
-          form={form}
-          entities={entities}
-          isLoading={isLoadingEntities}
-          onEntitySelect={handleEntitySelection}
-        />
-        <CategorySelection
-          form={form}
-          criteriaData={criteriaData}
-          getUniqueValues={getUniqueValues}
-        />
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="grid grid-cols-3 gap-4">
+          <EntitySelection
+            form={form}
+            entities={entities}
+            isLoading={isLoadingEntities}
+            onEntitySelect={handleEntitySelection}
+          />
+          
+          <FormField
+            control={form.control}
+            name="cost_centre"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cost Centre</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter cost centre" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter country" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 1</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 1" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 2</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 2" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_3"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 3</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 3" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="functional_currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Functional Currency</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Functional currency" readOnly />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <CategorySelection
+            form={form}
+            criteriaData={criteriaData}
+            getUniqueValues={(field) => {
+              if (!criteriaData) return [];
+              const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
+              return Array.from(values) as string[];
+            }}
+          />
+
+          <FormField
+            control={form.control}
+            name="strategy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Strategy</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter strategy" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="instrument"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Instrument</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter instrument" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <Button type="submit">Submit</Button>
+        </div>
       </form>
     </Form>
   );

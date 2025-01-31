@@ -44,7 +44,7 @@ export type Database = {
           entity?: string | null
           entity_id?: string | null
           geo_structure_entity_id?: number | null
-          id: number
+          id?: number
           invoice_date: string
           invoice_id?: string | null
           legal_entity_id?: string | null
@@ -96,6 +96,7 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           geo_structure_entity_id: number | null
+          id: number
           invoice_date: string | null
           invoice_id: string | null
           legal_entity_id: string | null
@@ -117,6 +118,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           geo_structure_entity_id?: number | null
+          id?: number
           invoice_date?: string | null
           invoice_id?: string | null
           legal_entity_id?: string | null
@@ -138,6 +140,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           geo_structure_entity_id?: number | null
+          id?: number
           invoice_date?: string | null
           invoice_id?: string | null
           legal_entity_id?: string | null
@@ -179,7 +182,7 @@ export type Database = {
           entity_name?: string | null
           expected_delivery_date?: string | null
           geo_structure_entity_id?: number | null
-          id: number
+          id?: number
           legal_entity_id?: string | null
           po_date?: string | null
           po_date_time?: string | null
@@ -214,32 +217,38 @@ export type Database = {
         Row: {
           entity_id: string
           exposed_currency: string | null
+          id: number
         }
         Insert: {
           entity_id: string
           exposed_currency?: string | null
+          id?: number
         }
         Update: {
           entity_id?: string
           exposed_currency?: string | null
+          id?: number
         }
         Relationships: []
       }
       config_entity: {
         Row: {
-          entity_id: string | null
-          entity_name: string | null
+          entity_id: string
+          entity_name: string
           functional_currency: string | null
+          id: number
         }
         Insert: {
-          entity_id?: string | null
-          entity_name?: string | null
+          entity_id: string
+          entity_name: string
           functional_currency?: string | null
+          id?: number
         }
         Update: {
-          entity_id?: string | null
-          entity_name?: string | null
+          entity_id?: string
+          entity_name?: string
           functional_currency?: string | null
+          id?: number
         }
         Relationships: []
       }
@@ -255,6 +264,7 @@ export type Database = {
           entity_name: string
           functional_currency: string | null
           fx_realized: boolean | null
+          id: number
           monetary_assets: boolean | null
           monetary_liabilities: boolean | null
           net_income: boolean | null
@@ -274,6 +284,7 @@ export type Database = {
           entity_name: string
           functional_currency?: string | null
           fx_realized?: boolean | null
+          id?: number
           monetary_assets?: boolean | null
           monetary_liabilities?: boolean | null
           net_income?: boolean | null
@@ -293,6 +304,7 @@ export type Database = {
           entity_name?: string
           functional_currency?: string | null
           fx_realized?: boolean | null
+          id?: number
           monetary_assets?: boolean | null
           monetary_liabilities?: boolean | null
           net_income?: boolean | null
@@ -340,7 +352,15 @@ export type Database = {
           id?: number
           subsystem_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_criteria_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "config_entity"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       forecast_category: {
         Row: {
@@ -349,7 +369,7 @@ export type Database = {
         }
         Insert: {
           forecast_category: string
-          id: number
+          id?: number
         }
         Update: {
           forecast_category?: string
@@ -361,124 +381,140 @@ export type Database = {
         Row: {
           account_category_level_4: string | null
           account_name: string | null
-          account_number: string | null
+          account_number: string
           base_amount: number | null
           cost_centre: string | null
           country: string | null
           currency: string | null
           entity: string | null
-          entity_id: string | null
+          entity_id: string
           geo_level_1: string | null
           geo_level_2: string | null
           geo_level_3: string | null
           id: number
-          period: string | null
+          period: string
           transaction_amount: number | null
-          year: number | null
+          year: number
           year_period: string | null
         }
         Insert: {
           account_category_level_4?: string | null
           account_name?: string | null
-          account_number?: string | null
+          account_number: string
           base_amount?: number | null
           cost_centre?: string | null
           country?: string | null
           currency?: string | null
           entity?: string | null
-          entity_id?: string | null
+          entity_id: string
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
-          id: number
-          period?: string | null
+          id?: number
+          period: string
           transaction_amount?: number | null
-          year?: number | null
+          year: number
           year_period?: string | null
         }
         Update: {
           account_category_level_4?: string | null
           account_name?: string | null
-          account_number?: string | null
+          account_number?: string
           base_amount?: number | null
           cost_centre?: string | null
           country?: string | null
           currency?: string | null
           entity?: string | null
-          entity_id?: string | null
+          entity_id?: string
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
           id?: number
-          period?: string | null
+          period?: string
           transaction_amount?: number | null
-          year?: number | null
+          year?: number
           year_period?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_gl_actual_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "config_entity"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       gl_forecast: {
         Row: {
           account_category_level_4: string | null
           account_name: string | null
-          account_number: string | null
+          account_number: string
           base_amount: number | null
           cost_centre: string | null
           country: string | null
           currency: string | null
           entity: string | null
-          entity_id: string | null
-          forecast_category: string | null
+          entity_id: string
+          forecast_category: string
           geo_level_1: string | null
           geo_level_2: string | null
           geo_level_3: string | null
           id: number
-          period: string | null
+          period: string
           transaction_amount: number | null
-          year: number | null
+          year: number
           year_period: string | null
         }
         Insert: {
           account_category_level_4?: string | null
           account_name?: string | null
-          account_number?: string | null
+          account_number: string
           base_amount?: number | null
           cost_centre?: string | null
           country?: string | null
           currency?: string | null
           entity?: string | null
-          entity_id?: string | null
-          forecast_category?: string | null
+          entity_id: string
+          forecast_category: string
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
-          id: number
-          period?: string | null
+          id?: number
+          period: string
           transaction_amount?: number | null
-          year?: number | null
+          year: number
           year_period?: string | null
         }
         Update: {
           account_category_level_4?: string | null
           account_name?: string | null
-          account_number?: string | null
+          account_number?: string
           base_amount?: number | null
           cost_centre?: string | null
           country?: string | null
           currency?: string | null
           entity?: string | null
-          entity_id?: string | null
-          forecast_category?: string | null
+          entity_id?: string
+          forecast_category?: string
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
           id?: number
-          period?: string | null
+          period?: string
           transaction_amount?: number | null
-          year?: number | null
+          year?: number
           year_period?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_gl_forecast_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "config_entity"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       hedge_request: {
         Row: {
@@ -490,12 +526,12 @@ export type Database = {
           currency_pair: string | null
           entity_id: string | null
           entity_name: string | null
+          id: number
           instrument: string | null
           quote_currency: string | null
           settlement_date: string | null
           strategy: string | null
           trade_date: string | null
-          trade_request_id: string
         }
         Insert: {
           base_currency?: string | null
@@ -506,12 +542,12 @@ export type Database = {
           currency_pair?: string | null
           entity_id?: string | null
           entity_name?: string | null
+          id?: number
           instrument?: string | null
           quote_currency?: string | null
           settlement_date?: string | null
           strategy?: string | null
           trade_date?: string | null
-          trade_request_id: string
         }
         Update: {
           base_currency?: string | null
@@ -522,28 +558,31 @@ export type Database = {
           currency_pair?: string | null
           entity_id?: string | null
           entity_name?: string | null
+          id?: number
           instrument?: string | null
           quote_currency?: string | null
           settlement_date?: string | null
           strategy?: string | null
           trade_date?: string | null
-          trade_request_id?: string
         }
         Relationships: []
       }
       hedge_strategy: {
         Row: {
           exposure_category_level_2: string | null
+          id: number
           strategy: string | null
           strategy_description: string | null
         }
         Insert: {
           exposure_category_level_2?: string | null
+          id?: number
           strategy?: string | null
           strategy_description?: string | null
         }
         Update: {
           exposure_category_level_2?: string | null
+          id?: number
           strategy?: string | null
           strategy_description?: string | null
         }
@@ -576,7 +615,7 @@ export type Database = {
           geo_level_1: string | null
           geo_level_2: string | null
           geo_level_3: string | null
-          id: number | null
+          id: number
         }
         Insert: {
           cost_centre: string
@@ -586,7 +625,7 @@ export type Database = {
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
-          id?: number | null
+          id?: number
         }
         Update: {
           cost_centre?: string
@@ -596,9 +635,17 @@ export type Database = {
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
-          id?: number | null
+          id?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_management_structure_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "config_exposures"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       rates: {
         Row: {
@@ -617,7 +664,7 @@ export type Database = {
           bs_month?: string | null
           closing_rate?: number | null
           currency_pair?: string | null
-          id: number
+          id?: number
           pl_month?: string | null
           quote_currency?: string | null
           rate_date?: string | null
@@ -633,48 +680,6 @@ export type Database = {
           quote_currency?: string | null
           rate_date?: string | null
           timestamp?: string | null
-        }
-        Relationships: []
-      }
-      sfx_criteria: {
-        Row: {
-          account_category_level_1: string | null
-          created_at: string | null
-          entity_id: string
-          entity_name: string
-          exposure_category_level_1: string | null
-          exposure_category_level_2: string | null
-          exposure_category_level_3: string | null
-          exposure_category_level_4: string | null
-          exposure_config: string | null
-          id: number
-          subsystem_code: string | null
-        }
-        Insert: {
-          account_category_level_1?: string | null
-          created_at?: string | null
-          entity_id: string
-          entity_name: string
-          exposure_category_level_1?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
-          exposure_config?: string | null
-          id?: number
-          subsystem_code?: string | null
-        }
-        Update: {
-          account_category_level_1?: string | null
-          created_at?: string | null
-          entity_id?: string
-          entity_name?: string
-          exposure_category_level_1?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
-          exposure_config?: string | null
-          id?: number
-          subsystem_code?: string | null
         }
         Relationships: []
       }
@@ -711,6 +716,54 @@ export type Database = {
         }
         Relationships: []
       }
+      table_constraints: {
+        Row: {
+          column_name: unknown | null
+          table_name: unknown | null
+        }
+        Insert: {
+          column_name?: unknown | null
+          table_name?: unknown | null
+        }
+        Update: {
+          column_name?: unknown | null
+          table_name?: unknown | null
+        }
+        Relationships: []
+      }
+      tables: {
+        Row: {
+          character_maximum_length: number | null
+          column_default: string | null
+          column_name: unknown | null
+          data_type: string | null
+          is_nullable: string | null
+          numeric_precision: number | null
+          numeric_scale: number | null
+          table_name: unknown | null
+        }
+        Insert: {
+          character_maximum_length?: number | null
+          column_default?: string | null
+          column_name?: unknown | null
+          data_type?: string | null
+          is_nullable?: string | null
+          numeric_precision?: number | null
+          numeric_scale?: number | null
+          table_name?: unknown | null
+        }
+        Update: {
+          character_maximum_length?: number | null
+          column_default?: string | null
+          column_name?: unknown | null
+          data_type?: string | null
+          is_nullable?: string | null
+          numeric_precision?: number | null
+          numeric_scale?: number | null
+          table_name?: unknown | null
+        }
+        Relationships: []
+      }
       trade_register: {
         Row: {
           base_currency: string | null
@@ -744,7 +797,7 @@ export type Database = {
           deal_id?: string | null
           entity_id?: string | null
           entity_name?: string | null
-          id: number
+          id?: number
           instrument?: string | null
           quote_currency?: string | null
           quote_currency_amount?: string | null

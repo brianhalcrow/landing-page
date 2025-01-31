@@ -13,41 +13,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormValues, Criteria } from "./types";
+import { Criteria, FormValues } from "./types";
 
 interface CategorySelectionProps {
   form: UseFormReturn<FormValues>;
   criteriaData: Criteria[] | undefined;
-  getUniqueValues: (field: keyof FormValues) => string[];
+  getUniqueValues: (field: keyof Criteria) => string[];
 }
 
 const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySelectionProps) => {
+  const entitySelected = !!form.watch("entity_id");
+
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <>
       <FormField
         control={form.control}
         name="exposure_category_level_2"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Category Level 2</FormLabel>
+            <FormLabel>Exposure L2</FormLabel>
             <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                form.setValue("exposure_category_level_3", "");
-                form.setValue("exposure_category_level_4", "");
-              }}
+              onValueChange={field.onChange}
               value={field.value}
-              disabled={!form.getValues("entity_id")}
+              disabled={!entitySelected}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category level 2" />
+                  <SelectValue placeholder="Select exposure L2" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {getUniqueValues("exposure_category_level_2").map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                {getUniqueValues("exposure_category_level_2").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -62,24 +60,21 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
         name="exposure_category_level_3"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Category Level 3</FormLabel>
+            <FormLabel>Exposure L3</FormLabel>
             <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                form.setValue("exposure_category_level_4", "");
-              }}
+              onValueChange={field.onChange}
               value={field.value}
-              disabled={!form.getValues("exposure_category_level_2")}
+              disabled={!form.watch("exposure_category_level_2")}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category level 3" />
+                  <SelectValue placeholder="Select exposure L3" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {getUniqueValues("exposure_category_level_3").map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                {getUniqueValues("exposure_category_level_3").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -94,21 +89,21 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
         name="exposure_category_level_4"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Category Level 4</FormLabel>
+            <FormLabel>Exposure L4</FormLabel>
             <Select
               onValueChange={field.onChange}
               value={field.value}
-              disabled={!form.getValues("exposure_category_level_3")}
+              disabled={!form.watch("exposure_category_level_3")}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category level 4" />
+                  <SelectValue placeholder="Select exposure L4" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {getUniqueValues("exposure_category_level_4").map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                {getUniqueValues("exposure_category_level_4").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -117,7 +112,7 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
 

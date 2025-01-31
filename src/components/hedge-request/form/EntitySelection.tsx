@@ -24,7 +24,7 @@ interface EntitySelectionProps {
 
 const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySelectionProps) => {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <>
       <FormField
         control={form.control}
         name="entity_name"
@@ -88,7 +88,7 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
 
