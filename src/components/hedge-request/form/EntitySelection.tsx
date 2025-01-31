@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Entity, FormValues } from "./types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -25,15 +25,24 @@ interface EntitySelectionProps {
   onEntitySelect: (field: "entity_id" | "entity_name", value: string) => void;
 }
 
+interface ManagementStructure {
+  cost_centre: string;
+  country: string;
+  geo_level_1: string;
+  geo_level_2: string;
+  geo_level_3: string;
+}
+
 const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySelectionProps) => {
+  const [managementStructures, setManagementStructures] = useState<ManagementStructure[]>([]);
+
   useEffect(() => {
     const fetchManagementStructure = async (entityId: string) => {
       try {
         const { data, error } = await supabase
           .from('management_structure')
           .select('*')
-          .eq('entity_id', entityId)
-          .maybeSingle();
+          .eq('entity_id', entityId);
 
         if (error) {
           console.error('Error fetching management structure:', error);
@@ -46,22 +55,35 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
         }
 
         // Clear the fields if no data is found
-        if (!data) {
+        if (!data || data.length === 0) {
           console.log('No management structure found for entity:', entityId);
           form.setValue('cost_centre', '');
           form.setValue('country', '');
           form.setValue('geo_level_1', '');
           form.setValue('geo_level_2', '');
           form.setValue('geo_level_3', '');
+          setManagementStructures([]);
           return;
         }
 
-        // Set the values if data exists
-        form.setValue('cost_centre', data.cost_centre || '');
-        form.setValue('country', data.country || '');
-        form.setValue('geo_level_1', data.geo_level_1 || '');
-        form.setValue('geo_level_2', data.geo_level_2 || '');
-        form.setValue('geo_level_3', data.geo_level_3 || '');
+        setManagementStructures(data);
+        
+        // If there's only one structure, set it automatically
+        if (data.length === 1) {
+          const structure = data[0];
+          form.setValue('cost_centre', structure.cost_centre || '');
+          form.setValue('country', structure.country || '');
+          form.setValue('geo_level_1', structure.geo_level_1 || '');
+          form.setValue('geo_level_2', structure.geo_level_2 || '');
+          form.setValue('geo_level_3', structure.geo_level_3 || '');
+        } else {
+          // Clear the fields if multiple structures exist, waiting for user selection
+          form.setValue('cost_centre', '');
+          form.setValue('country', '');
+          form.setValue('geo_level_1', '');
+          form.setValue('geo_level_2', '');
+          form.setValue('geo_level_3', '');
+        }
       } catch (error) {
         console.error('Error in fetchManagementStructure:', error);
         toast({
@@ -77,6 +99,20 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
       fetchManagementStructure(entityId);
     }
   }, [form.watch('entity_id')]);
+
+  const handleCostCentreSelect = (costCentre: string) => {
+    const selectedStructure = managementStructures.find(
+      structure => structure.cost_centre === costCentre
+    );
+
+    if (selectedStructure) {
+      form.setValue('cost_centre', selectedStructure.cost_centre);
+      form.setValue('country', selectedStructure.country || '');
+      form.setValue('geo_level_1', selectedStructure.geo_level_1 || '');
+      form.setValue('geo_level_2', selectedStructure.geo_level_2 || '');
+      form.setValue('geo_level_3', selectedStructure.geo_level_3 || '');
+    }
+  };
 
   return (
     <>
@@ -143,6 +179,42 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           </FormItem>
         )}
       />
+
+      {managementStructures.length > 1 && (
+        <FormField
+          control={form.control}
+          name="cost_centre"
+          render={({ field }) => (
+            <FormItem className="w-40">
+              <FormLabel className="h-14">Cost Centre</FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  handleCostCentreSelect(value);
+                }}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cost centre" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {managementStructures.map((structure) => (
+                    <SelectItem 
+                      key={structure.cost_centre} 
+                      value={structure.cost_centre}
+                    >
+                      {structure.cost_centre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </>
   );
 };
