@@ -9,10 +9,12 @@ import CategorySelection from "./CategorySelection";
 import StrategyField from "./strategy/StrategyField";
 import InstrumentField from "./instrument/InstrumentField";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
+  const { session } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -52,28 +54,20 @@ const HedgeRequestForm: React.FC = () => {
 
   const handleSaveDraft = async () => {
     try {
-      // First, get the current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !user) {
-        console.error('User not authenticated:', userError);
-        toast({
-          title: "Authentication Error",
-          description: "Please log in to save drafts",
-          variant: "destructive",
-        });
+      if (!session?.user) {
+        toast.error("Please log in to save drafts");
         return;
       }
 
       const formData = form.getValues();
-      console.log('Saving draft with data:', { ...formData, created_by: user.id });
+      console.log('Saving draft with data:', { ...formData, created_by: session.user.id });
       
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
         .insert([
           {
             ...formData,
-            created_by: user.id,
+            created_by: session.user.id,
             status: 'DRAFT'
           }
         ])
@@ -82,27 +76,15 @@ const HedgeRequestForm: React.FC = () => {
 
       if (draftError) {
         console.error('Error saving draft:', draftError);
-        toast({
-          title: "Error",
-          description: "Failed to save draft",
-          variant: "destructive",
-        });
+        toast.error("Failed to save draft");
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Draft saved successfully",
-      });
-
+      toast.success("Draft saved successfully");
       console.log('Saved draft:', draftData);
     } catch (error) {
       console.error('Error in handleSaveDraft:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save draft",
-        variant: "destructive",
-      });
+      toast.error("Failed to save draft");
     }
   };
 
@@ -138,6 +120,7 @@ const HedgeRequestForm: React.FC = () => {
             type="button" 
             variant="outline"
             onClick={handleSaveDraft}
+            disabled={!session?.user}
           >
             Save Draft
           </Button>
