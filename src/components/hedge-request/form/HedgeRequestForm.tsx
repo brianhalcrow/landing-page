@@ -79,22 +79,39 @@ const HedgeRequestForm: React.FC = () => {
     // Reset form before setting new values
     form.reset();
 
-    // First set entity-related fields to trigger EntitySelection logic
+    // First set entity-related fields
     form.setValue('entity_id', draftData.entity_id || '');
     form.setValue('entity_name', draftData.entity_name || '');
     form.setValue('functional_currency', draftData.functional_currency || '');
 
     // Wait for entity selection effects to complete
     setTimeout(() => {
-      // Set exposure fields to trigger CategorySelection logic
+      // Set exposure L1 first and wait
       form.setValue('exposure_config', draftData.exposure_config || '');
-      form.setValue('exposure_category_level_2', draftData.exposure_category_level_2 || '');
-      form.setValue('exposure_category_level_3', draftData.exposure_category_level_3 || '');
-      form.setValue('exposure_category_level_4', draftData.exposure_category_level_4 || '');
-
-      // Finally set strategy and instrument
-      form.setValue('strategy', draftData.strategy || '');
-      form.setValue('instrument', draftData.instrument || '');
+      
+      // Wait for L1 to trigger its effects
+      setTimeout(() => {
+        // Set L2 and wait
+        form.setValue('exposure_category_level_2', draftData.exposure_category_level_2 || '');
+        
+        // Wait for L2 to trigger its effects
+        setTimeout(() => {
+          // Set L3 and wait
+          form.setValue('exposure_category_level_3', draftData.exposure_category_level_3 || '');
+          
+          // Wait for L3 to trigger its effects
+          setTimeout(() => {
+            // Set L4 and strategy
+            form.setValue('exposure_category_level_4', draftData.exposure_category_level_4 || '');
+            form.setValue('strategy', draftData.strategy || '');
+            
+            // Finally set instrument
+            setTimeout(() => {
+              form.setValue('instrument', draftData.instrument || '');
+            }, 100);
+          }, 100);
+        }, 100);
+      }, 100);
     }, 100);
 
     setDraftSaved(true);
