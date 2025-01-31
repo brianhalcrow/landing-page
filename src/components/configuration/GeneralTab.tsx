@@ -5,7 +5,7 @@ import { useEntities } from "@/hooks/useEntities";
 import { supabase } from "@/integrations/supabase/client";
 
 const GeneralTab = () => {
-  const { entities, isLoading, refetch } = useEntities();
+  const { entities: allEntities, isLoading, refetch } = useEntities();
 
   useEffect(() => {
     const channel = supabase
@@ -21,8 +21,6 @@ const GeneralTab = () => {
           console.log('Real-time update received:', payload);
           console.log("Event type:", payload.eventType);
           console.log("Full payload:", JSON.stringify(payload, null, 2));
-
-          // Trigger data refresh to get all rows
           await refetch();
         }
       )
@@ -36,10 +34,28 @@ const GeneralTab = () => {
     };
   }, [refetch]);
 
+  // Fetch existing exposure configurations
+  const { data: exposures } = useQuery({
+    queryKey: ["exposures"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("config_exposures")
+        .select("*")
+        .order('entity_name');
+      
+      if (error) {
+        toast.error('Failed to fetch exposure configurations');
+        throw error;
+      }
+      
+      return data;
+    },
+  });
+
   return (
     <div className="p-6 space-y-8">
-      <ConfigurationForm />
-      <ConfigurationGrid entities={entities || []} />
+      <ConfigurationForm entities={allEntities} />
+      <ConfigurationGrid entities={exposures || []} />
     </div>
   );
 };

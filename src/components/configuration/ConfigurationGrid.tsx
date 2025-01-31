@@ -17,14 +17,14 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
   const defaultColDef = {
     sortable: true,
     filter: true,
-    resizable: false, // Disable column resizing
-    suppressSizeToFit: true, // Prevent columns from auto-fitting
+    resizable: false,
+    suppressSizeToFit: true,
   };
 
   const columnState = [
     { colId: 'entity_name', width: 250 },
     { colId: 'entity_id', width: 110 },
-    { colId: 'functional_currency', width: 120 }, // Updated width to 120px
+    { colId: 'functional_currency', width: 120 },
     { colId: 'monetary_assets', width: 130 },
     { colId: 'monetary_liabilities', width: 130 },
     { colId: 'net_monetary', width: 120 },
@@ -40,7 +40,6 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     { colId: 'fx_realized', width: 130 },
   ];
 
-  // Apply column state when grid is ready and when entities update
   useEffect(() => {
     if (gridRef.current?.columnApi) {
       gridRef.current.columnApi.applyColumnState({ state: columnState });

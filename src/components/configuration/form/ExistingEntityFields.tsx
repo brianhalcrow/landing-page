@@ -12,7 +12,7 @@ import { Tables } from '@/integrations/supabase/types';
 
 interface ExistingEntityFieldsProps {
   form: UseFormReturn<FormValues>;
-  entities: Tables<'config_exposures'>[] | undefined;
+  entities: Tables<'config_entity'>[] | undefined;
   isLoadingEntities: boolean;
   onFetchConfig: (entityId: string) => Promise<void>;
 }

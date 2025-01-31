@@ -12,9 +12,9 @@ export const useEntities = () => {
   } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
-      console.log('Fetching entities...');
+      console.log('Fetching entities from config_entity...');
       const { data, error } = await supabase
-        .from("config_exposures")
+        .from("config_entity")
         .select("*")
         .order('entity_name');
       
@@ -25,7 +25,7 @@ export const useEntities = () => {
       }
       
       console.log('Entities fetched:', data);
-      return data as Tables<'config_exposures'>[];
+      return data;
     },
     refetchOnWindowFocus: false,
     gcTime: 0,
