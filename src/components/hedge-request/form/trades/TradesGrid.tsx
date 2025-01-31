@@ -24,9 +24,18 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [draftData, setDraftData] = useState<DraftData | null>(null);
 
+  // Create empty rows
+  const emptyRows = [
+    { isEmpty: true },
+    { isEmpty: true }
+  ];
+
   useEffect(() => {
     const fetchDraftAndTrades = async () => {
-      if (!draftId) return;
+      if (!draftId) {
+        setRowData(emptyRows);
+        return;
+      }
 
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
@@ -54,13 +63,14 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       }
 
       if (!tradesData || tradesData.length === 0) {
-        setRowData([{
+        setRowData(emptyRows.map(row => ({
+          ...row,
           draft_id: draftId,
           entity_id: draftData?.entity_id,
           entity_name: draftData?.entity_name,
           strategy: draftData?.strategy,
           instrument: draftData?.instrument,
-        }]);
+        })));
       } else {
         setRowData(tradesData.map(trade => ({
           ...trade,
@@ -119,71 +129,71 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
     {
       field: 'base_currency',
       headerName: 'Base Currency',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center',
+      cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'quote_currency',
       headerName: 'Quote Currency',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center',
+      cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'currency_pair',
       headerName: 'Currency Pair',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center right-border',
+      cellClass: (params) => `ag-cell-focus text-center right-border ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'trade_date',
       headerName: 'Trade Date',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       type: 'dateColumn',
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center',
+      cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       type: 'dateColumn',
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center right-border',
+      cellClass: (params) => `ag-cell-focus text-center right-border ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'buy_sell',
       headerName: 'Buy/Sell',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 100,
       valueSetter: validateBuySell,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center',
+      cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'buy_sell_currency_code',
       headerName: 'Currency Code',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center',
+      cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'buy_sell_amount',
       headerName: 'Amount',
-      editable: true,
+      editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
       type: 'numericColumn',
       valueSetter: validateAmount,
       headerClass: 'text-center main-header wrap-header-text',
-      cellClass: 'ag-cell-focus text-center right-border',
+      cellClass: (params) => `ag-cell-focus text-center right-border ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
     {
       field: 'created_at',

@@ -193,12 +193,10 @@ const HedgeRequestForm: React.FC = () => {
             </p>
           )}
         </div>
-        {draftSaved && draftId && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Trade Details</h3>
-            <TradesGrid draftId={draftId} />
-          </div>
-        )}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-4">Trade Details</h3>
+          <TradesGrid draftId={draftId} />
+        </div>
       </form>
     </Form>
   );
