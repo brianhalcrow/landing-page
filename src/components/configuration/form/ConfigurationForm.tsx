@@ -7,6 +7,8 @@ import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
 import { Tables } from "@/integrations/supabase/types";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ConfigurationFormProps {
   entities: Tables<'config_entity'>[];
@@ -44,8 +46,46 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log(data);
-    // Handle form submission
+    try {
+      console.log("Submitting configuration:", data);
+      
+      const { error } = await supabase
+        .from("config_exposures")
+        .upsert({
+          entity_id: data.entity_id,
+          entity_name: data.entity_name,
+          functional_currency: data.functional_currency,
+          created_at: new Date().toISOString(),
+          po: data.po,
+          ap: data.ap,
+          ar: data.ar,
+          other: data.other,
+          revenue: data.revenue,
+          costs: data.costs,
+          net_income: data.net_income,
+          ap_realized: data.ap_realized,
+          ar_realized: data.ar_realized,
+          fx_realized: data.fx_realized,
+          net_monetary: data.net_monetary,
+          monetary_assets: data.monetary_assets,
+          monetary_liabilities: data.monetary_liabilities,
+        }, {
+          onConflict: 'entity_id'
+        });
+
+      if (error) {
+        console.error("Error saving configuration:", error);
+        toast.error("Failed to save configuration");
+        throw error;
+      }
+
+      toast.success("Configuration saved successfully");
+      setIsUpdating(true);
+      setFormChanged(false);
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      toast.error("Failed to save configuration");
+    }
   };
 
   return (
