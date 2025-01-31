@@ -48,11 +48,23 @@ const HedgeRequestForm: React.FC = () => {
         "entity_id",
         "entity_name",
         "exposure_category_level_2",
-        "strategy",
-        "instrument"
-      ]; // Add all required fields from your schema
+        "exposure_category_level_3",
+        "exposure_category_level_4",
+        "exposure_config",
+        "strategy"
+      ];
       
-      const isComplete = requiredFields.every(field => !!values[field]);
+      const isComplete = requiredFields.every(field => {
+        const fieldValue = values[field];
+        return fieldValue && fieldValue.length > 0;
+      });
+      
+      console.log('Form completion check:', {
+        values,
+        isComplete,
+        formState: form.formState
+      });
+      
       setIsFormComplete(isComplete);
     });
     
@@ -122,6 +134,15 @@ const HedgeRequestForm: React.FC = () => {
 
   const isAuthenticated = !!session?.user;
   const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
+  
+  useEffect(() => {
+    console.log('Button state:', {
+      isFormComplete,
+      isAuthenticated,
+      draftSaved,
+      canSaveDraft
+    });
+  }, [isFormComplete, isAuthenticated, draftSaved]);
   const canSubmit = draftSaved && isFormComplete;
 
   return (
@@ -171,5 +192,7 @@ const HedgeRequestForm: React.FC = () => {
     </Form>
   );
 };
+
+export default HedgeRequestForm;
 
 export default HedgeRequestForm;
