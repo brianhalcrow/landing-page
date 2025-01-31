@@ -51,16 +51,17 @@ const HedgeRequestForm: React.FC = () => {
         'exposure_category_level_4',
         'exposure_config',
         'strategy'
-      ];
+      ] as const;
 
+      const formValues = form.getValues();
       const isValid = requiredFields.every(field => {
-        const fieldValue = form.getValues(field);
+        const fieldValue = formValues[field];
         return fieldValue && fieldValue.length > 0;
       });
 
       console.log('Form validation state:', {
         isValid,
-        values: form.getValues(),
+        values: formValues,
         errors: form.formState.errors
       });
 
