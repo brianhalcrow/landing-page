@@ -49,22 +49,21 @@ const HedgeRequestForm: React.FC = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-1">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <EntitySelection 
               form={form}
               entities={entities}
               isLoading={isLoading}
               onEntitySelect={handleEntitySelect}
             />
-            <FormFirstRow form={form} />
           </div>
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-1">
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <FormSecondRow form={form} />
           </div>
         </div>
-        <div className="flex justify-end px-4">
+        <div className="flex justify-end px-2">
           <Button type="submit">Submit</Button>
         </div>
       </form>

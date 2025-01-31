@@ -14,7 +14,7 @@ interface FormSecondRowProps {
 
 const FormSecondRow = ({ form }: FormSecondRowProps) => {
   return (
-    <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-4">
+    <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-2">
       <FormField
         control={form.control}
         name="exposure_config"
@@ -22,7 +22,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Exposure Config</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter exposure config" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
@@ -35,7 +35,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Strategy</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter strategy" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
@@ -48,7 +48,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Instrument</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter instrument" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
@@ -61,7 +61,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Exposure L2</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter exposure L2" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
@@ -74,7 +74,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Exposure L3</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter exposure L3" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
@@ -87,7 +87,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Exposure L4</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter exposure L4" className="w-full" />
+              <Input {...field} placeholder="" className="w-full" />
             </FormControl>
           </FormItem>
         )}
