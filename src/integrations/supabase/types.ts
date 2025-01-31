@@ -567,6 +567,39 @@ export type Database = {
         Update: {}
         Relationships: []
       }
+      management_structure: {
+        Row: {
+          cost_centre: string
+          country: string | null
+          entity_id: string | null
+          entity_name: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: number | null
+        }
+        Insert: {
+          cost_centre: string
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number | null
+        }
+        Update: {
+          cost_centre?: string
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number | null
+        }
+        Relationships: []
+      }
       rates: {
         Row: {
           base_currency: string | null

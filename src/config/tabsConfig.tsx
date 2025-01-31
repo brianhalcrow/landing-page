@@ -8,18 +8,19 @@ import PositionsTab from "@/components/review/PositionsTab";
 import GeneralTab from "@/components/configuration/GeneralTab";
 import BalanceSheetTab from "@/components/hedge-request/BalanceSheetTab";
 import AdHocTab from "@/components/hedge-request/AdHocTab";
+import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 
 export const tabsConfig = {
   "monitor": [
-    { value: "pending", label: "Pending", content: <PendingTab /> },
     { value: "completed", label: "Completed", content: <CompletedTab /> },
-    { value: "rejected", label: "Rejected", content: <RejectedTab /> },
     { value: "history", label: "History", content: <HistoryTab /> },
+    { value: "pending", label: "Pending", content: <PendingTab /> },
+    { value: "rejected", label: "Rejected", content: <RejectedTab /> },
   ],
   "settlement": [
-    { value: "pending", label: "Pending", content: <div>Pending Settlements</div> },
     { value: "completed", label: "Completed", content: <div>Completed Settlements</div> },
     { value: "failed", label: "Failed", content: <div>Failed Settlements</div> },
+    { value: "pending", label: "Pending", content: <div>Pending Settlements</div> },
   ],
   "data-sources": [
     { value: "connections", label: "Connections", content: <div>Data Source Connections</div> },
@@ -29,27 +30,27 @@ export const tabsConfig = {
     { value: "general", label: "Entity Configuration", content: <GeneralTab /> },
   ],
   "exposure": [
-    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
-    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Exposure</div> },
-    { value: "cashflow", label: "Cashflow", content: <div>Cashflow Exposure</div> },
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
+    { value: "cashflow", label: "Cashflow", content: <div>Cashflow Exposure</div> },
+    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Exposure</div> },
   ],
   "forecast": [
+    { value: "ad-hoc", label: "Ad-Hoc", content: <ForecastAdHocTab /> },
     { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Forecast</div> },
-    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Forecast</div> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Forecast</div> },
-    { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Forecast</div> },
+    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Forecast</div> },
   ],
   "hedge-request": [
-    { value: "balance-sheet", label: "Balance Sheet", content: <BalanceSheetTab /> },
-    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
-    { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
     { value: "ad-hoc", label: "Ad-Hoc", content: <AdHocTab /> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <BalanceSheetTab /> },
+    { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
+    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
   ],
   "review": [
+    { value: "limits", label: "Limits", content: <div>Review Limits</div> },
     { value: "overview", label: "Overview", content: <OverviewTab /> },
     { value: "positions", label: "Positions", content: <PositionsTab /> },
-    { value: "limits", label: "Limits", content: <div>Review Limits</div> },
     { value: "reports", label: "Reports", content: <div>Review Reports</div> },
   ],
   "control": [
