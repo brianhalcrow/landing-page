@@ -27,16 +27,37 @@ const EntitiesTab = () => {
     },
   });
 
-  // Handle auth state changes
+  // Handle auth state changes and real-time updates
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         refetch();
       }
     });
 
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'config_exposures'
+        },
+        async (payload) => {
+          console.log('Real-time update received:', payload);
+          console.log("Event type:", payload.eventType);
+          console.log("Full payload:", JSON.stringify(payload, null, 2));
+          await refetch();
+        }
+      )
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
+
     return () => {
-      subscription.unsubscribe();
+      authSubscription.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [refetch]);
 
