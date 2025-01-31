@@ -1,39 +1,3 @@
-// types.ts
-import { z } from "zod";
-
-export const formSchema = z.object({
-  entity_id: z.string(),
-  entity_name: z.string(),
-  cost_centre: z.string(),
-  country: z.string(),
-  geo_level_1: z.string(),
-  geo_level_2: z.string(),
-  geo_level_3: z.string(),
-  functional_currency: z.string(),
-  exposure_category_level_2: z.string(),
-  exposure_category_level_3: z.string(),
-  exposure_category_level_4: z.string(),
-  exposure_config: z.string(),
-  strategy: z.string(),
-  instrument: z.string(),
-});
-
-export type FormValues = z.infer<typeof formSchema>;
-
-export interface Entity {
-  entity_id: string;
-  entity_name: string;
-  functional_currency: string;
-}
-
-export interface Criteria {
-  entity_id: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
-}
-
-// HedgeRequestForm.tsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,8 +97,9 @@ const HedgeRequestForm: React.FC = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* First Row */}
+        <div className="grid grid-cols-7 gap-4">
           <EntitySelection
             form={form}
             entities={entities || []}
@@ -155,10 +120,74 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* ... rest of the form fields ... */}
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter country" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 1</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 1" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 2</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 2" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="geo_level_3"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 3</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 3" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="functional_currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Functional Currency</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Functional currency" readOnly />
+                </FormControl>
+              </FormItem>
+            )}
+          />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Second Row */}
+        <div className="grid grid-cols-7 gap-4">
           <CategorySelection
             form={form}
             criteriaData={criteriaData || []}
@@ -167,6 +196,19 @@ const HedgeRequestForm: React.FC = () => {
               const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
               return Array.from(values);
             }}
+          />
+
+          <FormField
+            control={form.control}
+            name="exposure_config"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Exposure Config</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter exposure config" />
+                </FormControl>
+              </FormItem>
+            )}
           />
 
           <FormField
