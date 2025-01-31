@@ -582,18 +582,21 @@ export type Database = {
         Row: {
           exposure_category_level_2: string | null
           id: number
+          instrument: string | null
           strategy: string | null
           strategy_description: string | null
         }
         Insert: {
           exposure_category_level_2?: string | null
           id?: number
+          instrument?: string | null
           strategy?: string | null
           strategy_description?: string | null
         }
         Update: {
           exposure_category_level_2?: string | null
           id?: number
+          instrument?: string | null
           strategy?: string | null
           strategy_description?: string | null
         }

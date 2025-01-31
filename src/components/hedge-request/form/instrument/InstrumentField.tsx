@@ -2,66 +2,66 @@ import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormValues, Strategy } from "../types";
+import { FormValues } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
-interface StrategyFieldProps {
+interface InstrumentFieldProps {
   form: UseFormReturn<FormValues>;
   disabled?: boolean;
 }
 
-const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
-  const [strategies, setStrategies] = useState<Strategy[]>([]);
+const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
+  const [instruments, setInstruments] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchStrategies = async () => {
-      const exposureL2 = form.watch("exposure_category_level_2");
-      if (!exposureL2) {
-        setStrategies([]);
+    const fetchInstruments = async () => {
+      const strategy = form.watch("strategy");
+      if (!strategy) {
+        setInstruments([]);
         return;
       }
 
       setLoading(true);
       try {
-        console.log("Fetching strategies for exposure L2:", exposureL2);
+        console.log("Fetching instruments for strategy:", strategy);
         const { data, error } = await supabase
           .from("hedge_strategy")
-          .select("*")
-          .eq("exposure_category_level_2", exposureL2);
+          .select("instrument")
+          .eq("strategy_description", strategy)
+          .not("instrument", "is", null);
 
         if (error) {
-          console.error("Error fetching strategies:", error);
+          console.error("Error fetching instruments:", error);
           throw error;
         }
 
-        console.log("Fetched strategies:", data);
-        setStrategies(data || []);
+        console.log("Fetched instruments:", data);
+        const uniqueInstruments = [...new Set(data.map(item => item.instrument))].filter(Boolean) as string[];
+        setInstruments(uniqueInstruments);
 
-        // Reset strategy when exposure L2 changes
-        form.setValue("strategy", "");
-        // Also reset instrument when strategy changes
+        // Reset instrument when strategy changes
         form.setValue("instrument", "");
       } catch (error) {
-        console.error("Error in fetchStrategies:", error);
+        console.error("Error in fetchInstruments:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStrategies();
-  }, [form.watch("exposure_category_level_2")]);
+    fetchInstruments();
+  }, [form.watch("strategy")]);
 
   return (
     <FormField
       control={form.control}
-      name="strategy"
+      name="instrument"
       render={({ field }) => (
         <FormItem className="w-40">
-          <FormLabel className="h-14">Strategy</FormLabel>
+          <FormLabel className="h-14">Instrument</FormLabel>
           <Select
             onValueChange={field.onChange}
-            value={field.value}
+            value={field.value || ""}
             disabled={disabled || loading}
           >
             <FormControl>
@@ -70,12 +70,12 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {strategies.map((strategy) => (
+              {instruments.map((instrument) => (
                 <SelectItem 
-                  key={strategy.id} 
-                  value={strategy.strategy_description || ""}
+                  key={instrument} 
+                  value={instrument}
                 >
-                  {strategy.strategy_description}
+                  {instrument}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -87,4 +87,4 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
   );
 };
 
-export default StrategyField;
+export default InstrumentField;

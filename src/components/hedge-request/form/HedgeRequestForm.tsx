@@ -1,19 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { FormValues, formSchema } from "./types";
 import { useEntities } from "@/hooks/useEntities";
 import EntitySelection from "./EntitySelection";
 import CategorySelection from "./CategorySelection";
 import StrategyField from "./strategy/StrategyField";
+import InstrumentField from "./instrument/InstrumentField";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -75,17 +69,9 @@ const HedgeRequestForm: React.FC = () => {
               form={form}
               disabled={!form.watch("exposure_category_level_2")}
             />
-            <FormField
-              control={form.control}
-              name="instrument"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Instrument</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="" className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
+            <InstrumentField 
+              form={form}
+              disabled={!form.watch("strategy")}
             />
           </div>
         </div>
