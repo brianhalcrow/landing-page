@@ -21,7 +21,7 @@ const HedgeRequestForm: React.FC = () => {
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    mode: "all", // Changed from onChange to ensure more reliable validation
+    mode: "all",
     defaultValues: {
       entity_id: "",
       entity_name: "",
@@ -40,7 +40,7 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
-  // Watch all form fields to check completion
+  // Watch form fields for completion
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       const values = form.getValues();
@@ -88,24 +88,20 @@ const HedgeRequestForm: React.FC = () => {
       toast.error("Please save a draft first");
       return;
     }
-    console.log(data);
+    console.log('Submitting form with data:', data);
     // Add your submit logic here
   };
 
-  // Add debugging for button click
   const handleSaveDraft = async () => {
     console.log('Save Draft Button Clicked', {
       isFormComplete,
-      isAuthenticated,
-      draftSaved,
-      canSaveDraft: isFormComplete && isAuthenticated && !draftSaved,
-      formValues: form.getValues()
+      formValues: form.getValues(),
+      formState: form.formState
     });
+
     try {
-      if (!session?.user) {
-        toast.error("Please log in to save drafts");
-        return;
-      }
+      // For POC, we'll use a mock user ID if no session
+      const userId = session?.user?.id || 'mock-user-id';
 
       const formData = form.getValues();
       
@@ -114,7 +110,7 @@ const HedgeRequestForm: React.FC = () => {
         .insert([
           {
             ...formData,
-            created_by: session.user.id,
+            created_by: userId,
             status: 'DRAFT'
           }
         ])
@@ -140,54 +136,13 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  const isAuthenticated = !!session?.user;
-  // Move canSaveDraft inside useEffect to ensure it updates with state changes
-  useEffect(() => {
-    const currentValues = form.getValues();
-    const requiredFieldValues = {
-      entity_id: currentValues.entity_id,
-      entity_name: currentValues.entity_name,
-      exposure_category_level_2: currentValues.exposure_category_level_2,
-      exposure_category_level_3: currentValues.exposure_category_level_3,
-      exposure_category_level_4: currentValues.exposure_category_level_4,
-      exposure_config: currentValues.exposure_config,
-      strategy: currentValues.strategy
-    };
-    
-    console.log('Form State Debug:', {
-      currentValues: requiredFieldValues,
-      isFormComplete,
-      isAuthenticated,
-      draftSaved,
-      formState: form.formState,
-      isDirty: form.formState.isDirty,
-      isValid: form.formState.isValid
-    });
-  }, [form, isFormComplete, isAuthenticated, draftSaved]);
-
-  const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
+  // Simplified button logic for POC
+  const canSaveDraft = isFormComplete;
   const canSubmit = draftSaved && isFormComplete;
-
-  // Add form state checks
-  const formIsReady = isFormComplete && form.formState.isValid;
-  const authMessage = !isAuthenticated ? "Please log in to save" : "";
-  const completionMessage = !isFormComplete ? "Complete all required fields" : "";
-  const buttonMessage = authMessage || completionMessage;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        {!isAuthenticated && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700">
-                  Please log in to save your draft request
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
         <div className="flex flex-col gap-6">
           <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <EntitySelection 
@@ -219,9 +174,8 @@ const HedgeRequestForm: React.FC = () => {
               variant="outline"
               onClick={handleSaveDraft}
               disabled={!canSaveDraft}
-              className={`${!canSaveDraft ? 'opacity-50' : ''}`}
             >
-              Save Draft {buttonMessage ? `(${buttonMessage})` : ""}
+              Save Draft
             </Button>
             <Button 
               type="submit"
@@ -230,9 +184,9 @@ const HedgeRequestForm: React.FC = () => {
               Submit {!draftSaved && "(Save draft first)"}
             </Button>
           </div>
-          {formIsReady && !isAuthenticated && (
+          {isFormComplete && !draftSaved && (
             <p className="text-sm text-gray-500 text-right px-2">
-              Your form is complete. Log in to save your draft.
+              Form is complete. Click Save Draft to proceed.
             </p>
           )}
         </div>
