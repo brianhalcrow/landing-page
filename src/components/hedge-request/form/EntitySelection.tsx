@@ -107,69 +107,85 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
 
   return (
     <>
-      <FormField
-        control={form.control}
-        name="entity_name"
-        render={({ field }) => (
-          <FormItem className="w-80">
-            <FormLabel className="h-14">Entity Name</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                onEntitySelect("entity_name", value);
-              }}
-              value={field.value}
-              disabled={isLoading}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select entity name" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {entities?.map((entity) => (
-                  <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                    {entity.entity_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="flex gap-4">
+        <FormField
+          control={form.control}
+          name="entity_name"
+          render={({ field }) => (
+            <FormItem className="w-80">
+              <FormLabel className="h-14">Entity Name</FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onEntitySelect("entity_name", value);
+                }}
+                value={field.value}
+                disabled={isLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select entity name" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {entities?.map((entity) => (
+                    <SelectItem key={entity.entity_id} value={entity.entity_name}>
+                      {entity.entity_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="entity_id"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Entity ID</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                onEntitySelect("entity_id", value);
-              }}
-              value={field.value}
-              disabled={isLoading}
-            >
+        <FormField
+          control={form.control}
+          name="entity_id"
+          render={({ field }) => (
+            <FormItem className="w-40">
+              <FormLabel className="h-14">Entity ID</FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onEntitySelect("entity_id", value);
+                }}
+                value={field.value}
+                disabled={isLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select entity ID" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {entities?.map((entity) => (
+                    <SelectItem key={entity.entity_id} value={entity.entity_id}>
+                      {entity.entity_id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="functional_currency"
+          render={({ field }) => (
+            <FormItem className="w-40">
+              <FormLabel className="h-14">Functional Currency</FormLabel>
               <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select entity ID" />
-                </SelectTrigger>
+                <input {...field} placeholder="Functional currency" readOnly className="bg-gray-50 border border-gray-300 px-4 py-2 rounded w-full" />
               </FormControl>
-              <SelectContent>
-                {entities?.map((entity) => (
-                  <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                    {entity.entity_id}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}
