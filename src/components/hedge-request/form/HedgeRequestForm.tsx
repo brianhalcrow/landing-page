@@ -76,32 +76,26 @@ const HedgeRequestForm: React.FC = () => {
       return;
     }
 
-    // Reset form before populating with new data
+    // Reset form before setting new values
     form.reset();
 
-    // Populate form with draft data
-    const fieldsToUpdate = [
-      'entity_id',
-      'entity_name',
-      'cost_centre',
-      'country',
-      'geo_level_1',
-      'geo_level_2',
-      'geo_level_3',
-      'functional_currency',
-      'exposure_category_level_2',
-      'exposure_category_level_3',
-      'exposure_category_level_4',
-      'exposure_config',
-      'strategy',
-      'instrument'
-    ];
+    // First set entity-related fields to trigger EntitySelection logic
+    form.setValue('entity_id', draftData.entity_id || '');
+    form.setValue('entity_name', draftData.entity_name || '');
+    form.setValue('functional_currency', draftData.functional_currency || '');
 
-    fieldsToUpdate.forEach((field) => {
-      if (field in draftData) {
-        form.setValue(field as keyof FormValues, draftData[field] || '');
-      }
-    });
+    // Wait for entity selection effects to complete
+    setTimeout(() => {
+      // Set exposure fields to trigger CategorySelection logic
+      form.setValue('exposure_config', draftData.exposure_config || '');
+      form.setValue('exposure_category_level_2', draftData.exposure_category_level_2 || '');
+      form.setValue('exposure_category_level_3', draftData.exposure_category_level_3 || '');
+      form.setValue('exposure_category_level_4', draftData.exposure_category_level_4 || '');
+
+      // Finally set strategy and instrument
+      form.setValue('strategy', draftData.strategy || '');
+      form.setValue('instrument', draftData.instrument || '');
+    }, 100);
 
     setDraftSaved(true);
   };
@@ -209,7 +203,7 @@ const HedgeRequestForm: React.FC = () => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="w-80 mb-4">
           <Select onValueChange={handleDraftSelect} value={draftId || ""}>
-            <SelectTrigger>
+            <SelectTrigger className="w-80">
               <SelectValue placeholder="Select a draft" />
             </SelectTrigger>
             <SelectContent>
