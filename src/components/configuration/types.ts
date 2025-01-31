@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 export const formSchema = z.object({
   entity_id: z.string({
