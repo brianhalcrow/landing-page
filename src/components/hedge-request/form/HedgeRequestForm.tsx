@@ -11,16 +11,17 @@ import InstrumentField from "./instrument/InstrumentField";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
   const { session } = useAuth();
   const [draftSaved, setDraftSaved] = useState(false);
+  const [isFormComplete, setIsFormComplete] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    mode: "onChange",
+    mode: "all", // Changed from onChange to ensure more reliable validation
     defaultValues: {
       entity_id: "",
       entity_name: "",
@@ -39,6 +40,25 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
+  // Watch all form fields to check completion
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      const values = form.getValues();
+      const requiredFields = [
+        "entity_id",
+        "entity_name",
+        "exposure_category_level_2",
+        "strategy",
+        "instrument"
+      ]; // Add all required fields from your schema
+      
+      const isComplete = requiredFields.every(field => !!values[field]);
+      setIsFormComplete(isComplete);
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
+
   const handleEntitySelect = (field: "entity_id" | "entity_name", value: string) => {
     const selectedEntity = entities?.find(entity => 
       field === "entity_id" ? entity.entity_id === value : entity.entity_name === value
@@ -51,8 +71,13 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  const handleSubmit = (data: FormValues) => {
+  const handleSubmit = async (data: FormValues) => {
+    if (!draftSaved) {
+      toast.error("Please save a draft first");
+      return;
+    }
     console.log(data);
+    // Add your submit logic here
   };
 
   const handleSaveDraft = async () => {
@@ -63,7 +88,6 @@ const HedgeRequestForm: React.FC = () => {
       }
 
       const formData = form.getValues();
-      console.log('Saving draft with data:', { ...formData, created_by: session.user.id });
       
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
@@ -80,21 +104,25 @@ const HedgeRequestForm: React.FC = () => {
       if (draftError) {
         console.error('Error saving draft:', draftError);
         toast.error("Failed to save draft");
+        setDraftSaved(false);
         return;
       }
 
-      setDraftSaved(true);
-      toast.success("Draft saved successfully");
-      console.log('Saved draft:', draftData);
+      if (draftData) {
+        setDraftSaved(true);
+        toast.success("Draft saved successfully");
+        console.log('Saved draft:', draftData);
+      }
     } catch (error) {
       console.error('Error in handleSaveDraft:', error);
       toast.error("Failed to save draft");
+      setDraftSaved(false);
     }
   };
 
   const isAuthenticated = !!session?.user;
-  const canSaveDraft = form.formState.isValid && isAuthenticated;
-  const canSubmit = draftSaved && form.formState.isValid;
+  const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
+  const canSubmit = draftSaved && isFormComplete;
 
   return (
     <Form {...form}>
@@ -130,13 +158,13 @@ const HedgeRequestForm: React.FC = () => {
             onClick={handleSaveDraft}
             disabled={!canSaveDraft}
           >
-            Save Draft
+            Save Draft {!isFormComplete && "(Complete all fields)"}
           </Button>
           <Button 
             type="submit"
             disabled={!canSubmit}
           >
-            Submit
+            Submit {!draftSaved && "(Save draft first)"}
           </Button>
         </div>
       </form>
