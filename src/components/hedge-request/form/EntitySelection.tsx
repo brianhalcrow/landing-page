@@ -54,7 +54,6 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           return;
         }
 
-        // Clear the fields if no data is found
         if (!data || data.length === 0) {
           console.log('No management structure found for entity:', entityId);
           form.setValue('cost_centre', '');
@@ -68,7 +67,6 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
 
         setManagementStructures(data);
         
-        // If there's only one structure, set it automatically
         if (data.length === 1) {
           const structure = data[0];
           form.setValue('cost_centre', structure.cost_centre || '');
@@ -179,37 +177,29 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
         render={({ field }) => (
           <FormItem className="w-40">
             <FormLabel className="h-14">Cost Centre</FormLabel>
-            {managementStructures.length > 1 ? (
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleCostCentreSelect(value);
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select cost centre" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {managementStructures.map((structure) => (
-                    <SelectItem 
-                      key={structure.cost_centre} 
-                      value={structure.cost_centre}
-                    >
-                      {structure.cost_centre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleCostCentreSelect(value);
+              }}
+              value={field.value}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Cost centre" />
                 </SelectTrigger>
               </FormControl>
-            )}
+              <SelectContent>
+                {managementStructures.map((structure) => (
+                  <SelectItem 
+                    key={structure.cost_centre} 
+                    value={structure.cost_centre}
+                  >
+                    {structure.cost_centre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}
