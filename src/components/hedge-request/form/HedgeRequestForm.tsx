@@ -45,7 +45,7 @@ const HedgeRequestForm: React.FC = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-14 gap-4">
+        <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto">
           <EntitySelection
             form={form}
             entities={[]}
