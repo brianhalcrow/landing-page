@@ -3,10 +3,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormValues, formSchema } from "./types";
-import FormFirstRow from "./FormFirstRow";
-import FormSecondRow from "./FormSecondRow";
 import { useEntities } from "@/hooks/useEntities";
 import EntitySelection from "./EntitySelection";
+import CategorySelection from "./CategorySelection";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -60,7 +59,34 @@ const HedgeRequestForm: React.FC = () => {
             />
           </div>
           <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
-            <FormSecondRow form={form} />
+            <CategorySelection 
+              form={form}
+              entityId={form.watch("entity_id")}
+            />
+            <FormField
+              control={form.control}
+              name="strategy"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Strategy</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="instrument"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Instrument</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div className="flex justify-end px-2">

@@ -12,10 +12,10 @@ export const formSchema = z.object({
   exposure_category_level_2: z.string().min(1, "Category level 2 is required"),
   exposure_category_level_3: z.string().min(1, "Category level 3 is required"),
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
-  exposure_config: z.string().optional(),
+  exposure_config: z.string().min(1, "Exposure L1 is required"),
   strategy: z.string().optional(),
   instrument: z.string().optional(),
-}).strict(); // Added strict() to prevent excessive type instantiation
+}).strict();
 
 export type FormValues = z.infer<typeof formSchema>;
 
