@@ -1,23 +1,14 @@
 import { UseFormReturn } from "react-hook-form";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Entity, FormValues } from "./types";
+import { FormValues } from "./types";
+import { Entity } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { ManagementStructure } from "./entity-selection/types";
+import EntityNameIdFields from "./entity-selection/EntityNameIdFields";
+import CurrencyField from "./entity-selection/CurrencyField";
+import ManagementFields from "./entity-selection/ManagementFields";
+import GeoLevelFields from "./entity-selection/GeoLevelFields";
 
 interface EntitySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -26,15 +17,12 @@ interface EntitySelectionProps {
   onEntitySelect: (field: "entity_id" | "entity_name", value: string) => void;
 }
 
-interface ManagementStructure {
-  cost_centre: string;
-  country: string;
-  geo_level_1: string;
-  geo_level_2: string;
-  geo_level_3: string;
-}
-
-const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySelectionProps) => {
+const EntitySelection = ({ 
+  form, 
+  entities, 
+  isLoading, 
+  onEntitySelect 
+}: EntitySelectionProps) => {
   const [managementStructures, setManagementStructures] = useState<ManagementStructure[]>([]);
 
   useEffect(() => {
@@ -109,175 +97,22 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
   return (
     <div className="space-y-6">
       <div className="flex gap-4">
-        <FormField
-          control={form.control}
-          name="entity_name"
-          render={({ field }) => (
-            <FormItem className="w-80">
-              <FormLabel>Entity Name</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  onEntitySelect("entity_name", value);
-                }}
-                value={field.value}
-                disabled={isLoading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Entity Name" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {entities?.map((entity) => (
-                    <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                      {entity.entity_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+        <EntityNameIdFields 
+          form={form}
+          entities={entities}
+          isLoading={isLoading}
+          onEntitySelect={onEntitySelect}
         />
-
-        <FormField
-          control={form.control}
-          name="entity_id"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Entity ID</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  onEntitySelect("entity_id", value);
-                }}
-                value={field.value}
-                disabled={isLoading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Entity ID" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {entities?.map((entity) => (
-                    <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                      {entity.entity_id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="functional_currency"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Functional Currency</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <CurrencyField form={form} />
       </div>
 
       <div className="flex gap-4">
-        <FormField
-          control={form.control}
-          name="cost_centre"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Cost Centre</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleCostCentreSelect(value);
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {managementStructures.map((structure) => (
-                    <SelectItem 
-                      key={structure.cost_centre} 
-                      value={structure.cost_centre}
-                    >
-                      {structure.cost_centre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+        <ManagementFields 
+          form={form}
+          managementStructures={managementStructures}
+          onCostCentreSelect={handleCostCentreSelect}
         />
-
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Country</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="geo_level_1"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Geo Level 1</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="geo_level_2"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Geo Level 2</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="geo_level_3"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel>Geo Level 3</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <GeoLevelFields form={form} />
       </div>
     </div>
   );
