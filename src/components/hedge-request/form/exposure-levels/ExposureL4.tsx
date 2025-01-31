@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Criteria, FormValues } from "../types";
+import { useEffect } from "react";
 
 interface ExposureL4Props {
   form: UseFormReturn<FormValues>;
@@ -32,6 +33,19 @@ const ExposureL4 = ({ form, criteriaData, disabled }: ExposureL4Props) => {
     );
     return Array.from(values);
   };
+
+  useEffect(() => {
+    const exposureL3 = form.watch("exposure_category_level_3");
+    if (exposureL3) {
+      const options = filterByPreviousSelection(
+        "exposure_category_level_4",
+        exposureL3
+      );
+      if (options.length === 1) {
+        form.setValue("exposure_category_level_4", options[0]);
+      }
+    }
+  }, [form.watch("exposure_category_level_3"), criteriaData]);
 
   return (
     <FormField
