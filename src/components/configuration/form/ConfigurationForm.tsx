@@ -1,71 +1,50 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { useConfigurationForm } from "@/hooks/useConfigurationForm";
+import { formSchema, FormValues } from "../types";
 import FormHeader from "./FormHeader";
 import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Tables } from "@/integrations/supabase/types";
 
-const ConfigurationForm = () => {
-  const {
-    form,
-    entities,
-    isLoadingEntities,
-    isUpdating,
-    formChanged,
-    fetchExistingConfig,
-    handleCsvUploadComplete,
-    onSubmit,
-    refetchEntities,
-  } = useConfigurationForm();
+interface ConfigurationFormProps {
+  entities: Tables<'config_entity'>[];
+}
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && refetchEntities) {
-        refetchEntities();
-      }
-    });
-
-    // Check current auth status
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        toast.error('Authentication error. Please try logging in again.');
-      }
-    };
-    
-    checkAuth();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [refetchEntities]);
-
-  const handleSubmit = async (values: any) => {
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      toast.error('Failed to save configuration. Please try again.');
-    }
-  };
+const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      entity_id: "",
+      entity_name: "",
+      functional_currency: "",
+      po: false,
+      ap: false,
+      ar: false,
+      other: false,
+      revenue: false,
+      costs: false,
+      net_income: false,
+      ap_realized: false,
+      ar_realized: false,
+      fx_realized: false,
+      net_monetary: false,
+      monetary_assets: false,
+      monetary_liabilities: false,
+    },
+  });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-        <FormHeader 
-          form={form}
-          entities={entities}
-          isLoadingEntities={isLoadingEntities}
-          onFetchConfig={fetchExistingConfig}
-          onUploadComplete={handleCsvUploadComplete}
-        />
-        <FormCategories form={form} />
-        <FormFooter 
-          isUpdating={isUpdating}
-          formChanged={formChanged}
-        />
-      </form>
+    <Form form={form} onSubmit={form.handleSubmit((data) => console.log(data))}>
+      <FormHeader 
+        form={form} 
+        entities={entities} 
+        isLoadingEntities={false} 
+        onFetchConfig={async (entityId) => {}} 
+        onUploadComplete={() => {}} 
+      />
+      <FormCategories form={form} />
+      <FormFooter />
     </Form>
   );
 };

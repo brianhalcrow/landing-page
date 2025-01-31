@@ -3,6 +3,8 @@ import ConfigurationForm from "./form/ConfigurationForm";
 import ConfigurationGrid from "./ConfigurationGrid";
 import { useEntities } from "@/hooks/useEntities";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const GeneralTab = () => {
   const { entities: allEntities, isLoading, refetch } = useEntities();
@@ -54,7 +56,7 @@ const GeneralTab = () => {
 
   return (
     <div className="p-6 space-y-8">
-      <ConfigurationForm entities={allEntities} />
+      <ConfigurationForm entities={allEntities || []} />
       <ConfigurationGrid entities={exposures || []} />
     </div>
   );

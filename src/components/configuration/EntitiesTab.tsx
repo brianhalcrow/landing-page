@@ -5,9 +5,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from 'react';
 import { toast } from "sonner";
 import { useEntities } from '@/hooks/useEntities';
+import { useQuery } from "@tanstack/react-query";
 
 const EntitiesTab = () => {
-  const { entities, isLoading, error, refetch } = useEntities();
+  const { isLoading, error, refetch } = useEntities();
+
+  const { data: exposures } = useQuery({
+    queryKey: ["exposures"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("config_exposures")
+        .select("*")
+        .order('entity_name');
+      
+      if (error) {
+        toast.error('Failed to fetch exposure configurations');
+        throw error;
+      }
+      
+      return data;
+    },
+  });
 
   // Handle auth state changes
   useEffect(() => {
@@ -40,7 +58,7 @@ const EntitiesTab = () => {
       {isLoading ? (
         <Skeleton className="h-[600px] w-full" />
       ) : (
-        <EntitiesGrid entities={entities || []} />
+        <EntitiesGrid entities={exposures || []} />
       )}
     </div>
   );
