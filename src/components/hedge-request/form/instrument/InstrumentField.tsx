@@ -40,8 +40,13 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
         const uniqueInstruments = [...new Set(data.map(item => item.instrument))].filter(Boolean) as string[];
         setInstruments(uniqueInstruments);
 
-        // Reset instrument when strategy changes
-        form.setValue("instrument", "");
+        // Auto-select the instrument if there's only one option
+        if (uniqueInstruments.length === 1) {
+          form.setValue("instrument", uniqueInstruments[0]);
+        } else {
+          // Reset instrument when strategy changes and there's not exactly one option
+          form.setValue("instrument", "");
+        }
       } catch (error) {
         console.error("Error in fetchInstruments:", error);
       } finally {
