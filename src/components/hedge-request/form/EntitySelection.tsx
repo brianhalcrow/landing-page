@@ -29,7 +29,7 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
         control={form.control}
         name="entity_name"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-40">
             <FormLabel>Entity Name</FormLabel>
             <Select
               onValueChange={(value) => {
@@ -61,7 +61,7 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
         control={form.control}
         name="entity_id"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-40">
             <FormLabel>Entity ID</FormLabel>
             <Select
               onValueChange={(value) => {

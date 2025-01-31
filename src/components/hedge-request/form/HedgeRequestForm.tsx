@@ -45,8 +45,7 @@ const HedgeRequestForm: React.FC = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-7 gap-4">
-          {/* First Row */}
+        <div className="grid grid-cols-14 gap-4">
           <EntitySelection
             form={form}
             entities={[]}
@@ -58,10 +57,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="cost_centre"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Cost Centre</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter cost centre" />
+                  <Input {...field} placeholder="Enter cost centre" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -71,10 +70,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="country"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter country" />
+                  <Input {...field} placeholder="Enter country" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -84,10 +83,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="geo_level_1"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Geo Level 1</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter geo level 1" />
+                  <Input {...field} placeholder="Enter geo level 1" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -97,10 +96,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="geo_level_2"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Geo Level 2</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter geo level 2" />
+                  <Input {...field} placeholder="Enter geo level 2" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -110,10 +109,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="geo_level_3"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Geo Level 3</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter geo level 3" />
+                  <Input {...field} placeholder="Enter geo level 3" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -123,18 +122,15 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="functional_currency"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Functional Currency</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Functional currency" readOnly />
+                  <Input {...field} placeholder="Functional currency" readOnly className="w-full" />
                 </FormControl>
               </FormItem>
             )}
           />
-        </div>
 
-        {/* Second Row */}
-        <div className="grid grid-cols-7 gap-4">
           <CategorySelection
             form={form}
             criteriaData={[]}
@@ -145,10 +141,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="exposure_config"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Exposure Config</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter exposure config" />
+                  <Input {...field} placeholder="Enter exposure config" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -158,10 +154,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="strategy"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Strategy</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter strategy" />
+                  <Input {...field} placeholder="Enter strategy" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
@@ -171,10 +167,10 @@ const HedgeRequestForm: React.FC = () => {
             control={form.control}
             name="instrument"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-40">
                 <FormLabel>Instrument</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter instrument" />
+                  <Input {...field} placeholder="Enter instrument" className="w-full" />
                 </FormControl>
               </FormItem>
             )}
