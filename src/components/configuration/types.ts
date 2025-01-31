@@ -26,19 +26,45 @@ export const formSchema = z.object({
   monetary_liabilities: z.boolean().default(false),
 }).refine(
   async (data) => {
-    const { data: entityConfig, error } = await supabase
-      .from('config_entity')
-      .select('*')
-      .eq('entity_id', data.entity_id)
-      .single();
+    try {
+      const { data: entityConfig, error } = await supabase
+        .from('config_entity')
+        .select('*')
+        .eq('entity_id', data.entity_id)
+        .single();
 
-    if (error) return false;
-    
-    return (
-      entityConfig.entity_id === data.entity_id &&
-      entityConfig.entity_name === data.entity_name &&
-      (!data.functional_currency || entityConfig.functional_currency === data.functional_currency)
-    );
+      if (error) {
+        console.error('Error validating entity:', error);
+        return false;
+      }
+
+      // If no entity config found, validation fails
+      if (!entityConfig) {
+        console.error('No entity config found');
+        return false;
+      }
+
+      // Check if entity_id and entity_name match
+      const idMatches = entityConfig.entity_id === data.entity_id;
+      const nameMatches = entityConfig.entity_name === data.entity_name;
+      
+      // Only validate functional_currency if it's provided
+      const currencyMatches = !data.functional_currency || 
+        entityConfig.functional_currency === data.functional_currency;
+
+      console.log('Validation results:', {
+        idMatches,
+        nameMatches,
+        currencyMatches,
+        entityConfig,
+        data
+      });
+
+      return idMatches && nameMatches && currencyMatches;
+    } catch (error) {
+      console.error('Validation error:', error);
+      return false;
+    }
   },
   {
     message: "Entity details must match the configuration in the system",
