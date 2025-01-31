@@ -54,10 +54,11 @@ const ManagementFields = ({
                   onCostCentreSelect(value);
                 }}
                 value={field.value}
+                defaultValue={field.value}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Cost Centre" />
+                    <SelectValue defaultValue="" placeholder="Select Cost Centre" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
