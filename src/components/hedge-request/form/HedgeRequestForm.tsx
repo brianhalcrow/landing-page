@@ -1,3 +1,18 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { FormValues, formSchema } from "./types";
+import EntitySelection from "./EntitySelection";
+import CategorySelection from "./CategorySelection";
+
 const HedgeRequestForm: React.FC = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -19,23 +34,26 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
-  // ... rest of your hooks and handlers ...
+  const handleSubmit = (data: FormValues) => {
+    console.log(data);
+  };
+
+  const handleEntitySelection = (field: "entity_id" | "entity_name", value: string) => {
+    form.setValue(field, value);
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-14 gap-4">
-          {/* Entity Selection */}
-          <div className="col-span-2">
-            <EntitySelection
-              form={form}
-              entities={entities || []}
-              isLoading={isLoadingEntities}
-              onEntitySelect={handleEntitySelection}
-            />
-          </div>
+        <div className="grid grid-cols-7 gap-4">
+          {/* First Row */}
+          <EntitySelection
+            form={form}
+            entities={[]}
+            isLoading={false}
+            onEntitySelect={handleEntitySelection}
+          />
           
-          {/* Cost Centre */}
           <FormField
             control={form.control}
             name="cost_centre"
@@ -49,7 +67,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Country */}
           <FormField
             control={form.control}
             name="country"
@@ -63,7 +80,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Geo Level 1 */}
           <FormField
             control={form.control}
             name="geo_level_1"
@@ -77,7 +93,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Geo Level 2 */}
           <FormField
             control={form.control}
             name="geo_level_2"
@@ -91,7 +106,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Geo Level 3 */}
           <FormField
             control={form.control}
             name="geo_level_3"
@@ -105,20 +119,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Category Selection */}
-          <div className="col-span-3">
-            <CategorySelection
-              form={form}
-              criteriaData={criteriaData || []}
-              getUniqueValues={(field: keyof Criteria) => {
-                if (!criteriaData) return [];
-                const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
-                return Array.from(values);
-              }}
-            />
-          </div>
-
-          {/* Functional Currency */}
           <FormField
             control={form.control}
             name="functional_currency"
@@ -131,8 +131,16 @@ const HedgeRequestForm: React.FC = () => {
               </FormItem>
             )}
           />
+        </div>
 
-          {/* Exposure Config */}
+        {/* Second Row */}
+        <div className="grid grid-cols-7 gap-4">
+          <CategorySelection
+            form={form}
+            criteriaData={[]}
+            getUniqueValues={() => []}
+          />
+
           <FormField
             control={form.control}
             name="exposure_config"
@@ -146,7 +154,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Strategy */}
           <FormField
             control={form.control}
             name="strategy"
@@ -160,7 +167,6 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* Instrument */}
           <FormField
             control={form.control}
             name="instrument"
