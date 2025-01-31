@@ -28,11 +28,21 @@ export const formSchema = z.object({
   try {
     // Only validate if we have both entity_id and entity_name
     if (data.entity_id && data.entity_name) {
-      const { data: entityConfig } = await supabase
+      const { data: entityConfig, error } = await supabase
         .from('config_entity')
         .select('*')
         .eq('entity_id', data.entity_id)
         .maybeSingle();
+
+      if (error) {
+        console.error('Database error:', error);
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Failed to validate entity configuration",
+          path: ["entity_id"],
+        });
+        return false;
+      }
 
       if (!entityConfig) {
         ctx.addIssue({
