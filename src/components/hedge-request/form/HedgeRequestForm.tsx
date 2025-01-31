@@ -44,17 +44,31 @@ const HedgeRequestForm: React.FC = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <div className="flex flex-col gap-8">
+          {/* First Row */}
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4">
             <FormField
               control={form.control}
               name="entity_name"
               render={({ field }) => (
-                <FormItem className="w-80">
+                <FormItem className="w-40">
                   <FormLabel className="h-14">Entity Name</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter entity name" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="entity_id"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Entity ID</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter entity ID" className="w-full" />
                   </FormControl>
                 </FormItem>
               )}
@@ -137,15 +151,49 @@ const HedgeRequestForm: React.FC = () => {
                 </FormItem>
               )}
             />
-
-            <CategorySelection
-              form={form}
-              criteriaData={[]}
-              getUniqueValues={() => []}
-            />
           </div>
 
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto">
+          {/* Second Row */}
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4">
+            <FormField
+              control={form.control}
+              name="exposure_category_level_2"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L2</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L2" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exposure_category_level_3"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L3</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L3" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exposure_category_level_4"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L4</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L4" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="exposure_config"
@@ -187,7 +235,7 @@ const HedgeRequestForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end px-4">
           <Button type="submit">Submit</Button>
         </div>
       </form>
