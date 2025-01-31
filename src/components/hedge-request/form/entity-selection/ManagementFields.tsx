@@ -29,7 +29,7 @@ const ManagementFields = ({
   onCostCentreSelect 
 }: ManagementFieldsProps) => {
   return (
-    <div className="flex gap-4">
+    <>
       <FormField
         control={form.control}
         name="cost_centre"
@@ -77,7 +77,7 @@ const ManagementFields = ({
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
 

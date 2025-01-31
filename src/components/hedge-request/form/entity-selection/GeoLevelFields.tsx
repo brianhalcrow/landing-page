@@ -15,7 +15,7 @@ interface GeoLevelFieldsProps {
 
 const GeoLevelFields = ({ form }: GeoLevelFieldsProps) => {
   return (
-    <div className="flex gap-4">
+    <>
       <FormField
         control={form.control}
         name="geo_level_1"
@@ -57,7 +57,7 @@ const GeoLevelFields = ({ form }: GeoLevelFieldsProps) => {
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };
 

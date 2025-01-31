@@ -96,7 +96,7 @@ const EntitySelection = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <EntityNameIdFields 
           form={form}
           entities={entities}
@@ -104,9 +104,6 @@ const EntitySelection = ({
           onEntitySelect={onEntitySelect}
         />
         <CurrencyField form={form} />
-      </div>
-
-      <div className="flex gap-4">
         <ManagementFields 
           form={form}
           managementStructures={managementStructures}
