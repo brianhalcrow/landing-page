@@ -64,6 +64,7 @@ const Layout = ({ children }: LayoutProps) => {
               <Moon className="h-5 w-5" aria-hidden="true" />
             )}
           </Button>
+          {/* Temporarily hide logout button for POC
           <Button
             variant="ghost"
             size="icon"
@@ -72,6 +73,7 @@ const Layout = ({ children }: LayoutProps) => {
           >
             <LogOut className="h-5 w-5" aria-hidden="true" />
           </Button>
+          */}
         </div>
       </header>
       <div className="flex-1 flex overflow-hidden">

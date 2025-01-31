@@ -4,7 +4,7 @@ import { useAuth } from "./AuthProvider";
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
 
-  // Bypass authentication check
+  // Bypass authentication check for POC
   return <>{children}</>;
 
   // Original authentication code (commented out)
