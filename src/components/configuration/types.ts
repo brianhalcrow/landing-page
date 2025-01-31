@@ -24,6 +24,26 @@ export const formSchema = z.object({
   monetary_assets: z.boolean().default(false),
   monetary_liabilities: z.boolean().default(false),
 }).refine(
+  async (data) => {
+    const { data: entityConfig, error } = await supabase
+      .from('config_entity')
+      .select('*')
+      .eq('entity_id', data.entity_id)
+      .single();
+
+    if (error) return false;
+    
+    return (
+      entityConfig.entity_id === data.entity_id &&
+      entityConfig.entity_name === data.entity_name &&
+      (!data.functional_currency || entityConfig.functional_currency === data.functional_currency)
+    );
+  },
+  {
+    message: "Entity details must match the configuration in the system",
+    path: ["entity_id"],
+  }
+).refine(
   (data) => {
     // If net_monetary is true, both monetary_assets and monetary_liabilities must be false
     if (data.net_monetary) {
