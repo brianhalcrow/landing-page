@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Entity, FormValues } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,14 +107,14 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <div className="flex gap-4">
         <FormField
           control={form.control}
           name="entity_name"
           render={({ field }) => (
             <FormItem className="w-80">
-              <FormLabel className="h-14">Entity Name</FormLabel>
+              <FormLabel>Entity Name</FormLabel>
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
@@ -145,7 +146,7 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           name="entity_id"
           render={({ field }) => (
             <FormItem className="w-40">
-              <FormLabel className="h-14">Entity ID</FormLabel>
+              <FormLabel>Entity ID</FormLabel>
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
@@ -177,50 +178,50 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           name="functional_currency"
           render={({ field }) => (
             <FormItem className="w-40">
-              <FormLabel className="h-14">Functional Currency</FormLabel>
+              <FormLabel>Functional Currency</FormLabel>
               <FormControl>
-                <input {...field} placeholder="Functional currency" readOnly className="bg-gray-50 border border-gray-300 px-4 py-2 rounded w-full" />
+                <Input {...field} placeholder="Functional currency" readOnly className="bg-gray-50" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      </div>
 
-      <FormField
-        control={form.control}
-        name="cost_centre"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Cost Centre</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                handleCostCentreSelect(value);
-              }}
-              value={field.value}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Cost centre" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {managementStructures.map((structure) => (
-                  <SelectItem 
-                    key={structure.cost_centre} 
-                    value={structure.cost_centre}
-                  >
-                    {structure.cost_centre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </>
+        <FormField
+          control={form.control}
+          name="cost_centre"
+          render={({ field }) => (
+            <FormItem className="w-40">
+              <FormLabel>Cost Centre</FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  handleCostCentreSelect(value);
+                }}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Cost centre" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {managementStructures.map((structure) => (
+                    <SelectItem 
+                      key={structure.cost_centre} 
+                      value={structure.cost_centre}
+                    >
+                      {structure.cost_centre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
   );
 };
 
