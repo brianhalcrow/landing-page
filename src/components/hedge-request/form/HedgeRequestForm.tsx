@@ -168,9 +168,26 @@ const HedgeRequestForm: React.FC = () => {
   const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
   const canSubmit = draftSaved && isFormComplete;
 
+  // Add form state checks
+  const formIsReady = isFormComplete && form.formState.isValid;
+  const authMessage = !isAuthenticated ? "Please log in to save" : "";
+  const completionMessage = !isFormComplete ? "Complete all required fields" : "";
+  const buttonMessage = authMessage || completionMessage;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {!isAuthenticated && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  Please log in to save your draft request
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-6">
           <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <EntitySelection 
@@ -195,24 +212,29 @@ const HedgeRequestForm: React.FC = () => {
             />
           </div>
         </div>
-        <div className="flex justify-end gap-4 px-2">
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={handleSaveDraft}
-            disabled={!canSaveDraft}
-            className={`${!canSaveDraft ? 'opacity-50' : ''}`}
-          >
-            Save Draft {!isFormComplete ? "(Complete all fields)" : 
-                      !isAuthenticated ? "(Please log in)" : 
-                      draftSaved ? "(Already saved)" : ""}
-          </Button>
-          <Button 
-            type="submit"
-            disabled={!canSubmit}
-          >
-            Submit {!draftSaved && "(Save draft first)"}
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-end gap-4 px-2">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={!canSaveDraft}
+              className={`${!canSaveDraft ? 'opacity-50' : ''}`}
+            >
+              Save Draft {buttonMessage ? `(${buttonMessage})` : ""}
+            </Button>
+            <Button 
+              type="submit"
+              disabled={!canSubmit}
+            >
+              Submit {!draftSaved && "(Save draft first)"}
+            </Button>
+          </div>
+          {formIsReady && !isAuthenticated && (
+            <p className="text-sm text-gray-500 text-right px-2">
+              Your form is complete. Log in to save your draft.
+            </p>
+          )}
         </div>
       </form>
     </Form>
