@@ -92,7 +92,15 @@ const HedgeRequestForm: React.FC = () => {
     // Add your submit logic here
   };
 
+  // Add debugging for button click
   const handleSaveDraft = async () => {
+    console.log('Save Draft Button Clicked', {
+      isFormComplete,
+      isAuthenticated,
+      draftSaved,
+      canSaveDraft: isFormComplete && isAuthenticated && !draftSaved,
+      formValues: form.getValues()
+    });
     try {
       if (!session?.user) {
         toast.error("Please log in to save drafts");
@@ -133,16 +141,31 @@ const HedgeRequestForm: React.FC = () => {
   };
 
   const isAuthenticated = !!session?.user;
-  const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
-  
+  // Move canSaveDraft inside useEffect to ensure it updates with state changes
   useEffect(() => {
-    console.log('Button state:', {
+    const currentValues = form.getValues();
+    const requiredFieldValues = {
+      entity_id: currentValues.entity_id,
+      entity_name: currentValues.entity_name,
+      exposure_category_level_2: currentValues.exposure_category_level_2,
+      exposure_category_level_3: currentValues.exposure_category_level_3,
+      exposure_category_level_4: currentValues.exposure_category_level_4,
+      exposure_config: currentValues.exposure_config,
+      strategy: currentValues.strategy
+    };
+    
+    console.log('Form State Debug:', {
+      currentValues: requiredFieldValues,
       isFormComplete,
       isAuthenticated,
       draftSaved,
-      canSaveDraft
+      formState: form.formState,
+      isDirty: form.formState.isDirty,
+      isValid: form.formState.isValid
     });
-  }, [isFormComplete, isAuthenticated, draftSaved]);
+  }, [form, isFormComplete, isAuthenticated, draftSaved]);
+
+  const canSaveDraft = isFormComplete && isAuthenticated && !draftSaved;
   const canSubmit = draftSaved && isFormComplete;
 
   return (
@@ -178,8 +201,11 @@ const HedgeRequestForm: React.FC = () => {
             variant="outline"
             onClick={handleSaveDraft}
             disabled={!canSaveDraft}
+            className={`${!canSaveDraft ? 'opacity-50' : ''}`}
           >
-            Save Draft {!isFormComplete && "(Complete all fields)"}
+            Save Draft {!isFormComplete ? "(Complete all fields)" : 
+                      !isAuthenticated ? "(Please log in)" : 
+                      draftSaved ? "(Already saved)" : ""}
           </Button>
           <Button 
             type="submit"
@@ -192,7 +218,5 @@ const HedgeRequestForm: React.FC = () => {
     </Form>
   );
 };
-
-export default HedgeRequestForm;
 
 export default HedgeRequestForm;
