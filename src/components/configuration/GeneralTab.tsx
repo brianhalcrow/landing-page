@@ -3,11 +3,12 @@ import ConfigurationForm from "./form/ConfigurationForm";
 import ConfigurationGrid from "./ConfigurationGrid";
 import { useEntities } from "@/hooks/useEntities";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const GeneralTab = () => {
   const { entities: allEntities, isLoading, refetch } = useEntities();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const channel = supabase
@@ -23,7 +24,8 @@ const GeneralTab = () => {
           console.log('Real-time update received:', payload);
           console.log("Event type:", payload.eventType);
           console.log("Full payload:", JSON.stringify(payload, null, 2));
-          await refetch();
+          // Invalidate and refetch the exposures query
+          await queryClient.invalidateQueries({ queryKey: ["exposures"] });
         }
       )
       .subscribe((status) => {
@@ -34,7 +36,7 @@ const GeneralTab = () => {
       console.log("Cleaning up subscription...");
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [queryClient]);
 
   // Fetch existing exposure configurations
   const { data: exposures } = useQuery({

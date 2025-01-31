@@ -49,7 +49,7 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
     try {
       console.log("Submitting configuration:", data);
       
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from("config_exposures")
         .upsert({
           entity_id: data.entity_id,
@@ -71,7 +71,8 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
           monetary_liabilities: data.monetary_liabilities,
         }, {
           onConflict: 'entity_id'
-        });
+        })
+        .select();
 
       if (error) {
         console.error("Error saving configuration:", error);
@@ -79,9 +80,11 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
         throw error;
       }
 
-      toast.success("Configuration saved successfully");
-      setIsUpdating(true);
-      setFormChanged(false);
+      if (result) {
+        toast.success("Configuration saved successfully");
+        setIsUpdating(true);
+        setFormChanged(false);
+      }
     } catch (error) {
       console.error("Error in form submission:", error);
       toast.error("Failed to save configuration");
