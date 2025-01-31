@@ -11,10 +11,12 @@ import InstrumentField from "./instrument/InstrumentField";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
+import { useState } from "react";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
   const { session } = useAuth();
+  const [draftSaved, setDraftSaved] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -34,6 +36,7 @@ const HedgeRequestForm: React.FC = () => {
       strategy: "",
       instrument: "",
     },
+    mode: "onChange",
   });
 
   const handleEntitySelect = (field: "entity_id" | "entity_name", value: string) => {
@@ -80,6 +83,7 @@ const HedgeRequestForm: React.FC = () => {
         return;
       }
 
+      setDraftSaved(true);
       toast.success("Draft saved successfully");
       console.log('Saved draft:', draftData);
     } catch (error) {
@@ -87,6 +91,10 @@ const HedgeRequestForm: React.FC = () => {
       toast.error("Failed to save draft");
     }
   };
+
+  // Check if all required fields are filled
+  const isFormValid = form.formState.isValid;
+  const isAuthenticated = !!session?.user;
 
   return (
     <Form {...form}>
@@ -120,11 +128,16 @@ const HedgeRequestForm: React.FC = () => {
             type="button" 
             variant="outline"
             onClick={handleSaveDraft}
-            disabled={!session?.user}
+            disabled={!isAuthenticated || !isFormValid}
           >
             Save Draft
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button 
+            type="submit"
+            disabled={!draftSaved}
+          >
+            Submit
+          </Button>
         </div>
       </form>
     </Form>
