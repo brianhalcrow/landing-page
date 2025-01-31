@@ -1,5 +1,5 @@
 export interface HedgeRequest {
-  id?: string;
+  id: string;
   entity_id: string | null;
   entity_name: string | null;
   instrument: string | null;
@@ -13,5 +13,4 @@ export interface HedgeRequest {
   buy_sell_currency_code: string | null;
   buy_sell_amount: number | null;
   created_by: string | null;
-  trade_request_id: string;
 }

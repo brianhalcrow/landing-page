@@ -23,7 +23,7 @@ export const PositionsTab = () => {
       const { data, error } = await supabase
         .from("hedge_request")
         .select("*")
-        .order("trade_request_id", { ascending: false });
+        .order("id", { ascending: false });
 
       if (!isMounted) return;
 
@@ -34,7 +34,7 @@ export const PositionsTab = () => {
 
       const hedgeRequestsWithId = (data || []).map((request) => ({
         ...request,
-        id: `hr-${Date.now()}-${Math.random()}`,
+        id: request.id.toString()
       }));
 
       console.log("✅ Fetched hedge requests for positions:", hedgeRequestsWithId);

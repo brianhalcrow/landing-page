@@ -12,19 +12,19 @@ import {
 import { useEntities } from "@/hooks/useEntities";
 
 interface HedgeRequestData {
-  trade_request_id: string;
-  entity_id: string;
-  entity_name: string;
-  instrument: string;
-  strategy: string;
-  base_currency: string;
-  quote_currency: string;
-  currency_pair: string;
-  trade_date: string;
-  settlement_date: string;
-  buy_sell: string;
-  buy_sell_currency_code: string;
-  buy_sell_amount: number;
+  id: string;
+  entity_id: string | null;
+  entity_name: string | null;
+  instrument: string | null;
+  strategy: string | null;
+  base_currency: string | null;
+  quote_currency: string | null;
+  currency_pair: string | null;
+  trade_date: string | null;
+  settlement_date: string | null;
+  buy_sell: string | null;
+  buy_sell_currency_code: string | null;
+  buy_sell_amount: number | null;
 }
 
 const BalanceSheetTab = () => {
@@ -81,12 +81,12 @@ const BalanceSheetTab = () => {
           </TableHeader>
           <TableBody>
             {data.map((row) => (
-              <TableRow key={row.trade_request_id}>
+              <TableRow key={row.id}>
                 <TableCell>{row.entity_name}</TableCell>
                 <TableCell>{row.instrument}</TableCell>
                 <TableCell>{row.currency_pair}</TableCell>
-                <TableCell>{new Date(row.trade_date).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(row.settlement_date).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(row.trade_date || '').toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(row.settlement_date || '').toLocaleDateString()}</TableCell>
                 <TableCell>{row.buy_sell}</TableCell>
                 <TableCell className="text-right">
                   {row.buy_sell_amount?.toLocaleString()} {row.buy_sell_currency_code}

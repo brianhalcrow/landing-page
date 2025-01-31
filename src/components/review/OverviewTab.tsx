@@ -23,7 +23,7 @@ export const OverviewTab = () => {
       const { data, error } = await supabase
         .from("hedge_request")
         .select("*")
-        .order("trade_request_id", { ascending: false });
+        .order("id", { ascending: false });
 
       if (!isMounted) return;
 
@@ -34,7 +34,7 @@ export const OverviewTab = () => {
 
       const hedgeRequestsWithId = (data || []).map((request) => ({
         ...request,
-        id: `hr-${Date.now()}-${Math.random()}`,
+        id: request.id.toString()
       }));
 
       console.log("✅ Fetched hedge requests:", hedgeRequestsWithId);
@@ -51,12 +51,6 @@ export const OverviewTab = () => {
     }
   }, [isMounted]);
 
-  // Debug log for state updates
-  useEffect(() => {
-    console.log("💾 Hedge requests state updated:", hedgeRequests);
-  }, [hedgeRequests]);
-
-  // Initial data fetch
   useEffect(() => {
     console.log("🏁 OverviewTab mounted");
     fetchHedgeRequests();
