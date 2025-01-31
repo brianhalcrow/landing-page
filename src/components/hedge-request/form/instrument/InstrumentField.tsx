@@ -51,11 +51,17 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
         const uniqueInstruments = [...new Set(data.map(item => item.instrument))].filter(Boolean) as string[];
         setInstruments(uniqueInstruments);
 
-        // Auto-select the instrument if there's only one option
-        if (uniqueInstruments.length === 1) {
-          form.setValue("instrument", uniqueInstruments[0]);
-        } else {
-          // Reset instrument when strategy changes and there's not exactly one option
+        // Only auto-select if there's exactly one instrument AND we have a valid strategy
+        if (uniqueInstruments.length === 1 && strategy) {
+          // Add a small delay to ensure form is ready
+          setTimeout(() => {
+            form.setValue("instrument", uniqueInstruments[0], {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }, 0);
+        } else if (uniqueInstruments.length !== 1) {
+          // Only reset if we don't have exactly one instrument
           form.setValue("instrument", "");
         }
       } catch (error) {
