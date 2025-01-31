@@ -71,9 +71,9 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
 
   const filterCriteriaByPreviousSelection = (
     field: keyof Criteria,
-    previousField: keyof Criteria
+    previousField: keyof Criteria,
+    previousValue: string
   ) => {
-    const previousValue = form.watch(previousField as any);
     if (!previousValue) return [];
     
     const filteredData = criteriaData.filter(
@@ -104,7 +104,7 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {getUniqueValues("exposure_category_level_1").map((value) => (
+                {getUniqueValues("exposure_config").map((value) => (
                   <SelectItem key={value} value={value}>
                     {value}
                   </SelectItem>
@@ -135,7 +135,8 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
               <SelectContent>
                 {filterCriteriaByPreviousSelection(
                   "exposure_category_level_2",
-                  "exposure_config"
+                  "exposure_config",
+                  form.watch("exposure_config")
                 ).map((value) => (
                   <SelectItem key={value} value={value}>
                     {value}
@@ -167,7 +168,8 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
               <SelectContent>
                 {filterCriteriaByPreviousSelection(
                   "exposure_category_level_3",
-                  "exposure_category_level_2"
+                  "exposure_category_level_2",
+                  form.watch("exposure_category_level_2")
                 ).map((value) => (
                   <SelectItem key={value} value={value}>
                     {value}
@@ -199,7 +201,8 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
               <SelectContent>
                 {filterCriteriaByPreviousSelection(
                   "exposure_category_level_4",
-                  "exposure_category_level_3"
+                  "exposure_category_level_3",
+                  form.watch("exposure_category_level_3")
                 ).map((value) => (
                   <SelectItem key={value} value={value}>
                     {value}
