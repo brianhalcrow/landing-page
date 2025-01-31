@@ -80,6 +80,12 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
 
   const columnDefs: ColDef[] = [
     {
+      field: 'draft_id',
+      headerName: 'Draft ID',
+      width: 200,
+      editable: false,
+    },
+    {
       field: 'entity_id',
       headerName: 'Entity ID',
       width: 120,
