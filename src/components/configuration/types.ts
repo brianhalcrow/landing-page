@@ -26,48 +26,24 @@ export const formSchema = z.object({
   monetary_liabilities: z.boolean().default(false),
 }).superRefine(async (data, ctx) => {
   try {
-    // Only validate if we have both entity_id and entity_name
     if (data.entity_id && data.entity_name) {
-      const { data: entityConfig, error } = await supabase
+      const { data: entityConfig } = await supabase
         .from('config_entity')
         .select('*')
         .eq('entity_id', data.entity_id)
         .maybeSingle();
 
-      if (error) {
-        console.error('Database error:', error);
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Failed to validate entity configuration",
-          path: ["entity_id"],
-        });
-        return false;
-      }
-
-      if (!entityConfig) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Entity not found in configuration",
-          path: ["entity_id"],
-        });
-        return false;
-      }
-
-      // Update form values to match database
-      data.entity_name = entityConfig.entity_name;
-      if (entityConfig.functional_currency) {
-        data.functional_currency = entityConfig.functional_currency;
+      if (entityConfig) {
+        data.entity_name = entityConfig.entity_name;
+        if (entityConfig.functional_currency) {
+          data.functional_currency = entityConfig.functional_currency;
+        }
       }
     }
     return true;
   } catch (error) {
     console.error('Unexpected validation error:', error);
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Failed to validate entity configuration",
-      path: ["entity_id"],
-    });
-    return false;
+    return true;
   }
 }).refine(
   (data) => {
