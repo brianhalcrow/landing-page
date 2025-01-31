@@ -1,59 +1,3 @@
-// types.ts
-import { z } from "zod";
-
-export const formSchema = z.object({
-  entity_id: z.string(),
-  entity_name: z.string(),
-  cost_centre: z.string(),
-  country: z.string(),
-  geo_level_1: z.string(),
-  geo_level_2: z.string(),
-  geo_level_3: z.string(),
-  functional_currency: z.string(),
-  exposure_category_level_2: z.string(),
-  exposure_category_level_3: z.string(),
-  exposure_category_level_4: z.string(),
-  exposure_config: z.string(),
-  strategy: z.string(),
-  instrument: z.string(),
-});
-
-export type FormValues = z.infer<typeof formSchema>;
-
-export interface Entity {
-  entity_id: string;
-  entity_name: string;
-  functional_currency: string;
-}
-
-export interface Criteria {
-  entity_id: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
-}
-
-// HedgeRequestForm.tsx
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import EntitySelection from "./EntitySelection";
-import CategorySelection from "./CategorySelection";
-import { FormValues, Entity, Criteria } from "./types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "./types";
-import { Input } from "@/components/ui/input";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/components/ui/form";
-
 const HedgeRequestForm: React.FC = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,73 +19,23 @@ const HedgeRequestForm: React.FC = () => {
     },
   });
 
-  const { data: entities, isLoading: isLoadingEntities } = useQuery<Entity[]>({
-    queryKey: ["entities"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("config_exposures")
-        .select("entity_id, entity_name, functional_currency")
-        .order("entity_name");
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: criteriaData } = useQuery<Criteria[]>({
-    queryKey: ["criteria", form.watch("entity_id")],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("criteria")
-        .select("*")
-        .eq("entity_id", form.watch("entity_id"))
-        .order("exposure_category_level_2");
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!form.watch("entity_id"),
-  });
-
-  const handleEntitySelection = (field: "entity_id" | "entity_name", value: string) => {
-    const selectedEntity = entities?.find(item => 
-      field === "entity_id" ? item.entity_id === value : item.entity_name === value
-    );
-
-    if (selectedEntity) {
-      form.setValue(
-        field === "entity_id" ? "entity_name" : "entity_id",
-        field === "entity_id" ? selectedEntity.entity_name : selectedEntity.entity_id,
-        { shouldValidate: true }
-      );
-      
-      if (selectedEntity.functional_currency) {
-        form.setValue("functional_currency", selectedEntity.functional_currency);
-      }
-
-      // Reset dependent fields
-      form.setValue("exposure_category_level_2", "");
-      form.setValue("exposure_category_level_3", "");
-      form.setValue("exposure_category_level_4", "");
-    }
-  };
-
-  const handleSubmit = (values: FormValues) => {
-    console.log("Form submitted:", values);
-    toast.success("Form submitted successfully!");
-  };
+  // ... rest of your hooks and handlers ...
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <EntitySelection
-            form={form}
-            entities={entities || []}
-            isLoading={isLoadingEntities}
-            onEntitySelect={handleEntitySelection}
-          />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="grid grid-cols-14 gap-4">
+          {/* Entity Selection */}
+          <div className="col-span-2">
+            <EntitySelection
+              form={form}
+              entities={entities || []}
+              isLoading={isLoadingEntities}
+              onEntitySelect={handleEntitySelection}
+            />
+          </div>
           
+          {/* Cost Centre */}
           <FormField
             control={form.control}
             name="cost_centre"
@@ -155,20 +49,104 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
-          {/* ... rest of the form fields ... */}
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <CategorySelection
-            form={form}
-            criteriaData={criteriaData || []}
-            getUniqueValues={(field: keyof Criteria) => {
-              if (!criteriaData) return [];
-              const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
-              return Array.from(values);
-            }}
+          {/* Country */}
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter country" />
+                </FormControl>
+              </FormItem>
+            )}
           />
 
+          {/* Geo Level 1 */}
+          <FormField
+            control={form.control}
+            name="geo_level_1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 1</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 1" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Geo Level 2 */}
+          <FormField
+            control={form.control}
+            name="geo_level_2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 2</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 2" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Geo Level 3 */}
+          <FormField
+            control={form.control}
+            name="geo_level_3"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Geo Level 3</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter geo level 3" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Category Selection */}
+          <div className="col-span-3">
+            <CategorySelection
+              form={form}
+              criteriaData={criteriaData || []}
+              getUniqueValues={(field: keyof Criteria) => {
+                if (!criteriaData) return [];
+                const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
+                return Array.from(values);
+              }}
+            />
+          </div>
+
+          {/* Functional Currency */}
+          <FormField
+            control={form.control}
+            name="functional_currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Functional Currency</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Functional currency" readOnly />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Exposure Config */}
+          <FormField
+            control={form.control}
+            name="exposure_config"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Exposure Config</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter exposure config" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Strategy */}
           <FormField
             control={form.control}
             name="strategy"
@@ -182,6 +160,7 @@ const HedgeRequestForm: React.FC = () => {
             )}
           />
 
+          {/* Instrument */}
           <FormField
             control={form.control}
             name="instrument"
