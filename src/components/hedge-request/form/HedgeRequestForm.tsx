@@ -12,8 +12,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./types";
 
 const HedgeRequestForm = () => {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  type FormData = {
+    entity_id: string;
+    entity_name: string;
+    exposure_category_level_2: string;
+    exposure_category_level_3: string;
+    exposure_category_level_4: string;
+  };
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema) as any, // Type assertion to avoid resolver complexity
     defaultValues: {
       entity_id: "",
       entity_name: "",
@@ -59,49 +67,54 @@ const HedgeRequestForm = () => {
     if (selectedEntity) {
       form.setValue(
         field === "entity_id" ? "entity_name" : "entity_id",
-        field === "entity_id" ? selectedEntity.entity_name : selectedEntity.entity_id
+        field === "entity_id" ? selectedEntity.entity_name : selectedEntity.entity_id,
+        { shouldValidate: true }
       );
       
-      form.setValue("exposure_category_level_2", "");
-      form.setValue("exposure_category_level_3", "");
-      form.setValue("exposure_category_level_4", "");
+      // Reset dependent fields
+      form.setValue("exposure_category_level_2", "", { shouldValidate: true });
+      form.setValue("exposure_category_level_3", "", { shouldValidate: true });
+      form.setValue("exposure_category_level_4", "", { shouldValidate: true });
     }
   };
 
-  const getUniqueValues = (field: keyof FormValues): string[] => {
+  const getUniqueValues = (field: keyof FormData): string[] => {
     if (!criteriaData) return [];
 
-    if (field === "exposure_category_level_3") {
-      const level2Value = form.watch("exposure_category_level_2");
-      const filteredData = criteriaData.filter(item => 
-        item.exposure_category_level_2 === level2Value
-      );
-      return Array.from(new Set(filteredData.map(item => item[field] || ""))).filter(Boolean);
-    }
+    switch (field) {
+      case "exposure_category_level_2":
+        return Array.from(new Set(
+          criteriaData.map(item => item[field] || "")
+        )).filter(Boolean);
 
-    if (field === "exposure_category_level_4") {
-      const level2Value = form.watch("exposure_category_level_2");
-      const level3Value = form.watch("exposure_category_level_3");
-      return Array.from(new Set(
-        criteriaData
-          .filter(item => 
-            item.exposure_category_level_2 === level2Value &&
-            item.exposure_category_level_3 === level3Value
-          )
-          .map(item => item[field] || "")
-      )).filter(Boolean);
-    }
+      case "exposure_category_level_3": {
+        const level2Value = form.watch("exposure_category_level_2");
+        return Array.from(new Set(
+          criteriaData
+            .filter(item => item.exposure_category_level_2 === level2Value)
+            .map(item => item[field] || "")
+        )).filter(Boolean);
+      }
 
-    if (field === "exposure_category_level_2") {
-      return Array.from(new Set(
-        criteriaData.map(item => item[field] || "")
-      )).filter(Boolean);
-    }
+      case "exposure_category_level_4": {
+        const level2Value = form.watch("exposure_category_level_2");
+        const level3Value = form.watch("exposure_category_level_3");
+        return Array.from(new Set(
+          criteriaData
+            .filter(item => 
+              item.exposure_category_level_2 === level2Value &&
+              item.exposure_category_level_3 === level3Value
+            )
+            .map(item => item[field] || "")
+        )).filter(Boolean);
+      }
 
-    return [];
+      default:
+        return [];
+    }
   };
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = (values: FormData) => {
     const isValidCombination = criteriaData?.some(criteria => 
       criteria.entity_id === values.entity_id &&
       criteria.exposure_category_level_2 === values.exposure_category_level_2 &&
