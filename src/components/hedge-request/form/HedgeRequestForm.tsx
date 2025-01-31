@@ -76,10 +76,30 @@ const HedgeRequestForm: React.FC = () => {
       return;
     }
 
+    // Reset form before populating with new data
+    form.reset();
+
     // Populate form with draft data
-    Object.keys(draftData).forEach((key) => {
-      if (key in form.getValues()) {
-        form.setValue(key as keyof FormValues, draftData[key]);
+    const fieldsToUpdate = [
+      'entity_id',
+      'entity_name',
+      'cost_centre',
+      'country',
+      'geo_level_1',
+      'geo_level_2',
+      'geo_level_3',
+      'functional_currency',
+      'exposure_category_level_2',
+      'exposure_category_level_3',
+      'exposure_category_level_4',
+      'exposure_config',
+      'strategy',
+      'instrument'
+    ];
+
+    fieldsToUpdate.forEach((field) => {
+      if (field in draftData) {
+        form.setValue(field as keyof FormValues, draftData[field] || '');
       }
     });
 
@@ -187,9 +207,9 @@ const HedgeRequestForm: React.FC = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="w-full mb-4">
+        <div className="w-80 mb-4">
           <Select onValueChange={handleDraftSelect} value={draftId || ""}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger>
               <SelectValue placeholder="Select a draft" />
             </SelectTrigger>
             <SelectContent>
