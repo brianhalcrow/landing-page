@@ -14,11 +14,21 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
   const [instruments, setInstruments] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Watch for changes in entity_id, entity_name, and strategy
+  const entityId = form.watch("entity_id");
+  const entityName = form.watch("entity_name");
+  const strategy = form.watch("strategy");
+
+  useEffect(() => {
+    // Reset instrument when entity changes
+    form.setValue("instrument", "");
+  }, [entityId, entityName]);
+
   useEffect(() => {
     const fetchInstruments = async () => {
-      const strategy = form.watch("strategy");
       if (!strategy) {
         setInstruments([]);
+        form.setValue("instrument", "");
         return;
       }
 
@@ -55,7 +65,7 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
     };
 
     fetchInstruments();
-  }, [form.watch("strategy")]);
+  }, [strategy]);
 
   return (
     <FormField
