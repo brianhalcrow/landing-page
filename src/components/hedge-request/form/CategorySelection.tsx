@@ -1,21 +1,11 @@
 import { UseFormReturn } from "react-hook-form";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Criteria, FormValues } from "./types";
+import { FormValues, Criteria } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import ExposureL1 from "./exposure-levels/ExposureL1";
+import ExposureL2 from "./exposure-levels/ExposureL2";
+import ExposureL3 from "./exposure-levels/ExposureL3";
+import ExposureL4 from "./exposure-levels/ExposureL4";
 
 interface CategorySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -64,155 +54,28 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
     fetchCriteria();
   }, [entityId, form]);
 
-  const getUniqueValues = (field: keyof Criteria) => {
-    const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
-    return Array.from(values);
-  };
-
-  const filterCriteriaByPreviousSelection = (
-    field: keyof Criteria,
-    previousField: keyof Criteria,
-    previousValue: string
-  ) => {
-    if (!previousValue) return [];
-    
-    const filteredData = criteriaData.filter(
-      item => item[previousField] === previousValue
-    );
-    const values = new Set(
-      filteredData.map(item => item[field]).filter(Boolean)
-    );
-    return Array.from(values);
-  };
-
   return (
     <>
-      <FormField
-        control={form.control}
-        name="exposure_config"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure L1</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value}
-              disabled={!entityId || loading}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select exposure L1" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {getUniqueValues("exposure_config").map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <ExposureL1 
+        form={form}
+        criteriaData={criteriaData}
+        loading={loading}
+        entityId={entityId}
       />
-
-      <FormField
-        control={form.control}
-        name="exposure_category_level_2"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure L2</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value}
-              disabled={!form.watch("exposure_config")}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select exposure L2" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {filterCriteriaByPreviousSelection(
-                  "exposure_category_level_2",
-                  "exposure_config",
-                  form.watch("exposure_config")
-                ).map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <ExposureL2 
+        form={form}
+        criteriaData={criteriaData}
+        disabled={!form.watch("exposure_config")}
       />
-
-      <FormField
-        control={form.control}
-        name="exposure_category_level_3"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure L3</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value}
-              disabled={!form.watch("exposure_category_level_2")}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select exposure L3" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {filterCriteriaByPreviousSelection(
-                  "exposure_category_level_3",
-                  "exposure_category_level_2",
-                  form.watch("exposure_category_level_2")
-                ).map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <ExposureL3 
+        form={form}
+        criteriaData={criteriaData}
+        disabled={!form.watch("exposure_category_level_2")}
       />
-
-      <FormField
-        control={form.control}
-        name="exposure_category_level_4"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure L4</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value}
-              disabled={!form.watch("exposure_category_level_3")}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select exposure L4" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {filterCriteriaByPreviousSelection(
-                  "exposure_category_level_4",
-                  "exposure_category_level_3",
-                  form.watch("exposure_category_level_3")
-                ).map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <ExposureL4 
+        form={form}
+        criteriaData={criteriaData}
+        disabled={!form.watch("exposure_category_level_3")}
       />
     </>
   );
