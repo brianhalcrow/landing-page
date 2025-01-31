@@ -38,16 +38,12 @@ const HedgeRequestForm: React.FC = () => {
     console.log(data);
   };
 
-  const handleEntitySelection = (field: "entity_id" | "entity_name", value: string) => {
-    form.setValue(field, value);
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <div className="flex flex-col gap-8">
           {/* First Row */}
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4">
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-2">
             <FormField
               control={form.control}
               name="entity_name"
@@ -69,6 +65,19 @@ const HedgeRequestForm: React.FC = () => {
                   <FormLabel className="h-14">Entity ID</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter entity ID" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="functional_currency"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Functional Currency</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Functional currency" readOnly className="w-full" />
                   </FormControl>
                 </FormItem>
               )}
@@ -138,62 +147,10 @@ const HedgeRequestForm: React.FC = () => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="functional_currency"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Functional Currency</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Functional currency" readOnly className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </div>
 
           {/* Second Row */}
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4">
-            <FormField
-              control={form.control}
-              name="exposure_category_level_2"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Exposure L2</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter exposure L2" className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="exposure_category_level_3"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Exposure L3</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter exposure L3" className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="exposure_category_level_4"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Exposure L4</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter exposure L4" className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
+          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-4 py-2">
             <FormField
               control={form.control}
               name="exposure_config"
@@ -228,6 +185,45 @@ const HedgeRequestForm: React.FC = () => {
                   <FormLabel className="h-14">Instrument</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter instrument" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exposure_category_level_2"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L2</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L2" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exposure_category_level_3"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L3</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L3" className="w-full" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="exposure_category_level_4"
+              render={({ field }) => (
+                <FormItem className="w-40">
+                  <FormLabel className="h-14">Exposure L4</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter exposure L4" className="w-full" />
                   </FormControl>
                 </FormItem>
               )}
