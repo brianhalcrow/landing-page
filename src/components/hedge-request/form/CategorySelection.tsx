@@ -54,6 +54,16 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
     fetchCriteria();
   }, [entityId, form]);
 
+  // Add effect to reset L3 and L4 when L1 changes
+  useEffect(() => {
+    const exposureL1 = form.watch("exposure_config");
+    if (exposureL1) {
+      // Reset L3 and L4 when L1 changes
+      form.setValue("exposure_category_level_3", "");
+      form.setValue("exposure_category_level_4", "");
+    }
+  }, [form.watch("exposure_config")]);
+
   return (
     <>
       <ExposureL1 
