@@ -47,6 +47,9 @@ const ExposureL3 = ({ form, criteriaData, disabled }: ExposureL3Props) => {
     }
   }, [form.watch("exposure_category_level_2"), criteriaData]);
 
+  const exposureL2Value = form.watch("exposure_category_level_2");
+  const isDisabled = disabled || !exposureL2Value;
+
   return (
     <FormField
       control={form.control}
@@ -57,7 +60,7 @@ const ExposureL3 = ({ form, criteriaData, disabled }: ExposureL3Props) => {
           <Select
             onValueChange={field.onChange}
             value={field.value}
-            disabled={disabled}
+            disabled={isDisabled}
           >
             <FormControl>
               <SelectTrigger>
