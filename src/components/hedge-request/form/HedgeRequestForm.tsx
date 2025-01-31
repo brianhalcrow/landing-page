@@ -7,30 +7,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import EntitySelection from "./EntitySelection";
 import CategorySelection from "./CategorySelection";
-
-// Define simpler types directly instead of using complex zod schemas
-interface FormValues {
-  entity_id: string;
-  entity_name: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
-}
-
-interface Entity {
-  entity_id: string;
-  entity_name: string;
-}
-
-interface Criteria {
-  entity_id: string;
-  exposure_category_level_2: string;
-  exposure_category_level_3: string;
-  exposure_category_level_4: string;
-}
+import { FormValues, Entity, Criteria } from "./types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./types";
 
 const HedgeRequestForm = () => {
   const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       entity_id: "",
       entity_name: "",
