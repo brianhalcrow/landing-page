@@ -49,20 +49,22 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <FormHeader 
-        form={form} 
-        entities={entities} 
-        isLoadingEntities={false} 
-        onFetchConfig={async (entityId) => {}} 
-        onUploadComplete={() => {}} 
-      />
-      <FormCategories form={form} />
-      <FormFooter 
-        isUpdating={isUpdating}
-        formChanged={formChanged}
-      />
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormHeader 
+          form={form} 
+          entities={entities} 
+          isLoadingEntities={false} 
+          onFetchConfig={async (entityId) => {}} 
+          onUploadComplete={() => {}} 
+        />
+        <FormCategories form={form} />
+        <FormFooter 
+          isUpdating={isUpdating}
+          formChanged={formChanged}
+        />
+      </form>
+    </Form>
   );
 };
 
