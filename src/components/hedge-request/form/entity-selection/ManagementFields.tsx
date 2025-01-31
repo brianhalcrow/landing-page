@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormValues } from "../types";
 import { ManagementStructure } from "./types";
+import { useEffect } from "react";
 
 interface ManagementFieldsProps {
   form: UseFormReturn<FormValues>;
@@ -28,6 +29,16 @@ const ManagementFields = ({
   managementStructures,
   onCostCentreSelect 
 }: ManagementFieldsProps) => {
+
+  useEffect(() => {
+    // If there's only one cost centre, automatically select it
+    if (managementStructures.length === 1) {
+      const costCentre = managementStructures[0].cost_centre;
+      form.setValue('cost_centre', costCentre);
+      onCostCentreSelect(costCentre);
+    }
+  }, [managementStructures, form, onCostCentreSelect]);
+
   return (
     <>
       <FormField
@@ -36,29 +47,35 @@ const ManagementFields = ({
         render={({ field }) => (
           <FormItem className="w-40">
             <FormLabel>Cost Centre</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                onCostCentreSelect(value);
-              }}
-              value={field.value}
-            >
+            {managementStructures.length > 1 ? (
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onCostCentreSelect(value);
+                }}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Cost Centre" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {managementStructures.map((structure) => (
+                    <SelectItem 
+                      key={structure.cost_centre} 
+                      value={structure.cost_centre}
+                    >
+                      {structure.cost_centre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
               <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="" />
-                </SelectTrigger>
+                <Input {...field} placeholder="" readOnly className="bg-gray-50" />
               </FormControl>
-              <SelectContent>
-                {managementStructures.map((structure) => (
-                  <SelectItem 
-                    key={structure.cost_centre} 
-                    value={structure.cost_centre}
-                  >
-                    {structure.cost_centre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            )}
             <FormMessage />
           </FormItem>
         )}
