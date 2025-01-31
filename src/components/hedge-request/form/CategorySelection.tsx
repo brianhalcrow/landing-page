@@ -31,7 +31,7 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
         name="exposure_category_level_2"
         render={({ field }) => (
           <FormItem className="w-40">
-            <FormLabel>Exposure L2</FormLabel>
+            <FormLabel className="h-14">Exposure L2</FormLabel>
             <Select
               onValueChange={field.onChange}
               value={field.value}
@@ -60,7 +60,7 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
         name="exposure_category_level_3"
         render={({ field }) => (
           <FormItem className="w-40">
-            <FormLabel>Exposure L3</FormLabel>
+            <FormLabel className="h-14">Exposure L3</FormLabel>
             <Select
               onValueChange={field.onChange}
               value={field.value}
@@ -89,7 +89,7 @@ const CategorySelection = ({ form, criteriaData, getUniqueValues }: CategorySele
         name="exposure_category_level_4"
         render={({ field }) => (
           <FormItem className="w-40">
-            <FormLabel>Exposure L4</FormLabel>
+            <FormLabel className="h-14">Exposure L4</FormLabel>
             <Select
               onValueChange={field.onChange}
               value={field.value}
