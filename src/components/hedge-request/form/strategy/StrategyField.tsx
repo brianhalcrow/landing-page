@@ -1,0 +1,88 @@
+import { useEffect, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormValues, Strategy } from "../types";
+import { supabase } from "@/integrations/supabase/client";
+
+interface StrategyFieldProps {
+  form: UseFormReturn<FormValues>;
+  disabled?: boolean;
+}
+
+const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
+  const [strategies, setStrategies] = useState<Strategy[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchStrategies = async () => {
+      const exposureL2 = form.watch("exposure_category_level_2");
+      if (!exposureL2) {
+        setStrategies([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        console.log("Fetching strategies for exposure L2:", exposureL2);
+        const { data, error } = await supabase
+          .from("hedge_strategy")
+          .select("*")
+          .eq("exposure_category_level_2", exposureL2);
+
+        if (error) {
+          console.error("Error fetching strategies:", error);
+          throw error;
+        }
+
+        console.log("Fetched strategies:", data);
+        setStrategies(data || []);
+
+        // Reset strategy when exposure L2 changes
+        form.setValue("strategy", "");
+      } catch (error) {
+        console.error("Error in fetchStrategies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStrategies();
+  }, [form.watch("exposure_category_level_2")]);
+
+  return (
+    <FormField
+      control={form.control}
+      name="strategy"
+      render={({ field }) => (
+        <FormItem className="w-40">
+          <FormLabel className="h-14">Strategy</FormLabel>
+          <Select
+            onValueChange={field.onChange}
+            value={field.value}
+            disabled={disabled || loading}
+          >
+            <FormControl>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {strategies.map((strategy) => (
+                <SelectItem 
+                  key={strategy.id} 
+                  value={strategy.strategy_description || ""}
+                >
+                  {strategy.strategy_description}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
+export default StrategyField;

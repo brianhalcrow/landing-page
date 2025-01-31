@@ -13,6 +13,7 @@ import { FormValues, formSchema } from "./types";
 import { useEntities } from "@/hooks/useEntities";
 import EntitySelection from "./EntitySelection";
 import CategorySelection from "./CategorySelection";
+import StrategyField from "./strategy/StrategyField";
 
 const HedgeRequestForm: React.FC = () => {
   const { entities, isLoading } = useEntities();
@@ -70,17 +71,9 @@ const HedgeRequestForm: React.FC = () => {
               form={form}
               entityId={form.watch("entity_id")}
             />
-            <FormField
-              control={form.control}
-              name="strategy"
-              render={({ field }) => (
-                <FormItem className="w-40">
-                  <FormLabel className="h-14">Strategy</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="" className="w-full" />
-                  </FormControl>
-                </FormItem>
-              )}
+            <StrategyField 
+              form={form}
+              disabled={!form.watch("exposure_category_level_2")}
             />
             <FormField
               control={form.control}

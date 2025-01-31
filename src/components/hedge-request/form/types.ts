@@ -13,7 +13,7 @@ export const formSchema = z.object({
   exposure_category_level_3: z.string().min(1, "Category level 3 is required"),
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
   exposure_config: z.string().min(1, "Exposure L1 is required"),
-  strategy: z.string().optional(),
+  strategy: z.string().min(1, "Strategy is required"),
   instrument: z.string().optional(),
 }).strict();
 
@@ -35,4 +35,11 @@ export interface Criteria {
   account_category_level_1: string | null;
   subsystem_code: string | null;
   exposure_config: string | null;
+}
+
+export interface Strategy {
+  id: number;
+  exposure_category_level_2: string | null;
+  strategy: string | null;
+  strategy_description: string | null;
 }
