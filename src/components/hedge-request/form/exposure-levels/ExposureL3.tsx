@@ -63,8 +63,8 @@ const ExposureL3 = ({ form, criteriaData, disabled }: ExposureL3Props) => {
             disabled={isDisabled}
           >
             <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder="" />
+              <SelectTrigger className="text-left">
+                <SelectValue />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
