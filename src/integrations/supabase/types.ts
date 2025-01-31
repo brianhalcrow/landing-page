@@ -237,18 +237,21 @@ export type Database = {
           entity_name: string
           functional_currency: string | null
           id: number
+          rate_method: string | null
         }
         Insert: {
           entity_id: string
           entity_name: string
           functional_currency?: string | null
           id?: number
+          rate_method?: string | null
         }
         Update: {
           entity_id?: string
           entity_name?: string
           functional_currency?: string | null
           id?: number
+          rate_method?: string | null
         }
         Relationships: []
       }
@@ -313,7 +316,15 @@ export type Database = {
           po?: boolean | null
           revenue?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_config_exposures_entity"
+            columns: ["entity_id"]
+            isOneToOne: true
+            referencedRelation: "config_entity"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       criteria: {
         Row: {
@@ -637,15 +648,7 @@ export type Database = {
           geo_level_3?: string | null
           id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_management_structure_entity"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "config_exposures"
-            referencedColumns: ["entity_id"]
-          },
-        ]
+        Relationships: []
       }
       rates: {
         Row: {

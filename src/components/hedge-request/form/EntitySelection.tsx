@@ -1,4 +1,3 @@
-import { UseFormReturn } from "react-hook-form";
 import {
   FormField,
   FormItem,
@@ -33,7 +32,7 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           .from('management_structure')
           .select('*')
           .eq('entity_id', entityId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching management structure:', error);
@@ -45,20 +44,23 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           return;
         }
 
-        if (data) {
-          form.setValue('cost_centre', data.cost_centre || '');
-          form.setValue('country', data.country || '');
-          form.setValue('geo_level_1', data.geo_level_1 || '');
-          form.setValue('geo_level_2', data.geo_level_2 || '');
-          form.setValue('geo_level_3', data.geo_level_3 || '');
-        } else {
-          // Clear the fields if no data is found
+        // Clear the fields if no data is found
+        if (!data) {
+          console.log('No management structure found for entity:', entityId);
           form.setValue('cost_centre', '');
           form.setValue('country', '');
           form.setValue('geo_level_1', '');
           form.setValue('geo_level_2', '');
           form.setValue('geo_level_3', '');
+          return;
         }
+
+        // Set the values if data exists
+        form.setValue('cost_centre', data.cost_centre || '');
+        form.setValue('country', data.country || '');
+        form.setValue('geo_level_1', data.geo_level_1 || '');
+        form.setValue('geo_level_2', data.geo_level_2 || '');
+        form.setValue('geo_level_3', data.geo_level_3 || '');
       } catch (error) {
         console.error('Error in fetchManagementStructure:', error);
         toast({
