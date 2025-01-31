@@ -598,15 +598,7 @@ export type Database = {
           geo_level_3?: string | null
           id?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_management_structure_entity"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "config_exposures"
-            referencedColumns: ["entity_id"]
-          },
-        ]
+        Relationships: []
       }
       rates: {
         Row: {
