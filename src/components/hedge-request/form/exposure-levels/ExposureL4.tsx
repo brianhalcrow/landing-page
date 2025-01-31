@@ -61,7 +61,7 @@ const ExposureL4 = ({ form, criteriaData, disabled }: ExposureL4Props) => {
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select exposure L4" />
+                <SelectValue placeholder="" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
