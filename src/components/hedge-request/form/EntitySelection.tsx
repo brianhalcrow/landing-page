@@ -76,13 +76,6 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
           form.setValue('geo_level_1', structure.geo_level_1 || '');
           form.setValue('geo_level_2', structure.geo_level_2 || '');
           form.setValue('geo_level_3', structure.geo_level_3 || '');
-        } else {
-          // Clear the fields if multiple structures exist, waiting for user selection
-          form.setValue('cost_centre', '');
-          form.setValue('country', '');
-          form.setValue('geo_level_1', '');
-          form.setValue('geo_level_2', '');
-          form.setValue('geo_level_3', '');
         }
       } catch (error) {
         console.error('Error in fetchManagementStructure:', error);
@@ -180,13 +173,13 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
         )}
       />
 
-      {managementStructures.length > 1 && (
-        <FormField
-          control={form.control}
-          name="cost_centre"
-          render={({ field }) => (
-            <FormItem className="w-40">
-              <FormLabel className="h-14">Cost Centre</FormLabel>
+      <FormField
+        control={form.control}
+        name="cost_centre"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Cost Centre</FormLabel>
+            {managementStructures.length > 1 ? (
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
@@ -210,11 +203,17 @@ const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySe
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+            ) : (
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Cost centre" />
+                </SelectTrigger>
+              </FormControl>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 };
