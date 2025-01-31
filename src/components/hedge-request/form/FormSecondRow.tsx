@@ -20,33 +20,7 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
         name="exposure_config"
         render={({ field }) => (
           <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure Config</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="" className="w-full" />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="strategy"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Strategy</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="" className="w-full" />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="instrument"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Instrument</FormLabel>
+            <FormLabel className="h-14">Exposure L1</FormLabel>
             <FormControl>
               <Input {...field} placeholder="" className="w-full" />
             </FormControl>
@@ -86,6 +60,32 @@ const FormSecondRow = ({ form }: FormSecondRowProps) => {
         render={({ field }) => (
           <FormItem className="w-40">
             <FormLabel className="h-14">Exposure L4</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="" className="w-full" />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="strategy"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Strategy</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="" className="w-full" />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="instrument"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Instrument</FormLabel>
             <FormControl>
               <Input {...field} placeholder="" className="w-full" />
             </FormControl>
