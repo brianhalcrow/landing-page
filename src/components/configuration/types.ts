@@ -86,13 +86,9 @@ export const formSchema = z.object({
   }
 ).refine(
   (data) => {
-    // If net_monetary is true, both monetary_assets and monetary_liabilities must be false
+    // Only show error if net_monetary is true AND either monetary_assets or monetary_liabilities is also true
     if (data.net_monetary) {
-      return !data.monetary_assets && !data.monetary_liabilities;
-    }
-    // If either monetary_assets or monetary_liabilities is true, net_monetary must be false
-    if (data.monetary_assets || data.monetary_liabilities) {
-      return !data.net_monetary;
+      return !(data.monetary_assets || data.monetary_liabilities);
     }
     return true;
   },
@@ -102,13 +98,9 @@ export const formSchema = z.object({
   }
 ).refine(
   (data) => {
-    // If net_income is true, both revenue and costs must be false
+    // Only show error if net_income is true AND either revenue or costs is also true
     if (data.net_income) {
-      return !data.revenue && !data.costs;
-    }
-    // If either revenue or costs is true, net_income must be false
-    if (data.revenue || data.costs) {
-      return !data.net_income;
+      return !(data.revenue || data.costs);
     }
     return true;
   },
