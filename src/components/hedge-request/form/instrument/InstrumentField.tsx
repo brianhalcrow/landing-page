@@ -18,6 +18,7 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
   const entityId = form.watch("entity_id");
   const entityName = form.watch("entity_name");
   const strategy = form.watch("strategy");
+  const exposureL2 = form.watch("exposure_category_level_2");
 
   useEffect(() => {
     // Reset instrument when entity changes
@@ -67,6 +68,9 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
     fetchInstruments();
   }, [strategy]);
 
+  // Calculate if the field should be disabled
+  const isFieldDisabled = disabled || loading || !entityId || !entityName || !exposureL2;
+
   return (
     <FormField
       control={form.control}
@@ -77,7 +81,7 @@ const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
           <Select
             onValueChange={field.onChange}
             value={field.value || ""}
-            disabled={disabled || loading}
+            disabled={isFieldDisabled}
           >
             <FormControl>
               <SelectTrigger>
