@@ -52,14 +52,29 @@ const HedgeRequestForm: React.FC = () => {
 
   const handleSaveDraft = async () => {
     try {
+      // First, get the current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('User not authenticated:', userError);
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to save drafts",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const formData = form.getValues();
+      console.log('Saving draft with data:', { ...formData, created_by: user.id });
       
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
         .insert([
           {
             ...formData,
-            created_by: (await supabase.auth.getUser()).data.user?.id
+            created_by: user.id,
+            status: 'DRAFT'
           }
         ])
         .select()
