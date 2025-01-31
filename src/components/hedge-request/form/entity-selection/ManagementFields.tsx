@@ -36,6 +36,9 @@ const ManagementFields = ({
       const costCentre = managementStructures[0].cost_centre;
       form.setValue('cost_centre', costCentre);
       onCostCentreSelect(costCentre);
+    } else {
+      // Reset cost centre when switching to an entity with multiple cost centres
+      form.setValue('cost_centre', '');
     }
   }, [managementStructures, form, onCostCentreSelect]);
 
@@ -53,12 +56,11 @@ const ManagementFields = ({
                   field.onChange(value);
                   onCostCentreSelect(value);
                 }}
-                value={field.value}
-                defaultValue={field.value}
+                value={field.value || ""}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue defaultValue="" placeholder="Select Cost Centre" />
+                    <SelectValue placeholder="Select Cost Centre" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
