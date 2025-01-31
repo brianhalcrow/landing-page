@@ -24,9 +24,10 @@ export const formSchema = z.object({
   net_monetary: z.boolean().default(false),
   monetary_assets: z.boolean().default(false),
   monetary_liabilities: z.boolean().default(false),
-}).refine(
-  async (data) => {
-    try {
+}).superRefine(async (data, ctx) => {
+  try {
+    // Only validate if we have both entity_id and entity_name
+    if (data.entity_id && data.entity_name) {
       const { data: entityConfig } = await supabase
         .from('config_entity')
         .select('*')
@@ -34,28 +35,32 @@ export const formSchema = z.object({
         .maybeSingle();
 
       if (!entityConfig) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Entity not found in configuration",
+          path: ["entity_id"],
+        });
         return false;
       }
 
-      // Update the form values to match the database
+      // Update form values to match database
       data.entity_name = entityConfig.entity_name;
       if (entityConfig.functional_currency) {
         data.functional_currency = entityConfig.functional_currency;
       }
-
-      return true;
-    } catch (error) {
-      console.error('Unexpected validation error:', error);
-      return false;
     }
-  },
-  {
-    message: "Entity details must match the configuration in the system",
-    path: ["entity_id"],
+    return true;
+  } catch (error) {
+    console.error('Unexpected validation error:', error);
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Failed to validate entity configuration",
+      path: ["entity_id"],
+    });
+    return false;
   }
-).refine(
+}).refine(
   (data) => {
-    // Only show error if net_monetary is true AND either monetary_assets or monetary_liabilities is also true
     if (data.net_monetary) {
       return !(data.monetary_assets || data.monetary_liabilities);
     }
@@ -67,7 +72,6 @@ export const formSchema = z.object({
   }
 ).refine(
   (data) => {
-    // Only show error if net_income is true AND either revenue or costs is also true
     if (data.net_income) {
       return !(data.revenue || data.costs);
     }
