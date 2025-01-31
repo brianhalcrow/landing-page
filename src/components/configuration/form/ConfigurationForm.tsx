@@ -6,12 +6,16 @@ import FormHeader from "./FormHeader";
 import FormCategories from "./FormCategories";
 import FormFooter from "./FormFooter";
 import { Tables } from "@/integrations/supabase/types";
+import { useState } from "react";
 
 interface ConfigurationFormProps {
   entities: Tables<'config_entity'>[];
 }
 
 const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [formChanged, setFormChanged] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,8 +38,18 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
     },
   });
 
+  // Watch for form changes
+  form.watch(() => {
+    setFormChanged(true);
+  });
+
+  const onSubmit = async (data: FormValues) => {
+    console.log(data);
+    // Handle form submission
+  };
+
   return (
-    <Form form={form} onSubmit={form.handleSubmit((data) => console.log(data))}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
       <FormHeader 
         form={form} 
         entities={entities} 
@@ -44,8 +58,11 @@ const ConfigurationForm = ({ entities }: ConfigurationFormProps) => {
         onUploadComplete={() => {}} 
       />
       <FormCategories form={form} />
-      <FormFooter />
-    </Form>
+      <FormFooter 
+        isUpdating={isUpdating}
+        formChanged={formChanged}
+      />
+    </form>
   );
 };
 
