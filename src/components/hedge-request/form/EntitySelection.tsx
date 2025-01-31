@@ -14,6 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Entity, FormValues } from "./types";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface EntitySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -23,6 +26,55 @@ interface EntitySelectionProps {
 }
 
 const EntitySelection = ({ form, entities, isLoading, onEntitySelect }: EntitySelectionProps) => {
+  useEffect(() => {
+    const fetchManagementStructure = async (entityId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('management_structure')
+          .select('*')
+          .eq('entity_id', entityId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching management structure:', error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch management structure data",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (data) {
+          form.setValue('cost_centre', data.cost_centre || '');
+          form.setValue('country', data.country || '');
+          form.setValue('geo_level_1', data.geo_level_1 || '');
+          form.setValue('geo_level_2', data.geo_level_2 || '');
+          form.setValue('geo_level_3', data.geo_level_3 || '');
+        } else {
+          // Clear the fields if no data is found
+          form.setValue('cost_centre', '');
+          form.setValue('country', '');
+          form.setValue('geo_level_1', '');
+          form.setValue('geo_level_2', '');
+          form.setValue('geo_level_3', '');
+        }
+      } catch (error) {
+        console.error('Error in fetchManagementStructure:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch management structure data",
+          variant: "destructive",
+        });
+      }
+    };
+
+    const entityId = form.watch('entity_id');
+    if (entityId) {
+      fetchManagementStructure(entityId);
+    }
+  }, [form.watch('entity_id')]);
+
   return (
     <>
       <FormField

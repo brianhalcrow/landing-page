@@ -22,7 +22,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Functional Currency</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Functional currency" readOnly className="w-full" />
+              <Input {...field} placeholder="Functional currency" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
@@ -35,7 +35,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Cost Centre</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter cost centre" className="w-full" />
+              <Input {...field} placeholder="Cost centre" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
@@ -48,7 +48,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Country</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter country" className="w-full" />
+              <Input {...field} placeholder="Country" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
@@ -61,7 +61,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Geo Level 1</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter geo level 1" className="w-full" />
+              <Input {...field} placeholder="Geo level 1" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
@@ -74,7 +74,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Geo Level 2</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter geo level 2" className="w-full" />
+              <Input {...field} placeholder="Geo level 2" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
@@ -87,7 +87,7 @@ const FormFirstRow = ({ form }: FormFirstRowProps) => {
           <FormItem className="w-40">
             <FormLabel className="h-14">Geo Level 3</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter geo level 3" className="w-full" />
+              <Input {...field} placeholder="Geo level 3" readOnly className="w-full bg-gray-50" />
             </FormControl>
           </FormItem>
         )}
