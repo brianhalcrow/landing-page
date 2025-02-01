@@ -1,6 +1,21 @@
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from './CheckboxCellRenderer';
 import ActionsCellRenderer from './ActionsCellRenderer';
+import { toast } from 'sonner';
+
+// Type definitions
+interface ExposureData {
+  entity_id: string;
+  isEditing: boolean;
+  [key: string]: any;
+}
+
+interface ExposureType {
+  exposure_type_id: number;
+  exposure_category_l1: string;
+  exposure_category_l2: string;
+  exposure_category_l3: string;
+}
 
 export const createBaseColumnDefs = (): ColDef[] => [
   { 
@@ -50,80 +65,103 @@ export const createBaseColumnDefs = (): ColDef[] => [
   }
 ];
 
-const validateExposureData = (data: any, fieldChanged: string, newValue: boolean) => {
+const validateExposureData = (data: ExposureData, fieldChanged: string, newValue: boolean) => {
+  console.log('Validation started:', { data, fieldChanged, newValue });
+  
   const newData = { ...data };
   const typeId = fieldChanged.replace('exposure_', '');
-
-  // Get exposure type details from data attributes
   const exposureType = data[`type_${typeId}`];
-  if (!exposureType) return newData;
 
-  const category = exposureType.exposure_category_l2?.toLowerCase() || '';
-  
-  // Handle Monetary group validation
+  if (!exposureType) {
+    console.log('No exposure type found for:', typeId);
+    return newData;
+  }
+
+  const category = exposureType.exposure_category_l2?.toLowerCase();
+  const subcategory = exposureType.exposure_category_l3?.toLowerCase();
+
+  // Monetary Validation
   if (category === 'monetary') {
-    if (data[`type_${typeId}`]?.exposure_category_l3?.toLowerCase() === 'net monetary') {
-      if (newValue) {
-        // If net_monetary is checked, uncheck assets and liabilities
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('exposure_') && key !== fieldChanged) {
-            const otherTypeId = key.replace('exposure_', '');
-            const otherType = data[`type_${otherTypeId}`];
-            if (otherType?.exposure_category_l2?.toLowerCase() === 'monetary') {
-              newData[key] = false;
-            }
+    const isNetMonetary = subcategory === 'net monetary';
+    console.log('Monetary validation:', { isNetMonetary, newValue });
+
+    if (isNetMonetary && newValue) {
+      // If checking Net Monetary, uncheck other monetary types
+      let uncheckedSomething = false;
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_') && key !== fieldChanged) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l2?.toLowerCase() === 'monetary') {
+            newData[key] = false;
+            uncheckedSomething = true;
           }
-        });
+        }
+      });
+      if (uncheckedSomething) {
+        toast.info('Other monetary exposures have been automatically unchecked');
       }
-    } else {
-      // If assets or liabilities are being modified
-      if (newValue) {
-        // If checking either assets or liabilities, uncheck net_monetary
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('exposure_')) {
-            const otherTypeId = key.replace('exposure_', '');
-            const otherType = data[`type_${otherTypeId}`];
-            if (otherType?.exposure_category_l3?.toLowerCase() === 'net monetary') {
-              newData[key] = false;
-            }
+    } else if (!isNetMonetary && newValue) {
+      // If checking Monetary Assets or Liabilities, uncheck Net Monetary
+      let uncheckedNetMonetary = false;
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_')) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l3?.toLowerCase() === 'net monetary') {
+            newData[key] = false;
+            uncheckedNetMonetary = true;
           }
-        });
+        }
+      });
+      if (uncheckedNetMonetary) {
+        toast.info('Net Monetary has been automatically unchecked');
       }
     }
   }
 
-  // Handle Revenue/Costs/Net Income group validation
+  // Income Validation
   if (category === 'income') {
-    if (data[`type_${typeId}`]?.exposure_category_l3?.toLowerCase() === 'net income') {
-      if (newValue) {
-        // If net_income is checked, uncheck revenue and costs
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('exposure_') && key !== fieldChanged) {
-            const otherTypeId = key.replace('exposure_', '');
-            const otherType = data[`type_${otherTypeId}`];
-            if (otherType?.exposure_category_l2?.toLowerCase() === 'income') {
-              newData[key] = false;
-            }
+    const isNetIncome = subcategory === 'net income';
+    console.log('Income validation:', { isNetIncome, newValue });
+
+    if (isNetIncome && newValue) {
+      // If checking Net Income, uncheck Revenue and Costs
+      let uncheckedSomething = false;
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_') && key !== fieldChanged) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l2?.toLowerCase() === 'income' &&
+              otherType?.exposure_category_l3?.toLowerCase() !== 'net income') {
+            newData[key] = false;
+            uncheckedSomething = true;
           }
-        });
+        }
+      });
+      if (uncheckedSomething) {
+        toast.info('Revenue and Costs have been automatically unchecked');
       }
-    } else {
-      // If revenue or costs are being modified
-      if (newValue) {
-        // If checking either revenue or costs, uncheck net_income
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('exposure_')) {
-            const otherTypeId = key.replace('exposure_', '');
-            const otherType = data[`type_${otherTypeId}`];
-            if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
-              newData[key] = false;
-            }
+    } else if (!isNetIncome && newValue) {
+      // If checking Revenue or Costs, uncheck Net Income
+      let uncheckedNetIncome = false;
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_')) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
+            newData[key] = false;
+            uncheckedNetIncome = true;
           }
-        });
+        }
+      });
+      if (uncheckedNetIncome) {
+        toast.info('Net Income has been automatically unchecked');
       }
     }
   }
 
+  console.log('Validation complete. New data:', newData);
   return newData;
 };
 
@@ -166,6 +204,7 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const fieldName = params.column.getColId();
+              console.log('Checkbox changed:', { fieldName, checked });
               
               // Add type information to the data for validation
               const currentData = { 
@@ -173,7 +212,7 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
                 [`type_${type.exposure_type_id}`]: type
               };
               
-              // Apply validation before updating the data
+              // Apply validation and get updated data
               const validatedData = validateExposureData(currentData, fieldName, checked);
               
               // Update the field that was actually clicked
