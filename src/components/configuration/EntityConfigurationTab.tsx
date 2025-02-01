@@ -38,7 +38,7 @@ const EntityConfigurationTab = () => {
     };
   }, [queryClient]);
 
-  const { data: entities } = useQuery({
+  const { data: entities } = useQuery<Entity[]>({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
