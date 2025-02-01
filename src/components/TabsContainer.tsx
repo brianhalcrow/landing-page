@@ -22,8 +22,8 @@ const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerPro
 
   return (
     <Tabs defaultValue={defaultTab || tabs[0].value} className="w-full">
-      <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800">
-        <TabsList className="justify-start overflow-x-auto bg-gray-100 dark:bg-gray-800">
+      <div className="sticky top-0 z-10 bg-background">
+        <TabsList className="justify-start overflow-x-auto bg-background">
           {tabs.map((tab, index) => (
             <React.Fragment key={tab.value}>
               <TabsTrigger 
@@ -40,7 +40,7 @@ const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerPro
         </TabsList>
       </div>
       {showCsvOperations && (
-        <div className="flex justify-end p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end p-4 bg-background">
           <CsvOperationsHeader />
         </div>
       )}
