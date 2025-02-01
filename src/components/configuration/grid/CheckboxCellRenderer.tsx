@@ -11,7 +11,6 @@ const CheckboxCellRenderer = ({
   disabled = false, 
   onChange 
 }: CheckboxCellRendererProps) => {
-  // Add console logs for debugging
   console.log('CheckboxCellRenderer props:', { value, disabled });
   
   const handleChange = (checked: boolean | string) => {
@@ -20,7 +19,7 @@ const CheckboxCellRenderer = ({
   };
 
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center justify-center w-full h-full">
       <Checkbox 
         checked={!!value}
         disabled={disabled}
