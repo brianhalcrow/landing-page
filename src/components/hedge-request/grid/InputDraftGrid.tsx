@@ -64,20 +64,6 @@ const InputDraftGrid = () => {
     }
   });
 
-  // Update column definitions to include entity dropdown
-  useEffect(() => {
-    if (validEntities && gridRef.current) {
-      const gridApi = gridRef.current.api;
-      const entityColumn = gridApi.getColumnDef('entity_id');
-      if (entityColumn) {
-        entityColumn.cellEditor = 'agSelectCellEditor';
-        entityColumn.cellEditorParams = {
-          values: validEntities.map(entity => entity.entity_id)
-        };
-      }
-    }
-  }, [validEntities]);
-
   const handleSaveDraft = async () => {
     try {
       // Validate that all entities in rowData are valid
@@ -90,19 +76,9 @@ const InputDraftGrid = () => {
         return;
       }
 
-      // Enhance row data with entity information
-      const enhancedRowData = rowData.map(row => {
-        const entityInfo = validEntities?.find(e => e.entity_id === row.entity_id);
-        return {
-          ...row,
-          entity_name: entityInfo?.entity_name || '',
-          functional_currency: entityInfo?.functional_currency || ''
-        };
-      });
-
       const { data, error } = await supabase
         .from('hedge_request_draft')
-        .insert(enhancedRowData)
+        .insert(rowData)
         .select();
 
       if (error) throw error;
@@ -165,6 +141,7 @@ const InputDraftGrid = () => {
             suppressSizeToFit: false,
             editable: true
           }}
+          context={{ validEntities }}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
