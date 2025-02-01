@@ -155,7 +155,7 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       headerName: 'Trade Date',
       editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
-      type: 'dateColumn',
+      cellEditor: 'datePicker',
       headerClass: 'text-center main-header wrap-header-text',
       cellClass: (params) => `ag-cell-focus text-center ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
@@ -164,7 +164,7 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
       headerName: 'Settlement Date',
       editable: (params) => !!draftId && !params.data.isEmpty,
       width: 120,
-      type: 'dateColumn',
+      cellEditor: 'datePicker',
       headerClass: 'text-center main-header wrap-header-text',
       cellClass: (params) => `ag-cell-focus text-center right-border ${!draftId || params.data.isEmpty ? 'bg-gray-50' : ''}`,
     },
@@ -231,9 +231,26 @@ const TradesGrid = ({ draftId }: TradesGridProps) => {
         animateRows={true}
         rowSelection="multiple"
         domLayout="autoHeight"
+        components={{
+          datePicker: getDatePicker(),
+        }}
       />
     </div>
   );
+};
+
+// Helper function to create a date picker component
+const getDatePicker = () => {
+  function DatePicker() {
+    return (
+      <input
+        type="date"
+        className="ag-input-field-input ag-text-field-input"
+        style={{ height: '100%', width: '100%' }}
+      />
+    );
+  }
+  return DatePicker;
 };
 
 export default TradesGrid;

@@ -23,6 +23,7 @@ const HedgeRequestForm: React.FC = () => {
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<any[]>([]);
+  const [hasTradeData, setHasTradeData] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -67,6 +68,30 @@ const HedgeRequestForm: React.FC = () => {
 
     fetchDrafts();
   }, []);
+
+  // Check for trade data whenever draftId changes
+  useEffect(() => {
+    const checkTradeData = async () => {
+      if (!draftId) {
+        setHasTradeData(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('hedge_request_draft_trades')
+        .select('*')
+        .eq('draft_id', draftId);
+
+      if (error) {
+        console.error('Error checking trade data:', error);
+        return;
+      }
+
+      setHasTradeData(data && data.length > 0);
+    };
+
+    checkTradeData();
+  }, [draftId]);
 
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
@@ -135,6 +160,12 @@ const HedgeRequestForm: React.FC = () => {
       toast.error("Please save a draft first");
       return;
     }
+
+    if (!hasTradeData) {
+      toast.error("Please add trade details before submitting");
+      return;
+    }
+
     console.log('Submitting form with data:', data);
   };
 
@@ -183,7 +214,7 @@ const HedgeRequestForm: React.FC = () => {
   };
 
   const canSaveDraft = isFormComplete && !draftSaved;
-  const canSubmit = isFormComplete && draftSaved;
+  const canSubmit = draftSaved && hasTradeData;
 
   return (
     <Form {...form}>
@@ -251,7 +282,7 @@ const HedgeRequestForm: React.FC = () => {
               type="submit"
               disabled={!canSubmit}
             >
-              Submit {!draftSaved && "(Save draft first)"}
+              Submit {!hasTradeData && "(Add trade details first)"}
             </Button>
           </div>
           {isFormComplete && !draftSaved && (
