@@ -12,9 +12,9 @@ export const useEntities = () => {
   } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
-      console.log('Fetching entities from config_entity...');
+      console.log('Fetching entities from entities table...');
       const { data, error } = await supabase
-        .from("config_entity")
+        .from("entities")
         .select("*")
         .order('entity_name');
       
