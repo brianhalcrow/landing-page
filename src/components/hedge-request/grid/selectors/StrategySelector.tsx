@@ -42,9 +42,8 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       if (node && node.setData) {
         node.setData({
           ...data,
-          strategy: uniqueStrategies[0].strategy,
           strategy_description: uniqueStrategies[0].description,
-          instrument: ''
+          instrument: '' // Clear instrument when strategy changes
         });
       }
     }, 0);
@@ -52,8 +51,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
   }
 
   if (uniqueStrategies.length <= 1) {
-    const currentStrategy = uniqueStrategies.find(s => s.strategy === value);
-    return <span>{currentStrategy?.description || value}</span>;
+    return <span>{value}</span>;
   }
 
   return (
@@ -62,13 +60,12 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
         value={value || ''} 
         onChange={(e) => {
           const newValue = e.target.value;
-          const selectedStrategy = uniqueStrategies.find(s => s.strategy === newValue);
+          const selectedStrategy = uniqueStrategies.find(s => s.description === newValue);
           if (node && node.setData) {
             node.setData({
               ...data,
-              strategy: newValue,
-              strategy_description: selectedStrategy?.description,
-              instrument: ''
+              strategy_description: newValue,
+              instrument: '' // Clear instrument when strategy changes
             });
           }
         }}
@@ -76,8 +73,8 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
         disabled={!data.exposure_category_l2}
       >
         <option value="">Select Strategy</option>
-        {uniqueStrategies.map(({ strategy, description }) => (
-          <option key={strategy} value={strategy}>{description}</option>
+        {uniqueStrategies.map(({ description }) => (
+          <option key={description} value={description}>{description}</option>
         ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
