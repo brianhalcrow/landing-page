@@ -1,7 +1,6 @@
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from './CheckboxCellRenderer';
 import ActionsCellRenderer from './ActionsCellRenderer';
-import { toast } from 'sonner';
 
 // Type definitions
 interface ExposureData {
@@ -148,57 +147,6 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
           }
         }
       });
-    }
-  }
-
-  console.log('=== Validation Complete ===');
-  console.log('Original data:', data);
-  console.log('Modified data:', newData);
-  
-  return newData;
-};
- // Inside validateExposureData function, replace the existing Income Validation section with:
-
-  // Income Validation
-  if (category === 'highly probable transactions') {
-    const isNetIncome = subcategory === 'net income';
-    console.log('Income validation:', { isNetIncome, newValue });
-
-    if (isNetIncome && newValue) {
-      // If checking Net Income, uncheck Revenue and Expense
-      let uncheckedSomething = false;
-      Object.entries(data).forEach(([key, value]) => {
-        if (key.startsWith('exposure_') && key !== fieldChanged) {
-          const otherTypeId = key.replace('exposure_', '');
-          const otherType = data[`type_${otherTypeId}`];
-          if (otherType?.exposure_category_l2?.toLowerCase() === 'highly probable transactions' &&
-              ['revenue', 'expense'].includes(otherType?.exposure_category_l3?.toLowerCase())) {
-            newData[key] = false;
-            uncheckedSomething = true;
-            console.log('Unchecking revenue/expense field:', key);
-          }
-        }
-      });
-      if (uncheckedSomething) {
-        toast.info('Revenue and Expense have been automatically unchecked');
-      }
-    } else if (['revenue', 'expense'].includes(subcategory) && newValue) {
-      // If checking Revenue or Expense, uncheck Net Income
-      let uncheckedNetIncome = false;
-      Object.entries(data).forEach(([key, value]) => {
-        if (key.startsWith('exposure_')) {
-          const otherTypeId = key.replace('exposure_', '');
-          const otherType = data[`type_${otherTypeId}`];
-          if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
-            newData[key] = false;
-            uncheckedNetIncome = true;
-            console.log('Unchecking net income field:', key);
-          }
-        }
-      });
-      if (uncheckedNetIncome) {
-        toast.info('Net Income has been automatically unchecked');
-      }
     }
   }
 
