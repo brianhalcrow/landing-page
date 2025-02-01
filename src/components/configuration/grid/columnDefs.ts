@@ -128,16 +128,12 @@ export const createActionColumn = (): ColDef => ({
           }));
 
         try {
-          for (const update of exposureUpdates) {
-            await params.context.updateConfig.mutateAsync(update);
-          }
-          
+          await params.context.updateConfig.mutateAsync(exposureUpdates);
           const updatedData = { ...data, isEditing: false };
           params.node.setData(updatedData);
           params.api.refreshCells({ rowNodes: [params.node] });
         } catch (error) {
           console.error('Error saving changes:', error);
-          toast.error('Failed to save changes');
         }
       }
     }

@@ -14,27 +14,79 @@ interface EntityConfigurationGridProps {
 const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfigurationGridProps) => {
   const queryClient = useQueryClient();
 
-  const updateConfig = useMutation({
-    mutationFn: async ({ 
-      entityId, 
-      exposureTypeId, 
-      isActive 
-    }: { 
-      entityId: string; 
-      exposureTypeId: number; 
-      isActive: boolean 
-    }) => {
-      const { error } = await supabase
-        .from('entity_exposure_config')
-        .upsert({
-          entity_id: entityId,
-          exposure_type_id: exposureTypeId,
-          is_active: isActive
-        }, {
-          onConflict: 'entity_id,exposure_type_id'
-        });
+  const validateExposureConfig = (updates: { entityId: string; exposureTypeId: number; isActive: boolean }[]) => {
+    const exposureMap = new Map<string, { [key: string]: boolean }>();
+    
+    // Group updates by entity
+    updates.forEach(update => {
+      if (!exposureMap.has(update.entityId)) {
+        exposureMap.set(update.entityId, {});
+      }
+      const entityConfig = exposureMap.get(update.entityId)!;
+      entityConfig[`exposure_${update.exposureTypeId}`] = update.isActive;
+    });
 
-      if (error) throw error;
+    // Validate each entity's configuration
+    for (const [entityId, config] of exposureMap.entries()) {
+      // Monetary validation
+      if (config['exposure_monetary_assets'] && config['exposure_monetary_liabilities']) {
+        config['exposure_net_monetary'] = true;
+        config['exposure_monetary_assets'] = false;
+        config['exposure_monetary_liabilities'] = false;
+      }
+      if (config['exposure_net_monetary']) {
+        config['exposure_monetary_assets'] = false;
+        config['exposure_monetary_liabilities'] = false;
+      }
+
+      // Revenue/Expense/Net Income validation
+      if (config['exposure_revenue'] && config['exposure_costs']) {
+        config['exposure_net_income'] = true;
+        config['exposure_revenue'] = false;
+        config['exposure_costs'] = false;
+      }
+      if (config['exposure_net_income']) {
+        config['exposure_revenue'] = false;
+        config['exposure_costs'] = false;
+      }
+
+      // Update the map with validated config
+      exposureMap.set(entityId, config);
+    }
+
+    // Convert back to array of updates
+    const validatedUpdates: typeof updates = [];
+    for (const [entityId, config] of exposureMap.entries()) {
+      Object.entries(config).forEach(([key, value]) => {
+        const exposureTypeId = parseInt(key.replace('exposure_', ''));
+        validatedUpdates.push({
+          entityId,
+          exposureTypeId,
+          isActive: value
+        });
+      });
+    }
+
+    return validatedUpdates;
+  };
+
+  const updateConfig = useMutation({
+    mutationFn: async (updates: { entityId: string; exposureTypeId: number; isActive: boolean }[]) => {
+      const validatedUpdates = validateExposureConfig(updates);
+      
+      for (const update of validatedUpdates) {
+        const { error } = await supabase
+          .from('entity_exposure_config')
+          .upsert({
+            entity_id: update.entityId,
+            exposure_type_id: update.exposureTypeId,
+            is_active: update.isActive
+          }, {
+            onConflict: 'entity_id,exposure_type_id'
+          });
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] });
