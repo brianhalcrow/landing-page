@@ -36,6 +36,7 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
 
       if (configError) {
         console.error('Error fetching configured entities:', configError);
+        toast.error('Failed to fetch configured entities');
         throw configError;
       }
 
@@ -199,6 +200,12 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+          }
+          .ag-header-cell {
+            height: 48px !important;
+          }
+          .ag-header-row {
+            height: 48px !important;
           }
         `}
       </style>
