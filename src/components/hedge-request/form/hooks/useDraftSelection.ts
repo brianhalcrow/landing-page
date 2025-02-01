@@ -6,9 +6,11 @@ import { toast } from "sonner";
 export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
   const handleDraftSelect = async (selectedDraftId: string) => {
     try {
-      // Call the edge function to get draft data with options
-      const { data: draftData, error } = await supabase.functions.invoke('get-draft-data', {
-        body: { draft_id: selectedDraftId }
+      console.log('Fetching draft data for ID:', selectedDraftId);
+      
+      // Call the edge function with properly formatted body
+      const { data, error } = await supabase.functions.invoke('get-draft-data', {
+        body: JSON.stringify({ draft_id: selectedDraftId })
       });
 
       if (error) {
@@ -17,7 +19,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         return null;
       }
 
-      if (!draftData || !draftData.draft) {
+      if (!data || !data.draft) {
+        console.error('No draft data found:', data);
         toast.error("No draft data found");
         return null;
       }
@@ -25,7 +28,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       // Reset form before setting new values
       form.reset();
 
-      const draft = draftData.draft;
+      const draft = data.draft;
+      console.log('Loaded draft data:', draft);
 
       // Set entity-related fields first
       form.setValue('entity_id', draft.entity_id || '');
@@ -75,8 +79,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         }
       }
 
-      console.log('Draft loaded successfully:', draftData);
-      return draftData;
+      console.log('Draft loaded successfully:', data);
+      return data;
     } catch (error) {
       console.error('Error in handleDraftSelect:', error);
       toast.error("Failed to load draft");
