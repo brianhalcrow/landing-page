@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const GeneralTab = () => {
+const EntityConfigurationTab = () => {
   const { entities: allEntities, isLoading, refetch } = useEntities();
   const queryClient = useQueryClient();
 
@@ -42,7 +42,7 @@ const GeneralTab = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("entities")
-        .select("entity_id, entity_name, functional_currency, accounting_rate_method as rate_method")
+        .select("entity_id, entity_name, functional_currency, accounting_rate_method")
         .order('entity_name');
       
       if (error) {
@@ -51,9 +51,12 @@ const GeneralTab = () => {
       }
       
       // Transform the data to match the expected type
-      return data.map(entity => ({
-        ...entity,
-        id: parseInt(entity.entity_id), // Generate an id from entity_id
+      return (data || []).map(entity => ({
+        entity_id: entity.entity_id,
+        entity_name: entity.entity_name,
+        functional_currency: entity.functional_currency,
+        id: parseInt(entity.entity_id.replace(/\D/g, '')), // Convert entity_id to number, removing non-digits
+        rate_method: entity.accounting_rate_method
       }));
     },
   });
@@ -66,4 +69,4 @@ const GeneralTab = () => {
   );
 };
 
-export default GeneralTab;
+export default EntityConfigurationTab;
