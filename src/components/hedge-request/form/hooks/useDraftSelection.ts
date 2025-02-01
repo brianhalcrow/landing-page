@@ -8,8 +8,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
     try {
       console.log('Fetching draft data for ID:', selectedDraftId);
       
-      // Temporarily disable form validation
-      form.clearErrors();
+      // Reset form state completely before loading new data
+      form.reset({}, { keepDefaultValues: true });
       
       const { data, error } = await supabase.functions.invoke('get-draft-data', {
         body: JSON.stringify({ draft_id: selectedDraftId })
@@ -27,13 +27,10 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         return null;
       }
 
-      // Reset form before setting new values
-      form.reset();
-
       const draft = data.draft;
       console.log('Loaded draft data:', draft);
 
-      // Create a complete form state object
+      // Create a complete form state object with all required fields
       const formState = {
         entity_id: draft.entity_id || '',
         entity_name: draft.entity_name || '',
@@ -51,12 +48,18 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         geo_level_3: draft.geo_level_3 || ''
       };
 
-      // Set all values at once using reset
+      // Reset form with new values and disable validation temporarily
       form.reset(formState, {
-        keepDefaultValues: false
+        keepDefaultValues: false,
+        keepDirty: false,
+        keepErrors: false,
+        keepIsSubmitted: false,
+        keepTouched: false,
+        keepIsValid: false,
+        keepSubmitCount: false
       });
 
-      console.log('Draft loaded successfully:', data);
+      console.log('Draft loaded successfully:', formState);
       toast.success("Draft loaded successfully");
       return data;
     } catch (error) {

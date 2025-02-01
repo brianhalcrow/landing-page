@@ -26,7 +26,7 @@ const HedgeRequestForm: React.FC = () => {
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    mode: "all",
+    mode: "onSubmit", // Changed from "all" to "onSubmit"
     defaultValues: {
       entity_id: "",
       entity_name: "",
@@ -65,14 +65,7 @@ const HedgeRequestForm: React.FC = () => {
     fetchDrafts();
   }, []);
 
-  const onDraftSelect = async (selectedDraftId: string) => {
-    setDraftId(selectedDraftId);
-    const draftData = await handleDraftSelect(selectedDraftId);
-    if (draftData) {
-      setDraftSaved(true);
-    }
-  };
-
+  // Watch form changes for completion check
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       const values = form.getValues();
@@ -103,15 +96,11 @@ const HedgeRequestForm: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
-  const handleEntitySelect = (field: "entity_id" | "entity_name", value: string) => {
-    const selectedEntity = entities?.find(entity => 
-      field === "entity_id" ? entity.entity_id === value : entity.entity_name === value
-    );
-
-    if (selectedEntity) {
-      form.setValue("entity_id", selectedEntity.entity_id);
-      form.setValue("entity_name", selectedEntity.entity_name);
-      form.setValue("functional_currency", selectedEntity.functional_currency || "");
+  const onDraftSelect = async (selectedDraftId: string) => {
+    setDraftId(selectedDraftId);
+    const draftData = await handleDraftSelect(selectedDraftId);
+    if (draftData) {
+      setDraftSaved(true);
     }
   };
 
@@ -168,9 +157,6 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  const canSaveDraft = isFormComplete;
-  const canSubmit = draftSaved && isFormComplete;
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -195,7 +181,17 @@ const HedgeRequestForm: React.FC = () => {
               form={form}
               entities={entities}
               isLoading={isLoading}
-              onEntitySelect={handleEntitySelect}
+              onEntitySelect={(field, value) => {
+                const selectedEntity = entities?.find(entity => 
+                  field === "entity_id" ? entity.entity_id === value : entity.entity_name === value
+                );
+
+                if (selectedEntity) {
+                  form.setValue("entity_id", selectedEntity.entity_id);
+                  form.setValue("entity_name", selectedEntity.entity_name);
+                  form.setValue("functional_currency", selectedEntity.functional_currency || "");
+                }
+              }}
             />
           </div>
           <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
