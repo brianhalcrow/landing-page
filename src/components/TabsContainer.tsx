@@ -38,8 +38,12 @@ const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerPro
             </React.Fragment>
           ))}
         </TabsList>
-        {showCsvOperations && <CsvOperationsHeader />}
       </div>
+      {showCsvOperations && (
+        <div className="flex justify-end p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <CsvOperationsHeader />
+        </div>
+      )}
       <div className="p-6">
         {tabs.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>
