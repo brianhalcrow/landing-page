@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,8 @@ const EntityConfigurationTab = () => {
       
       if (entitiesError) throw entitiesError;
 
+      console.log('Raw entities data:', entitiesData);
+
       // Then fetch all entity exposure configurations
       const { data: configsData, error: configsError } = await supabase
         .from('entity_exposure_config')
@@ -26,8 +28,10 @@ const EntityConfigurationTab = () => {
 
       if (configsError) throw configsError;
 
+      console.log('Raw configs data:', configsData);
+
       // Map entities with their configurations
-      return entitiesData.map(entity => {
+      const mappedEntities = entitiesData.map(entity => {
         // Filter configurations for this specific entity
         const entityConfigs = configsData.filter(config => 
           config.entity_id === entity.entity_id
@@ -46,15 +50,28 @@ const EntityConfigurationTab = () => {
           exposureConfigs[`exposure_${config.exposure_type_id}`] = config.is_active;
         });
 
-        return {
+        const result = {
           ...entity,
           ...exposureConfigs,
           isEditing: false
         };
+
+        return result;
       });
+
+      console.log('Mapped entities:', mappedEntities[0]); // Log first mapped entity
+      return mappedEntities;
     },
     enabled: !!exposureTypes // Only run query when exposure types are available
   });
+
+  // Debug logging
+  useEffect(() => {
+    if (entities && exposureTypes) {
+      console.log('First entity with configs:', entities[0]);
+      console.log('Available exposure types:', exposureTypes);
+    }
+  }, [entities, exposureTypes]);
 
   if (isLoadingEntities || isLoadingExposureTypes) {
     return (
