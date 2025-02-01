@@ -16,8 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import StrategyField from "./strategy/StrategyField";
-import InstrumentField from "./instrument/InstrumentField";
 
 interface CategorySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -152,16 +150,6 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
             <FormMessage />
           </FormItem>
         )}
-      />
-
-      <StrategyField 
-        form={form}
-        disabled={!form.watch("exposure_category_level_4")}
-      />
-      
-      <InstrumentField 
-        form={form}
-        disabled={!form.watch("strategy")}
       />
     </div>
   );
