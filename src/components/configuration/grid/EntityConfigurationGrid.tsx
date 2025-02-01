@@ -1,7 +1,7 @@
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { createBaseColumnDefs, createExposureColumns, createActionColumn } from './columnDefs';
+import { createBaseColumnDefs, createExposureColumns } from './columnDefs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -48,8 +48,7 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
 
   const allColumnDefs = [
     ...createBaseColumnDefs(),
-    ...createExposureColumns(exposureTypes),
-    createActionColumn()
+    ...createExposureColumns(exposureTypes)
   ];
 
   return (
@@ -105,18 +104,6 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           .ag-header-container {
             overflow: visible !important;
           }
-
-          .ag-pinned-right-header {
-            background-color: white !important;
-          }
-
-          .ag-pinned-right-cols-container {
-            background-color: white !important;
-          }
-
-          .ag-horizontal-scroll {
-            overflow-x: hidden !important;
-          }
         `}
       </style>
       <AgGridReact
@@ -132,7 +119,6 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         }}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
-        suppressHorizontalScroll={false}
       />
     </div>
   );

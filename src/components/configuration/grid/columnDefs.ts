@@ -1,6 +1,5 @@
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from './CheckboxCellRenderer';
-import ActionsCellRenderer from './ActionsCellRenderer';
 
 export const createBaseColumnDefs = (): ColDef[] => [
   { 
@@ -22,23 +21,13 @@ export const createBaseColumnDefs = (): ColDef[] => [
     suppressSizeToFit: true,
     wrapHeaderText: true,
     autoHeaderHeight: true,
-    cellClass: 'text-left pl-4' // Add left alignment
+    cellClass: 'text-left pl-4'
   },
   { 
     field: 'functional_currency', 
     headerName: 'Functional Currency', 
     minWidth: 140, 
     flex: 1,
-    headerClass: 'ag-header-center custom-header',
-    suppressSizeToFit: true,
-    wrapHeaderText: true,
-    autoHeaderHeight: true
-  },
-  { 
-    field: 'accounting_rate_method', 
-    headerName: 'Accounting Rate Method', 
-    minWidth: 160, 
-    flex: 1.5,
     headerClass: 'ag-header-center custom-header',
     suppressSizeToFit: true,
     wrapHeaderText: true,
@@ -106,34 +95,3 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
     }))
   }));
 };
-
-export const createActionColumn = (): ColDef => ({
-  headerName: 'Actions',
-  minWidth: 120,
-  width: 120, // Fixed width
-  suppressSizeToFit: true,
-  pinned: 'right',
-  lockPinned: true, // Prevent unpinning
-  lockPosition: true, // Prevent moving the column
-  headerClass: 'ag-header-center custom-header',
-  wrapHeaderText: true,
-  autoHeaderHeight: true,
-  cellRenderer: ActionsCellRenderer,
-  cellRendererParams: (params: any) => ({
-    isEditing: params.data?.isEditing,
-    onEditClick: () => {
-      if (params.node && params.api) {
-        const updatedData = { ...params.data, isEditing: true };
-        params.node.setData(updatedData);
-        params.api.refreshCells({ rowNodes: [params.node] });
-      }
-    },
-    onSaveClick: () => {
-      if (params.node && params.api) {
-        const updatedData = { ...params.data, isEditing: false };
-        params.node.setData(updatedData);
-        params.api.refreshCells({ rowNodes: [params.node] });
-      }
-    }
-  })
-});
