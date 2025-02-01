@@ -10,6 +10,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { ColDef, ColGroupDef, GridApi } from 'ag-grid-community';
 import { Button } from "@/components/ui/button";
 import { Edit, Save } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const EntityConfigurationTab = () => {
   const queryClient = useQueryClient();
@@ -98,53 +99,54 @@ const EntityConfigurationTab = () => {
     return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
       headerName: l1,
       groupId: l1,
-      headerClass: 'ag-header-center',
+      headerClass: 'ag-header-center custom-header',
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
       children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
         headerName: l2,
         groupId: `${l1}-${l2}`,
-        headerClass: 'ag-header-center',
+        headerClass: 'ag-header-center custom-header',
+        wrapHeaderText: true,
+        autoHeaderHeight: true,
         children: types.map((type: any) => ({
           headerName: type.exposure_category_l3,
           field: `exposure_${type.exposure_type_id}`,
           minWidth: 120,
           flex: 1,
-          headerClass: 'ag-header-center',
+          headerClass: 'ag-header-center custom-header',
+          wrapHeaderText: true,
+          autoHeaderHeight: true,
           cellRenderer: (params: any) => {
-            // Early return if we don't have the required data
-            if (!params.data || params.data.isEditing === undefined) {
-              return null;
-            }
+            if (!params.data) return null;
 
             if (!params.data.isEditing) {
-              return params.value ? '✓' : '✗';
+              return (
+                <div className="flex items-center justify-center">
+                  <Checkbox 
+                    checked={params.value}
+                    disabled={true}
+                  />
+                </div>
+              );
             }
 
             return (
-              <input
-                type="checkbox"
-                checked={!!params.value}
-                onChange={(e) => {
-                  const column = params.column;
-                  // Ensure we have all required properties before updating
-                  if (params.node && column && params.data.entity_id) {
-                    const colId = column.getColId();
-                    const exposureTypeId = parseInt(colId.split('_')[1]);
-                    
-                    if (!isNaN(exposureTypeId)) {
-                      const newValue = e.target.checked;
-                      // Update the grid data
-                      params.node.setDataValue(colId, newValue);
-                      // Update the database
+              <div className="flex items-center justify-center">
+                <Checkbox 
+                  checked={params.value}
+                  onCheckedChange={(checked) => {
+                    if (params.node && params.api) {
+                      const newValue = checked;
+                      params.node.setDataValue(params.column.getColId(), newValue);
                       updateConfig.mutate({
                         entityId: params.data.entity_id,
-                        exposureTypeId,
+                        exposureTypeId: parseInt(params.column.getColId().split('_')[1]),
                         isActive: newValue
                       });
                     }
-                  }
-                }}
-                className="h-4 w-4 rounded border-gray-300"
-              />
+                  }}
+                />
+              </div>
             );
           }
         }))
@@ -158,42 +160,60 @@ const EntityConfigurationTab = () => {
       headerName: 'Entity ID', 
       minWidth: 120, 
       flex: 1,
-      headerClass: 'ag-header-center',
-      suppressSizeToFit: true
+      headerClass: 'ag-header-center custom-header',
+      suppressSizeToFit: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true
     },
     { 
       field: 'entity_name', 
       headerName: 'Entity Name', 
       minWidth: 240, 
       flex: 2,
-      headerClass: 'ag-header-center',
-      suppressSizeToFit: true
+      headerClass: 'ag-header-center custom-header',
+      suppressSizeToFit: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true
     },
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
       minWidth: 140, 
       flex: 1,
-      headerClass: 'ag-header-center',
-      suppressSizeToFit: true
+      headerClass: 'ag-header-center custom-header',
+      suppressSizeToFit: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true
     },
     { 
       field: 'accounting_rate_method', 
       headerName: 'Accounting Rate Method', 
       minWidth: 160, 
       flex: 1.5,
-      headerClass: 'ag-header-center',
-      suppressSizeToFit: true
+      headerClass: 'ag-header-center custom-header',
+      suppressSizeToFit: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true
     },
     { 
       field: 'is_active', 
       headerName: 'Is Active', 
       minWidth: 100, 
       flex: 1,
-      headerClass: 'ag-header-center',
+      headerClass: 'ag-header-center custom-header',
       suppressSizeToFit: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
       cellRenderer: (params: any) => {
-        return params.value ? '✓' : '✗';
+        if (!params.data) return null;
+        return (
+          <div className="flex items-center justify-center">
+            <Checkbox 
+              checked={params.value}
+              disabled={true}
+            />
+          </div>
+        );
       }
     }
   ];
@@ -202,9 +222,11 @@ const EntityConfigurationTab = () => {
     headerName: 'Actions',
     minWidth: 120,
     flex: 1,
-    headerClass: 'ag-header-center',
+    headerClass: 'ag-header-center custom-header',
     suppressSizeToFit: true,
     pinned: 'right',
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
     cellRenderer: (params: any) => {
       if (!params.data || !params.api || !params.node) {
         return null;
@@ -217,25 +239,31 @@ const EntityConfigurationTab = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                const updatedData = { ...params.data, isEditing: true };
-                params.node.setData(updatedData);
-                params.api.refreshCells({ rowNodes: [params.node] });
+                if (params.node && params.api) {
+                  const updatedData = { ...params.data, isEditing: true };
+                  params.node.setData(updatedData);
+                  params.api.refreshCells({ rowNodes: [params.node] });
+                }
               }}
             >
               <Edit className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                const updatedData = { ...params.data, isEditing: false };
-                params.node.setData(updatedData);
-                params.api.refreshCells({ rowNodes: [params.node] });
-              }}
-            >
-              <Save className="h-4 w-4" />
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (params.node && params.api) {
+                    const updatedData = { ...params.data, isEditing: false };
+                    params.node.setData(updatedData);
+                    params.api.refreshCells({ rowNodes: [params.node] });
+                  }
+                }}
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+            </>
           )}
         </div>
       );
@@ -276,6 +304,13 @@ const EntityConfigurationTab = () => {
               .ag-header-center .ag-header-cell-label {
                 justify-content: center;
               }
+              .custom-header {
+                white-space: normal;
+                line-height: 1.2;
+              }
+              .custom-header .ag-header-cell-label {
+                padding: 4px;
+              }
             `}
           </style>
           <AgGridReact
@@ -285,7 +320,9 @@ const EntityConfigurationTab = () => {
               sortable: true,
               filter: true,
               resizable: true,
-              editable: false
+              editable: false,
+              wrapHeaderText: true,
+              autoHeaderHeight: true
             }}
             suppressColumnVirtualisation={true}
             enableCellTextSelection={true}
