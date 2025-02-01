@@ -14,6 +14,7 @@ export interface HedgeRequest {
   buy_sell_amount: number | null;
   created_by: string | null;
 }
+
 export interface ExposureValidationResult {
   isValid: boolean;
   message?: string;
