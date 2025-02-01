@@ -1,8 +1,7 @@
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { draftDetailsColumnDefs } from './draftDetailsColumnDefs';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -26,6 +25,84 @@ interface ValidEntity {
   entity_name: string;
   functional_currency: string;
 }
+
+const columnDefs = [
+  {
+    field: 'entity_name',
+    headerName: 'Entity Name',
+    minWidth: 180,
+    flex: 2,
+    headerClass: 'ag-header-center',
+    cellEditor: 'agSelectCellEditor',
+    cellEditorParams: {
+      values: [] // This will be populated with entity names
+    }
+  },
+  {
+    field: 'entity_id',
+    headerName: 'Entity ID',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: false
+  },
+  {
+    field: 'functional_currency',
+    headerName: 'Functional Currency',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: false
+  },
+  {
+    field: 'cost_centre',
+    headerName: 'Cost Centre',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true
+  },
+  {
+    field: 'exposure_category_l1',
+    headerName: 'Exposure Category L1',
+    minWidth: 160,
+    flex: 1.5,
+    headerClass: 'ag-header-center',
+    editable: true
+  },
+  {
+    field: 'exposure_category_l2',
+    headerName: 'Exposure Category L2',
+    minWidth: 160,
+    flex: 1.5,
+    headerClass: 'ag-header-center',
+    editable: true
+  },
+  {
+    field: 'exposure_category_l3',
+    headerName: 'Exposure Category L3',
+    minWidth: 160,
+    flex: 1.5,
+    headerClass: 'ag-header-center',
+    editable: true
+  },
+  {
+    field: 'strategy',
+    headerName: 'Strategy',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true
+  },
+  {
+    field: 'instrument',
+    headerName: 'Instrument',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true
+  }
+];
 
 const InputDraftGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -133,7 +210,7 @@ const InputDraftGrid = () => {
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
-          columnDefs={draftDetailsColumnDefs}
+          columnDefs={columnDefs}
           defaultColDef={{
             sortable: true,
             filter: true,
