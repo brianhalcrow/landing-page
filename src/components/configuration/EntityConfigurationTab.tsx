@@ -1,16 +1,13 @@
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HotTable } from "@handsontable/react-wrapper";
-import { registerAllModules } from 'handsontable/registry';
-import "handsontable/dist/handsontable.full.min.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { HotTableProps } from '@handsontable/react-wrapper';
 import { useExposureTypes } from "@/hooks/useExposureTypes";
 import { toast } from "sonner";
-
-// Register all Handsontable modules
-registerAllModules();
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import type { ColDef, ColGroupDef } from 'ag-grid-community';
 
 const EntityConfigurationTab = () => {
   const queryClient = useQueryClient();
@@ -85,22 +82,67 @@ const EntityConfigurationTab = () => {
     }
   });
 
-  const handleAfterChange = useCallback((changes: any[] | null) => {
-    if (!changes) return;
+  const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
+    // Group exposures by L1 and L2 categories
+    const groupedExposures = exposureTypes.reduce((acc: any, type) => {
+      const l1 = type.exposure_category_l1;
+      const l2 = type.exposure_category_l2;
+      
+      if (!acc[l1]) acc[l1] = {};
+      if (!acc[l1][l2]) acc[l1][l2] = [];
+      
+      acc[l1][l2].push(type);
+      return acc;
+    }, {});
 
-    changes.forEach(([row, prop, oldValue, newValue]) => {
-      if (prop.startsWith('exposure_') && entities) {
-        const entityId = entities[row].entity_id;
-        const exposureTypeId = parseInt(prop.split('_')[1]);
-        
-        updateConfig.mutate({
-          entityId,
-          exposureTypeId,
-          isActive: newValue
-        });
+    // Create hierarchical column structure
+    return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
+      headerName: l1,
+      groupId: l1,
+      children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
+        headerName: l2,
+        groupId: `${l1}-${l2}`,
+        children: types.map((type: any) => ({
+          headerName: type.exposure_category_l3,
+          field: `exposure_${type.exposure_type_id}`,
+          minWidth: 120,
+          flex: 1,
+          cellRenderer: (params: any) => {
+            return params.value ? '✓' : '✗';
+          },
+          onCellValueChanged: (params: any) => {
+            const entityId = params.data.entity_id;
+            const exposureTypeId = parseInt(params.colDef.field.split('_')[1]);
+            updateConfig.mutate({
+              entityId,
+              exposureTypeId,
+              isActive: params.newValue
+            });
+          }
+        }))
+      }))
+    }));
+  };
+
+  const baseColumnDefs: (ColDef | ColGroupDef)[] = [
+    { field: 'entity_id', headerName: 'Entity ID', minWidth: 90, flex: 1 },
+    { field: 'entity_name', headerName: 'Entity Name', minWidth: 180, flex: 2 },
+    { field: 'functional_currency', headerName: 'Functional Currency', minWidth: 75, flex: 1 },
+    { field: 'accounting_rate_method', headerName: 'Accounting Rate Method', minWidth: 160, flex: 1.5 },
+    { 
+      field: 'is_active', 
+      headerName: 'Is Active', 
+      minWidth: 100, 
+      flex: 1,
+      cellRenderer: (params: any) => {
+        return params.value ? '✓' : '✗';
       }
-    });
-  }, [entities, updateConfig]);
+    }
+  ];
+
+  const allColumnDefs = exposureTypes 
+    ? [...baseColumnDefs, ...createExposureColumns(exposureTypes)]
+    : baseColumnDefs;
 
   if (isLoadingEntities || isLoadingExposureTypes) {
     return (
@@ -110,46 +152,13 @@ const EntityConfigurationTab = () => {
     );
   }
 
-  const exposureColumns = exposureTypes?.map(type => ({
-    data: `exposure_${type.exposure_type_id}`,
-    type: 'checkbox',
-    editor: 'checkbox',
-    renderer: 'checkbox',
-    header: `${type.exposure_category_l1} - ${type.exposure_category_l2} - ${type.exposure_category_l3}`,
-    width: 200
-  })) || [];
-
-  const settings: HotTableProps = {
-    data: entities || [],
-    colHeaders: [
-      'Entity ID', 
-      'Entity Name', 
-      'Functional Currency', 
-      'Accounting Rate Method', 
-      'Active',
-      ...(exposureTypes?.map(type => 
-        `${type.exposure_category_l1} - ${type.exposure_category_l2} - ${type.exposure_category_l3}`
-      ) || [])
-    ],
-    columns: [
-      { data: 'entity_id', readOnly: true },
-      { data: 'entity_name' },
-      { data: 'functional_currency' },
-      { data: 'accounting_rate_method' },
-      { 
-        data: 'is_active',
-        type: 'checkbox',
-        editor: 'checkbox',
-        renderer: 'checkbox'
-      },
-      ...exposureColumns
-    ],
-    afterChange: handleAfterChange,
-    licenseKey: 'non-commercial-and-evaluation',
-    height: 'auto',
-    width: '100%',
-    stretchH: 'all' as const
-  };
+  if (!entities?.length) {
+    return (
+      <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
+        No entities found.
+      </div>
+    );
+  }
 
   return (
     <Suspense fallback={
@@ -159,8 +168,19 @@ const EntityConfigurationTab = () => {
     }>
       <div className="p-6">
         <h2 className="text-2xl font-semibold mb-4">Entity Configuration</h2>
-        <div className="w-full overflow-x-auto">
-          <HotTable {...settings} />
+        <div className="w-full h-[600px] ag-theme-alpine">
+          <AgGridReact
+            rowData={entities}
+            columnDefs={allColumnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true,
+              editable: true
+            }}
+            suppressColumnVirtualisation={true}
+            enableCellTextSelection={true}
+          />
         </div>
       </div>
     </Suspense>
