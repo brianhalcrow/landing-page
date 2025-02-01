@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import HedgeRequestGrid from "./grid/HedgeRequestGrid";
 import DraftDetailsGrid from "./grid/DraftDetailsGrid";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { draftDetailsColumnDefs } from "./grid/draftDetailsColumnDefs";
 
 const AdHocTab = () => {
   const { data: hedgeRequests, isLoading } = useQuery({
@@ -44,6 +46,25 @@ const AdHocTab = () => {
 
   return (
     <div className="p-6 space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Column Names</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Field Name</TableHead>
+              <TableHead>Header Name</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {draftDetailsColumnDefs.map((col, index) => (
+              <TableRow key={index}>
+                <TableCell>{col.field}</TableCell>
+                <TableCell>{col.headerName}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <div>
         <h2 className="text-2xl font-semibold mb-4">Draft Details</h2>
         <DraftDetailsGrid hedgeRequests={hedgeRequests || []} />
