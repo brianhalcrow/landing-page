@@ -27,7 +27,7 @@ const DraftDetailsGrid = ({ hedgeRequests }: DraftDetailsGridProps) => {
   if (!hedgeRequests?.length) {
     return (
       <div className="w-full h-[300px] flex items-center justify-center text-muted-foreground">
-        No hedge request drafts found.
+        Click to add a new hedge request draft.
       </div>
     );
   }
@@ -54,7 +54,8 @@ const DraftDetailsGrid = ({ hedgeRequests }: DraftDetailsGridProps) => {
           sortable: true,
           filter: true,
           resizable: true,
-          suppressSizeToFit: false
+          suppressSizeToFit: false,
+          editable: true // Made cells editable since this will be used as an input form
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}
