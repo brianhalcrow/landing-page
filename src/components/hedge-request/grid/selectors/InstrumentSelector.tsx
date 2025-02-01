@@ -48,7 +48,7 @@ export const InstrumentSelector = ({ data, value, node }: InstrumentSelectorProp
   }
 
   if (!data.strategy_description) {
-    return <span>Select strategy first</span>;
+    return <span></span>;
   }
 
   if (uniqueInstruments.length <= 1) {
