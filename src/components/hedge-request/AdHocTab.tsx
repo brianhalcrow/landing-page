@@ -36,22 +36,34 @@ const AdHocTab = () => {
     }
   });
 
-  const columnNamesData = draftDetailsColumnDefs.map(col => ({
-    field: col.field,
-    headerName: col.headerName
-  }));
+  const columnNamesData = [
+    { field: 'id', headerName: 'ID' },
+    { field: 'entity_id', headerName: 'Entity ID' },
+    { field: 'entity_name', headerName: 'Entity Name' },
+    { field: 'cost_centre', headerName: 'Cost Centre' },
+    { field: 'functional_currency', headerName: 'Functional Currency' },
+    { field: 'exposure_category_l1', headerName: 'Exposure Category L1' },
+    { field: 'exposure_category_l2', headerName: 'Exposure Category L2' },
+    { field: 'exposure_category_l3', headerName: 'Exposure Category L3' },
+    { field: 'strategy', headerName: 'Strategy' },
+    { field: 'instrument', headerName: 'Instrument' },
+    { field: 'status', headerName: 'Status' },
+    { field: 'created_by', headerName: 'Created By' },
+    { field: 'created_at', headerName: 'Created At' },
+    { field: 'updated_at', headerName: 'Updated At' }
+  ];
 
   const columnNamesColumnDefs = [
     { 
       field: 'field',
-      headerName: 'Field Name',
+      headerName: 'Database Column',
       flex: 1,
       minWidth: 150,
       headerClass: 'ag-header-center'
     },
     { 
       field: 'headerName',
-      headerName: 'Header Name',
+      headerName: 'Display Name',
       flex: 1,
       minWidth: 150,
       headerClass: 'ag-header-center'
