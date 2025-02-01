@@ -1,4 +1,4 @@
-import { CsvOperations } from "./CsvOperations";
+import CsvOperations from "./CsvOperations";
 
 interface CsvOperationsHeaderProps {
   onUploadComplete?: (updatedIds: string[]) => void;

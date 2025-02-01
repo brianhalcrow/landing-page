@@ -18,14 +18,14 @@ const GeneralTab = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'config_exposures'
+          table: 'entities'
         },
         async (payload) => {
           console.log('Real-time update received:', payload);
           console.log("Event type:", payload.eventType);
           console.log("Full payload:", JSON.stringify(payload, null, 2));
-          // Invalidate and refetch the exposures query
-          await queryClient.invalidateQueries({ queryKey: ["exposures"] });
+          // Invalidate and refetch the entities query
+          await queryClient.invalidateQueries({ queryKey: ["entities"] });
         }
       )
       .subscribe((status) => {
@@ -38,17 +38,17 @@ const GeneralTab = () => {
     };
   }, [queryClient]);
 
-  // Fetch existing exposure configurations
-  const { data: exposures } = useQuery({
-    queryKey: ["exposures"],
+  // Fetch existing entities
+  const { data: entities } = useQuery({
+    queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("config_exposures")
+        .from("entities")
         .select("*")
         .order('entity_name');
       
       if (error) {
-        toast.error('Failed to fetch exposure configurations');
+        toast.error('Failed to fetch entities');
         throw error;
       }
       
@@ -59,7 +59,7 @@ const GeneralTab = () => {
   return (
     <div className="p-6 space-y-8">
       <ConfigurationForm entities={allEntities || []} />
-      <ConfigurationGrid entities={exposures || []} />
+      <ConfigurationGrid entities={entities || []} />
     </div>
   );
 };
