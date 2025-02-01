@@ -1,12 +1,12 @@
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { draftDetailsColumnDefs } from './draftDetailsColumnDefs';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import { inputDraftColumnDefs } from './inputDraftColumnDefs';
 
 interface HedgeRequestDraft {
   id?: string;
@@ -133,13 +133,12 @@ const InputDraftGrid = () => {
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
-          columnDefs={draftDetailsColumnDefs}
+          columnDefs={inputDraftColumnDefs}
           defaultColDef={{
             sortable: true,
             filter: true,
             resizable: true,
-            suppressSizeToFit: false,
-            editable: true
+            suppressSizeToFit: false
           }}
           context={{ validEntities }}
           animateRows={true}
