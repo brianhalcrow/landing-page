@@ -723,39 +723,6 @@ export type Database = {
         }
         Relationships: []
       }
-      hedge_strategy_criteria_link: {
-        Row: {
-          criteria_id: number
-          exposure_category_level_2: string
-          hedge_strategy_id: number
-        }
-        Insert: {
-          criteria_id: number
-          exposure_category_level_2: string
-          hedge_strategy_id: number
-        }
-        Update: {
-          criteria_id?: number
-          exposure_category_level_2?: string
-          hedge_strategy_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_criteria"
-            columns: ["criteria_id"]
-            isOneToOne: false
-            referencedRelation: "criteria"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_hedge_strategy"
-            columns: ["hedge_strategy_id"]
-            isOneToOne: false
-            referencedRelation: "hedge_strategy"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       im_actual: {
         Row: {}
         Insert: {}
