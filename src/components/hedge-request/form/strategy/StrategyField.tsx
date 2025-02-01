@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormValues } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define the base types separately
 interface Strategy {
   id: number;
   strategy: string | null;
@@ -12,12 +12,20 @@ interface Strategy {
   instrument: string | null;
 }
 
+// Define a simplified version of FormValues
+interface FormValues {
+  exposure_category_level_4: string;
+  strategy: string;
+  instrument: string;
+  // Add other form fields as needed
+}
+
 interface StrategyFieldProps {
   form: UseFormReturn<FormValues>;
   disabled?: boolean;
 }
 
-const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
+const StrategyField = ({ form, disabled = false }: StrategyFieldProps) => {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +52,6 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
 
         console.log("Fetched strategies:", data);
         setStrategies(data || []);
-
         form.setValue("strategy", "");
         form.setValue("instrument", "");
       } catch (error) {
