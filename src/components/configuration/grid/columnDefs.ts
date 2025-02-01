@@ -115,23 +115,19 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
           disabled: !params.data?.isEditing,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
-              const newValue = checked;
               const newData = { ...params.data };
-              newData[params.column.getColId()] = newValue;
+              newData[params.column.getColId()] = checked;
               
               // Apply validation rules
               const validatedData = validateExposureData(newData);
               
-              // Update all affected cells
-              Object.keys(validatedData).forEach(key => {
-                if (newData[key] !== validatedData[key]) {
-                  newData[key] = validatedData[key];
-                }
-              });
+              // Update row with validated data
+              params.node.setData(validatedData);
               
-              onCellValueChanged({ ...params, data: newData });
+              // Notify parent of changes without updating database
+              onCellValueChanged({ ...params, data: validatedData });
               
-              // Refresh the entire row to show all changes
+              // Refresh the row to show all changes
               params.api.refreshCells({
                 rowNodes: [params.node],
                 force: true
@@ -163,7 +159,7 @@ export const createActionColumn = (): ColDef => ({
       }
     },
     onSaveClick: async () => {
-      if (params.node && params.api) {
+      if (params.node && params.api && params.context.updateConfig) {
         const data = params.data;
         const exposureUpdates = Object.entries(data)
           .filter(([key, value]) => key.startsWith('exposure_'))

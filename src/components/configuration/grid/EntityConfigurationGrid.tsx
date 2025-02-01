@@ -43,16 +43,11 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
   const allColumnDefs = [
     ...createBaseColumnDefs(),
     ...createExposureColumns(exposureTypes, (params: any) => {
+      // This is now only for handling UI state changes
+      // Database updates happen in the Save action
       if (params.data?.isEditing) {
-        const exposureUpdates = Object.entries(params.data)
-          .filter(([key, value]) => key.startsWith('exposure_'))
-          .map(([key, value]) => ({
-            entityId: params.data.entity_id,
-            exposureTypeId: parseInt(key.replace('exposure_', '')),
-            isActive: value as boolean
-          }));
-
-        updateConfig.mutate(exposureUpdates);
+        params.node.setData(params.data);
+        params.api.refreshCells({ rowNodes: [params.node] });
       }
     }),
     createActionColumn()
