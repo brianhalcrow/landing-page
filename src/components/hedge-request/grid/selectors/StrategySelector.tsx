@@ -36,17 +36,6 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
     description: s.strategy_description
   })) || []));
 
-  // Check if all required fields are present
-  const isValidForStrategy = data.entity_id && 
-                           data.cost_centre && 
-                           data.exposure_category_l1 && 
-                           data.exposure_category_l2 && 
-                           data.exposure_category_l3;
-
-  if (!isValidForStrategy) {
-    return <span>Complete previous fields first</span>;
-  }
-
   // Only update if we have data and the current value doesn't match
   if (!isLoading && uniqueStrategies.length === 1 && !value) {
     setTimeout(() => {
