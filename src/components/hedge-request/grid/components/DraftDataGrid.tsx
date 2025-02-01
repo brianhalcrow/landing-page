@@ -1,18 +1,10 @@
 import { AgGridReact } from 'ag-grid-react';
 import { GridProps } from '../types/gridTypes';
-import { EntityNameSelector } from '../selectors/EntityNameSelector';
-import { CostCentreSelector } from '../selectors/CostCentreSelector';
-import { ExposureCategoryL1Selector } from '../selectors/ExposureCategoryL1Selector';
-import { ExposureCategoryL2Selector } from '../selectors/ExposureCategoryL2Selector';
-import { ExposureCategoryL3Selector } from '../selectors/ExposureCategoryL3Selector';
-import { StrategySelector } from '../selectors/StrategySelector';
-import { InstrumentSelector } from '../selectors/InstrumentSelector';
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Save } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { createColumnDefs } from '../config/columnDefs';
+import { GridStyles } from './GridStyles';
 
 const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
   const gridRef = useRef<AgGridReact>(null);
@@ -62,150 +54,13 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
     }
   });
 
-  const handleSaveRow = async (data: any) => {
-    try {
-      // Remove id if it's undefined (new row)
-      const { id, ...rowData } = data;
-      
-      const { error } = await supabase
-        .from('hedge_request_draft')
-        .insert([rowData])
-        .select();
-
-      if (error) throw error;
-      toast.success('Draft saved successfully');
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast.error('Failed to save draft');
-    }
-  };
-
-  const ActionsCellRenderer = (props: any) => {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => handleSaveRow(props.data)}
-        className="h-8 w-8"
-      >
-        <Save className="h-4 w-4" />
-      </Button>
-    );
-  };
-
-  const columnDefs = [
-    {
-      field: 'entity_name',
-      headerName: 'Entity Name',
-      minWidth: 180,
-      flex: 2,
-      headerClass: 'ag-header-center',
-      cellRenderer: EntityNameSelector,
-      editable: false,
-      cellRendererParams: {
-        context: { validEntities }
-      }
-    },
-    {
-      field: 'entity_id',
-      headerName: 'Entity ID',
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center',
-      editable: false
-    },
-    {
-      field: 'functional_currency',
-      headerName: 'Functional Currency',
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center',
-      editable: false
-    },
-    {
-      field: 'cost_centre',
-      headerName: 'Cost Centre',
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center',
-      cellRenderer: CostCentreSelector,
-      editable: false
-    },
-    {
-      field: 'exposure_category_l1',
-      headerName: 'Exposure Category L1',
-      minWidth: 160,
-      flex: 1.5,
-      headerClass: 'ag-header-center',
-      cellRenderer: ExposureCategoryL1Selector,
-      editable: false
-    },
-    {
-      field: 'exposure_category_l2',
-      headerName: 'Exposure Category L2',
-      minWidth: 160,
-      flex: 1.5,
-      headerClass: 'ag-header-center',
-      cellRenderer: ExposureCategoryL2Selector,
-      editable: false
-    },
-    {
-      field: 'exposure_category_l3',
-      headerName: 'Exposure Category L3',
-      minWidth: 160,
-      flex: 1.5,
-      headerClass: 'ag-header-center',
-      cellRenderer: ExposureCategoryL3Selector,
-      editable: false
-    },
-    {
-      field: 'strategy_description',
-      headerName: 'Strategy',
-      minWidth: 200,
-      flex: 2,
-      headerClass: 'ag-header-center',
-      cellRenderer: StrategySelector,
-      editable: false
-    },
-    {
-      field: 'instrument',
-      headerName: 'Instrument',
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center',
-      cellRenderer: InstrumentSelector,
-      editable: false
-    },
-    {
-      headerName: 'Actions',
-      minWidth: 100,
-      flex: 0.5,
-      headerClass: 'ag-header-center',
-      cellRenderer: ActionsCellRenderer,
-      editable: false,
-      sortable: false,
-      filter: false
-    }
-  ];
-
   return (
     <div className="w-full h-[300px] ag-theme-alpine">
-      <style>
-        {`
-          .ag-header-center .ag-header-cell-label {
-            justify-content: center;
-          }
-          .ag-cell {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-        `}
-      </style>
+      <GridStyles />
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
-        columnDefs={columnDefs}
+        columnDefs={createColumnDefs(validEntities)}
         defaultColDef={{
           sortable: true,
           filter: true,
