@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -111,15 +111,13 @@ const InputDraftGrid = () => {
     instrument: ''
   };
   
-  // Initialize state from cache or default
   const cachedState = queryClient.getQueryData<HedgeRequestDraft[]>([CACHE_KEY]) || [emptyRow];
   const [rowData, setRowData] = useState<HedgeRequestDraft[]>(cachedState);
 
-  // Update cache whenever rowData changes
-  const updateCache = (newData: HedgeRequestDraft[]) => {
+  const updateCache = useCallback((newData: HedgeRequestDraft[]) => {
     queryClient.setQueryData([CACHE_KEY], newData);
     setRowData(newData);
-  };
+  }, [queryClient]);
 
   const { data: validEntities } = useQuery({
     queryKey: ['valid-entities'],
@@ -140,6 +138,7 @@ const InputDraftGrid = () => {
 
       if (configError) {
         console.error('Error fetching configured entities:', configError);
+        toast.error('Failed to fetch configured entities');
         throw configError;
       }
 
@@ -192,10 +191,10 @@ const InputDraftGrid = () => {
     }
   };
 
-  const addNewRow = () => {
+  const addNewRow = useCallback(() => {
     const newData = [...rowData, emptyRow];
     updateCache(newData);
-  };
+  }, [rowData, updateCache]);
 
   return (
     <div className="space-y-4">
@@ -220,8 +219,7 @@ const InputDraftGrid = () => {
             sortable: true,
             filter: true,
             resizable: true,
-            suppressSizeToFit: false,
-            editable: true
+            suppressSizeToFit: false
           }}
           context={{ validEntities }}
           animateRows={true}

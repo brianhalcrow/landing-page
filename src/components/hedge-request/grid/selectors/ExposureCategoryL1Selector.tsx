@@ -42,14 +42,17 @@ export const ExposureCategoryL1Selector = ({ data, value, node }: ExposureCatego
 
   const uniqueL1Categories = Array.from(new Set(exposureTypes?.map(type => type.exposure_category_l1) || []));
 
-  // If only one L1 category exists, set it automatically
+  // If only one L1 category exists and no value is selected, set it automatically
   if (uniqueL1Categories.length === 1 && !value) {
-    node.setData({
-      ...data,
-      exposure_category_l1: uniqueL1Categories[0],
-      exposure_category_l2: '',
-      exposure_category_l3: ''
-    });
+    // Use setTimeout to ensure this runs after the current render cycle
+    setTimeout(() => {
+      node.setData({
+        ...data,
+        exposure_category_l1: uniqueL1Categories[0],
+        exposure_category_l2: '',
+        exposure_category_l3: ''
+      });
+    }, 0);
   }
 
   return uniqueL1Categories.length > 1 ? (
@@ -66,6 +69,7 @@ export const ExposureCategoryL1Selector = ({ data, value, node }: ExposureCatego
         }}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
       >
+        <option value="">Select Category L1</option>
         {uniqueL1Categories.map((category: string) => (
           <option key={category} value={category}>{category}</option>
         ))}
