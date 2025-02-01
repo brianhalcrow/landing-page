@@ -31,9 +31,37 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       }
 
       const draft = data.draft;
-      console.log('Loaded draft data:', draft);
+      console.log('Loading draft data:', draft);
 
-      // Set all form values at once without validation
+      // First, set individual field values to ensure proper form state updates
+      const fields: (keyof FormValues)[] = [
+        'entity_id',
+        'entity_name',
+        'functional_currency',
+        'exposure_config',
+        'exposure_category_level_2',
+        'exposure_category_level_3',
+        'exposure_category_level_4',
+        'strategy',
+        'instrument',
+        'cost_centre',
+        'country',
+        'geo_level_1',
+        'geo_level_2',
+        'geo_level_3'
+      ];
+
+      // Set each field individually to trigger proper form updates
+      fields.forEach(field => {
+        const value = draft[field] || '';
+        form.setValue(field, value, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true
+        });
+      });
+
+      // Then use reset to ensure form state is properly updated
       form.reset({
         entity_id: draft.entity_id || '',
         entity_name: draft.entity_name || '',
