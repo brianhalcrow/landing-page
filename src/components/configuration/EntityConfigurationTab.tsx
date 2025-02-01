@@ -55,8 +55,7 @@ const EntityConfigurationTab = () => {
         entity_id: entity.entity_id,
         entity_name: entity.entity_name,
         functional_currency: entity.functional_currency,
-        id: parseInt(entity.entity_id.replace(/\D/g, '')), // Convert entity_id to number, removing non-digits
-        rate_method: entity.accounting_rate_method
+        accounting_rate_method: entity.accounting_rate_method
       }));
     },
   });

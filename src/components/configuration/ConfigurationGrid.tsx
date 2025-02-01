@@ -8,7 +8,12 @@ import { gridStyles } from './grid/gridStyles';
 import EmptyGridMessage from './grid/EmptyGridMessage';
 
 interface ConfigurationGridProps {
-  entities: Tables<'entities'>[];
+  entities: {
+    entity_id: string;
+    entity_name: string;
+    functional_currency: string;
+    accounting_rate_method: string;
+  }[];
 }
 
 const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
@@ -26,9 +31,6 @@ const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
     { colId: 'entity_id', width: 110 },
     { colId: 'functional_currency', width: 120 },
     { colId: 'accounting_rate_method', width: 150 },
-    { colId: 'is_active', width: 100 },
-    { colId: 'created_at', width: 150 },
-    { colId: 'updated_at', width: 150 },
   ];
 
   useEffect(() => {
