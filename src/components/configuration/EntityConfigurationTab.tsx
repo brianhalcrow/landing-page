@@ -50,8 +50,7 @@ const EntityConfigurationTab = () => {
         throw error;
       }
       
-      // Transform the data to match the expected type
-      return (data || []).map(entity => ({
+      return data.map(entity => ({
         entity_id: entity.entity_id,
         entity_name: entity.entity_name,
         functional_currency: entity.functional_currency,
