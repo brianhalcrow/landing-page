@@ -26,6 +26,50 @@ interface ValidEntity {
   functional_currency: string;
 }
 
+// Custom cell renderer for cost centre selection
+const CostCentreSelector = (props: any) => {
+  const { data: costCentres } = useQuery({
+    queryKey: ['cost-centres', props.data.entity_id],
+    queryFn: async () => {
+      if (!props.data.entity_id) return [];
+      
+      const { data, error } = await supabase
+        .from('management_structure')
+        .select('cost_centre')
+        .eq('entity_id', props.data.entity_id);
+
+      if (error) {
+        console.error('Error fetching cost centres:', error);
+        toast.error('Failed to fetch cost centres');
+        return [];
+      }
+
+      return data.map(item => item.cost_centre);
+    },
+    enabled: !!props.data.entity_id
+  });
+
+  // If only one cost centre exists, set it automatically
+  if (costCentres?.length === 1 && !props.value) {
+    props.node.setDataValue('cost_centre', costCentres[0]);
+  }
+
+  return costCentres?.length > 1 ? (
+    <select 
+      value={props.value || ''} 
+      onChange={(e) => props.node.setDataValue('cost_centre', e.target.value)}
+      className="w-full h-full border-0 outline-none bg-transparent"
+    >
+      <option value="">Select Cost Centre</option>
+      {costCentres.map((cc: string) => (
+        <option key={cc} value={cc}>{cc}</option>
+      ))}
+    </select>
+  ) : (
+    <span>{props.value}</span>
+  );
+};
+
 // Custom cell renderer for entity selection
 const EntityNameSelector = (props: any) => {
   const entities = props.context.validEntities || [];
@@ -39,7 +83,8 @@ const EntityNameSelector = (props: any) => {
         ...props.data,
         entity_name: selectedEntity.entity_name,
         entity_id: selectedEntity.entity_id,
-        functional_currency: selectedEntity.functional_currency
+        functional_currency: selectedEntity.functional_currency,
+        cost_centre: '' // Reset cost centre when entity changes
       });
     }
   };
@@ -92,7 +137,8 @@ const columnDefs = [
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center',
-    editable: true
+    cellRenderer: CostCentreSelector,
+    editable: false
   },
   {
     field: 'exposure_category_l1',
