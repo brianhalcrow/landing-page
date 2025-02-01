@@ -1,5 +1,5 @@
 export interface HedgeRequestDraft {
-  id?: string;
+  id?: number;
   entity_id: string;
   entity_name: string;
   functional_currency: string;

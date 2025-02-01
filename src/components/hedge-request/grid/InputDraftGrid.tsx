@@ -88,9 +88,12 @@ const InputDraftGrid = () => {
         return;
       }
 
+      // Remove id from each row before inserting
+      const dataToInsert = rowData.map(({ id, ...rest }) => rest);
+
       const { error } = await supabase
         .from('hedge_request_draft')
-        .insert(rowData)
+        .insert(dataToInsert)
         .select();
 
       if (error) throw error;

@@ -16,12 +16,12 @@ const TradeAmountChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: trades, error } = await supabase
           .from("hedge_request_draft_trades")
           .select(`
             draft_id,
             buy_sell_amount,
-            hedge_request_draft (
+            hedge_request_draft!inner (
               entity_name
             )
           `)
@@ -30,7 +30,7 @@ const TradeAmountChart = () => {
         if (error) throw error;
 
         // Aggregate data by entity_name
-        const aggregatedData = (data || []).reduce((acc: { [key: string]: number }, curr) => {
+        const aggregatedData = (trades || []).reduce((acc: { [key: string]: number }, curr) => {
           const entityName = curr.hedge_request_draft?.entity_name || "Unknown";
           acc[entityName] = (acc[entityName] || 0) + (curr.buy_sell_amount || 0);
           return acc;
