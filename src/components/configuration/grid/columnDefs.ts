@@ -53,53 +53,58 @@ export const createBaseColumnDefs = (): ColDef[] => [
 const validateExposureData = (data: any, fieldChanged: string, newValue: boolean) => {
   const newData = { ...data };
   
+  // Extract the actual exposure type from the field name
+  const exposureType = fieldChanged.replace('exposure_', '');
+  
   // Handle Monetary group validation
-  if (fieldChanged.includes('monetary')) {
-    if (fieldChanged === 'exposure_net_monetary') {
+  if (exposureType.includes('monetary')) {
+    if (exposureType === 'net_monetary') {
       if (newValue) {
         // If net_monetary is checked, uncheck assets and liabilities
-        newData.exposure_monetary_assets = false;
-        newData.exposure_monetary_liabilities = false;
+        newData['exposure_monetary_assets'] = false;
+        newData['exposure_monetary_liabilities'] = false;
       }
     } else {
       // If assets or liabilities are being modified
       if (newValue) {
         // If checking either assets or liabilities, uncheck net_monetary
-        newData.exposure_net_monetary = false;
+        newData['exposure_net_monetary'] = false;
       } else {
-        // If unchecking either assets or liabilities
-        if (fieldChanged === 'exposure_monetary_assets' && newData.exposure_monetary_liabilities) {
-          newData.exposure_net_monetary = true;
-          newData.exposure_monetary_liabilities = false;
-        } else if (fieldChanged === 'exposure_monetary_liabilities' && newData.exposure_monetary_assets) {
-          newData.exposure_net_monetary = true;
-          newData.exposure_monetary_assets = false;
+        // If unchecking either assets or liabilities, check if the other is also unchecked
+        const isAssetsField = exposureType === 'monetary_assets';
+        const otherField = isAssetsField ? 'exposure_monetary_liabilities' : 'exposure_monetary_assets';
+        
+        // If the other field is checked, enable net_monetary and uncheck the other field
+        if (newData[otherField]) {
+          newData['exposure_net_monetary'] = true;
+          newData[otherField] = false;
         }
       }
     }
   }
 
   // Handle Revenue/Costs/Net Income group validation
-  if (fieldChanged.includes('revenue') || fieldChanged.includes('costs') || fieldChanged.includes('net_income')) {
-    if (fieldChanged === 'exposure_net_income') {
+  if (exposureType.includes('revenue') || exposureType.includes('costs') || exposureType.includes('net_income')) {
+    if (exposureType === 'net_income') {
       if (newValue) {
         // If net_income is checked, uncheck revenue and costs
-        newData.exposure_revenue = false;
-        newData.exposure_costs = false;
+        newData['exposure_revenue'] = false;
+        newData['exposure_costs'] = false;
       }
     } else {
       // If revenue or costs are being modified
       if (newValue) {
         // If checking either revenue or costs, uncheck net_income
-        newData.exposure_net_income = false;
+        newData['exposure_net_income'] = false;
       } else {
-        // If unchecking either revenue or costs
-        if (fieldChanged === 'exposure_revenue' && newData.exposure_costs) {
-          newData.exposure_net_income = true;
-          newData.exposure_costs = false;
-        } else if (fieldChanged === 'exposure_costs' && newData.exposure_revenue) {
-          newData.exposure_net_income = true;
-          newData.exposure_revenue = false;
+        // If unchecking either revenue or costs, check if the other is checked
+        const isRevenueField = exposureType === 'revenue';
+        const otherField = isRevenueField ? 'exposure_costs' : 'exposure_revenue';
+        
+        // If the other field is checked, enable net_income and uncheck the other field
+        if (newData[otherField]) {
+          newData['exposure_net_income'] = true;
+          newData[otherField] = false;
         }
       }
     }
@@ -143,11 +148,16 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
         cellRenderer: CheckboxCellRenderer,
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
+          value: params.data?.[`exposure_${type.exposure_type_id}`] || false,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const fieldName = params.column.getColId();
+              
+              // Create a copy of the current data
+              const currentData = { ...params.data };
+              
               // Apply validation before updating the data
-              const validatedData = validateExposureData(params.data, fieldName, checked);
+              const validatedData = validateExposureData(currentData, fieldName, checked);
               
               // Update the field that was actually clicked
               validatedData[fieldName] = checked;
@@ -155,8 +165,13 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
               // Update row with validated data
               params.node.setData(validatedData);
               
-              // Notify parent of changes without updating database
-              onCellValueChanged({ ...params, data: validatedData });
+              // Notify parent of changes
+              onCellValueChanged({ 
+                ...params, 
+                data: validatedData,
+                oldValue: currentData[fieldName],
+                newValue: checked 
+              });
               
               // Refresh the row to show all changes
               params.api.refreshCells({
