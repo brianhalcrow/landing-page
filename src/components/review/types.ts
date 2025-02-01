@@ -2,17 +2,17 @@ export interface HedgeRequest {
   id: string;
   entity_id: string | null;
   entity_name: string | null;
-  instrument: string | null;
+  cost_centre: string | null;
+  functional_currency: string | null;
+  exposure_category_l1: string | null;
+  exposure_category_l2: string | null;
+  exposure_category_l3: string | null;
   strategy: string | null;
-  base_currency: string | null;
-  quote_currency: string | null;
-  currency_pair: string | null;
-  trade_date: string | null;
-  settlement_date: string | null;
-  buy_sell: string | null;
-  buy_sell_currency_code: string | null;
-  buy_sell_amount: number | null;
+  instrument: string | null;
+  status: string | null;
   created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ExposureValidationResult {
