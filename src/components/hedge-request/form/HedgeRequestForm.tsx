@@ -71,6 +71,7 @@ const HedgeRequestForm: React.FC = () => {
       const requiredFields = [
         "entity_id",
         "entity_name",
+        "cost_centre",
         "exposure_category_level_2",
         "exposure_category_level_3",
         "exposure_category_level_4",
@@ -156,7 +157,6 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  // Define these variables before the return statement
   const canSaveDraft = isFormComplete && !draftSaved;
   const canSubmit = isFormComplete && draftSaved;
 
