@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -5,7 +6,6 @@ import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EntityNameSelector } from './selectors/EntityNameSelector';
 import { CostCentreSelector } from './selectors/CostCentreSelector';
 import { ExposureCategoryL1Selector } from './selectors/ExposureCategoryL1Selector';
@@ -184,7 +184,7 @@ const InputDraftGrid = () => {
       if (error) throw error;
 
       toast.success('Draft saved successfully');
-      updateCache([{
+      const emptyRow = {
         entity_id: '',
         entity_name: '',
         functional_currency: '',
@@ -194,7 +194,8 @@ const InputDraftGrid = () => {
         exposure_category_l3: '',
         strategy: '',
         instrument: ''
-      }]);
+      };
+      updateCache([emptyRow]);
     } catch (error) {
       console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
@@ -202,7 +203,7 @@ const InputDraftGrid = () => {
   };
 
   const addNewRow = () => {
-    const newData = [...rowData, {
+    const newRow = {
       entity_id: '',
       entity_name: '',
       functional_currency: '',
@@ -212,7 +213,8 @@ const InputDraftGrid = () => {
       exposure_category_l3: '',
       strategy: '',
       instrument: ''
-    }];
+    };
+    const newData = [...rowData, newRow];
     updateCache(newData);
   };
 
