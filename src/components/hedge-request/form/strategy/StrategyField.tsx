@@ -23,7 +23,7 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
 
   useEffect(() => {
     const fetchStrategies = async () => {
-      const exposureL4 = form.watch("exposure_category_level_4");
+      const exposureL4 = form.getValues("exposure_category_level_4");
       if (!exposureL4) {
         setStrategies([]);
         return;
