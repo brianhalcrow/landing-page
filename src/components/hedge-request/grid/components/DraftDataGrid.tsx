@@ -10,11 +10,13 @@ import { InstrumentSelector } from '../selectors/InstrumentSelector';
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Save } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
   const gridRef = useRef<AgGridReact>(null);
 
-  // Fetch valid entities for the context
   const { data: validEntities } = useQuery({
     queryKey: ['valid-entities'],
     queryFn: async () => {
@@ -59,6 +61,34 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
       return uniqueEntities;
     }
   });
+
+  const handleSaveRow = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('hedge_request_draft')
+        .insert([data])
+        .select();
+
+      if (error) throw error;
+      toast.success('Draft saved successfully');
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft');
+    }
+  };
+
+  const ActionsCellRenderer = (props: any) => {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => handleSaveRow(props.data)}
+        className="h-8 w-8"
+      >
+        <Save className="h-4 w-4" />
+      </Button>
+    );
+  };
 
   const columnDefs = [
     {
@@ -128,10 +158,11 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
     {
       field: 'strategy',
       headerName: 'Strategy',
-      minWidth: 120,
-      flex: 1,
+      minWidth: 200,
+      flex: 2,
       headerClass: 'ag-header-center',
       cellRenderer: StrategySelector,
+      valueFormatter: (params: any) => params.data?.strategy_description || params.value,
       editable: false
     },
     {
@@ -142,6 +173,16 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
       headerClass: 'ag-header-center',
       cellRenderer: InstrumentSelector,
       editable: false
+    },
+    {
+      headerName: 'Actions',
+      minWidth: 100,
+      flex: 0.5,
+      headerClass: 'ag-header-center',
+      cellRenderer: ActionsCellRenderer,
+      editable: false,
+      sortable: false,
+      filter: false
     }
   ];
 

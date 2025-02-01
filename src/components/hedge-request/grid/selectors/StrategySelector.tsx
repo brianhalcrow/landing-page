@@ -31,7 +31,10 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
     enabled: !!data.exposure_category_l2
   });
 
-  const uniqueStrategies = Array.from(new Set(strategies?.map(s => s.strategy) || []));
+  const uniqueStrategies = Array.from(new Set(strategies?.map(s => ({
+    strategy: s.strategy,
+    description: s.strategy_description
+  })) || []));
 
   // Only update if we have data and the current value doesn't match
   if (!isLoading && uniqueStrategies.length === 1 && !value) {
@@ -39,16 +42,18 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       if (node && node.setData) {
         node.setData({
           ...data,
-          strategy: uniqueStrategies[0],
+          strategy: uniqueStrategies[0].strategy,
+          strategy_description: uniqueStrategies[0].description,
           instrument: ''
         });
       }
     }, 0);
-    return <span>{uniqueStrategies[0]}</span>;
+    return <span>{uniqueStrategies[0].description}</span>;
   }
 
   if (uniqueStrategies.length <= 1) {
-    return <span>{value}</span>;
+    const currentStrategy = uniqueStrategies.find(s => s.strategy === value);
+    return <span>{currentStrategy?.description || value}</span>;
   }
 
   return (
@@ -57,10 +62,12 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
         value={value || ''} 
         onChange={(e) => {
           const newValue = e.target.value;
+          const selectedStrategy = uniqueStrategies.find(s => s.strategy === newValue);
           if (node && node.setData) {
             node.setData({
               ...data,
               strategy: newValue,
+              strategy_description: selectedStrategy?.description,
               instrument: ''
             });
           }
@@ -69,8 +76,8 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
         disabled={!data.exposure_category_l2}
       >
         <option value="">Select Strategy</option>
-        {uniqueStrategies.map((strategy: string) => (
-          <option key={strategy} value={strategy}>{strategy}</option>
+        {uniqueStrategies.map(({ strategy, description }) => (
+          <option key={strategy} value={strategy}>{description}</option>
         ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
