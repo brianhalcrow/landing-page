@@ -21,7 +21,8 @@ export const createBaseColumnDefs = (): ColDef[] => [
     headerClass: 'ag-header-center custom-header',
     suppressSizeToFit: true,
     wrapHeaderText: true,
-    autoHeaderHeight: true
+    autoHeaderHeight: true,
+    cellClass: 'text-left pl-4' // Add left alignment
   },
   { 
     field: 'functional_currency', 
@@ -109,10 +110,13 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
 export const createActionColumn = (): ColDef => ({
   headerName: 'Actions',
   minWidth: 120,
-  flex: 1,
-  headerClass: 'ag-header-center custom-header',
+  width: 120, // Fixed width
   suppressSizeToFit: true,
+  suppressResize: true, // Prevent column resizing
   pinned: 'right',
+  lockPinned: true, // Prevent unpinning
+  lockPosition: true, // Prevent moving the column
+  headerClass: 'ag-header-center custom-header',
   wrapHeaderText: true,
   autoHeaderHeight: true,
   cellRenderer: ActionsCellRenderer,

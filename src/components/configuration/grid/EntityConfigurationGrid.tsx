@@ -94,12 +94,24 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
             justify-content: center !important;
           }
 
+          .text-left {
+            justify-content: flex-start !important;
+          }
+
           .ag-header-viewport {
             overflow: visible !important;
           }
 
           .ag-header-container {
             overflow: visible !important;
+          }
+
+          .ag-pinned-right-header {
+            background-color: white !important;
+          }
+
+          .ag-pinned-right-cols-container {
+            background-color: white !important;
           }
         `}
       </style>
