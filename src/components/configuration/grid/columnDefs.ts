@@ -66,19 +66,25 @@ export const createBaseColumnDefs = (): ColDef[] => [
 ];
 
 const validateExposureData = (data: ExposureData, fieldChanged: string, newValue: boolean) => {
-  console.log('Validation started:', { data, fieldChanged, newValue });
+  console.log('=== Starting Validation ===');
+  console.log('Field changed:', fieldChanged);
+  console.log('New value:', newValue);
+  console.log('Data before validation:', data);
   
   const newData = { ...data };
   const typeId = fieldChanged.replace('exposure_', '');
   const exposureType = data[`type_${typeId}`];
 
   if (!exposureType) {
-    console.log('No exposure type found for:', typeId);
+    console.log('WARNING: No exposure type found for:', typeId);
     return newData;
   }
 
   const category = exposureType.exposure_category_l2?.toLowerCase();
   const subcategory = exposureType.exposure_category_l3?.toLowerCase();
+
+  console.log('Processing category:', category);
+  console.log('Processing subcategory:', subcategory);
 
   // Monetary Validation
   if (category === 'monetary') {
@@ -95,6 +101,7 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
           if (otherType?.exposure_category_l2?.toLowerCase() === 'monetary') {
             newData[key] = false;
             uncheckedSomething = true;
+            console.log('Unchecking monetary field:', key);
           }
         }
       });
@@ -111,6 +118,7 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
           if (otherType?.exposure_category_l3?.toLowerCase() === 'net monetary') {
             newData[key] = false;
             uncheckedNetMonetary = true;
+            console.log('Unchecking net monetary field:', key);
           }
         }
       });
@@ -136,6 +144,7 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
               otherType?.exposure_category_l3?.toLowerCase() !== 'net income') {
             newData[key] = false;
             uncheckedSomething = true;
+            console.log('Unchecking income field:', key);
           }
         }
       });
@@ -152,6 +161,7 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
           if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
             newData[key] = false;
             uncheckedNetIncome = true;
+            console.log('Unchecking net income field:', key);
           }
         }
       });
@@ -161,11 +171,22 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
     }
   }
 
-  console.log('Validation complete. New data:', newData);
+  console.log('=== Validation Complete ===');
+  console.log('Original data:', data);
+  console.log('Modified data:', newData);
+  
   return newData;
 };
 
 export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: (params: any) => void): ColGroupDef[] => {
+  // Create a map of exposure types by ID for quick lookup
+  const exposureTypeMap = exposureTypes.reduce((map: {[key: string]: any}, type) => {
+    map[type.exposure_type_id] = type;
+    return map;
+  }, {});
+
+  console.log('Exposure Type Map:', exposureTypeMap);
+
   const groupedExposures = exposureTypes.reduce((acc: any, type) => {
     const l1 = type.exposure_category_l1;
     const l2 = type.exposure_category_l2;
@@ -204,40 +225,44 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const fieldName = params.column.getColId();
-              console.log('Checkbox changed:', { fieldName, checked });
+              console.log('1. Checkbox onChange triggered:', { fieldName, checked });
               
-              // Add type information to the data for validation
+              // Add ALL exposure types to the data for validation
               const currentData = { 
                 ...params.data,
-                [`type_${type.exposure_type_id}`]: type
+                ...Object.keys(exposureTypeMap).reduce((acc: {[key: string]: any}, typeId) => {
+                  acc[`type_${typeId}`] = exposureTypeMap[typeId];
+                  return acc;
+                }, {})
               };
               
-              // Apply validation and get updated data
-              const validatedData = validateExposureData(currentData, fieldName, checked);
+              console.log('2. Data prepared for validation:', currentData);
               
-              // Update the field that was actually clicked
+              // Apply validation
+              const validatedData = validateExposureData(currentData, fieldName, checked);
+              console.log('3. Data after validation:', validatedData);
+              
+              // Update the clicked field
               validatedData[fieldName] = checked;
               
-              // Remove temporary type information
+              // Clean up type information
               Object.keys(validatedData).forEach(key => {
                 if (key.startsWith('type_')) {
                   delete validatedData[key];
                 }
               });
               
-              // Update row with validated data
-              params.node.setData(validatedData);
+              console.log('4. Final data to be set:', validatedData);
               
-              // Notify parent of changes
+              // Update row
+              params.node.setData(validatedData);
               onCellValueChanged({ 
                 ...params, 
                 data: validatedData,
                 oldValue: params.value,
                 newValue: checked 
               });
-              
-              // Refresh the row to show all changes
-              params.api.refreshCells({
+              params.api.refreshCells({ 
                 rowNodes: [params.node],
                 force: true
               });
