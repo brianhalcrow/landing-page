@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { HedgeRequestDraft, ValidEntity } from './types';
 import DraftDataGrid from './components/DraftDataGrid';
+import GridActions from './components/GridActions';
 
 const CACHE_KEY = 'hedge-request-draft-grid-state';
 
@@ -76,11 +77,50 @@ const InputDraftGrid = () => {
     }
   });
 
+  const handleSaveDraft = async () => {
+    try {
+      const invalidEntities = rowData.filter(row => 
+        !validEntities?.some(valid => valid.entity_id === row.entity_id)
+      );
+
+      if (invalidEntities.length > 0) {
+        toast.error('Some entities are not properly configured. Please select valid entities.');
+        return;
+      }
+
+      // Remove id from each row before inserting
+      const dataToInsert = rowData.map(({ id, ...rest }) => rest);
+
+      const { error } = await supabase
+        .from('hedge_request_draft')
+        .insert(dataToInsert)
+        .select();
+
+      if (error) throw error;
+
+      toast.success('Draft saved successfully');
+      updateCache([emptyRow]);
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft');
+    }
+  };
+
+  const addNewRow = useCallback(() => {
+    const newData = [...rowData, emptyRow];
+    updateCache(newData);
+  }, [rowData, updateCache]);
+
   return (
     <div className="space-y-4">
       <DraftDataGrid 
         rowData={rowData}
         onRowDataChange={updateCache}
+      />
+      <GridActions 
+        onAddRow={addNewRow}
+        onSaveDraft={handleSaveDraft}
+        isDisabled={!validEntities?.length}
       />
     </div>
   );
