@@ -230,8 +230,6 @@ const HedgeRequestForm: React.FC = () => {
                 }
               }}
             />
-          </div>
-          <div className="flex flex-row gap-4 flex-nowrap overflow-x-auto px-2 py-1">
             <CategorySelection 
               form={form}
               entityId={form.watch("entity_id")}
@@ -246,6 +244,7 @@ const HedgeRequestForm: React.FC = () => {
             />
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
           <div className="flex justify-end gap-4 px-2">
             <Button 
@@ -269,6 +268,7 @@ const HedgeRequestForm: React.FC = () => {
             </p>
           )}
         </div>
+
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-4">Trade Details</h3>
           <TradesGrid draftId={draftId} />
