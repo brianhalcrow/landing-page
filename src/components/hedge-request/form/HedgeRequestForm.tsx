@@ -49,16 +49,19 @@ const HedgeRequestForm: React.FC = () => {
 
   useEffect(() => {
     const fetchDrafts = async () => {
+      console.log('Fetching drafts...');
       const { data, error } = await supabase
         .from('hedge_request_draft')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Error fetching drafts:', error);
         toast.error("Failed to fetch drafts");
         return;
       }
 
+      console.log('Fetched drafts:', data);
       setDrafts(data || []);
     };
 
@@ -68,6 +71,8 @@ const HedgeRequestForm: React.FC = () => {
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       const values = form.getValues();
+      console.log('Form values changed:', values);
+
       const requiredFields = [
         "entity_id",
         "entity_name",
@@ -97,7 +102,9 @@ const HedgeRequestForm: React.FC = () => {
       
       const isComplete = requiredFields.every(field => {
         const fieldValue = values[field];
-        return fieldValue && fieldValue.length > 0;
+        const hasValue = fieldValue && fieldValue.length > 0;
+        console.log(`Checking field ${field}: ${hasValue}`);
+        return hasValue;
       });
       
       console.log('Form completion check:', {
@@ -114,9 +121,11 @@ const HedgeRequestForm: React.FC = () => {
   }, [form.watch]);
 
   const onDraftSelect = async (selectedDraftId: string) => {
+    console.log('Selected draft ID:', selectedDraftId);
     setDraftId(selectedDraftId);
     const draftData = await handleDraftSelect(selectedDraftId);
     if (draftData) {
+      console.log('Draft loaded successfully:', draftData);
       setDraftSaved(true);
     }
   };
@@ -140,6 +149,7 @@ const HedgeRequestForm: React.FC = () => {
       const userId = session?.user?.id || 'mock-user-id';
       const formData = form.getValues();
       
+      console.log('Saving draft with data:', formData);
       const { data: draftData, error: draftError } = await supabase
         .from('hedge_request_draft')
         .insert([
