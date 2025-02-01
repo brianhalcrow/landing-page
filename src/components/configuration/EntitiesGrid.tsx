@@ -34,12 +34,12 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     },
     { 
       field: 'accounting_rate_method', 
-      headerName: 'Rate Method', 
-      width: 150 
+      headerName: 'Accounting Rate Method', 
+      width: 180 
     },
     { 
       field: 'is_active', 
-      headerName: 'Active', 
+      headerName: 'Is Active', 
       width: 100,
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
