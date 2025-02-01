@@ -11,29 +11,40 @@ const EntityConfigurationTab = () => {
   const { data: entities, isLoading: isLoadingEntities } = useQuery({
     queryKey: ['entities'],
     queryFn: async () => {
+      // First fetch all entities
       const { data: entitiesData, error: entitiesError } = await supabase
         .from('entities')
         .select('*');
       
       if (entitiesError) throw entitiesError;
 
+      // Then fetch all entity exposure configurations
       const { data: configsData, error: configsError } = await supabase
         .from('entity_exposure_config')
-        .select('*');
+        .select('*')
+        .in('entity_id', entitiesData.map(entity => entity.entity_id));
 
       if (configsError) throw configsError;
 
+      // Map entities with their configurations
       return entitiesData.map(entity => {
+        // Filter configurations for this specific entity
         const entityConfigs = configsData.filter(config => 
           config.entity_id === entity.entity_id
         );
 
+        // Create an object with all exposure types set to false by default
         const exposureConfigs = Object.fromEntries(
-          entityConfigs.map(config => [
-            `exposure_${config.exposure_type_id}`,
-            !!config.is_active
+          (exposureTypes || []).map(type => [
+            `exposure_${type.exposure_type_id}`,
+            false
           ])
         );
+
+        // Update with actual configurations from the database
+        entityConfigs.forEach(config => {
+          exposureConfigs[`exposure_${config.exposure_type_id}`] = config.is_active;
+        });
 
         return {
           ...entity,
@@ -41,7 +52,8 @@ const EntityConfigurationTab = () => {
           isEditing: false
         };
       });
-    }
+    },
+    enabled: !!exposureTypes // Only run query when exposure types are available
   });
 
   if (isLoadingEntities || isLoadingExposureTypes) {
