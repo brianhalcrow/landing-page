@@ -24,14 +24,12 @@ const EntityConfigurationTab = () => {
       
       if (entitiesError) throw entitiesError;
 
-      // Fetch exposure configurations for all entities
       const { data: configsData, error: configsError } = await supabase
         .from('entity_exposure_config')
         .select('*');
 
       if (configsError) throw configsError;
 
-      // Merge entities with their exposure configurations
       return entitiesData.map(entity => {
         const entityConfigs = configsData.filter(config => 
           config.entity_id === entity.entity_id
@@ -86,7 +84,6 @@ const EntityConfigurationTab = () => {
   });
 
   const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
-    // Group exposures by L1 and L2 categories
     const groupedExposures = exposureTypes.reduce((acc: any, type) => {
       const l1 = type.exposure_category_l1;
       const l2 = type.exposure_category_l2;
@@ -98,7 +95,6 @@ const EntityConfigurationTab = () => {
       return acc;
     }, {});
 
-    // Create hierarchical column structure
     return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
       headerName: l1,
       groupId: l1,
@@ -191,8 +187,9 @@ const EntityConfigurationTab = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => {
-                  const rowNode = params.api.getRowNode(params.rowIndex);
-                  rowNode.setDataValue('isEditing', true);
+                  if (params.api && params.node) {
+                    params.node.setDataValue('isEditing', true);
+                  }
                 }}
               >
                 <Edit className="h-4 w-4" />
@@ -202,8 +199,9 @@ const EntityConfigurationTab = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => {
-                  const rowNode = params.api.getRowNode(params.rowIndex);
-                  rowNode.setDataValue('isEditing', false);
+                  if (params.api && params.node) {
+                    params.node.setDataValue('isEditing', false);
+                  }
                 }}
               >
                 <Save className="h-4 w-4" />
