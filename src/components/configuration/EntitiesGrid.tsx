@@ -1,5 +1,5 @@
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Tables } from '@/integrations/supabase/types';
@@ -12,35 +12,40 @@ interface EntitiesGridProps {
 const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
 
-  const columnDefs: ColDef[] = [
+  const baseColumnDefs: (ColDef | ColGroupDef)[] = [
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
-      width: 90,
+      minWidth: 90,
+      flex: 1,
       sort: 'asc',
       sortIndex: 0
     },
     { 
       field: 'entity_name', 
       headerName: 'Entity Name', 
-      width: 240,
+      minWidth: 180,
+      flex: 2,
       sort: 'asc',
       sortIndex: 1
     },
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
-      width: 75, 
+      minWidth: 75,
+      flex: 1
     },
     { 
       field: 'accounting_rate_method', 
       headerName: 'Accounting Rate Method', 
-      width: 180 
+      minWidth: 160,
+      flex: 1.5
     },
     { 
       field: 'is_active', 
       headerName: 'Is Active', 
-      width: 130,
+      minWidth: 100,
+      flex: 1,
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
       }
@@ -48,7 +53,8 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { 
       field: 'created_at', 
       headerName: 'Created At', 
-      width: 180,
+      minWidth: 160,
+      flex: 1.5,
       valueFormatter: (params) => {
         if (params.value) {
           return new Date(params.value).toLocaleString();
@@ -59,7 +65,8 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { 
       field: 'updated_at', 
       headerName: 'Updated At', 
-      width: 180,
+      minWidth: 160,
+      flex: 1.5,
       valueFormatter: (params) => {
         if (params.value) {
           return new Date(params.value).toLocaleString();
@@ -69,10 +76,38 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     },
   ];
 
-  const defaultColDef = {
-    sortable: true,
-    filter: true,
-    resizable: true,
+  const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
+    // Group exposures by L1 and L2 categories
+    const groupedExposures = exposureTypes.reduce((acc: any, type) => {
+      const l1 = type.exposure_category_l1;
+      const l2 = type.exposure_category_l2;
+      
+      if (!acc[l1]) acc[l1] = {};
+      if (!acc[l1][l2]) acc[l1][l2] = [];
+      
+      acc[l1][l2].push(type);
+      return acc;
+    }, {});
+
+    // Create hierarchical column structure
+    return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
+      headerName: l1,
+      groupId: l1,
+      children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
+        headerName: l2,
+        groupId: `${l1}-${l2}`,
+        children: types.map((type: any) => ({
+          headerName: type.exposure_category_l3,
+          field: `exposure_${type.exposure_type_id}`,
+          minWidth: 120,
+          flex: 1,
+          cellRenderer: 'checkboxRenderer',
+          cellRendererParams: {
+            disabled: false
+          }
+        }))
+      }))
+    }));
   };
 
   useEffect(() => {
@@ -104,10 +139,17 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       <AgGridReact
         ref={gridRef}
         rowData={entities}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
+        columnDefs={baseColumnDefs}
+        defaultColDef={{
+          sortable: true,
+          filter: true,
+          resizable: true,
+          suppressSizeToFit: false
+        }}
         animateRows={true}
         onColumnResized={onColumnResized}
+        suppressColumnVirtualisation={true}
+        enableCellTextSelection={true}
       />
     </div>
   );
