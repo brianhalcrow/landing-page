@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import HedgeRequestGrid from "./grid/HedgeRequestGrid";
 import DraftDetailsGrid from "./grid/DraftDetailsGrid";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AgGridReact } from 'ag-grid-react';
 import { draftDetailsColumnDefs } from "./grid/draftDetailsColumnDefs";
 
 const AdHocTab = () => {
@@ -36,6 +36,28 @@ const AdHocTab = () => {
     }
   });
 
+  const columnNamesData = draftDetailsColumnDefs.map(col => ({
+    field: col.field,
+    headerName: col.headerName
+  }));
+
+  const columnNamesColumnDefs = [
+    { 
+      field: 'field',
+      headerName: 'Field Name',
+      flex: 1,
+      minWidth: 150,
+      headerClass: 'ag-header-center'
+    },
+    { 
+      field: 'headerName',
+      headerName: 'Header Name',
+      flex: 1,
+      minWidth: 150,
+      headerClass: 'ag-header-center'
+    }
+  ];
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -48,22 +70,33 @@ const AdHocTab = () => {
     <div className="p-6 space-y-8">
       <div>
         <h2 className="text-2xl font-semibold mb-4">Column Names</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Field Name</TableHead>
-              <TableHead>Header Name</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {draftDetailsColumnDefs.map((col, index) => (
-              <TableRow key={index}>
-                <TableCell>{col.field}</TableCell>
-                <TableCell>{col.headerName}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="w-full h-[300px] ag-theme-alpine">
+          <style>
+            {`
+              .ag-header-center .ag-header-cell-label {
+                justify-content: center;
+              }
+              .ag-cell {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+              }
+            `}
+          </style>
+          <AgGridReact
+            rowData={columnNamesData}
+            columnDefs={columnNamesColumnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true,
+              suppressSizeToFit: false
+            }}
+            animateRows={true}
+            suppressColumnVirtualisation={true}
+            enableCellTextSelection={true}
+          />
+        </div>
       </div>
       <div>
         <h2 className="text-2xl font-semibold mb-4">Draft Details</h2>
