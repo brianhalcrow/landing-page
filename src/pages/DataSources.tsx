@@ -1,4 +1,3 @@
-import { Grid, Paper, Typography } from "@mui/material";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 import { useQuery } from "@tanstack/react-query";
@@ -28,35 +27,33 @@ const DataSources = () => {
         defaultTab="connections" 
       />
       <div className="p-6">
-        <Grid container spacing={3}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {connections?.map((connection) => (
-            <Grid item xs={12} sm={6} md={4} key={connection.table_name}>
-              <Paper 
-                elevation={2} 
-                className="p-4 hover:shadow-lg transition-shadow"
-              >
-                <Typography variant="h6" component="h2">
-                  {connection.table_name}
-                </Typography>
-                <Typography color="textSecondary" gutterBottom>
-                  Status: {connection.status}
-                </Typography>
-                <Typography variant="body2">
-                  Type: {connection.type}
-                </Typography>
-                <Typography variant="body2">
-                  Size: {connection.size}
-                </Typography>
-                <Typography variant="body2">
-                  Records: {connection.record_count}
-                </Typography>
-                <Typography variant="body2">
-                  Last Update: {new Date(connection.last_update).toLocaleString()}
-                </Typography>
-              </Paper>
-            </Grid>
+            <div 
+              key={connection.table_name}
+              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+            >
+              <h2 className="text-xl font-semibold mb-2">
+                {connection.table_name}
+              </h2>
+              <p className="text-gray-600 mb-2">
+                Status: {connection.status}
+              </p>
+              <p className="text-sm text-gray-600">
+                Type: {connection.type}
+              </p>
+              <p className="text-sm text-gray-600">
+                Size: {connection.size}
+              </p>
+              <p className="text-sm text-gray-600">
+                Records: {connection.record_count}
+              </p>
+              <p className="text-sm text-gray-600">
+                Last Update: {new Date(connection.last_update).toLocaleString()}
+              </p>
+            </div>
           ))}
-        </Grid>
+        </div>
       </div>
     </div>
   );
