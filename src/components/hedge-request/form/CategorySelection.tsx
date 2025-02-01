@@ -2,9 +2,6 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues, Criteria } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import ExposureL1 from "./exposure-levels/ExposureL1";
-import ExposureL2 from "./exposure-levels/ExposureL2";
-import ExposureL3 from "./exposure-levels/ExposureL3";
 import ExposureL4 from "./exposure-levels/ExposureL4";
 
 interface CategorySelectionProps {
@@ -38,9 +35,6 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
 
         console.log("Fetched criteria data:", data);
         setCriteriaData(data || []);
-
-        // Don't reset form fields when loading criteria
-        // This allows draft values to persist
       } catch (error) {
         console.error("Error in fetchCriteria:", error);
       } finally {
@@ -52,29 +46,11 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
   }, [entityId]);
 
   return (
-    <>
-      <ExposureL1 
-        form={form}
-        criteriaData={criteriaData}
-        loading={loading}
-        entityId={entityId}
-      />
-      <ExposureL2 
-        form={form}
-        criteriaData={criteriaData}
-        disabled={!form.watch("exposure_config")}
-      />
-      <ExposureL3 
-        form={form}
-        criteriaData={criteriaData}
-        disabled={!form.watch("exposure_category_level_2")}
-      />
-      <ExposureL4 
-        form={form}
-        criteriaData={criteriaData}
-        disabled={!form.watch("exposure_category_level_3")}
-      />
-    </>
+    <ExposureL4 
+      form={form}
+      criteriaData={criteriaData}
+      disabled={false}
+    />
   );
 };
 

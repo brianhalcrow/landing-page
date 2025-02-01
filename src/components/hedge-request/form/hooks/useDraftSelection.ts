@@ -33,22 +33,15 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       const draft = data.draft;
       console.log('Loading draft data:', draft);
 
-      // Reset form with all values at once, bypassing validation
       form.reset({
         entity_id: draft.entity_id || '',
         entity_name: draft.entity_name || '',
         functional_currency: draft.functional_currency || '',
         exposure_config: draft.exposure_config || '',
-        exposure_category_level_2: draft.exposure_category_level_2 || '',
-        exposure_category_level_3: draft.exposure_category_level_3 || '',
         exposure_category_level_4: draft.exposure_category_level_4 || '',
         strategy: draft.strategy || '',
         instrument: draft.instrument || '',
         cost_centre: draft.cost_centre || '',
-        country: draft.country || '',
-        geo_level_1: draft.geo_level_1|| '',
-        geo_level_2: draft.geo_level_2 || '',
-        geo_level_3: draft.geo_level_3 || ''
       }, {
         keepDirty: false,
         keepTouched: true,
@@ -58,11 +51,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         keepDefaultValues: false,
       });
 
-      // Force update specific fields to trigger UI updates
       const fieldsToForceUpdate: Array<keyof FormValues> = [
         'exposure_config',
-        'exposure_category_level_2',
-        'exposure_category_level_3',
         'exposure_category_level_4',
         'strategy',
         'cost_centre'

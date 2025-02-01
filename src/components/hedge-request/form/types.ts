@@ -4,13 +4,7 @@ export const formSchema = z.object({
   entity_id: z.string().min(1, "Entity ID is required"),
   entity_name: z.string().min(1, "Entity name is required"),
   cost_centre: z.string().optional(),
-  country: z.string().optional(),
-  geo_level_1: z.string().optional(),
-  geo_level_2: z.string().optional(),
-  geo_level_3: z.string().optional(),
   functional_currency: z.string().optional(),
-  exposure_category_level_2: z.string().min(1, "Category level 2 is required"),
-  exposure_category_level_3: z.string().min(1, "Category level 3 is required"),
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),
   exposure_config: z.string().min(1, "Exposure L1 is required"),
   strategy: z.string().min(1, "Strategy is required"),
@@ -28,9 +22,6 @@ export interface Entity {
 export interface Criteria {
   entity_id: string;
   entity_name: string;
-  exposure_category_level_1: string | null;
-  exposure_category_level_2: string | null;
-  exposure_category_level_3: string | null;
   exposure_category_level_4: string | null;
   account_category_level_1: string | null;
   subsystem_code: string | null;
@@ -39,7 +30,6 @@ export interface Criteria {
 
 export interface Strategy {
   id: number;
-  exposure_category_level_2: string | null;
   strategy: string | null;
   strategy_description: string | null;
 }

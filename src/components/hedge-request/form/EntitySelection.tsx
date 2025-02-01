@@ -8,7 +8,6 @@ import { ManagementStructure } from "./entity-selection/types";
 import EntityNameIdFields from "./entity-selection/EntityNameIdFields";
 import CurrencyField from "./entity-selection/CurrencyField";
 import ManagementFields from "./entity-selection/ManagementFields";
-import GeoLevelFields from "./entity-selection/GeoLevelFields";
 
 interface EntitySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -46,10 +45,6 @@ const EntitySelection = ({
         if (!data || data.length === 0) {
           console.log('No management structure found for entity:', entityId);
           form.setValue('cost_centre', '');
-          form.setValue('country', '');
-          form.setValue('geo_level_1', '');
-          form.setValue('geo_level_2', '');
-          form.setValue('geo_level_3', '');
           setManagementStructures([]);
           return;
         }
@@ -59,10 +54,6 @@ const EntitySelection = ({
         if (data.length === 1) {
           const structure = data[0];
           form.setValue('cost_centre', structure.cost_centre || '');
-          form.setValue('country', structure.country || '');
-          form.setValue('geo_level_1', structure.geo_level_1 || '');
-          form.setValue('geo_level_2', structure.geo_level_2 || '');
-          form.setValue('geo_level_3', structure.geo_level_3 || '');
         }
       } catch (error) {
         console.error('Error in fetchManagementStructure:', error);
@@ -87,10 +78,6 @@ const EntitySelection = ({
 
     if (selectedStructure) {
       form.setValue('cost_centre', selectedStructure.cost_centre);
-      form.setValue('country', selectedStructure.country || '');
-      form.setValue('geo_level_1', selectedStructure.geo_level_1 || '');
-      form.setValue('geo_level_2', selectedStructure.geo_level_2 || '');
-      form.setValue('geo_level_3', selectedStructure.geo_level_3 || '');
     }
   };
 
@@ -109,7 +96,6 @@ const EntitySelection = ({
           managementStructures={managementStructures}
           onCostCentreSelect={handleCostCentreSelect}
         />
-        <GeoLevelFields form={form} />
       </div>
     </div>
   );
