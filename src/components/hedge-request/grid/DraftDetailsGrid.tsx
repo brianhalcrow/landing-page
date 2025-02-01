@@ -26,16 +26,14 @@ const DraftDetailsGrid = ({ hedgeRequests }: DraftDetailsGridProps) => {
 
   if (!hedgeRequests?.length) {
     return (
-      <div className="w-full h-[600px] bg-white rounded-lg border">
-        <div className="h-full flex items-center justify-center text-muted-foreground">
-          Click to add a new hedge request draft.
-        </div>
+      <div className="w-full h-[300px] flex items-center justify-center text-muted-foreground">
+        No hedge request drafts found.
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
+    <div className="w-full h-[300px] ag-theme-alpine">
       <style>
         {`
           .ag-header-center .ag-header-cell-label {
@@ -56,8 +54,7 @@ const DraftDetailsGrid = ({ hedgeRequests }: DraftDetailsGridProps) => {
           sortable: true,
           filter: true,
           resizable: true,
-          suppressSizeToFit: false,
-          editable: true
+          suppressSizeToFit: false
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}
