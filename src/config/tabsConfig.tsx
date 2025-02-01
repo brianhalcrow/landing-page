@@ -7,8 +7,6 @@ import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import EntityConfigurationTab from "@/components/configuration/EntityConfigurationTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
-import BalanceSheetTab from "@/components/hedge-request/BalanceSheetTab";
-import AdHocTab from "@/components/hedge-request/AdHocTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 
 export const tabsConfig = {
@@ -44,8 +42,8 @@ export const tabsConfig = {
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Forecast</div> },
   ],
   "hedge-request": [
-    { value: "ad-hoc", label: "Ad-Hoc", content: <AdHocTab /> },
-    { value: "balance-sheet", label: "Balance Sheet", content: <BalanceSheetTab /> },
+    { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Hedge Request</div> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Hedge Request</div> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
   ],
