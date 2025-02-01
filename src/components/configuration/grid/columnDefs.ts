@@ -52,60 +52,74 @@ export const createBaseColumnDefs = (): ColDef[] => [
 
 const validateExposureData = (data: any, fieldChanged: string, newValue: boolean) => {
   const newData = { ...data };
-  
-  // Extract the actual exposure type from the field name
-  const exposureType = fieldChanged.replace('exposure_', '');
+  const typeId = fieldChanged.replace('exposure_', '');
+
+  // Get exposure type details from data attributes
+  const exposureType = data[`type_${typeId}`];
+  if (!exposureType) return newData;
+
+  const category = exposureType.exposure_category_l2?.toLowerCase() || '';
   
   // Handle Monetary group validation
-  if (exposureType.includes('monetary')) {
-    if (exposureType === 'net_monetary') {
+  if (category === 'monetary') {
+    if (data[`type_${typeId}`]?.exposure_category_l3?.toLowerCase() === 'net monetary') {
       if (newValue) {
         // If net_monetary is checked, uncheck assets and liabilities
-        newData['exposure_monetary_assets'] = false;
-        newData['exposure_monetary_liabilities'] = false;
+        Object.keys(data).forEach(key => {
+          if (key.startsWith('exposure_') && key !== fieldChanged) {
+            const otherTypeId = key.replace('exposure_', '');
+            const otherType = data[`type_${otherTypeId}`];
+            if (otherType?.exposure_category_l2?.toLowerCase() === 'monetary') {
+              newData[key] = false;
+            }
+          }
+        });
       }
     } else {
       // If assets or liabilities are being modified
       if (newValue) {
         // If checking either assets or liabilities, uncheck net_monetary
-        newData['exposure_net_monetary'] = false;
-      } else {
-        // If unchecking either assets or liabilities, check if the other is also unchecked
-        const isAssetsField = exposureType === 'monetary_assets';
-        const otherField = isAssetsField ? 'exposure_monetary_liabilities' : 'exposure_monetary_assets';
-        
-        // If the other field is checked, enable net_monetary and uncheck the other field
-        if (newData[otherField]) {
-          newData['exposure_net_monetary'] = true;
-          newData[otherField] = false;
-        }
+        Object.keys(data).forEach(key => {
+          if (key.startsWith('exposure_')) {
+            const otherTypeId = key.replace('exposure_', '');
+            const otherType = data[`type_${otherTypeId}`];
+            if (otherType?.exposure_category_l3?.toLowerCase() === 'net monetary') {
+              newData[key] = false;
+            }
+          }
+        });
       }
     }
   }
 
   // Handle Revenue/Costs/Net Income group validation
-  if (exposureType.includes('revenue') || exposureType.includes('costs') || exposureType.includes('net_income')) {
-    if (exposureType === 'net_income') {
+  if (category === 'income') {
+    if (data[`type_${typeId}`]?.exposure_category_l3?.toLowerCase() === 'net income') {
       if (newValue) {
         // If net_income is checked, uncheck revenue and costs
-        newData['exposure_revenue'] = false;
-        newData['exposure_costs'] = false;
+        Object.keys(data).forEach(key => {
+          if (key.startsWith('exposure_') && key !== fieldChanged) {
+            const otherTypeId = key.replace('exposure_', '');
+            const otherType = data[`type_${otherTypeId}`];
+            if (otherType?.exposure_category_l2?.toLowerCase() === 'income') {
+              newData[key] = false;
+            }
+          }
+        });
       }
     } else {
       // If revenue or costs are being modified
       if (newValue) {
         // If checking either revenue or costs, uncheck net_income
-        newData['exposure_net_income'] = false;
-      } else {
-        // If unchecking either revenue or costs, check if the other is checked
-        const isRevenueField = exposureType === 'revenue';
-        const otherField = isRevenueField ? 'exposure_costs' : 'exposure_revenue';
-        
-        // If the other field is checked, enable net_income and uncheck the other field
-        if (newData[otherField]) {
-          newData['exposure_net_income'] = true;
-          newData[otherField] = false;
-        }
+        Object.keys(data).forEach(key => {
+          if (key.startsWith('exposure_')) {
+            const otherTypeId = key.replace('exposure_', '');
+            const otherType = data[`type_${otherTypeId}`];
+            if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
+              newData[key] = false;
+            }
+          }
+        });
       }
     }
   }
@@ -148,19 +162,29 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
         cellRenderer: CheckboxCellRenderer,
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
-          value: params.data?.[`exposure_${type.exposure_type_id}`] || false,
+          value: params.value,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const fieldName = params.column.getColId();
               
-              // Create a copy of the current data
-              const currentData = { ...params.data };
+              // Add type information to the data for validation
+              const currentData = { 
+                ...params.data,
+                [`type_${type.exposure_type_id}`]: type
+              };
               
               // Apply validation before updating the data
               const validatedData = validateExposureData(currentData, fieldName, checked);
               
               // Update the field that was actually clicked
               validatedData[fieldName] = checked;
+              
+              // Remove temporary type information
+              Object.keys(validatedData).forEach(key => {
+                if (key.startsWith('type_')) {
+                  delete validatedData[key];
+                }
+              });
               
               // Update row with validated data
               params.node.setData(validatedData);
@@ -169,7 +193,7 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
               onCellValueChanged({ 
                 ...params, 
                 data: validatedData,
-                oldValue: currentData[fieldName],
+                oldValue: params.value,
                 newValue: checked 
               });
               
