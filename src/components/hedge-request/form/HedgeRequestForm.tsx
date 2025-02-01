@@ -65,7 +65,6 @@ const HedgeRequestForm: React.FC = () => {
     fetchDrafts();
   }, []);
 
-  // Watch form changes for completion check
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       const values = form.getValues();
@@ -157,7 +156,7 @@ const HedgeRequestForm: React.FC = () => {
     }
   };
 
-  // Add these variables to control button states
+  // Define these variables before the return statement
   const canSaveDraft = isFormComplete && !draftSaved;
   const canSubmit = isFormComplete && draftSaved;
 
