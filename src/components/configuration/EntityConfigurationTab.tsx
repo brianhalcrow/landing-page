@@ -8,6 +8,8 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { ColDef, ColGroupDef } from 'ag-grid-community';
+import { Button } from "@/components/ui/button";
+import { Edit, Save } from "lucide-react";
 
 const EntityConfigurationTab = () => {
   const queryClient = useQueryClient();
@@ -44,7 +46,8 @@ const EntityConfigurationTab = () => {
 
         return {
           ...entity,
-          ...exposureConfigs
+          ...exposureConfigs,
+          isEditing: false
         };
       });
     }
@@ -99,25 +102,37 @@ const EntityConfigurationTab = () => {
     return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
       headerName: l1,
       groupId: l1,
+      headerClass: 'ag-header-center',
       children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
         headerName: l2,
         groupId: `${l1}-${l2}`,
+        headerClass: 'ag-header-center',
         children: types.map((type: any) => ({
           headerName: type.exposure_category_l3,
           field: `exposure_${type.exposure_type_id}`,
           minWidth: 120,
           flex: 1,
+          headerClass: 'ag-header-center',
           cellRenderer: (params: any) => {
-            return params.value ? '✓' : '✗';
-          },
-          onCellValueChanged: (params: any) => {
-            const entityId = params.data.entity_id;
-            const exposureTypeId = parseInt(params.colDef.field.split('_')[1]);
-            updateConfig.mutate({
-              entityId,
-              exposureTypeId,
-              isActive: params.newValue
-            });
+            if (!params.data.isEditing) {
+              return params.value ? '✓' : '✗';
+            }
+            return (
+              <input
+                type="checkbox"
+                checked={params.value}
+                onChange={(e) => {
+                  const newValue = e.target.checked;
+                  params.setValue(newValue);
+                  updateConfig.mutate({
+                    entityId: params.data.entity_id,
+                    exposureTypeId: parseInt(params.colDef.field.split('_')[1]),
+                    isActive: newValue
+                  });
+                }}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+            );
           }
         }))
       }))
@@ -125,17 +140,77 @@ const EntityConfigurationTab = () => {
   };
 
   const baseColumnDefs: (ColDef | ColGroupDef)[] = [
-    { field: 'entity_id', headerName: 'Entity ID', minWidth: 90, flex: 1 },
-    { field: 'entity_name', headerName: 'Entity Name', minWidth: 180, flex: 2 },
-    { field: 'functional_currency', headerName: 'Functional Currency', minWidth: 75, flex: 1 },
-    { field: 'accounting_rate_method', headerName: 'Accounting Rate Method', minWidth: 160, flex: 1.5 },
+    { 
+      field: 'entity_id', 
+      headerName: 'Entity ID', 
+      minWidth: 90, 
+      flex: 1,
+      headerClass: 'ag-header-center'
+    },
+    { 
+      field: 'entity_name', 
+      headerName: 'Entity Name', 
+      minWidth: 180, 
+      flex: 2,
+      headerClass: 'ag-header-center'
+    },
+    { 
+      field: 'functional_currency', 
+      headerName: 'Functional Currency', 
+      minWidth: 75, 
+      flex: 1,
+      headerClass: 'ag-header-center'
+    },
+    { 
+      field: 'accounting_rate_method', 
+      headerName: 'Accounting Rate Method', 
+      minWidth: 160, 
+      flex: 1.5,
+      headerClass: 'ag-header-center'
+    },
     { 
       field: 'is_active', 
       headerName: 'Is Active', 
       minWidth: 100, 
       flex: 1,
+      headerClass: 'ag-header-center',
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
+      }
+    },
+    {
+      headerName: 'Actions',
+      minWidth: 120,
+      flex: 1,
+      headerClass: 'ag-header-center',
+      cellRenderer: (params: any) => {
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {!params.data.isEditing ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const rowNode = params.api.getRowNode(params.rowIndex);
+                  rowNode.setDataValue('isEditing', true);
+                }}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const rowNode = params.api.getRowNode(params.rowIndex);
+                  rowNode.setDataValue('isEditing', false);
+                }}
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        );
       }
     }
   ];
@@ -169,6 +244,13 @@ const EntityConfigurationTab = () => {
       <div className="p-6">
         <h2 className="text-2xl font-semibold mb-4">Entity Configuration</h2>
         <div className="w-full h-[600px] ag-theme-alpine">
+          <style>
+            {`
+              .ag-header-center .ag-header-cell-label {
+                justify-content: center;
+              }
+            `}
+          </style>
           <AgGridReact
             rowData={entities}
             columnDefs={allColumnDefs}
@@ -176,7 +258,7 @@ const EntityConfigurationTab = () => {
               sortable: true,
               filter: true,
               resizable: true,
-              editable: true
+              editable: false
             }}
             suppressColumnVirtualisation={true}
             enableCellTextSelection={true}
