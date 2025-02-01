@@ -189,7 +189,7 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
   ];
 
   return (
-    <div className="w-full h-[300px] ag-theme-alpine">
+    <div className="w-full ag-theme-alpine" style={{ height: '48px' }}>
       <style>
         {`
           .ag-header-center .ag-header-cell-label {
@@ -215,6 +215,7 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        domLayout='autoHeight'
         onCellValueChanged={(event) => {
           const newData = [...rowData];
           newData[event.rowIndex] = { 
