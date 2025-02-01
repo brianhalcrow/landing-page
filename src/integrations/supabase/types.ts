@@ -261,42 +261,6 @@ export type Database = {
         }
         Relationships: []
       }
-      criteria: {
-        Row: {
-          account_category_level_1: string | null
-          entity_id: string | null
-          entity_name: string | null
-          exposure_category_l1: string | null
-          exposure_category_l2: string | null
-          exposure_category_l3: string | null
-          exposure_config: string | null
-          id: number
-          subsystem_code: string | null
-        }
-        Insert: {
-          account_category_level_1?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          exposure_category_l1?: string | null
-          exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
-          exposure_config?: string | null
-          id?: number
-          subsystem_code?: string | null
-        }
-        Update: {
-          account_category_level_1?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          exposure_category_l1?: string | null
-          exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
-          exposure_config?: string | null
-          id?: number
-          subsystem_code?: string | null
-        }
-        Relationships: []
-      }
       entities: {
         Row: {
           accounting_rate_method: string

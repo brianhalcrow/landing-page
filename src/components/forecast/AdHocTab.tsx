@@ -5,15 +5,22 @@ import HedgeRequestGrid from "../hedge-request/grid/HedgeRequestGrid";
 
 const AdHocTab = () => {
   const { data: hedgeRequests, isLoading } = useQuery({
-    queryKey: ['hedge-requests'],
+    queryKey: ['hedge-request-drafts'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('hedge_request')
-        .select('*')
+        .from('hedge_request_draft')
+        .select(`
+          id,
+          entity_id,
+          entity_name,
+          functional_currency,
+          cost_centre,
+          status
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching hedge requests:', error);
+        console.error('Error fetching hedge request drafts:', error);
         throw error;
       }
 

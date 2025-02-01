@@ -4,8 +4,17 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { columnDefs } from './columnDefs';
 import { useRef } from 'react';
 
+interface HedgeRequestDraft {
+  id: string;
+  entity_id: string;
+  entity_name: string;
+  functional_currency: string;
+  cost_centre: string;
+  status: string;
+}
+
 interface HedgeRequestGridProps {
-  hedgeRequests: any[]; // We'll type this properly once we define the interface
+  hedgeRequests: HedgeRequestDraft[];
 }
 
 const HedgeRequestGrid = ({ hedgeRequests }: HedgeRequestGridProps) => {
@@ -14,7 +23,7 @@ const HedgeRequestGrid = ({ hedgeRequests }: HedgeRequestGridProps) => {
   if (!hedgeRequests?.length) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
-        No hedge requests found.
+        No hedge request drafts found.
       </div>
     );
   }
@@ -25,6 +34,11 @@ const HedgeRequestGrid = ({ hedgeRequests }: HedgeRequestGridProps) => {
         {`
           .ag-header-center .ag-header-cell-label {
             justify-content: center;
+          }
+          .ag-cell {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
         `}
       </style>
