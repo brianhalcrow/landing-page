@@ -1,7 +1,6 @@
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from './CheckboxCellRenderer';
 import ActionsCellRenderer from './ActionsCellRenderer';
-import { toast } from "sonner";
 
 export const createBaseColumnDefs = (): ColDef[] => [
   { 
@@ -51,7 +50,7 @@ export const createBaseColumnDefs = (): ColDef[] => [
   }
 ];
 
-export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
+export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: (params: any) => void): ColGroupDef[] => {
   const groupedExposures = exposureTypes.reduce((acc: any, type) => {
     const l1 = type.exposure_category_l1;
     const l2 = type.exposure_category_l2;
@@ -89,7 +88,9 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const newValue = checked;
-              params.node.setDataValue(params.column.getColId(), newValue);
+              const newData = { ...params.data };
+              newData[params.column.getColId()] = newValue;
+              onCellValueChanged({ ...params, data: newData });
             }
           }
         })
