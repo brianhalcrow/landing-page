@@ -5,6 +5,7 @@ import { useEntities } from "@/hooks/useEntities";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Entity } from "./types";
 
 const EntityConfigurationTab = () => {
   const { entities: allEntities, isLoading, refetch } = useEntities();
@@ -42,7 +43,7 @@ const EntityConfigurationTab = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("entities")
-        .select("entity_id, entity_name, functional_currency, accounting_rate_method")
+        .select("*")
         .order('entity_name');
       
       if (error) {
@@ -50,12 +51,7 @@ const EntityConfigurationTab = () => {
         throw error;
       }
       
-      return data.map(entity => ({
-        entity_id: entity.entity_id,
-        entity_name: entity.entity_name,
-        functional_currency: entity.functional_currency,
-        accounting_rate_method: entity.accounting_rate_method
-      }));
+      return data as Entity[];
     },
   });
 

@@ -5,14 +5,10 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { getColumnDefs } from './grid/columnDefinitions';
 import { gridStyles } from './grid/gridStyles';
 import EmptyGridMessage from './grid/EmptyGridMessage';
+import { Entity } from './types';
 
 interface ConfigurationGridProps {
-  entities: {
-    entity_id: string;
-    entity_name: string;
-    functional_currency: string;
-    accounting_rate_method: string;
-  }[];
+  entities: Entity[];
 }
 
 const ConfigurationGrid = ({ entities }: ConfigurationGridProps) => {
