@@ -11,20 +11,16 @@ const CheckboxCellRenderer = ({
   disabled = false, 
   onChange 
 }: CheckboxCellRendererProps) => {
+  // Add console logs for debugging
+  console.log('CheckboxCellRenderer props:', { value, disabled });
+  
   const handleChange = (checked: boolean | string) => {
+    console.log('Checkbox change:', checked);
     onChange?.(!!checked);
   };
 
   return (
-    <div 
-      className="ag-cell-wrapper ag-cell-wrapper-center" 
-      style={{ 
-        height: '100%', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center' 
-      }}
-    >
+    <div className="flex items-center justify-center h-full">
       <Checkbox 
         checked={!!value}
         disabled={disabled}
