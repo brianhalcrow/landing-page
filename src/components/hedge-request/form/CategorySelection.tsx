@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import StrategyField from "./strategy/StrategyField";
+import InstrumentField from "./instrument/InstrumentField";
 
 interface CategorySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -67,6 +69,64 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
     <div className="flex gap-4">
       <FormField
         control={form.control}
+        name="exposure_category_level_2"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Exposure L2</FormLabel>
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              disabled={!entityId || loading}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select L2" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {getUniqueValues("exposure_category_level_2").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="exposure_category_level_4"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Exposure L4</FormLabel>
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              disabled={!entityId || loading}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select L4" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {getUniqueValues("exposure_category_level_4").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="exposure_config"
         render={({ field }) => (
           <FormItem className="w-40">
@@ -94,33 +154,14 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="exposure_category_level_4"
-        render={({ field }) => (
-          <FormItem className="w-40">
-            <FormLabel className="h-14">Exposure L4</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value}
-              disabled={!form.watch("exposure_config") || loading}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select L4" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {getUniqueValues("exposure_category_level_4").map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <StrategyField 
+        form={form}
+        disabled={!form.watch("exposure_category_level_4")}
+      />
+      
+      <InstrumentField 
+        form={form}
+        disabled={!form.watch("strategy")}
       />
     </div>
   );
