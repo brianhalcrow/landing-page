@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -8,35 +7,23 @@ import { useEntities } from "@/hooks/useEntities";
 const EntitiesTab = () => {
   const { isLoading, error, refetch } = useEntities();
 
-  const { data: exposures } = useQuery({
-    queryKey: ["exposures"],
+  const { data: entities } = useQuery({
+    queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("config_exposures")
-        .select("*");
+        .from("entities")
+        .select("*")
+        .order('entity_name');
 
       if (error) {
-        console.error("Error fetching exposures:", error);
-        toast.error("Failed to fetch exposures");
+        console.error("Error fetching entities:", error);
+        toast.error("Failed to fetch entities");
         throw error;
       }
 
       return data;
     },
   });
-
-  // Handle auth state changes
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        refetch();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [refetch]);
 
   if (error) {
     return (
@@ -48,7 +35,7 @@ const EntitiesTab = () => {
 
   return (
     <div className="space-y-6">
-      {exposures && <EntitiesGrid entities={exposures} />}
+      {entities && <EntitiesGrid entities={entities} />}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { Tables } from '@/integrations/supabase/types';
 import { useRef, useEffect } from 'react';
 
 interface EntitiesGridProps {
-  entities: Tables<'config_exposures'>[];
+  entities: Tables<'entities'>[];
 }
 
 const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
@@ -16,22 +16,22 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { field: 'entity_id', headerName: 'Entity ID', width: 110 },
     { field: 'entity_name', headerName: 'Entity Name', width: 150 },
     { field: 'functional_currency', headerName: 'Functional Currency', width: 120 },
-    { field: 'po', headerName: 'PO', width: 100 },
-    { field: 'ap', headerName: 'AP', width: 100 },
-    { field: 'ar', headerName: 'AR', width: 100 },
-    { field: 'other', headerName: 'Other', width: 100 },
-    { field: 'revenue', headerName: 'Revenue', width: 100 },
-    { field: 'costs', headerName: 'Costs', width: 100 },
-    { field: 'net_income', headerName: 'Net Income', width: 100 },
-    { field: 'ap_realized', headerName: 'AP Realized', width: 110 },
-    { field: 'ar_realized', headerName: 'AR Realized', width: 110 },
-    { field: 'fx_realized', headerName: 'FX Realized', width: 110 },
-    { field: 'net_monetary', headerName: 'Net Monetary', width: 120 },
-    { field: 'monetary_assets', headerName: 'Monetary Assets', width: 130 },
-    { field: 'monetary_liabilities', headerName: 'Monetary Liabilities', width: 140 },
+    { field: 'accounting_rate_method', headerName: 'Rate Method', width: 120 },
+    { field: 'is_active', headerName: 'Active', width: 100 },
     { 
       field: 'created_at', 
       headerName: 'Created At', 
+      width: 160,
+      valueFormatter: (params) => {
+        if (params.value) {
+          return new Date(params.value).toLocaleString();
+        }
+        return '';
+      }
+    },
+    { 
+      field: 'updated_at', 
+      headerName: 'Updated At', 
       width: 160,
       valueFormatter: (params) => {
         if (params.value) {
@@ -67,7 +67,7 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
   if (!entities.length) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
-        No entities found. Please upload entities using the CSV operations above.
+        No entities found.
       </div>
     );
   }
