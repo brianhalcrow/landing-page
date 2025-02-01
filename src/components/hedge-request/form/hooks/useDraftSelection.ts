@@ -8,7 +8,6 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
     try {
       console.log('Fetching draft data for ID:', selectedDraftId);
       
-      // Call the edge function with properly formatted body
       const { data, error } = await supabase.functions.invoke('get-draft-data', {
         body: JSON.stringify({ draft_id: selectedDraftId })
       });
@@ -31,53 +30,56 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       const draft = data.draft;
       console.log('Loaded draft data:', draft);
 
-      // Set entity-related fields first
-      form.setValue('entity_id', draft.entity_id || '');
-      form.setValue('entity_name', draft.entity_name || '');
-      form.setValue('functional_currency', draft.functional_currency || '');
+      // Set entity-related fields first and wait for them to be set
+      await Promise.all([
+        form.setValue('entity_id', draft.entity_id || ''),
+        form.setValue('entity_name', draft.entity_name || ''),
+        form.setValue('functional_currency', draft.functional_currency || '')
+      ]);
 
-      // Wait for a short moment to ensure entity fields are processed
+      // Wait a moment for entity fields to be processed
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Set exposure fields
+      // Set exposure config (L1) and wait
       if (draft.exposure_config) {
-        form.setValue('exposure_config', draft.exposure_config);
-        
-        // Wait for criteria data to be loaded
+        await form.setValue('exposure_config', draft.exposure_config);
         await new Promise(resolve => setTimeout(resolve, 200));
-
+        
+        // Set L2 and wait
         if (draft.exposure_category_level_2) {
-          form.setValue('exposure_category_level_2', draft.exposure_category_level_2);
-          
-          // Wait for L2 effects
+          await form.setValue('exposure_category_level_2', draft.exposure_category_level_2);
           await new Promise(resolve => setTimeout(resolve, 200));
-
+          
+          // Set L3 and wait
           if (draft.exposure_category_level_3) {
-            form.setValue('exposure_category_level_3', draft.exposure_category_level_3);
-            
-            // Wait for L3 effects
+            await form.setValue('exposure_category_level_3', draft.exposure_category_level_3);
             await new Promise(resolve => setTimeout(resolve, 200));
-
+            
+            // Set L4 and wait
             if (draft.exposure_category_level_4) {
-              form.setValue('exposure_category_level_4', draft.exposure_category_level_4);
-              
-              // Wait for L4 effects
+              await form.setValue('exposure_category_level_4', draft.exposure_category_level_4);
               await new Promise(resolve => setTimeout(resolve, 200));
-
+              
+              // Finally set strategy and instrument
               if (draft.strategy) {
-                form.setValue('strategy', draft.strategy);
-                
-                // Wait for strategy effects
+                await form.setValue('strategy', draft.strategy);
                 await new Promise(resolve => setTimeout(resolve, 200));
-
+                
                 if (draft.instrument) {
-                  form.setValue('instrument', draft.instrument);
+                  await form.setValue('instrument', draft.instrument);
                 }
               }
             }
           }
         }
       }
+
+      // Set remaining fields that don't have dependencies
+      form.setValue('cost_centre', draft.cost_centre || '');
+      form.setValue('country', draft.country || '');
+      form.setValue('geo_level_1', draft.geo_level_1 || '');
+      form.setValue('geo_level_2', draft.geo_level_2 || '');
+      form.setValue('geo_level_3', draft.geo_level_3 || '');
 
       console.log('Draft loaded successfully:', data);
       return data;
