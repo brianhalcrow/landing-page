@@ -1,1 +1,10 @@
 project_id = "xykomxyyxgcztgmhqzvm"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[functions]
+[functions.get-draft-data]
+verify_jwt = false

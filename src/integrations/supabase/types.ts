@@ -993,7 +993,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_draft_with_options: {
+        Args: {
+          draft_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
