@@ -6,47 +6,57 @@ export const createBaseColumnDefs = (): ColDef[] => [
   { 
     field: 'entity_id', 
     headerName: 'Entity ID', 
-    width: 120,
-    suppressSizeToFit: true,
+    minWidth: 120, 
+    flex: 1,
     headerClass: 'ag-header-center custom-header',
+    suppressSizeToFit: true,
     wrapHeaderText: true,
-    autoHeaderHeight: true,
-    resizable: false
+    autoHeaderHeight: true
   },
   { 
     field: 'entity_name', 
     headerName: 'Entity Name', 
-    width: 240,
-    suppressSizeToFit: true,
+    minWidth: 240, 
+    flex: 2,
     headerClass: 'ag-header-center custom-header',
+    suppressSizeToFit: true,
     wrapHeaderText: true,
     autoHeaderHeight: true,
-    cellClass: 'text-left pl-4',
-    resizable: false
+    cellClass: 'text-left pl-4' // Add left alignment
   },
   { 
     field: 'functional_currency', 
     headerName: 'Functional Currency', 
-    width: 140,
-    suppressSizeToFit: true,
+    minWidth: 140, 
+    flex: 1,
     headerClass: 'ag-header-center custom-header',
+    suppressSizeToFit: true,
     wrapHeaderText: true,
-    autoHeaderHeight: true,
-    resizable: false
+    autoHeaderHeight: true
+  },
+  { 
+    field: 'accounting_rate_method', 
+    headerName: 'Accounting Rate Method', 
+    minWidth: 160, 
+    flex: 1.5,
+    headerClass: 'ag-header-center custom-header',
+    suppressSizeToFit: true,
+    wrapHeaderText: true,
+    autoHeaderHeight: true
   },
   { 
     field: 'is_active', 
     headerName: 'Is Active', 
-    width: 100,
-    suppressSizeToFit: true,
+    minWidth: 100, 
+    flex: 1,
     headerClass: 'ag-header-center custom-header',
+    suppressSizeToFit: true,
     wrapHeaderText: true,
     autoHeaderHeight: true,
     cellRenderer: CheckboxCellRenderer,
     cellRendererParams: {
       disabled: true
-    },
-    resizable: false
+    }
   }
 ];
 
@@ -68,23 +78,20 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
     headerClass: 'ag-header-center custom-header',
     wrapHeaderText: true,
     autoHeaderHeight: true,
-    resizable: false,
     children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
       headerName: l2,
       groupId: `${l1}-${l2}`,
       headerClass: 'ag-header-center custom-header',
       wrapHeaderText: true,
       autoHeaderHeight: true,
-      resizable: false,
       children: types.map((type: any) => ({
         headerName: type.exposure_category_l3,
         field: `exposure_${type.exposure_type_id}`,
-        width: 120,
-        suppressSizeToFit: true,
+        minWidth: 120,
+        flex: 1,
         headerClass: 'ag-header-center custom-header',
         wrapHeaderText: true,
         autoHeaderHeight: true,
-        resizable: false,
         cellRenderer: CheckboxCellRenderer,
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
@@ -102,15 +109,15 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
 
 export const createActionColumn = (): ColDef => ({
   headerName: 'Actions',
-  width: 100,
+  minWidth: 120,
+  width: 120, // Fixed width
   suppressSizeToFit: true,
   pinned: 'right',
-  lockPinned: true,
-  lockPosition: true,
+  lockPinned: true, // Prevent unpinning
+  lockPosition: true, // Prevent moving the column
   headerClass: 'ag-header-center custom-header',
   wrapHeaderText: true,
   autoHeaderHeight: true,
-  resizable: false,
   cellRenderer: ActionsCellRenderer,
   cellRendererParams: (params: any) => ({
     isEditing: params.data?.isEditing,
