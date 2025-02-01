@@ -7,14 +7,31 @@ interface ActionsCellRendererProps {
   onSaveClick: () => void;
 }
 
-const ActionsCellRenderer = ({ isEditing, onEditClick, onSaveClick }: ActionsCellRendererProps) => {
+const ActionsCellRenderer = ({ 
+  isEditing = false, 
+  onEditClick, 
+  onSaveClick 
+}: ActionsCellRendererProps) => {
+  // Add console logs for debugging
+  console.log('ActionsCellRenderer state:', { isEditing });
+  
+  const handleEditClick = () => {
+    console.log('Edit clicked');
+    onEditClick();
+  };
+
+  const handleSaveClick = () => {
+    console.log('Save clicked');
+    onSaveClick();
+  };
+
   return (
     <div className="flex items-center justify-center gap-2">
       {isEditing ? (
         <Button
           variant="ghost"
           size="sm"
-          onClick={onSaveClick}
+          onClick={handleSaveClick}
           className="h-8 w-8 p-0"
         >
           <Save className="h-4 w-4" />
@@ -23,7 +40,7 @@ const ActionsCellRenderer = ({ isEditing, onEditClick, onSaveClick }: ActionsCel
         <Button
           variant="ghost"
           size="sm"
-          onClick={onEditClick}
+          onClick={handleEditClick}
           className="h-8 w-8 p-0"
         >
           <Edit className="h-4 w-4" />
