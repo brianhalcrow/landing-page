@@ -64,7 +64,6 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
 
   const handleSaveRow = async (data: any) => {
     try {
-      // Remove id if it's undefined (new row)
       const { id, ...rowData } = data;
       
       const { error } = await supabase
@@ -189,7 +188,7 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
   ];
 
   return (
-    <div className="w-full ag-theme-alpine" style={{ height: '48px' }}>
+    <div className="w-full ag-theme-alpine">
       <style>
         {`
           .ag-header-center .ag-header-cell-label {
@@ -199,6 +198,12 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+          }
+          .ag-header-row {
+            height: 32px !important;
+          }
+          .ag-row {
+            height: 40px !important;
           }
         `}
       </style>
@@ -212,10 +217,13 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
           resizable: true,
           suppressSizeToFit: false
         }}
+        headerHeight={32}
+        rowHeight={40}
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
-        domLayout='autoHeight'
+        domLayout="autoHeight"
+        suppressHorizontalScroll={false}
         onCellValueChanged={(event) => {
           const newData = [...rowData];
           newData[event.rowIndex] = { 
