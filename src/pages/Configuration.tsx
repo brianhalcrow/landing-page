@@ -10,7 +10,10 @@ const Configuration = () => {
         <Skeleton className="h-[600px] w-full" />
       </div>
     }>
-      <TabsContainer tabs={tabsConfig["configuration"]} />
+      <TabsContainer 
+        tabs={tabsConfig["configuration"]} 
+        showCsvOperations={true}
+      />
     </Suspense>
   );
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import CsvOperationsHeader from "./configuration/CsvOperationsHeader";
 
 export interface TabItem {
   value: string;
@@ -11,16 +12,17 @@ export interface TabItem {
 interface TabsContainerProps {
   tabs: TabItem[];
   defaultTab?: string;
+  showCsvOperations?: boolean;
 }
 
-const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
+const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerProps) => {
   if (!tabs || tabs.length === 0) {
     return <div>No tabs configured</div>;
   }
 
   return (
     <Tabs defaultValue={defaultTab || tabs[0].value} className="w-full">
-      <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800">
         <TabsList className="justify-start overflow-x-auto bg-gray-100 dark:bg-gray-800">
           {tabs.map((tab, index) => (
             <React.Fragment key={tab.value}>
@@ -36,6 +38,7 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
             </React.Fragment>
           ))}
         </TabsList>
+        {showCsvOperations && <CsvOperationsHeader />}
       </div>
       <div className="p-6">
         {tabs.map((tab) => (
