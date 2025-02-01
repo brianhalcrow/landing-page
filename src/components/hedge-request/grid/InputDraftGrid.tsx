@@ -99,8 +99,7 @@ const InputDraftGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
   const queryClient = useQueryClient();
   
-  // Initialize state from cache or default
-  const cachedState = queryClient.getQueryData<HedgeRequestDraft[]>([CACHE_KEY]) || [{
+  const emptyRow = {
     entity_id: '',
     entity_name: '',
     functional_currency: '',
@@ -110,8 +109,10 @@ const InputDraftGrid = () => {
     exposure_category_l3: '',
     strategy: '',
     instrument: ''
-  }];
+  };
   
+  // Initialize state from cache or default
+  const cachedState = queryClient.getQueryData<HedgeRequestDraft[]>([CACHE_KEY]) || [emptyRow];
   const [rowData, setRowData] = useState<HedgeRequestDraft[]>(cachedState);
 
   // Update cache whenever rowData changes
@@ -184,17 +185,6 @@ const InputDraftGrid = () => {
       if (error) throw error;
 
       toast.success('Draft saved successfully');
-      const emptyRow = {
-        entity_id: '',
-        entity_name: '',
-        functional_currency: '',
-        cost_centre: '',
-        exposure_category_l1: '',
-        exposure_category_l2: '',
-        exposure_category_l3: '',
-        strategy: '',
-        instrument: ''
-      };
       updateCache([emptyRow]);
     } catch (error) {
       console.error('Error saving draft:', error);
@@ -203,18 +193,7 @@ const InputDraftGrid = () => {
   };
 
   const addNewRow = () => {
-    const newRow = {
-      entity_id: '',
-      entity_name: '',
-      functional_currency: '',
-      cost_centre: '',
-      exposure_category_l1: '',
-      exposure_category_l2: '',
-      exposure_category_l3: '',
-      strategy: '',
-      instrument: ''
-    };
-    const newData = [...rowData, newRow];
+    const newData = [...rowData, emptyRow];
     updateCache(newData);
   };
 
@@ -250,7 +229,10 @@ const InputDraftGrid = () => {
           enableCellTextSelection={true}
           onCellValueChanged={(event) => {
             const newData = [...rowData];
-            newData[event.rowIndex] = { ...newData[event.rowIndex], [event.colDef.field]: event.newValue };
+            newData[event.rowIndex] = { 
+              ...newData[event.rowIndex], 
+              [event.colDef.field]: event.newValue 
+            };
             updateCache(newData);
           }}
         />
