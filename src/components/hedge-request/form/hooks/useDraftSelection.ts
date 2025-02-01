@@ -59,7 +59,7 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       });
 
       // Force update specific fields to trigger UI updates
-      const fieldsToForceUpdate = [
+      const fieldsToForceUpdate: Array<keyof FormValues> = [
         'exposure_config',
         'exposure_category_level_2',
         'exposure_category_level_3',
