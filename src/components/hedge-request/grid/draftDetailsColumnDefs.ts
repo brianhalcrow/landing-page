@@ -7,7 +7,6 @@ export const draftDetailsColumnDefs: ColDef[] = [
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
-    cellRenderer: 'agSelectCellEditor',
     cellEditor: 'agSelectCellEditor',
     editable: (params) => !params.data?.id, // Only editable for new rows
     cellEditorParams: (params) => ({
