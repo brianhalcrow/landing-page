@@ -30,13 +30,13 @@ const CostCentreField = ({
   onCostCentreSelect 
 }: CostCentreFieldProps) => {
   useEffect(() => {
+    const currentCostCentre = form.getValues('cost_centre');
     if (managementStructures.length === 1) {
       const costCentre = managementStructures[0].cost_centre;
-      form.setValue('cost_centre', costCentre);
-      onCostCentreSelect(costCentre);
-    } else {
-      // Clear cost centre if multiple options are available and none selected
-      form.setValue('cost_centre', '');
+      if (!currentCostCentre) {
+        form.setValue('cost_centre', costCentre);
+        onCostCentreSelect(costCentre);
+      }
     }
   }, [managementStructures, form, onCostCentreSelect]);
 
