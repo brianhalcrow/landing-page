@@ -1,9 +1,14 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotTable } from "@handsontable/react-wrapper";
+import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { HotTableProps } from '@handsontable/react-wrapper';
+
+// Register all Handsontable modules
+registerAllModules();
 
 const EntityConfigurationTab = () => {
   const { data: entities, isLoading } = useQuery({
@@ -26,7 +31,7 @@ const EntityConfigurationTab = () => {
     );
   }
 
-  const settings = {
+  const settings: HotTableProps = {
     data: entities || [],
     colHeaders: ['Entity ID', 'Entity Name', 'Functional Currency', 'Accounting Rate Method', 'Active'],
     columns: [
@@ -34,12 +39,17 @@ const EntityConfigurationTab = () => {
       { data: 'entity_name' },
       { data: 'functional_currency' },
       { data: 'accounting_rate_method' },
-      { data: 'is_active', type: 'checkbox' }
+      { 
+        data: 'is_active',
+        type: 'checkbox',
+        editor: 'checkbox',
+        renderer: 'checkbox'
+      }
     ],
     licenseKey: 'non-commercial-and-evaluation',
     height: 'auto',
     width: '100%',
-    stretchH: 'all'
+    stretchH: 'all' as const
   };
 
   return (
