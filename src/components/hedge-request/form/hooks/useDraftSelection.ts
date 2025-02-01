@@ -6,62 +6,68 @@ import { toast } from "sonner";
 export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
   const handleDraftSelect = async (selectedDraftId: string) => {
     try {
-      // Fetch draft data
-      const { data: draftData, error } = await supabase
-        .from('hedge_request_draft')
-        .select('*')
-        .eq('id', selectedDraftId)
-        .single();
+      // Call the edge function to get draft data with options
+      const { data: draftData, error } = await supabase.functions.invoke('get-draft-data', {
+        body: { draft_id: selectedDraftId }
+      });
 
-      if (error || !draftData) {
+      if (error) {
+        console.error('Error fetching draft:', error);
         toast.error("Failed to load draft");
-        return;
+        return null;
+      }
+
+      if (!draftData || !draftData.draft) {
+        toast.error("No draft data found");
+        return null;
       }
 
       // Reset form before setting new values
       form.reset();
 
+      const draft = draftData.draft;
+
       // Set entity-related fields first
-      form.setValue('entity_id', draftData.entity_id || '');
-      form.setValue('entity_name', draftData.entity_name || '');
-      form.setValue('functional_currency', draftData.functional_currency || '');
+      form.setValue('entity_id', draft.entity_id || '');
+      form.setValue('entity_name', draft.entity_name || '');
+      form.setValue('functional_currency', draft.functional_currency || '');
 
       // Wait for a short moment to ensure entity fields are processed
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Set exposure fields
-      if (draftData.exposure_config) {
-        form.setValue('exposure_config', draftData.exposure_config);
+      if (draft.exposure_config) {
+        form.setValue('exposure_config', draft.exposure_config);
         
         // Wait for criteria data to be loaded
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        if (draftData.exposure_category_level_2) {
-          form.setValue('exposure_category_level_2', draftData.exposure_category_level_2);
+        if (draft.exposure_category_level_2) {
+          form.setValue('exposure_category_level_2', draft.exposure_category_level_2);
           
           // Wait for L2 effects
           await new Promise(resolve => setTimeout(resolve, 200));
 
-          if (draftData.exposure_category_level_3) {
-            form.setValue('exposure_category_level_3', draftData.exposure_category_level_3);
+          if (draft.exposure_category_level_3) {
+            form.setValue('exposure_category_level_3', draft.exposure_category_level_3);
             
             // Wait for L3 effects
             await new Promise(resolve => setTimeout(resolve, 200));
 
-            if (draftData.exposure_category_level_4) {
-              form.setValue('exposure_category_level_4', draftData.exposure_category_level_4);
+            if (draft.exposure_category_level_4) {
+              form.setValue('exposure_category_level_4', draft.exposure_category_level_4);
               
               // Wait for L4 effects
               await new Promise(resolve => setTimeout(resolve, 200));
 
-              if (draftData.strategy) {
-                form.setValue('strategy', draftData.strategy);
+              if (draft.strategy) {
+                form.setValue('strategy', draft.strategy);
                 
                 // Wait for strategy effects
                 await new Promise(resolve => setTimeout(resolve, 200));
 
-                if (draftData.instrument) {
-                  form.setValue('instrument', draftData.instrument);
+                if (draft.instrument) {
+                  form.setValue('instrument', draft.instrument);
                 }
               }
             }
@@ -69,10 +75,12 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         }
       }
 
+      console.log('Draft loaded successfully:', draftData);
       return draftData;
     } catch (error) {
       console.error('Error in handleDraftSelect:', error);
       toast.error("Failed to load draft");
+      return null;
     }
   };
 
