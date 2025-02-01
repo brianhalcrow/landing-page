@@ -7,7 +7,7 @@ export interface HedgeRequest {
   exposure_category_l1: string | null;
   exposure_category_l2: string | null;
   exposure_category_l3: string | null;
-  strategy: string | null;
+  strategy_description: string | null;
   instrument: string | null;
   status: string | null;
   created_by: string | null;

@@ -159,13 +159,12 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
       editable: false
     },
     {
-      field: 'strategy',
+      field: 'strategy_description',
       headerName: 'Strategy',
       minWidth: 200,
       flex: 2,
       headerClass: 'ag-header-center',
       cellRenderer: StrategySelector,
-      valueFormatter: (params: any) => params.data?.strategy_description || params.value,
       editable: false
     },
     {
