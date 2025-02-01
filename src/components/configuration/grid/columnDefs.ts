@@ -1,5 +1,6 @@
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from './CheckboxCellRenderer';
+import ActionsCellRenderer from './ActionsCellRenderer';
 
 export const createBaseColumnDefs = (): ColDef[] => [
   { 
@@ -95,3 +96,31 @@ export const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
     }))
   }));
 };
+
+export const createActionColumn = (): ColDef => ({
+  headerName: 'Actions',
+  minWidth: 100,
+  maxWidth: 100,
+  suppressSizeToFit: true,
+  headerClass: 'ag-header-center custom-header',
+  wrapHeaderText: true,
+  autoHeaderHeight: true,
+  cellRenderer: ActionsCellRenderer,
+  cellRendererParams: (params: any) => ({
+    isEditing: params.data?.isEditing,
+    onEditClick: () => {
+      if (params.node && params.api) {
+        const updatedData = { ...params.data, isEditing: true };
+        params.node.setData(updatedData);
+        params.api.refreshCells({ rowNodes: [params.node] });
+      }
+    },
+    onSaveClick: () => {
+      if (params.node && params.api) {
+        const updatedData = { ...params.data, isEditing: false };
+        params.node.setData(updatedData);
+        params.api.refreshCells({ rowNodes: [params.node] });
+      }
+    }
+  })
+});
