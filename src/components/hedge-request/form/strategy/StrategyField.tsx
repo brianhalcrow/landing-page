@@ -16,19 +16,19 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
 
   useEffect(() => {
     const fetchStrategies = async () => {
-      const exposureL2 = form.watch("exposure_category_level_2");
-      if (!exposureL2) {
+      const exposureL4 = form.watch("exposure_category_level_4");
+      if (!exposureL4) {
         setStrategies([]);
         return;
       }
 
       setLoading(true);
       try {
-        console.log("Fetching strategies for exposure L2:", exposureL2);
+        console.log("Fetching strategies for exposure L4:", exposureL4);
         const { data, error } = await supabase
           .from("hedge_strategy")
           .select("*")
-          .eq("exposure_category_level_2", exposureL2);
+          .eq("exposure_category_level_4", exposureL4);
 
         if (error) {
           console.error("Error fetching strategies:", error);
@@ -38,9 +38,7 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
         console.log("Fetched strategies:", data);
         setStrategies(data || []);
 
-        // Reset strategy when exposure L2 changes
         form.setValue("strategy", "");
-        // Also reset instrument when strategy changes
         form.setValue("instrument", "");
       } catch (error) {
         console.error("Error in fetchStrategies:", error);
@@ -50,7 +48,7 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
     };
 
     fetchStrategies();
-  }, [form.watch("exposure_category_level_2")]);
+  }, [form.watch("exposure_category_level_4")]);
 
   return (
     <FormField

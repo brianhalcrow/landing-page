@@ -10,16 +10,13 @@ interface InstrumentFieldProps {
 }
 
 const InstrumentField = ({ form, disabled = true }: InstrumentFieldProps) => {
-  // Watch for changes in entity_id, entity_name, and strategy
   const entityId = form.watch("entity_id");
   const entityName = form.watch("entity_name");
   const strategy = form.watch("strategy");
-  const exposureL2 = form.watch("exposure_category_level_2");
 
   const { instruments, loading } = useInstrumentField(form, strategy, entityId, entityName);
 
-  // Calculate if the field should be disabled
-  const isFieldDisabled = disabled || loading || !entityId || !entityName || !exposureL2;
+  const isFieldDisabled = disabled || loading || !entityId || !entityName || !strategy;
 
   return (
     <FormField
