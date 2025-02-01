@@ -213,6 +213,54 @@ export type Database = {
         }
         Relationships: []
       }
+      chart_of_accounts: {
+        Row: {
+          account_category_level_1: string | null
+          account_category_level_1_ID: string | null
+          account_category_level_2: string | null
+          account_category_level_2_ID: string | null
+          account_category_level_3: string | null
+          account_category_level_3_ID: string | null
+          account_category_level_4: string | null
+          account_category_level_ID_4: string | null
+          account_name: string | null
+          account_number: string | null
+          currency_code: string | null
+          restricted_currency: boolean | null
+          revalue_flag: boolean | null
+        }
+        Insert: {
+          account_category_level_1?: string | null
+          account_category_level_1_ID?: string | null
+          account_category_level_2?: string | null
+          account_category_level_2_ID?: string | null
+          account_category_level_3?: string | null
+          account_category_level_3_ID?: string | null
+          account_category_level_4?: string | null
+          account_category_level_ID_4?: string | null
+          account_name?: string | null
+          account_number?: string | null
+          currency_code?: string | null
+          restricted_currency?: boolean | null
+          revalue_flag?: boolean | null
+        }
+        Update: {
+          account_category_level_1?: string | null
+          account_category_level_1_ID?: string | null
+          account_category_level_2?: string | null
+          account_category_level_2_ID?: string | null
+          account_category_level_3?: string | null
+          account_category_level_3_ID?: string | null
+          account_category_level_4?: string | null
+          account_category_level_ID_4?: string | null
+          account_name?: string | null
+          account_number?: string | null
+          currency_code?: string | null
+          restricted_currency?: boolean | null
+          revalue_flag?: boolean | null
+        }
+        Relationships: []
+      }
       config_currencies: {
         Row: {
           entity_id: string
@@ -372,6 +420,101 @@ export type Database = {
             referencedColumns: ["entity_id"]
           },
         ]
+      }
+      entities: {
+        Row: {
+          accounting_rate_method: string
+          created_at: string | null
+          entity_id: string
+          entity_name: string
+          functional_currency: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          accounting_rate_method: string
+          created_at?: string | null
+          entity_id: string
+          entity_name: string
+          functional_currency: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          accounting_rate_method?: string
+          created_at?: string | null
+          entity_id?: string
+          entity_name?: string
+          functional_currency?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      exposure_categories: {
+        Row: {
+          category_id: number
+          category_level: number
+          category_name: string
+          is_active: boolean | null
+          parent_id: number | null
+        }
+        Insert: {
+          category_id?: number
+          category_level: number
+          category_name: string
+          is_active?: boolean | null
+          parent_id?: number | null
+        }
+        Update: {
+          category_id?: number
+          category_level?: number
+          category_name?: string
+          is_active?: boolean | null
+          parent_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exposure_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "exposure_categories"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
+      exposure_types: {
+        Row: {
+          created_at: string | null
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
+          exposure_type_id: number
+          is_active: boolean | null
+          subsystem: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
+          exposure_type_id?: number
+          is_active?: boolean | null
+          subsystem: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          exposure_category_l1?: string
+          exposure_category_l2?: string
+          exposure_category_l3?: string
+          exposure_type_id?: number
+          is_active?: boolean | null
+          subsystem?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       forecast_category: {
         Row: {
@@ -990,7 +1133,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_entity_config: {
+        Row: {
+          accounting_rate_method: string | null
+          created_at: string | null
+          entity_id: string | null
+          entity_name: string | null
+          functional_currency: string | null
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          accounting_rate_method?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          functional_currency?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          accounting_rate_method?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          functional_currency?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_draft_with_options: {

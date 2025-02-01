@@ -6,6 +6,7 @@ import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import GeneralTab from "@/components/configuration/GeneralTab";
+import EntitiesTab from "@/components/configuration/EntitiesTab";
 import BalanceSheetTab from "@/components/hedge-request/BalanceSheetTab";
 import AdHocTab from "@/components/hedge-request/AdHocTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
@@ -28,6 +29,7 @@ export const tabsConfig = {
   ],
   "configuration": [
     { value: "general", label: "Entity Configuration", content: <GeneralTab /> },
+    { value: "entities", label: "Entities", content: <EntitiesTab /> },
   ],
   "exposure": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },
