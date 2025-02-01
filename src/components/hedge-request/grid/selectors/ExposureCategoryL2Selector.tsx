@@ -10,7 +10,7 @@ interface ExposureCategoryL2Props {
 }
 
 export const ExposureCategoryL2Selector = ({ data, value, node }: ExposureCategoryL2Props) => {
-  const { data: exposureTypes } = useQuery({
+  const { data: exposureTypes, isLoading } = useQuery({
     queryKey: ['exposure-types', data.entity_id, data.exposure_category_l1],
     queryFn: async () => {
       if (!data.entity_id || !data.exposure_category_l1) return [];
@@ -44,36 +44,47 @@ export const ExposureCategoryL2Selector = ({ data, value, node }: ExposureCatego
 
   const uniqueL2Categories = Array.from(new Set(exposureTypes?.map(type => type.exposure_category_l2) || []));
 
-  // If only one L2 category exists, set it automatically
-  if (uniqueL2Categories.length === 1 && !value) {
-    node.setData({
-      ...data,
-      exposure_category_l2: uniqueL2Categories[0],
-      exposure_category_l3: ''
-    });
+  // Only update if we have data and the current value doesn't match
+  if (!isLoading && uniqueL2Categories.length === 1 && !value) {
+    setTimeout(() => {
+      if (node && node.setData) {
+        node.setData({
+          ...data,
+          exposure_category_l2: uniqueL2Categories[0],
+          exposure_category_l3: ''
+        });
+      }
+    }, 0);
+    return <span>{uniqueL2Categories[0]}</span>;
   }
 
-  return uniqueL2Categories.length > 1 ? (
+  if (uniqueL2Categories.length <= 1) {
+    return <span>{value}</span>;
+  }
+
+  return (
     <div className="relative w-full">
       <select 
         value={value || ''} 
         onChange={(e) => {
-          node.setData({
-            ...data,
-            exposure_category_l2: e.target.value,
-            exposure_category_l3: ''
-          });
+          const newValue = e.target.value;
+          if (node && node.setData) {
+            node.setData({
+              ...data,
+              exposure_category_l2: newValue,
+              exposure_category_l3: ''
+            });
+          }
         }}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!data.exposure_category_l1}
       >
+        <option value="">Select Category L2</option>
         {uniqueL2Categories.map((category: string) => (
           <option key={category} value={category}>{category}</option>
         ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
     </div>
-  ) : (
-    <span>{value}</span>
   );
 };

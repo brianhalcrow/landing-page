@@ -10,7 +10,7 @@ interface ExposureCategoryL3Props {
 }
 
 export const ExposureCategoryL3Selector = ({ data, value, node }: ExposureCategoryL3Props) => {
-  const { data: exposureTypes } = useQuery({
+  const { data: exposureTypes, isLoading } = useQuery({
     queryKey: ['exposure-types', data.entity_id, data.exposure_category_l1, data.exposure_category_l2],
     queryFn: async () => {
       if (!data.entity_id || !data.exposure_category_l1 || !data.exposure_category_l2) return [];
@@ -47,26 +47,45 @@ export const ExposureCategoryL3Selector = ({ data, value, node }: ExposureCatego
 
   const uniqueL3Categories = Array.from(new Set(exposureTypes?.map(type => type.exposure_category_l3) || []));
 
-  // If only one L3 category exists, set it automatically
-  if (uniqueL3Categories.length === 1 && !value) {
-    node.setDataValue('exposure_category_l3', uniqueL3Categories[0]);
+  // Only update if we have data and the current value doesn't match
+  if (!isLoading && uniqueL3Categories.length === 1 && !value) {
+    setTimeout(() => {
+      if (node && node.setData) {
+        node.setData({
+          ...data,
+          exposure_category_l3: uniqueL3Categories[0]
+        });
+      }
+    }, 0);
+    return <span>{uniqueL3Categories[0]}</span>;
   }
 
-  return uniqueL3Categories.length > 1 ? (
+  if (uniqueL3Categories.length <= 1) {
+    return <span>{value}</span>;
+  }
+
+  return (
     <div className="relative w-full">
       <select 
         value={value || ''} 
-        onChange={(e) => node.setDataValue('exposure_category_l3', e.target.value)}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          if (node && node.setData) {
+            node.setData({
+              ...data,
+              exposure_category_l3: newValue
+            });
+          }
+        }}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!data.exposure_category_l2}
       >
+        <option value="">Select Category L3</option>
         {uniqueL3Categories.map((category: string) => (
           <option key={category} value={category}>{category}</option>
         ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
     </div>
-  ) : (
-    <span>{value}</span>
   );
 };
