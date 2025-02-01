@@ -6,17 +6,71 @@ import { ExposureCategoryL1Selector } from '../selectors/ExposureCategoryL1Selec
 import { ExposureCategoryL2Selector } from '../selectors/ExposureCategoryL2Selector';
 import { ExposureCategoryL3Selector } from '../selectors/ExposureCategoryL3Selector';
 import { useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-const columnDefs = [
-  {
-    field: 'entity_name',
-    headerName: 'Entity Name',
-    minWidth: 180,
-    flex: 2,
-    headerClass: 'ag-header-center',
-    cellRenderer: EntityNameSelector,
-    editable: false
-  },
+const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
+  const gridRef = useRef<AgGridReact>(null);
+
+  // Fetch valid entities for the context
+  const { data: validEntities } = useQuery({
+    queryKey: ['valid-entities'],
+    queryFn: async () => {
+      console.log('Fetching valid entities...');
+      
+      const { data: configuredEntities, error: configError } = await supabase
+        .from('entity_exposure_config')
+        .select(`
+          entity_id,
+          entities!inner (
+            entity_id,
+            entity_name,
+            functional_currency
+          )
+        `)
+        .eq('is_active', true);
+
+      if (configError) {
+        console.error('Error fetching configured entities:', configError);
+        throw configError;
+      }
+
+      if (!configuredEntities?.length) {
+        console.log('No configured entities found');
+        return [];
+      }
+
+      const uniqueEntities = Array.from(
+        new Map(
+          configuredEntities.map(item => [
+            item.entities.entity_id,
+            {
+              entity_id: item.entities.entity_id,
+              entity_name: item.entities.entity_name,
+              functional_currency: item.entities.functional_currency
+            }
+          ])
+        ).values()
+      );
+
+      console.log('Fetched valid entities:', uniqueEntities);
+      return uniqueEntities;
+    }
+  });
+
+  const columnDefs = [
+    {
+      field: 'entity_name',
+      headerName: 'Entity Name',
+      minWidth: 180,
+      flex: 2,
+      headerClass: 'ag-header-center',
+      cellRenderer: EntityNameSelector,
+      editable: false,
+      cellRendererParams: {
+        context: { validEntities }
+      }
+    },
   {
     field: 'entity_id',
     headerName: 'Entity ID',
@@ -85,10 +139,7 @@ const columnDefs = [
     headerClass: 'ag-header-center',
     editable: true
   }
-];
-
-const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
-  const gridRef = useRef<AgGridReact>(null);
+  ];
 
   return (
     <div className="w-full h-[300px] ag-theme-alpine">

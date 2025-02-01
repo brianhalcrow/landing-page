@@ -5,13 +5,13 @@ interface EntityNameSelectorProps {
   value: string;
   data: any;
   node: any;
-  context: {
-    validEntities: ValidEntity[];
+  context?: {
+    validEntities?: ValidEntity[];
   };
 }
 
 export const EntityNameSelector = ({ value, data, node, context }: EntityNameSelectorProps) => {
-  const entities = context.validEntities || [];
+  const entities = context?.validEntities || [];
   
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEntity = entities.find(
