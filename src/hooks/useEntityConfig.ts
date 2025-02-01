@@ -1,77 +1,31 @@
-import { useState } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { FormValues } from "@/components/configuration/types";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const useEntityConfig = (form: UseFormReturn<FormValues>) => {
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const fetchExistingConfig = async (entityId: string) => {
-    try {
+export const useEntityConfig = (entityId?: string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["entity", entityId],
+    queryFn: async () => {
       const { data, error } = await supabase
-        .from("config_exposures")
-        .select()
+        .from("entities")
+        .select("*")
         .eq("entity_id", entityId)
-        .maybeSingle();
+        .single();
 
       if (error) {
-        toast.error('Failed to fetch existing configuration');
+        console.error("Error fetching entity:", error);
+        toast.error("Failed to fetch entity configuration");
         throw error;
       }
 
-      if (data) {
-        form.reset({
-          entity_id: data.entity_id,
-          entity_name: data.entity_name,
-          functional_currency: data.functional_currency,
-          po: data.po || false,
-          ap: data.ap || false,
-          ar: data.ar || false,
-          other: data.other || false,
-          revenue: data.revenue || false,
-          costs: data.costs || false,
-          net_income: data.net_income || false,
-          ap_realized: data.ap_realized || false,
-          ar_realized: data.ar_realized || false,
-          fx_realized: data.fx_realized || false,
-          net_monetary: data.net_monetary || false,
-          monetary_assets: data.monetary_assets || false,
-          monetary_liabilities: data.monetary_liabilities || false,
-        });
-        setIsUpdating(true);
-        toast.success('Configuration loaded successfully');
-      } else {
-        form.reset({
-          entity_id: entityId,
-          entity_name: "",
-          functional_currency: "",
-          po: false,
-          ap: false,
-          ar: false,
-          other: false,
-          revenue: false,
-          costs: false,
-          net_income: false,
-          ap_realized: false,
-          ar_realized: false,
-          fx_realized: false,
-          net_monetary: false,
-          monetary_assets: false,
-          monetary_liabilities: false,
-        });
-        setIsUpdating(false);
-        toast.info('No existing configuration found. Creating new configuration.');
-      }
-    } catch (error) {
-      console.error("Error fetching configuration:", error);
-      toast.error('Failed to fetch configuration');
-    }
-  };
+      return data;
+    },
+    enabled: !!entityId,
+  });
 
   return {
-    isUpdating,
-    fetchExistingConfig,
-    setIsUpdating
+    entityConfig: data,
+    isLoading,
+    error,
   };
 };
