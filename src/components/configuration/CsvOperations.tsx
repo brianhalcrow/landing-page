@@ -15,7 +15,7 @@ const CsvOperations = () => {
     setIsUploading(true);
     try {
       toast.info('Processing CSV file...');
-      // Parse CSV file
+      
       Papa.parse(file, {
         complete: async (results) => {
           const data = results.data as any[];
@@ -28,50 +28,27 @@ const CsvOperations = () => {
           // Insert each row into the database
           for (const row of rows) {
             const [
-              entity_id, entity_name, functional_currency, po, ap, ar, other, revenue, costs,
-              net_income, ap_realized, ar_realized, fx_realized, net_monetary,
-              monetary_assets, monetary_liabilities
+              entity_id, entity_name, functional_currency, accounting_rate_method, is_active
             ] = row;
 
             console.log('Inserting row:', {
               entity_id,
               entity_name,
               functional_currency,
-              po,
-              ap,
-              ar,
-              other,
-              revenue,
-              costs,
-              net_income,
-              ap_realized,
-              ar_realized,
-              fx_realized,
-              net_monetary,
-              monetary_assets,
-              monetary_liabilities
+              accounting_rate_method,
+              is_active: is_active === 'true'
             });
 
             const { error } = await supabase
-              .from('config_exposures')
+              .from('entities')
               .upsert({
                 entity_id,
                 entity_name,
                 functional_currency,
-                po: po === 'true',
-                ap: ap === 'true',
-                ar: ar === 'true',
-                other: other === 'true',
-                revenue: revenue === 'true',
-                costs: costs === 'true',
-                net_income: net_income === 'true',
-                ap_realized: ap_realized === 'true',
-                ar_realized: ar_realized === 'true',
-                fx_realized: fx_realized === 'true',
-                net_monetary: net_monetary === 'true',
-                monetary_assets: monetary_assets === 'true',
-                monetary_liabilities: monetary_liabilities === 'true',
+                accounting_rate_method,
+                is_active: is_active === 'true',
                 created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
               });
 
             if (error) {
@@ -83,9 +60,9 @@ const CsvOperations = () => {
           }
           
           if (errorCount === 0) {
-            toast.success(`Successfully uploaded ${successCount} configurations`);
+            toast.success(`Successfully uploaded ${successCount} entities`);
           } else {
-            toast.warning(`Uploaded ${successCount} configurations with ${errorCount} errors`);
+            toast.warning(`Uploaded ${successCount} entities with ${errorCount} errors`);
           }
         },
         error: (error) => {
@@ -106,8 +83,9 @@ const CsvOperations = () => {
     try {
       toast.info('Preparing CSV download...');
       const { data, error } = await supabase
-        .from('config_exposures')
-        .select('*');
+        .from('entities')
+        .select('*')
+        .order('entity_name');
 
       if (error) throw error;
 
@@ -116,7 +94,7 @@ const CsvOperations = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'exposures_config.csv';
+      a.download = 'entities.csv';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
