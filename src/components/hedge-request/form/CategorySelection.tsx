@@ -2,7 +2,20 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues, Criteria } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import ExposureL4 from "./exposure-levels/ExposureL4";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategorySelectionProps {
   form: UseFormReturn<FormValues>;
@@ -45,12 +58,71 @@ const CategorySelection = ({ form, entityId }: CategorySelectionProps) => {
     fetchCriteria();
   }, [entityId]);
 
+  const getUniqueValues = (field: keyof Criteria) => {
+    const values = new Set(criteriaData.map(item => item[field]).filter(Boolean));
+    return Array.from(values);
+  };
+
   return (
-    <ExposureL4 
-      form={form}
-      criteriaData={criteriaData}
-      disabled={false}
-    />
+    <div className="flex gap-4">
+      <FormField
+        control={form.control}
+        name="exposure_config"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Exposure Config</FormLabel>
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              disabled={!entityId || loading}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select config" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {getUniqueValues("exposure_config").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="exposure_category_level_4"
+        render={({ field }) => (
+          <FormItem className="w-40">
+            <FormLabel className="h-14">Exposure L4</FormLabel>
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              disabled={!form.watch("exposure_config") || loading}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select L4" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {getUniqueValues("exposure_category_level_4").map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
   );
 };
 

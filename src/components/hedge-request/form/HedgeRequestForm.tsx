@@ -32,13 +32,7 @@ const HedgeRequestForm: React.FC = () => {
       entity_id: "",
       entity_name: "",
       cost_centre: "",
-      country: "",
-      geo_level_1: "",
-      geo_level_2: "",
-      geo_level_3: "",
       functional_currency: "",
-      exposure_category_level_2: "",
-      exposure_category_level_3: "",
       exposure_category_level_4: "",
       exposure_config: "",
       strategy: "",
@@ -69,7 +63,6 @@ const HedgeRequestForm: React.FC = () => {
     fetchDrafts();
   }, []);
 
-  // Check for trade data whenever draftId changes
   useEffect(() => {
     const checkTradeData = async () => {
       if (!draftId) {
@@ -103,25 +96,10 @@ const HedgeRequestForm: React.FC = () => {
         "entity_name",
         "cost_centre",
         "exposure_config",
+        "exposure_category_level_4",
       ];
 
-      // Add conditional required fields based on exposure_config
-      if (values.exposure_config) {
-        requiredFields.push("exposure_category_level_2");
-        
-        if (values.exposure_category_level_2) {
-          requiredFields.push("exposure_category_level_3");
-          
-          if (values.exposure_category_level_3) {
-            requiredFields.push("exposure_category_level_4");
-          }
-        }
-      }
-
-      // Add strategy as required if exposure categories are filled
-      if (values.exposure_category_level_2 && 
-          values.exposure_category_level_3 && 
-          values.exposure_category_level_4) {
+      if (values.exposure_category_level_4) {
         requiredFields.push("strategy");
       }
       
@@ -260,7 +238,7 @@ const HedgeRequestForm: React.FC = () => {
             />
             <StrategyField 
               form={form}
-              disabled={!form.watch("exposure_category_level_2")}
+              disabled={!form.watch("exposure_category_level_4")}
             />
             <InstrumentField 
               form={form}
