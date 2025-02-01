@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import type { ColDef, ColGroupDef } from 'ag-grid-community';
+import type { ColDef, ColGroupDef, GridApi } from 'ag-grid-community';
 import { Button } from "@/components/ui/button";
 import { Edit, Save } from "lucide-react";
 
@@ -110,7 +110,7 @@ const EntityConfigurationTab = () => {
           flex: 1,
           headerClass: 'ag-header-center',
           cellRenderer: (params: any) => {
-            if (!params.data.isEditing) {
+            if (!params.data?.isEditing) {
               return params.value ? '✓' : '✗';
             }
             return (
@@ -118,13 +118,15 @@ const EntityConfigurationTab = () => {
                 type="checkbox"
                 checked={params.value}
                 onChange={(e) => {
-                  const newValue = e.target.checked;
-                  params.setValue(newValue);
-                  updateConfig.mutate({
-                    entityId: params.data.entity_id,
-                    exposureTypeId: parseInt(params.colDef.field.split('_')[1]),
-                    isActive: newValue
-                  });
+                  if (params.node && params.api) {
+                    const newValue = e.target.checked;
+                    params.node.setDataValue(params.column.getColId(), newValue);
+                    updateConfig.mutate({
+                      entityId: params.data.entity_id,
+                      exposureTypeId: parseInt(params.column.getColId().split('_')[1]),
+                      isActive: newValue
+                    });
+                  }
                 }}
                 className="h-4 w-4 rounded border-gray-300"
               />
@@ -189,6 +191,10 @@ const EntityConfigurationTab = () => {
     suppressSizeToFit: true,
     pinned: 'right',
     cellRenderer: (params: any) => {
+      if (!params.data || !params.api || !params.node) {
+        return null;
+      }
+
       return (
         <div className="flex items-center justify-center gap-2">
           {!params.data.isEditing ? (
@@ -196,8 +202,10 @@ const EntityConfigurationTab = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (params.api && params.node) {
-                  params.node.setDataValue('isEditing', true);
+                if (params.node && params.api) {
+                  const updatedData = { ...params.data, isEditing: true };
+                  params.node.setData(updatedData);
+                  params.api.refreshCells({ rowNodes: [params.node] });
                 }
               }}
             >
@@ -208,8 +216,10 @@ const EntityConfigurationTab = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (params.api && params.node) {
-                  params.node.setDataValue('isEditing', false);
+                if (params.node && params.api) {
+                  const updatedData = { ...params.data, isEditing: false };
+                  params.node.setData(updatedData);
+                  params.api.refreshCells({ rowNodes: [params.node] });
                 }
               }}
             >
