@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ChevronDown } from "lucide-react";
 
 interface ExposureCategoryL1Props {
   data: any;
@@ -52,23 +53,25 @@ export const ExposureCategoryL1Selector = ({ data, value, node }: ExposureCatego
   }
 
   return uniqueL1Categories.length > 1 ? (
-    <select 
-      value={value || ''} 
-      onChange={(e) => {
-        node.setData({
-          ...data,
-          exposure_category_l1: e.target.value,
-          exposure_category_l2: '',
-          exposure_category_l3: ''
-        });
-      }}
-      className="w-full h-full border-0 outline-none bg-transparent"
-    >
-      <option value="">Select Category L1</option>
-      {uniqueL1Categories.map((category: string) => (
-        <option key={category} value={category}>{category}</option>
-      ))}
-    </select>
+    <div className="relative w-full">
+      <select 
+        value={value || ''} 
+        onChange={(e) => {
+          node.setData({
+            ...data,
+            exposure_category_l1: e.target.value,
+            exposure_category_l2: '',
+            exposure_category_l3: ''
+          });
+        }}
+        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
+      >
+        {uniqueL1Categories.map((category: string) => (
+          <option key={category} value={category}>{category}</option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
+    </div>
   ) : (
     <span>{value}</span>
   );
