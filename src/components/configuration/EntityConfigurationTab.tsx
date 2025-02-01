@@ -110,22 +110,37 @@ const EntityConfigurationTab = () => {
           flex: 1,
           headerClass: 'ag-header-center',
           cellRenderer: (params: any) => {
-            if (!params.data?.isEditing) {
+            // Early return if we don't have the required data
+            if (!params.data || params.data.isEditing === undefined) {
+              return null;
+            }
+
+            if (!params.data.isEditing) {
               return params.value ? '✓' : '✗';
             }
+
             return (
               <input
                 type="checkbox"
-                checked={params.value}
+                checked={!!params.value}
                 onChange={(e) => {
-                  if (params.node && params.api) {
-                    const newValue = e.target.checked;
-                    params.node.setDataValue(params.column.getColId(), newValue);
-                    updateConfig.mutate({
-                      entityId: params.data.entity_id,
-                      exposureTypeId: parseInt(params.column.getColId().split('_')[1]),
-                      isActive: newValue
-                    });
+                  const column = params.column;
+                  // Ensure we have all required properties before updating
+                  if (params.node && column && params.data.entity_id) {
+                    const colId = column.getColId();
+                    const exposureTypeId = parseInt(colId.split('_')[1]);
+                    
+                    if (!isNaN(exposureTypeId)) {
+                      const newValue = e.target.checked;
+                      // Update the grid data
+                      params.node.setDataValue(colId, newValue);
+                      // Update the database
+                      updateConfig.mutate({
+                        entityId: params.data.entity_id,
+                        exposureTypeId,
+                        isActive: newValue
+                      });
+                    }
                   }
                 }}
                 className="h-4 w-4 rounded border-gray-300"
@@ -141,7 +156,7 @@ const EntityConfigurationTab = () => {
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
-      minWidth: 90, 
+      minWidth: 120, 
       flex: 1,
       headerClass: 'ag-header-center',
       suppressSizeToFit: true
@@ -149,7 +164,7 @@ const EntityConfigurationTab = () => {
     { 
       field: 'entity_name', 
       headerName: 'Entity Name', 
-      minWidth: 180, 
+      minWidth: 240, 
       flex: 2,
       headerClass: 'ag-header-center',
       suppressSizeToFit: true
@@ -157,7 +172,7 @@ const EntityConfigurationTab = () => {
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
-      minWidth: 75, 
+      minWidth: 140, 
       flex: 1,
       headerClass: 'ag-header-center',
       suppressSizeToFit: true
@@ -202,11 +217,9 @@ const EntityConfigurationTab = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (params.node && params.api) {
-                  const updatedData = { ...params.data, isEditing: true };
-                  params.node.setData(updatedData);
-                  params.api.refreshCells({ rowNodes: [params.node] });
-                }
+                const updatedData = { ...params.data, isEditing: true };
+                params.node.setData(updatedData);
+                params.api.refreshCells({ rowNodes: [params.node] });
               }}
             >
               <Edit className="h-4 w-4" />
@@ -216,11 +229,9 @@ const EntityConfigurationTab = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (params.node && params.api) {
-                  const updatedData = { ...params.data, isEditing: false };
-                  params.node.setData(updatedData);
-                  params.api.refreshCells({ rowNodes: [params.node] });
-                }
+                const updatedData = { ...params.data, isEditing: false };
+                params.node.setData(updatedData);
+                params.api.refreshCells({ rowNodes: [params.node] });
               }}
             >
               <Save className="h-4 w-4" />
