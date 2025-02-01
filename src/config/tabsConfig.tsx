@@ -5,7 +5,7 @@ import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
-import GeneralTab from "@/components/configuration/GeneralTab";
+import EntityConfigurationTab from "@/components/configuration/EntityConfigurationTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
 import BalanceSheetTab from "@/components/hedge-request/BalanceSheetTab";
 import AdHocTab from "@/components/hedge-request/AdHocTab";
@@ -28,7 +28,7 @@ export const tabsConfig = {
     { value: "history", label: "History", content: <div>Connection History</div> },
   ],
   "configuration": [
-    { value: "general", label: "Entity Configuration", content: <GeneralTab /> },
+    { value: "general", label: "Entity Configuration", content: <EntityConfigurationTab /> },
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
   ],
   "exposure": [
