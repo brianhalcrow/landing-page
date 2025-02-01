@@ -115,11 +115,29 @@ export const createActionColumn = (): ColDef => ({
         params.api.refreshCells({ rowNodes: [params.node] });
       }
     },
-    onSaveClick: () => {
+    onSaveClick: async () => {
       if (params.node && params.api) {
-        const updatedData = { ...params.data, isEditing: false };
-        params.node.setData(updatedData);
-        params.api.refreshCells({ rowNodes: [params.node] });
+        const data = params.data;
+        const exposureUpdates = Object.entries(data)
+          .filter(([key, value]) => key.startsWith('exposure_'))
+          .map(([key, value]) => ({
+            entityId: data.entity_id,
+            exposureTypeId: parseInt(key.replace('exposure_', '')),
+            isActive: value as boolean
+          }));
+
+        try {
+          for (const update of exposureUpdates) {
+            await params.context.updateConfig.mutateAsync(update);
+          }
+          
+          const updatedData = { ...data, isEditing: false };
+          params.node.setData(updatedData);
+          params.api.refreshCells({ rowNodes: [params.node] });
+        } catch (error) {
+          console.error('Error saving changes:', error);
+          toast.error('Failed to save changes');
+        }
       }
     }
   })
