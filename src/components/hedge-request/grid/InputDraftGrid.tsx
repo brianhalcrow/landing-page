@@ -49,8 +49,7 @@ const ExposureCategoryL1Selector = (props: any) => {
             exposure_type_id,
             exposure_category_l1,
             exposure_category_l2,
-            exposure_category_l3,
-            is_active
+            exposure_category_l3
           )
         `)
         .eq('entity_id', props.data.entity_id)
@@ -105,7 +104,7 @@ const ExposureCategoryL1Selector = (props: any) => {
 // Custom cell renderer for exposure category L2 selection
 const ExposureCategoryL2Selector = (props: any) => {
   const { data: exposureTypes } = useQuery({
-    queryKey: ['exposure-types', props.data.entity_id],
+    queryKey: ['exposure-types', props.data.entity_id, props.data.exposure_category_l1],
     queryFn: async () => {
       if (!props.data.entity_id || !props.data.exposure_category_l1) return [];
       
@@ -117,8 +116,7 @@ const ExposureCategoryL2Selector = (props: any) => {
             exposure_type_id,
             exposure_category_l1,
             exposure_category_l2,
-            exposure_category_l3,
-            is_active
+            exposure_category_l3
           )
         `)
         .eq('entity_id', props.data.entity_id)
@@ -186,8 +184,7 @@ const ExposureCategoryL3Selector = (props: any) => {
             exposure_type_id,
             exposure_category_l1,
             exposure_category_l2,
-            exposure_category_l3,
-            is_active
+            exposure_category_l3
           )
         `)
         .eq('entity_id', props.data.entity_id)
@@ -551,3 +548,4 @@ const InputDraftGrid = () => {
 };
 
 export default InputDraftGrid;
+
