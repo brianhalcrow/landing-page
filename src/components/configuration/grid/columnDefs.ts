@@ -50,29 +50,59 @@ export const createBaseColumnDefs = (): ColDef[] => [
   }
 ];
 
-const validateExposureData = (data: any) => {
+const validateExposureData = (data: any, fieldChanged: string, newValue: boolean) => {
   const newData = { ...data };
   
-  // Monetary validation
-  if (newData.exposure_monetary_assets && newData.exposure_monetary_liabilities) {
-    newData.exposure_net_monetary = true;
-    newData.exposure_monetary_assets = false;
-    newData.exposure_monetary_liabilities = false;
-  }
-  if (newData.exposure_net_monetary) {
-    newData.exposure_monetary_assets = false;
-    newData.exposure_monetary_liabilities = false;
+  // Handle Monetary group validation
+  if (fieldChanged.includes('monetary')) {
+    if (fieldChanged === 'exposure_net_monetary') {
+      if (newValue) {
+        // If net_monetary is checked, uncheck assets and liabilities
+        newData.exposure_monetary_assets = false;
+        newData.exposure_monetary_liabilities = false;
+      }
+    } else {
+      // If assets or liabilities are being modified
+      if (newValue) {
+        // If checking either assets or liabilities, uncheck net_monetary
+        newData.exposure_net_monetary = false;
+      } else {
+        // If unchecking either assets or liabilities
+        if (fieldChanged === 'exposure_monetary_assets' && newData.exposure_monetary_liabilities) {
+          newData.exposure_net_monetary = true;
+          newData.exposure_monetary_liabilities = false;
+        } else if (fieldChanged === 'exposure_monetary_liabilities' && newData.exposure_monetary_assets) {
+          newData.exposure_net_monetary = true;
+          newData.exposure_monetary_assets = false;
+        }
+      }
+    }
   }
 
-  // Revenue/Expense/Net Income validation
-  if (newData.exposure_revenue && newData.exposure_costs) {
-    newData.exposure_net_income = true;
-    newData.exposure_revenue = false;
-    newData.exposure_costs = false;
-  }
-  if (newData.exposure_net_income) {
-    newData.exposure_revenue = false;
-    newData.exposure_costs = false;
+  // Handle Revenue/Costs/Net Income group validation
+  if (fieldChanged.includes('revenue') || fieldChanged.includes('costs') || fieldChanged.includes('net_income')) {
+    if (fieldChanged === 'exposure_net_income') {
+      if (newValue) {
+        // If net_income is checked, uncheck revenue and costs
+        newData.exposure_revenue = false;
+        newData.exposure_costs = false;
+      }
+    } else {
+      // If revenue or costs are being modified
+      if (newValue) {
+        // If checking either revenue or costs, uncheck net_income
+        newData.exposure_net_income = false;
+      } else {
+        // If unchecking either revenue or costs
+        if (fieldChanged === 'exposure_revenue' && newData.exposure_costs) {
+          newData.exposure_net_income = true;
+          newData.exposure_costs = false;
+        } else if (fieldChanged === 'exposure_costs' && newData.exposure_revenue) {
+          newData.exposure_net_income = true;
+          newData.exposure_revenue = false;
+        }
+      }
+    }
   }
 
   return newData;
@@ -115,11 +145,12 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
           disabled: !params.data?.isEditing,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
-              const newData = { ...params.data };
-              newData[params.column.getColId()] = checked;
+              const fieldName = params.column.getColId();
+              // Apply validation before updating the data
+              const validatedData = validateExposureData(params.data, fieldName, checked);
               
-              // Apply validation rules
-              const validatedData = validateExposureData(newData);
+              // Update the field that was actually clicked
+              validatedData[fieldName] = checked;
               
               // Update row with validated data
               params.node.setData(validatedData);
