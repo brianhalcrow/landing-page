@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import type { Control } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,11 @@ interface Strategy {
 }
 
 interface StrategyFieldProps {
-  form: UseFormReturn<FormValues>;
+  form: {
+    control: Control<FormValues>;
+    getValues: (field: keyof FormValues) => string;
+    setValue: (field: keyof FormValues, value: string) => void;
+  };
   disabled?: boolean;
 }
 
@@ -52,7 +56,7 @@ const StrategyField = ({ form, disabled = false }: StrategyFieldProps) => {
     };
 
     fetchStrategies();
-  }, [form]);
+  }, [form.getValues, form.setValue]);
 
   return (
     <FormField
