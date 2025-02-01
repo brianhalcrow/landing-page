@@ -14,34 +14,6 @@ interface EntityConfigurationGridProps {
 const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfigurationGridProps) => {
   const queryClient = useQueryClient();
 
-  const validateExposureConfig = (data: any) => {
-    const newData = { ...data };
-    
-    // Monetary validation
-    if (newData.exposure_monetary_assets && newData.exposure_monetary_liabilities) {
-      newData.exposure_net_monetary = true;
-      newData.exposure_monetary_assets = false;
-      newData.exposure_monetary_liabilities = false;
-    }
-    if (newData.exposure_net_monetary) {
-      newData.exposure_monetary_assets = false;
-      newData.exposure_monetary_liabilities = false;
-    }
-
-    // Revenue/Expense/Net Income validation
-    if (newData.exposure_revenue && newData.exposure_costs) {
-      newData.exposure_net_income = true;
-      newData.exposure_revenue = false;
-      newData.exposure_costs = false;
-    }
-    if (newData.exposure_net_income) {
-      newData.exposure_revenue = false;
-      newData.exposure_costs = false;
-    }
-
-    return newData;
-  };
-
   const updateConfig = useMutation({
     mutationFn: async (updates: { entityId: string; exposureTypeId: number; isActive: boolean }[]) => {
       for (const update of updates) {
@@ -72,9 +44,15 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
     ...createBaseColumnDefs(),
     ...createExposureColumns(exposureTypes, (params: any) => {
       if (params.data?.isEditing) {
-        const validatedData = validateExposureConfig(params.data);
-        params.node.setData(validatedData);
-        params.api.refreshCells({ rowNodes: [params.node] });
+        const exposureUpdates = Object.entries(params.data)
+          .filter(([key, value]) => key.startsWith('exposure_'))
+          .map(([key, value]) => ({
+            entityId: params.data.entity_id,
+            exposureTypeId: parseInt(key.replace('exposure_', '')),
+            isActive: value as boolean
+          }));
+
+        updateConfig.mutate(exposureUpdates);
       }
     }),
     createActionColumn()

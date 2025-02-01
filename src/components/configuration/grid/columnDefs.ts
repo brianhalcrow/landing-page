@@ -50,6 +50,34 @@ export const createBaseColumnDefs = (): ColDef[] => [
   }
 ];
 
+const validateExposureData = (data: any) => {
+  const newData = { ...data };
+  
+  // Monetary validation
+  if (newData.exposure_monetary_assets && newData.exposure_monetary_liabilities) {
+    newData.exposure_net_monetary = true;
+    newData.exposure_monetary_assets = false;
+    newData.exposure_monetary_liabilities = false;
+  }
+  if (newData.exposure_net_monetary) {
+    newData.exposure_monetary_assets = false;
+    newData.exposure_monetary_liabilities = false;
+  }
+
+  // Revenue/Expense/Net Income validation
+  if (newData.exposure_revenue && newData.exposure_costs) {
+    newData.exposure_net_income = true;
+    newData.exposure_revenue = false;
+    newData.exposure_costs = false;
+  }
+  if (newData.exposure_net_income) {
+    newData.exposure_revenue = false;
+    newData.exposure_costs = false;
+  }
+
+  return newData;
+};
+
 export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: (params: any) => void): ColGroupDef[] => {
   const groupedExposures = exposureTypes.reduce((acc: any, type) => {
     const l1 = type.exposure_category_l1;
@@ -90,7 +118,24 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
               const newValue = checked;
               const newData = { ...params.data };
               newData[params.column.getColId()] = newValue;
+              
+              // Apply validation rules
+              const validatedData = validateExposureData(newData);
+              
+              // Update all affected cells
+              Object.keys(validatedData).forEach(key => {
+                if (newData[key] !== validatedData[key]) {
+                  newData[key] = validatedData[key];
+                }
+              });
+              
               onCellValueChanged({ ...params, data: newData });
+              
+              // Refresh the entire row to show all changes
+              params.api.refreshCells({
+                rowNodes: [params.node],
+                force: true
+              });
             }
           }
         })
