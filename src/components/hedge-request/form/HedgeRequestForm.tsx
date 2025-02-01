@@ -26,7 +26,7 @@ const HedgeRequestForm: React.FC = () => {
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    mode: "onSubmit", // Changed from "all" to "onSubmit"
+    mode: "onSubmit",
     defaultValues: {
       entity_id: "",
       entity_name: "",
@@ -156,6 +156,10 @@ const HedgeRequestForm: React.FC = () => {
       setDraftSaved(false);
     }
   };
+
+  // Add these variables to control button states
+  const canSaveDraft = isFormComplete && !draftSaved;
+  const canSubmit = isFormComplete && draftSaved;
 
   return (
     <Form {...form}>
