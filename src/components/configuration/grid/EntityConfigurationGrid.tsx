@@ -56,35 +56,50 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
     <div className="w-full h-[600px] ag-theme-alpine">
       <style>
         {`
-          .ag-header-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .ag-header-cell-label {
-            width: 100%;
-            text-align: center;
-          }
+          .ag-header-cell,
           .ag-header-group-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
+
+          .ag-header-cell-label,
           .ag-header-group-cell-label {
-            width: 100%;
-            text-align: center;
+            width: 100% !important;
+            text-align: center !important;
           }
+
+          .ag-header-cell-text {
+            text-overflow: clip !important;
+            overflow: visible !important;
+            white-space: normal !important;
+          }
+
+          .ag-header-group-cell-with-group {
+            border-bottom: 1px solid #babfc7 !important;
+          }
+
           .custom-header {
-            white-space: normal;
-            line-height: 1.2;
+            white-space: normal !important;
+            line-height: 1.2 !important;
           }
+
           .custom-header .ag-header-cell-label {
-            padding: 4px;
+            padding: 4px !important;
           }
+
           .ag-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          .ag-header-viewport {
+            overflow: visible !important;
+          }
+
+          .ag-header-container {
+            overflow: visible !important;
           }
         `}
       </style>
