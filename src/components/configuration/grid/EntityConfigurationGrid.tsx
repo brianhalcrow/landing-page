@@ -113,6 +113,10 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           .ag-pinned-right-cols-container {
             background-color: white !important;
           }
+
+          .ag-horizontal-scroll {
+            overflow-x: hidden !important;
+          }
         `}
       </style>
       <AgGridReact
@@ -128,6 +132,7 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         }}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        suppressHorizontalScroll={false}
       />
     </div>
   );

@@ -112,7 +112,6 @@ export const createActionColumn = (): ColDef => ({
   minWidth: 120,
   width: 120, // Fixed width
   suppressSizeToFit: true,
-  suppressResize: true, // Prevent column resizing
   pinned: 'right',
   lockPinned: true, // Prevent unpinning
   lockPosition: true, // Prevent moving the column
