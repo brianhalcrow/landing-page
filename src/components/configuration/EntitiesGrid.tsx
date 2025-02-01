@@ -4,6 +4,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Tables } from '@/integrations/supabase/types';
 import { useRef, useEffect } from 'react';
+import { useExposureTypes } from '@/hooks/useExposureTypes';
 
 interface EntitiesGridProps {
   entities: Tables<'entities'>[];
@@ -11,6 +12,7 @@ interface EntitiesGridProps {
 
 const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
+  const { data: exposureTypes, isLoading: isLoadingExposureTypes } = useExposureTypes();
 
   const baseColumnDefs: (ColDef | ColGroupDef)[] = [
     { 
@@ -110,6 +112,11 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     }));
   };
 
+  // Combine base columns with exposure columns
+  const allColumnDefs = exposureTypes 
+    ? [...baseColumnDefs, ...createExposureColumns(exposureTypes)]
+    : baseColumnDefs;
+
   useEffect(() => {
     // Load saved column state when component mounts
     const savedState = localStorage.getItem('entitiesGridColumnState');
@@ -139,7 +146,7 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       <AgGridReact
         ref={gridRef}
         rowData={entities}
-        columnDefs={baseColumnDefs}
+        columnDefs={allColumnDefs}
         defaultColDef={{
           sortable: true,
           filter: true,
