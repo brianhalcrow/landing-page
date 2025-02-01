@@ -1,4 +1,3 @@
-// CheckboxCellRenderer.tsx
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface CheckboxCellRendererProps {
