@@ -33,8 +33,8 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
       const draft = data.draft;
       console.log('Loaded draft data:', draft);
 
-      // Create a complete form state object with all required fields
-      const formState = {
+      // Set all form values at once without validation
+      form.reset({
         entity_id: draft.entity_id || '',
         entity_name: draft.entity_name || '',
         functional_currency: draft.functional_currency || '',
@@ -49,18 +49,16 @@ export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
         geo_level_1: draft.geo_level_1 || '',
         geo_level_2: draft.geo_level_2 || '',
         geo_level_3: draft.geo_level_3 || ''
-      };
-
-      // Set values without resetting the form
-      Object.entries(formState).forEach(([key, value]) => {
-        form.setValue(key as keyof FormValues, value, {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true
-        });
+      }, {
+        keepDirty: false,
+        keepTouched: true,
+        keepIsValid: true,
+        keepErrors: false,
+        keepValues: true,
+        keepDefaultValues: false,
       });
 
-      console.log('Draft loaded successfully:', formState);
+      console.log('Draft loaded successfully:', draft);
       toast.success("Draft loaded successfully");
       return data;
     } catch (error) {
