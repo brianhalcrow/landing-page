@@ -141,28 +141,32 @@ const EntityConfigurationTab = () => {
       headerName: 'Entity ID', 
       minWidth: 90, 
       flex: 1,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-center',
+      suppressSizeToFit: true
     },
     { 
       field: 'entity_name', 
       headerName: 'Entity Name', 
       minWidth: 180, 
       flex: 2,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-center',
+      suppressSizeToFit: true
     },
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
       minWidth: 75, 
       flex: 1,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-center',
+      suppressSizeToFit: true
     },
     { 
       field: 'accounting_rate_method', 
       headerName: 'Accounting Rate Method', 
       minWidth: 160, 
       flex: 1.5,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-center',
+      suppressSizeToFit: true
     },
     { 
       field: 'is_active', 
@@ -170,52 +174,56 @@ const EntityConfigurationTab = () => {
       minWidth: 100, 
       flex: 1,
       headerClass: 'ag-header-center',
+      suppressSizeToFit: true,
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
-      }
-    },
-    {
-      headerName: 'Actions',
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center',
-      cellRenderer: (params: any) => {
-        return (
-          <div className="flex items-center justify-center gap-2">
-            {!params.data.isEditing ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  if (params.api && params.node) {
-                    params.node.setDataValue('isEditing', true);
-                  }
-                }}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  if (params.api && params.node) {
-                    params.node.setDataValue('isEditing', false);
-                  }
-                }}
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        );
       }
     }
   ];
 
+  const actionColumn: ColDef = {
+    headerName: 'Actions',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    suppressSizeToFit: true,
+    pinned: 'right',
+    cellRenderer: (params: any) => {
+      return (
+        <div className="flex items-center justify-center gap-2">
+          {!params.data.isEditing ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (params.api && params.node) {
+                  params.node.setDataValue('isEditing', true);
+                }
+              }}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (params.api && params.node) {
+                  params.node.setDataValue('isEditing', false);
+                }
+              }}
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      );
+    }
+  };
+
   const allColumnDefs = exposureTypes 
-    ? [...baseColumnDefs, ...createExposureColumns(exposureTypes)]
-    : baseColumnDefs;
+    ? [...baseColumnDefs, ...createExposureColumns(exposureTypes), actionColumn]
+    : [...baseColumnDefs, actionColumn];
 
   if (isLoadingEntities || isLoadingExposureTypes) {
     return (

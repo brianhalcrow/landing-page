@@ -1,10 +1,9 @@
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, ColGroupDef } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Tables } from '@/integrations/supabase/types';
-import { useRef, useEffect } from 'react';
-import { useExposureTypes } from '@/hooks/useExposureTypes';
+import { useRef } from 'react';
 
 interface EntitiesGridProps {
   entities: Tables<'entities'>[];
@@ -12,16 +11,16 @@ interface EntitiesGridProps {
 
 const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
-  const { data: exposureTypes, isLoading: isLoadingExposureTypes } = useExposureTypes();
 
-  const baseColumnDefs: (ColDef | ColGroupDef)[] = [
+  const columnDefs: ColDef[] = [
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
       minWidth: 90,
       flex: 1,
       sort: 'asc',
-      sortIndex: 0
+      sortIndex: 0,
+      headerClass: 'ag-header-center'
     },
     { 
       field: 'entity_name', 
@@ -29,25 +28,29 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       minWidth: 180,
       flex: 2,
       sort: 'asc',
-      sortIndex: 1
+      sortIndex: 1,
+      headerClass: 'ag-header-center'
     },
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
       minWidth: 75,
-      flex: 1
+      flex: 1,
+      headerClass: 'ag-header-center'
     },
     { 
       field: 'accounting_rate_method', 
       headerName: 'Accounting Rate Method', 
       minWidth: 160,
-      flex: 1.5
+      flex: 1.5,
+      headerClass: 'ag-header-center'
     },
     { 
       field: 'is_active', 
       headerName: 'Is Active', 
       minWidth: 100,
       flex: 1,
+      headerClass: 'ag-header-center',
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
       }
@@ -57,6 +60,7 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       headerName: 'Created At', 
       minWidth: 160,
       flex: 1.5,
+      headerClass: 'ag-header-center',
       valueFormatter: (params) => {
         if (params.value) {
           return new Date(params.value).toLocaleString();
@@ -69,69 +73,15 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
       headerName: 'Updated At', 
       minWidth: 160,
       flex: 1.5,
+      headerClass: 'ag-header-center',
       valueFormatter: (params) => {
         if (params.value) {
           return new Date(params.value).toLocaleString();
         }
         return '';
       }
-    },
+    }
   ];
-
-  const createExposureColumns = (exposureTypes: any[]): ColGroupDef[] => {
-    // Group exposures by L1 and L2 categories
-    const groupedExposures = exposureTypes.reduce((acc: any, type) => {
-      const l1 = type.exposure_category_l1;
-      const l2 = type.exposure_category_l2;
-      
-      if (!acc[l1]) acc[l1] = {};
-      if (!acc[l1][l2]) acc[l1][l2] = [];
-      
-      acc[l1][l2].push(type);
-      return acc;
-    }, {});
-
-    // Create hierarchical column structure
-    return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
-      headerName: l1,
-      groupId: l1,
-      children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
-        headerName: l2,
-        groupId: `${l1}-${l2}`,
-        children: types.map((type: any) => ({
-          headerName: type.exposure_category_l3,
-          field: `exposure_${type.exposure_type_id}`,
-          minWidth: 120,
-          flex: 1,
-          cellRenderer: 'checkboxRenderer',
-          cellRendererParams: {
-            disabled: false
-          }
-        }))
-      }))
-    }));
-  };
-
-  // Combine base columns with exposure columns
-  const allColumnDefs = exposureTypes 
-    ? [...baseColumnDefs, ...createExposureColumns(exposureTypes)]
-    : baseColumnDefs;
-
-  useEffect(() => {
-    // Load saved column state when component mounts
-    const savedState = localStorage.getItem('entitiesGridColumnState');
-    if (savedState && gridRef.current?.columnApi) {
-      const columnState = JSON.parse(savedState);
-      gridRef.current.columnApi.applyColumnState({ state: columnState });
-    }
-  }, []);
-
-  const onColumnResized = () => {
-    if (gridRef.current?.columnApi) {
-      const columnState = gridRef.current.columnApi.getColumnState();
-      localStorage.setItem('entitiesGridColumnState', JSON.stringify(columnState));
-    }
-  };
 
   if (!entities.length) {
     return (
@@ -143,10 +93,17 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
 
   return (
     <div className="w-full h-[600px] ag-theme-alpine">
+      <style>
+        {`
+          .ag-header-center .ag-header-cell-label {
+            justify-content: center;
+          }
+        `}
+      </style>
       <AgGridReact
         ref={gridRef}
         rowData={entities}
-        columnDefs={allColumnDefs}
+        columnDefs={columnDefs}
         defaultColDef={{
           sortable: true,
           filter: true,
@@ -154,7 +111,6 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
           suppressSizeToFit: false
         }}
         animateRows={true}
-        onColumnResized={onColumnResized}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
       />
