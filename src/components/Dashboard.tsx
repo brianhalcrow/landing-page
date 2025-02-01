@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import TradeAmountChart from "./charts/TradeAmountChart";
 
 const Dashboard = () => {
   return (
@@ -57,9 +56,6 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold">89.3k</p>
               </CardContent>
             </Card>
-          </div>
-          <div className="mt-6">
-            <TradeAmountChart />
           </div>
         </TabsContent>
         <TabsContent value="analytics">Analytics content</TabsContent>
