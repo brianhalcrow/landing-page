@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import type { ColDef, ColGroupDef, GridApi } from 'ag-grid-community';
+import type { ColDef, ColGroupDef } from 'ag-grid-community';
 import { Button } from "@/components/ui/button";
 import { Edit, Save } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,7 +39,7 @@ const EntityConfigurationTab = () => {
         const exposureConfigs = Object.fromEntries(
           entityConfigs.map(config => [
             `exposure_${config.exposure_type_id}`,
-            config.is_active
+            !!config.is_active // Ensure boolean type
           ])
         );
 
@@ -209,7 +209,7 @@ const EntityConfigurationTab = () => {
         return (
           <div className="flex items-center justify-center">
             <Checkbox 
-              checked={params.value}
+              checked={!!params.value} // Ensure boolean type
               disabled={true}
             />
           </div>
@@ -249,21 +249,19 @@ const EntityConfigurationTab = () => {
               <Edit className="h-4 w-4" />
             </Button>
           ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  if (params.node && params.api) {
-                    const updatedData = { ...params.data, isEditing: false };
-                    params.node.setData(updatedData);
-                    params.api.refreshCells({ rowNodes: [params.node] });
-                  }
-                }}
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-            </>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (params.node && params.api) {
+                  const updatedData = { ...params.data, isEditing: false };
+                  params.node.setData(updatedData);
+                  params.api.refreshCells({ rowNodes: [params.node] });
+                }
+              }}
+            >
+              <Save className="h-4 w-4" />
+            </Button>
           )}
         </div>
       );
