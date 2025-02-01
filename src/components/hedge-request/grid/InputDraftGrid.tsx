@@ -5,13 +5,15 @@ import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EntityNameSelector } from './selectors/EntityNameSelector';
 import { CostCentreSelector } from './selectors/CostCentreSelector';
 import { ExposureCategoryL1Selector } from './selectors/ExposureCategoryL1Selector';
 import { ExposureCategoryL2Selector } from './selectors/ExposureCategoryL2Selector';
 import { ExposureCategoryL3Selector } from './selectors/ExposureCategoryL3Selector';
 import { HedgeRequestDraft, ValidEntity } from './types';
+
+const CACHE_KEY = 'hedge-request-draft-grid-state';
 
 const columnDefs = [
   {
@@ -95,7 +97,10 @@ const columnDefs = [
 
 const InputDraftGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
-  const [rowData, setRowData] = useState<HedgeRequestDraft[]>([{
+  const queryClient = useQueryClient();
+  
+  // Initialize state from cache or default
+  const cachedState = queryClient.getQueryData<HedgeRequestDraft[]>([CACHE_KEY]) || [{
     entity_id: '',
     entity_name: '',
     functional_currency: '',
@@ -105,7 +110,15 @@ const InputDraftGrid = () => {
     exposure_category_l3: '',
     strategy: '',
     instrument: ''
-  }]);
+  }];
+  
+  const [rowData, setRowData] = useState<HedgeRequestDraft[]>(cachedState);
+
+  // Update cache whenever rowData changes
+  const updateCache = (newData: HedgeRequestDraft[]) => {
+    queryClient.setQueryData([CACHE_KEY], newData);
+    setRowData(newData);
+  };
 
   const { data: validEntities } = useQuery({
     queryKey: ['valid-entities'],
@@ -171,7 +184,7 @@ const InputDraftGrid = () => {
       if (error) throw error;
 
       toast.success('Draft saved successfully');
-      setRowData([{
+      updateCache([{
         entity_id: '',
         entity_name: '',
         functional_currency: '',
@@ -189,7 +202,7 @@ const InputDraftGrid = () => {
   };
 
   const addNewRow = () => {
-    setRowData([...rowData, {
+    const newData = [...rowData, {
       entity_id: '',
       entity_name: '',
       functional_currency: '',
@@ -199,7 +212,8 @@ const InputDraftGrid = () => {
       exposure_category_l3: '',
       strategy: '',
       instrument: ''
-    }]);
+    }];
+    updateCache(newData);
   };
 
   return (
@@ -232,6 +246,11 @@ const InputDraftGrid = () => {
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
+          onCellValueChanged={(event) => {
+            const newData = [...rowData];
+            newData[event.rowIndex] = { ...newData[event.rowIndex], [event.colDef.field]: event.newValue };
+            updateCache(newData);
+          }}
         />
       </div>
       <div className="flex gap-4">
