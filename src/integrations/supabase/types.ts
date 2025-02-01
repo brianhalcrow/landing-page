@@ -261,128 +261,14 @@ export type Database = {
         }
         Relationships: []
       }
-      config_currencies: {
-        Row: {
-          entity_id: string
-          exposed_currency: string | null
-          id: number
-        }
-        Insert: {
-          entity_id: string
-          exposed_currency?: string | null
-          id?: number
-        }
-        Update: {
-          entity_id?: string
-          exposed_currency?: string | null
-          id?: number
-        }
-        Relationships: []
-      }
-      config_entity: {
-        Row: {
-          entity_id: string
-          entity_name: string
-          functional_currency: string | null
-          id: number
-          rate_method: string | null
-        }
-        Insert: {
-          entity_id: string
-          entity_name: string
-          functional_currency?: string | null
-          id?: number
-          rate_method?: string | null
-        }
-        Update: {
-          entity_id?: string
-          entity_name?: string
-          functional_currency?: string | null
-          id?: number
-          rate_method?: string | null
-        }
-        Relationships: []
-      }
-      config_exposures: {
-        Row: {
-          ap: boolean | null
-          ap_realized: boolean | null
-          ar: boolean | null
-          ar_realized: boolean | null
-          costs: boolean | null
-          created_at: string | null
-          entity_id: string
-          entity_name: string
-          functional_currency: string | null
-          fx_realized: boolean | null
-          id: number
-          monetary_assets: boolean | null
-          monetary_liabilities: boolean | null
-          net_income: boolean | null
-          net_monetary: boolean | null
-          other: boolean | null
-          po: boolean | null
-          revenue: boolean | null
-        }
-        Insert: {
-          ap?: boolean | null
-          ap_realized?: boolean | null
-          ar?: boolean | null
-          ar_realized?: boolean | null
-          costs?: boolean | null
-          created_at?: string | null
-          entity_id: string
-          entity_name: string
-          functional_currency?: string | null
-          fx_realized?: boolean | null
-          id?: number
-          monetary_assets?: boolean | null
-          monetary_liabilities?: boolean | null
-          net_income?: boolean | null
-          net_monetary?: boolean | null
-          other?: boolean | null
-          po?: boolean | null
-          revenue?: boolean | null
-        }
-        Update: {
-          ap?: boolean | null
-          ap_realized?: boolean | null
-          ar?: boolean | null
-          ar_realized?: boolean | null
-          costs?: boolean | null
-          created_at?: string | null
-          entity_id?: string
-          entity_name?: string
-          functional_currency?: string | null
-          fx_realized?: boolean | null
-          id?: number
-          monetary_assets?: boolean | null
-          monetary_liabilities?: boolean | null
-          net_income?: boolean | null
-          net_monetary?: boolean | null
-          other?: boolean | null
-          po?: boolean | null
-          revenue?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_config_exposures_entity"
-            columns: ["entity_id"]
-            isOneToOne: true
-            referencedRelation: "config_entity"
-            referencedColumns: ["entity_id"]
-          },
-        ]
-      }
       criteria: {
         Row: {
           account_category_level_1: string | null
           entity_id: string | null
           entity_name: string | null
-          exposure_category_level_1: string | null
-          exposure_category_level_2: string | null
-          exposure_category_level_3: string | null
-          exposure_category_level_4: string | null
+          exposure_category_l1: string | null
+          exposure_category_l2: string | null
+          exposure_category_l3: string | null
           exposure_config: string | null
           id: number
           subsystem_code: string | null
@@ -391,10 +277,9 @@ export type Database = {
           account_category_level_1?: string | null
           entity_id?: string | null
           entity_name?: string | null
-          exposure_category_level_1?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
+          exposure_category_l1?: string | null
+          exposure_category_l2?: string | null
+          exposure_category_l3?: string | null
           exposure_config?: string | null
           id?: number
           subsystem_code?: string | null
@@ -403,23 +288,14 @@ export type Database = {
           account_category_level_1?: string | null
           entity_id?: string | null
           entity_name?: string | null
-          exposure_category_level_1?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
+          exposure_category_l1?: string | null
+          exposure_category_l2?: string | null
+          exposure_category_l3?: string | null
           exposure_config?: string | null
           id?: number
           subsystem_code?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_criteria_entity"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "config_entity"
-            referencedColumns: ["entity_id"]
-          },
-        ]
+        Relationships: []
       }
       entities: {
         Row: {
@@ -451,35 +327,49 @@ export type Database = {
         }
         Relationships: []
       }
-      exposure_categories: {
+      entity_exposure_config: {
         Row: {
-          category_id: number
-          category_level: number
-          category_name: string
+          created_at: string | null
+          entity_id: string
+          exposure_type_id: number
           is_active: boolean | null
-          parent_id: number | null
+          updated_at: string | null
         }
         Insert: {
-          category_id?: number
-          category_level: number
-          category_name: string
+          created_at?: string | null
+          entity_id: string
+          exposure_type_id: number
           is_active?: boolean | null
-          parent_id?: number | null
+          updated_at?: string | null
         }
         Update: {
-          category_id?: number
-          category_level?: number
-          category_name?: string
+          created_at?: string | null
+          entity_id?: string
+          exposure_type_id?: number
           is_active?: boolean | null
-          parent_id?: number | null
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "exposure_categories_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: "entity_exposure_config_entity_id_fkey"
+            columns: ["entity_id"]
             isOneToOne: false
-            referencedRelation: "exposure_categories"
-            referencedColumns: ["category_id"]
+            referencedRelation: "entities"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "entity_exposure_config_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_entity_config"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "entity_exposure_config_exposure_type_id_fkey"
+            columns: ["exposure_type_id"]
+            isOneToOne: false
+            referencedRelation: "exposure_types"
+            referencedColumns: ["exposure_type_id"]
           },
         ]
       }
@@ -513,21 +403,6 @@ export type Database = {
           is_active?: boolean | null
           subsystem?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      forecast_category: {
-        Row: {
-          forecast_category: string
-          id: number
-        }
-        Insert: {
-          forecast_category: string
-          id?: number
-        }
-        Update: {
-          forecast_category?: string
-          id?: number
         }
         Relationships: []
       }
@@ -589,15 +464,7 @@ export type Database = {
           year?: number
           year_period?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_gl_actual_entity"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "config_entity"
-            referencedColumns: ["entity_id"]
-          },
-        ]
+        Relationships: []
       }
       gl_forecast: {
         Row: {
@@ -660,15 +527,7 @@ export type Database = {
           year?: number
           year_period?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_gl_forecast_entity"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "config_entity"
-            referencedColumns: ["entity_id"]
-          },
-        ]
+        Relationships: []
       }
       hedge_request: {
         Row: {
