@@ -493,73 +493,17 @@ export type Database = {
         }
         Relationships: []
       }
-      hedge_request: {
-        Row: {
-          base_currency: string | null
-          buy_sell: string | null
-          buy_sell_amount: number | null
-          buy_sell_currency_code: string | null
-          created_by: string | null
-          currency_pair: string | null
-          entity_id: string | null
-          entity_name: string | null
-          id: number
-          instrument: string | null
-          quote_currency: string | null
-          settlement_date: string | null
-          strategy: string | null
-          trade_date: string | null
-        }
-        Insert: {
-          base_currency?: string | null
-          buy_sell?: string | null
-          buy_sell_amount?: number | null
-          buy_sell_currency_code?: string | null
-          created_by?: string | null
-          currency_pair?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          id?: number
-          instrument?: string | null
-          quote_currency?: string | null
-          settlement_date?: string | null
-          strategy?: string | null
-          trade_date?: string | null
-        }
-        Update: {
-          base_currency?: string | null
-          buy_sell?: string | null
-          buy_sell_amount?: number | null
-          buy_sell_currency_code?: string | null
-          created_by?: string | null
-          currency_pair?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          id?: number
-          instrument?: string | null
-          quote_currency?: string | null
-          settlement_date?: string | null
-          strategy?: string | null
-          trade_date?: string | null
-        }
-        Relationships: []
-      }
       hedge_request_draft: {
         Row: {
           cost_centre: string | null
-          country: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
           entity_name: string | null
-          exposure_category_level_2: string | null
-          exposure_category_level_3: string | null
-          exposure_category_level_4: string | null
-          exposure_config: string | null
+          exposure_category_l1: string | null
+          exposure_category_l2: string | null
+          exposure_category_l3: string | null
           functional_currency: string | null
-          geo_level_1: string | null
-          geo_level_2: string | null
-          geo_level_3: string | null
           id: string
           instrument: string | null
           status: string | null
@@ -568,19 +512,14 @@ export type Database = {
         }
         Insert: {
           cost_centre?: string | null
-          country?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
           entity_name?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
-          exposure_config?: string | null
+          exposure_category_l1?: string | null
+          exposure_category_l2?: string | null
+          exposure_category_l3?: string | null
           functional_currency?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
           id?: string
           instrument?: string | null
           status?: string | null
@@ -589,19 +528,14 @@ export type Database = {
         }
         Update: {
           cost_centre?: string | null
-          country?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
           entity_name?: string | null
-          exposure_category_level_2?: string | null
-          exposure_category_level_3?: string | null
-          exposure_category_level_4?: string | null
-          exposure_config?: string | null
+          exposure_category_l1?: string | null
+          exposure_category_l2?: string | null
+          exposure_category_l3?: string | null
           functional_currency?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
           id?: string
           instrument?: string | null
           status?: string | null

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import HedgeRequestGrid from "./grid/HedgeRequestGrid";
+import DraftDetailsGrid from "./grid/DraftDetailsGrid";
 
 const AdHocTab = () => {
   const { data: hedgeRequests, isLoading } = useQuery({
@@ -37,9 +38,15 @@ const AdHocTab = () => {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Ad-Hoc Hedge Requests</h2>
-      <HedgeRequestGrid hedgeRequests={hedgeRequests || []} />
+    <div className="p-6 space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Draft Details</h2>
+        <DraftDetailsGrid hedgeRequests={hedgeRequests || []} />
+      </div>
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Ad-Hoc Hedge Requests</h2>
+        <HedgeRequestGrid hedgeRequests={hedgeRequests || []} />
+      </div>
     </div>
   );
 };
