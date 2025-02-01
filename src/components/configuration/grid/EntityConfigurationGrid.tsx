@@ -106,16 +106,17 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
             overflow: visible !important;
           }
 
-          .ag-pinned-right-header {
-            background-color: white !important;
-          }
-
+          .ag-pinned-right-header,
           .ag-pinned-right-cols-container {
             background-color: white !important;
           }
 
-          .ag-horizontal-scroll {
-            overflow-x: hidden !important;
+          .ag-horizontal-scroll-viewport {
+            overflow-x: auto !important;
+          }
+
+          .ag-body-viewport {
+            overflow-x: auto !important;
           }
         `}
       </style>
@@ -125,14 +126,14 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         defaultColDef={{
           sortable: true,
           filter: true,
-          resizable: true,
+          resizable: false,
           editable: false,
           wrapHeaderText: true,
-          autoHeaderHeight: true
+          autoHeaderHeight: true,
+          suppressSizeToFit: true
         }}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
-        suppressHorizontalScroll={false}
       />
     </div>
   );
