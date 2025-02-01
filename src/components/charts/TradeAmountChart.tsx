@@ -21,7 +21,7 @@ const TradeAmountChart = () => {
           .select(`
             draft_id,
             buy_sell_amount,
-            hedge_request_draft!inner (
+            hedge_request_draft:hedge_request_draft!draft_id(
               entity_name
             )
           `)
