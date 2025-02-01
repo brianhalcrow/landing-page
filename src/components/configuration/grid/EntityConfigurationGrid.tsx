@@ -118,6 +118,7 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           wrapHeaderText: true,
           autoHeaderHeight: true
         }}
+        context={{ updateConfig }}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
       />
