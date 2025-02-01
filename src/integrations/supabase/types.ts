@@ -507,7 +507,7 @@ export type Database = {
           id: number
           instrument: string | null
           status: string | null
-          strategy: string | null
+          strategy_description: string | null
           updated_at: string | null
         }
         Insert: {
@@ -523,7 +523,7 @@ export type Database = {
           id?: number
           instrument?: string | null
           status?: string | null
-          strategy?: string | null
+          strategy_description?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -539,7 +539,7 @@ export type Database = {
           id?: number
           instrument?: string | null
           status?: string | null
-          strategy?: string | null
+          strategy_description?: string | null
           updated_at?: string | null
         }
         Relationships: []

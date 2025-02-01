@@ -18,7 +18,7 @@ const AdHocTab = () => {
           exposure_category_l1,
           exposure_category_l2,
           exposure_category_l3,
-          strategy,
+          strategy_description,
           instrument,
           status
         `)

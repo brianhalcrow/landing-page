@@ -7,7 +7,7 @@ export interface HedgeRequestDraft {
   exposure_category_l1: string;
   exposure_category_l2: string;
   exposure_category_l3: string;
-  strategy: string;
+  strategy_description: string;
   instrument: string;
 }
 
