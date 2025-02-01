@@ -26,6 +26,40 @@ interface ValidEntity {
   functional_currency: string;
 }
 
+// Custom cell renderer for entity selection
+const EntityNameSelector = (props: any) => {
+  const entities = props.context.validEntities || [];
+  
+  const handleChange = (event: any) => {
+    const selectedEntity = entities.find(
+      (entity: ValidEntity) => entity.entity_name === event.target.value
+    );
+    if (selectedEntity) {
+      props.node.setData({
+        ...props.data,
+        entity_name: selectedEntity.entity_name,
+        entity_id: selectedEntity.entity_id,
+        functional_currency: selectedEntity.functional_currency
+      });
+    }
+  };
+
+  return (
+    <select 
+      value={props.value || ''} 
+      onChange={handleChange}
+      className="w-full h-full border-0 outline-none bg-transparent"
+    >
+      <option value="">Select Entity</option>
+      {entities.map((entity: ValidEntity) => (
+        <option key={entity.entity_id} value={entity.entity_name}>
+          {entity.entity_name}
+        </option>
+      ))}
+    </select>
+  );
+};
+
 const columnDefs = [
   {
     field: 'entity_name',
@@ -33,10 +67,8 @@ const columnDefs = [
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: {
-      values: [] // This will be populated with entity names
-    }
+    cellRenderer: EntityNameSelector,
+    editable: false
   },
   {
     field: 'entity_id',
@@ -122,22 +154,42 @@ const InputDraftGrid = () => {
   const { data: validEntities } = useQuery({
     queryKey: ['valid-entities'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('entities')
-        .select('entity_id, entity_name, functional_currency')
-        .in('entity_id', (
-          await supabase
-            .from('entity_exposure_config')
-            .select('entity_id')
-            .eq('is_active', true)
-        ).data?.map(config => config.entity_id) || []);
+      console.log('Fetching valid entities...');
+      
+      // Get entities with active exposure configurations
+      const { data: configuredEntities, error: configError } = await supabase
+        .from('entity_exposure_config')
+        .select('entity_id')
+        .eq('is_active', true)
+        .distinct();
 
-      if (error) {
-        console.error('Error fetching valid entities:', error);
-        throw error;
+      if (configError) {
+        console.error('Error fetching configured entities:', configError);
+        throw configError;
       }
 
-      return data as ValidEntity[];
+      if (!configuredEntities?.length) {
+        console.log('No configured entities found');
+        return [];
+      }
+
+      const entityIds = configuredEntities.map(config => config.entity_id);
+      console.log('Found configured entity IDs:', entityIds);
+
+      // Get entity details for configured entities
+      const { data: entities, error: entitiesError } = await supabase
+        .from('entities')
+        .select('entity_id, entity_name, functional_currency')
+        .in('entity_id', entityIds)
+        .eq('is_active', true);
+
+      if (entitiesError) {
+        console.error('Error fetching entity details:', entitiesError);
+        throw entitiesError;
+      }
+
+      console.log('Fetched valid entities:', entities);
+      return entities as ValidEntity[];
     }
   });
 
