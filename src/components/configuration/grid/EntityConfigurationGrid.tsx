@@ -56,8 +56,23 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
     <div className="w-full h-[600px] ag-theme-alpine">
       <style>
         {`
-          .ag-header-center .ag-header-cell-label {
+          .ag-header-cell {
+            display: flex;
+            align-items: center;
             justify-content: center;
+          }
+          .ag-header-cell-label {
+            width: 100%;
+            text-align: center;
+          }
+          .ag-header-group-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .ag-header-group-cell-label {
+            width: 100%;
+            text-align: center;
           }
           .custom-header {
             white-space: normal;
@@ -65,6 +80,11 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           }
           .custom-header .ag-header-cell-label {
             padding: 4px;
+          }
+          .ag-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         `}
       </style>

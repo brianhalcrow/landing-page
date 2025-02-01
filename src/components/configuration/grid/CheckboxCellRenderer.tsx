@@ -8,11 +8,12 @@ interface CheckboxCellRendererProps {
 
 const CheckboxCellRenderer = ({ value, disabled = false, onChange }: CheckboxCellRendererProps) => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center h-full">
       <Checkbox 
         checked={!!value}
         disabled={disabled}
         onCheckedChange={(checked) => onChange?.(!!checked)}
+        className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
       />
     </div>
   );
