@@ -93,41 +93,70 @@ const validateExposureData = (data: ExposureData, fieldChanged: string, newValue
 
     if (isNetMonetary && newValue) {
       // If checking Net Monetary, uncheck other monetary types
-      let uncheckedSomething = false;
       Object.entries(data).forEach(([key, value]) => {
         if (key.startsWith('exposure_') && key !== fieldChanged) {
           const otherTypeId = key.replace('exposure_', '');
           const otherType = data[`type_${otherTypeId}`];
           if (otherType?.exposure_category_l2?.toLowerCase() === 'monetary') {
             newData[key] = false;
-            uncheckedSomething = true;
             console.log('Unchecking monetary field:', key);
           }
         }
       });
-      if (uncheckedSomething) {
-        toast.info('Other monetary exposures have been automatically unchecked');
-      }
     } else if (!isNetMonetary && newValue) {
       // If checking Monetary Assets or Liabilities, uncheck Net Monetary
-      let uncheckedNetMonetary = false;
       Object.entries(data).forEach(([key, value]) => {
         if (key.startsWith('exposure_')) {
           const otherTypeId = key.replace('exposure_', '');
           const otherType = data[`type_${otherTypeId}`];
           if (otherType?.exposure_category_l3?.toLowerCase() === 'net monetary') {
             newData[key] = false;
-            uncheckedNetMonetary = true;
             console.log('Unchecking net monetary field:', key);
           }
         }
       });
-      if (uncheckedNetMonetary) {
-        toast.info('Net Monetary has been automatically unchecked');
-      }
     }
   }
 
+  // Highly Probable Transactions Validation
+  if (category === 'highly probable transactions') {
+    const isNetIncome = subcategory === 'net income';
+    console.log('Income validation:', { isNetIncome, newValue });
+
+    if (isNetIncome && newValue) {
+      // If checking Net Income, uncheck Revenue and Expense
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_') && key !== fieldChanged) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l2?.toLowerCase() === 'highly probable transactions' &&
+              ['revenue', 'expense'].includes(otherType?.exposure_category_l3?.toLowerCase())) {
+            newData[key] = false;
+            console.log('Unchecking revenue/expense field:', key);
+          }
+        }
+      });
+    } else if (['revenue', 'expense'].includes(subcategory) && newValue) {
+      // If checking Revenue or Expense, uncheck Net Income
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('exposure_')) {
+          const otherTypeId = key.replace('exposure_', '');
+          const otherType = data[`type_${otherTypeId}`];
+          if (otherType?.exposure_category_l3?.toLowerCase() === 'net income') {
+            newData[key] = false;
+            console.log('Unchecking net income field:', key);
+          }
+        }
+      });
+    }
+  }
+
+  console.log('=== Validation Complete ===');
+  console.log('Original data:', data);
+  console.log('Modified data:', newData);
+  
+  return newData;
+};
  // Inside validateExposureData function, replace the existing Income Validation section with:
 
   // Income Validation
