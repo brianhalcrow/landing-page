@@ -3,21 +3,13 @@ import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { FormValues } from "../types";
 
-// Define the base types separately
 interface Strategy {
   id: number;
   strategy: string | null;
   strategy_description: string | null;
   instrument: string | null;
-}
-
-// Define a simplified version of FormValues
-interface FormValues {
-  exposure_category_level_4: string;
-  strategy: string;
-  instrument: string;
-  // Add other form fields as needed
 }
 
 interface StrategyFieldProps {
@@ -39,7 +31,6 @@ const StrategyField = ({ form, disabled = false }: StrategyFieldProps) => {
 
       setLoading(true);
       try {
-        console.log("Fetching strategies for exposure L4:", exposureL4);
         const { data, error } = await supabase
           .from("hedge_strategy")
           .select("*")
@@ -50,7 +41,6 @@ const StrategyField = ({ form, disabled = false }: StrategyFieldProps) => {
           throw error;
         }
 
-        console.log("Fetched strategies:", data);
         setStrategies(data || []);
         form.setValue("strategy", "");
         form.setValue("instrument", "");

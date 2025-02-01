@@ -3,7 +3,7 @@ import { z } from "zod";
 export const formSchema = z.object({
   entity_id: z.string().min(1, "Entity ID is required"),
   entity_name: z.string().min(1, "Entity name is required"),
-  cost_centre: z.string().optional(),
+  cost_centre: z.string().min(1, "Cost centre is required"),
   functional_currency: z.string().optional(),
   exposure_category_level_2: z.string().min(1, "Category level 2 is required"),
   exposure_category_level_4: z.string().min(1, "Category level 4 is required"),

@@ -24,7 +24,6 @@ const GeneralTab = () => {
           console.log('Real-time update received:', payload);
           console.log("Event type:", payload.eventType);
           console.log("Full payload:", JSON.stringify(payload, null, 2));
-          // Invalidate and refetch the entities query
           await queryClient.invalidateQueries({ queryKey: ["entities"] });
         }
       )
@@ -38,13 +37,12 @@ const GeneralTab = () => {
     };
   }, [queryClient]);
 
-  // Fetch existing entities
   const { data: entities } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("entities")
-        .select("*")
+        .select("entity_id, entity_name, functional_currency, accounting_rate_method as rate_method")
         .order('entity_name');
       
       if (error) {
@@ -52,7 +50,11 @@ const GeneralTab = () => {
         throw error;
       }
       
-      return data;
+      // Transform the data to match the expected type
+      return data.map(entity => ({
+        ...entity,
+        id: parseInt(entity.entity_id), // Generate an id from entity_id
+      }));
     },
   });
 
