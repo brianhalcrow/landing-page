@@ -16,21 +16,21 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
-      width: 110,
+      width: 90,
       sort: 'asc',
       sortIndex: 0
     },
     { 
       field: 'entity_name', 
       headerName: 'Entity Name', 
-      width: 200,
+      width: 240,
       sort: 'asc',
       sortIndex: 1
     },
     { 
       field: 'functional_currency', 
       headerName: 'Functional Currency', 
-      width: 150 
+      width: 75, 
     },
     { 
       field: 'accounting_rate_method', 
@@ -40,7 +40,7 @@ const EntitiesGrid = ({ entities }: EntitiesGridProps) => {
     { 
       field: 'is_active', 
       headerName: 'Is Active', 
-      width: 100,
+      width: 130,
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
       }
