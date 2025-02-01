@@ -64,9 +64,12 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
 
   const handleSaveRow = async (data: any) => {
     try {
+      // Remove id if it's undefined (new row)
+      const { id, ...rowData } = data;
+      
       const { error } = await supabase
         .from('hedge_request_draft')
-        .insert([data])
+        .insert([rowData])
         .select();
 
       if (error) throw error;

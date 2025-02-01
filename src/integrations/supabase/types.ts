@@ -504,7 +504,7 @@ export type Database = {
           exposure_category_l2: string | null
           exposure_category_l3: string | null
           functional_currency: string | null
-          id: string
+          id: number
           instrument: string | null
           status: string | null
           strategy: string | null
@@ -520,7 +520,7 @@ export type Database = {
           exposure_category_l2?: string | null
           exposure_category_l3?: string | null
           functional_currency?: string | null
-          id?: string
+          id?: number
           instrument?: string | null
           status?: string | null
           strategy?: string | null
@@ -536,7 +536,7 @@ export type Database = {
           exposure_category_l2?: string | null
           exposure_category_l3?: string | null
           functional_currency?: string | null
-          id?: string
+          id?: number
           instrument?: string | null
           status?: string | null
           strategy?: string | null
@@ -553,7 +553,7 @@ export type Database = {
           created_at: string | null
           currency_pair: string | null
           draft_id: string | null
-          id: string
+          id: number
           quote_currency: string | null
           settlement_date: string | null
           trade_date: string | null
@@ -567,7 +567,7 @@ export type Database = {
           created_at?: string | null
           currency_pair?: string | null
           draft_id?: string | null
-          id?: string
+          id?: number
           quote_currency?: string | null
           settlement_date?: string | null
           trade_date?: string | null
@@ -581,21 +581,13 @@ export type Database = {
           created_at?: string | null
           currency_pair?: string | null
           draft_id?: string | null
-          id?: string
+          id?: number
           quote_currency?: string | null
           settlement_date?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "hedge_request_draft_trades_draft_id_fkey"
-            columns: ["draft_id"]
-            isOneToOne: false
-            referencedRelation: "hedge_request_draft"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       hedge_strategy: {
         Row: {
