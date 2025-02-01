@@ -35,6 +35,7 @@ const CostCentreField = ({
       form.setValue('cost_centre', costCentre);
       onCostCentreSelect(costCentre);
     } else {
+      // Clear cost centre if multiple options are available and none selected
       form.setValue('cost_centre', '');
     }
   }, [managementStructures, form, onCostCentreSelect]);
@@ -43,6 +44,9 @@ const CostCentreField = ({
     <FormField
       control={form.control}
       name="cost_centre"
+      rules={{ 
+        required: managementStructures.length > 1 ? "Cost Centre is required" : false 
+      }}
       render={({ field }) => (
         <FormItem className="w-40">
           <FormLabel>Cost Centre</FormLabel>
