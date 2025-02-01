@@ -72,12 +72,28 @@ const HedgeRequestForm: React.FC = () => {
         "entity_id",
         "entity_name",
         "cost_centre",
-        "exposure_category_level_2",
-        "exposure_category_level_3",
-        "exposure_category_level_4",
         "exposure_config",
-        "strategy"
       ];
+
+      // Add conditional required fields based on exposure_config
+      if (values.exposure_config) {
+        requiredFields.push("exposure_category_level_2");
+        
+        if (values.exposure_category_level_2) {
+          requiredFields.push("exposure_category_level_3");
+          
+          if (values.exposure_category_level_3) {
+            requiredFields.push("exposure_category_level_4");
+          }
+        }
+      }
+
+      // Add strategy as required if exposure categories are filled
+      if (values.exposure_category_level_2 && 
+          values.exposure_category_level_3 && 
+          values.exposure_category_level_4) {
+        requiredFields.push("strategy");
+      }
       
       const isComplete = requiredFields.every(field => {
         const fieldValue = values[field];
@@ -86,6 +102,7 @@ const HedgeRequestForm: React.FC = () => {
       
       console.log('Form completion check:', {
         values,
+        requiredFields,
         isComplete,
         formState: form.formState
       });
@@ -110,7 +127,6 @@ const HedgeRequestForm: React.FC = () => {
       return;
     }
     console.log('Submitting form with data:', data);
-    // Add your submit logic here
   };
 
   const handleSaveDraft = async () => {
@@ -122,7 +138,6 @@ const HedgeRequestForm: React.FC = () => {
 
     try {
       const userId = session?.user?.id || 'mock-user-id';
-
       const formData = form.getValues();
       
       const { data: draftData, error: draftError } = await supabase
