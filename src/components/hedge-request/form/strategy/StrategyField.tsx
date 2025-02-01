@@ -2,8 +2,15 @@ import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormValues, Strategy } from "../types";
+import { FormValues } from "../types";
 import { supabase } from "@/integrations/supabase/client";
+
+interface Strategy {
+  id: number;
+  strategy: string | null;
+  strategy_description: string | null;
+  instrument: string | null;
+}
 
 interface StrategyFieldProps {
   form: UseFormReturn<FormValues>;
@@ -48,7 +55,7 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
     };
 
     fetchStrategies();
-  }, [form.watch("exposure_category_level_4")]);
+  }, [form]);
 
   return (
     <FormField
@@ -64,7 +71,7 @@ const StrategyField = ({ form, disabled = true }: StrategyFieldProps) => {
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="" />
+                <SelectValue placeholder="Select strategy" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
