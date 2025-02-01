@@ -1,4 +1,40 @@
 import { ColDef } from 'ag-grid-community';
+import { Select } from '@/components/ui/select';
+
+// Custom cell renderer for the entity name dropdown
+const EntityNameSelector = (props: any) => {
+  const entities = props.context.validEntities || [];
+  
+  const handleChange = (event: any) => {
+    const selectedEntity = entities.find(
+      (entity: any) => entity.entity_name === event.target.value
+    );
+    if (selectedEntity) {
+      const updatedData = {
+        ...props.data,
+        entity_name: selectedEntity.entity_name,
+        entity_id: selectedEntity.entity_id,
+        functional_currency: selectedEntity.functional_currency
+      };
+      props.node.setData(updatedData);
+    }
+  };
+
+  return (
+    <select 
+      value={props.value || ''} 
+      onChange={handleChange}
+      className="w-full h-full border-0 outline-none bg-transparent"
+    >
+      <option value="">Select Entity</option>
+      {entities.map((entity: any) => (
+        <option key={entity.entity_id} value={entity.entity_name}>
+          {entity.entity_name}
+        </option>
+      ))}
+    </select>
+  );
+};
 
 export const inputDraftColumnDefs: ColDef[] = [
   {
@@ -7,22 +43,8 @@ export const inputDraftColumnDefs: ColDef[] = [
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
-    cellRenderer: 'agSelectCellEditor',
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: (params: any) => ({
-      values: params.context.validEntities?.map((entity: any) => entity.entity_name) || [],
-    }),
-    valueSetter: (params: any) => {
-      const selectedEntity = params.context.validEntities?.find(
-        (entity: any) => entity.entity_name === params.newValue
-      );
-      if (selectedEntity) {
-        params.data.entity_id = selectedEntity.entity_id;
-        params.data.functional_currency = selectedEntity.functional_currency;
-        return true;
-      }
-      return false;
-    }
+    cellRenderer: EntityNameSelector,
+    editable: false
   },
   {
     field: 'entity_id',
