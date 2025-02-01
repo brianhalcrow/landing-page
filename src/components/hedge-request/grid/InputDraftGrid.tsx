@@ -156,12 +156,18 @@ const InputDraftGrid = () => {
     queryFn: async () => {
       console.log('Fetching valid entities...');
       
-      // Get entities with active exposure configurations
+      // Get entities with active exposure configurations using a single query
       const { data: configuredEntities, error: configError } = await supabase
         .from('entity_exposure_config')
-        .select('entity_id')
-        .eq('is_active', true)
-        .distinct();
+        .select(`
+          entity_id,
+          entities!inner (
+            entity_id,
+            entity_name,
+            functional_currency
+          )
+        `)
+        .eq('is_active', true);
 
       if (configError) {
         console.error('Error fetching configured entities:', configError);
@@ -173,23 +179,22 @@ const InputDraftGrid = () => {
         return [];
       }
 
-      const entityIds = configuredEntities.map(config => config.entity_id);
-      console.log('Found configured entity IDs:', entityIds);
+      // Transform the data to remove duplicates and match the ValidEntity interface
+      const uniqueEntities = Array.from(
+        new Map(
+          configuredEntities.map(item => [
+            item.entities.entity_id,
+            {
+              entity_id: item.entities.entity_id,
+              entity_name: item.entities.entity_name,
+              functional_currency: item.entities.functional_currency
+            }
+          ])
+        ).values()
+      );
 
-      // Get entity details for configured entities
-      const { data: entities, error: entitiesError } = await supabase
-        .from('entities')
-        .select('entity_id, entity_name, functional_currency')
-        .in('entity_id', entityIds)
-        .eq('is_active', true);
-
-      if (entitiesError) {
-        console.error('Error fetching entity details:', entitiesError);
-        throw entitiesError;
-      }
-
-      console.log('Fetched valid entities:', entities);
-      return entities as ValidEntity[];
+      console.log('Fetched valid entities:', uniqueEntities);
+      return uniqueEntities as ValidEntity[];
     }
   });
 
