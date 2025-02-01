@@ -10,17 +10,6 @@ import { SaveActionRenderer } from '../components/SaveActionRenderer';
 
 export const createColumnDefs = (validEntities: any): ColDef[] => [
   {
-    field: 'id',
-    headerName: 'ID',
-    minWidth: 100,
-    flex: 0.5,
-    headerClass: 'ag-header-center',
-    editable: false,
-    valueFormatter: (params) => {
-      return params.value ? `#${params.value}` : '';
-    }
-  },
-  {
     field: 'entity_name',
     headerName: 'Entity Name',
     minWidth: 180,
