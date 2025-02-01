@@ -5,6 +5,7 @@ import { createBaseColumnDefs, createExposureColumns, createActionColumn } from 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useCallback } from 'react';
 
 interface EntityConfigurationGridProps {
   entities: any[];
@@ -26,7 +27,6 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           }, {
             onConflict: 'entity_id,exposure_type_id'
           });
-
         if (error) throw error;
       }
     },
@@ -40,16 +40,22 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
     }
   });
 
+  const handleCellValueChanged = useCallback((params: any) => {
+    console.log('Cell value changed:', params);
+    
+    if (params.data?.isEditing) {
+      // Update the grid UI immediately
+      params.node.setData(params.data);
+      params.api.refreshCells({ 
+        rowNodes: [params.node],
+        force: true
+      });
+    }
+  }, []);
+
   const allColumnDefs = [
     ...createBaseColumnDefs(),
-    ...createExposureColumns(exposureTypes, (params: any) => {
-      // This is now only for handling UI state changes
-      // Database updates happen in the Save action
-      if (params.data?.isEditing) {
-        params.node.setData(params.data);
-        params.api.refreshCells({ rowNodes: [params.node] });
-      }
-    }),
+    ...createExposureColumns(exposureTypes, handleCellValueChanged),
     createActionColumn()
   ];
 
@@ -63,46 +69,37 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
             align-items: center !important;
             justify-content: center !important;
           }
-
           .ag-header-cell-label,
           .ag-header-group-cell-label {
             width: 100% !important;
             text-align: center !important;
           }
-
           .ag-header-cell-text {
             text-overflow: clip !important;
             overflow: visible !important;
             white-space: normal !important;
           }
-
           .ag-header-group-cell-with-group {
             border-bottom: 1px solid #babfc7 !important;
           }
-
           .custom-header {
             white-space: normal !important;
             line-height: 1.2 !important;
           }
-
           .custom-header .ag-header-cell-label {
             padding: 4px !important;
           }
-
           .ag-cell {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
           }
-
           .text-left {
             justify-content: flex-start !important;
           }
-
           .ag-header-viewport {
             overflow: visible !important;
           }
-
           .ag-header-container {
             overflow: visible !important;
           }
@@ -122,6 +119,7 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         context={{ updateConfig }}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        getRowId={(params) => params.data.entity_id}
       />
     </div>
   );
