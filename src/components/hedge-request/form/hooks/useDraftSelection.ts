@@ -6,10 +6,16 @@ import { toast } from "sonner";
 export const useDraftSelection = (form: UseFormReturn<FormValues>) => {
   const handleDraftSelect = async (selectedDraftId: string) => {
     try {
+      if (!selectedDraftId) {
+        console.error('No draft ID provided');
+        toast.error("No draft selected");
+        return null;
+      }
+
       console.log('Fetching draft data for ID:', selectedDraftId);
       
       const { data, error } = await supabase.functions.invoke('get-draft-data', {
-        body: JSON.stringify({ draft_id: selectedDraftId })
+        body: { draft_id: selectedDraftId }
       });
 
       if (error) {

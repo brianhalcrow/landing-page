@@ -22,7 +22,10 @@ serve(async (req) => {
     // Get draft_id from request
     const { draft_id } = await req.json()
     
+    console.log('Received request with draft_id:', draft_id);
+    
     if (!draft_id) {
+      console.error('Missing draft_id in request');
       return new Response(
         JSON.stringify({ error: 'draft_id is required' }),
         { 
