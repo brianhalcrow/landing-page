@@ -57,6 +57,12 @@ export const createBaseColumnDefs = (): ColDef[] => [
     suppressSizeToFit: true,
     wrapHeaderText: true,
     autoHeaderHeight: true,
+    cellStyle: { 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      padding: 0
+    },
     cellRenderer: CheckboxCellRenderer,
     cellRendererParams: {
       disabled: true
@@ -177,27 +183,33 @@ export const createExposureColumns = (exposureTypes: any[], onCellValueChanged: 
     return acc;
   }, {});
 
- return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
-  headerName: l1,
-  groupId: l1,
-  headerClass: 'ag-header-center custom-header text-center',  // Added text-center
-  wrapHeaderText: true,
-  autoHeaderHeight: true,
-  children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
-    headerName: l2,
-    groupId: `${l1}-${l2}`,
-    headerClass: 'ag-header-center custom-header text-center',  // Added text-center
+  return Object.entries(groupedExposures).map(([l1, l2Group]: [string, any]) => ({
+    headerName: l1,
+    groupId: l1,
+    headerClass: 'ag-header-center custom-header text-center',
     wrapHeaderText: true,
     autoHeaderHeight: true,
-    children: types.map((type: any) => ({
-      headerName: type.exposure_category_l3,
-      field: `exposure_${type.exposure_type_id}`,
-      minWidth: 120,
-      flex: 1,
-      headerClass: 'ag-header-center custom-header text-center',  // Added text-center
+    children: Object.entries(l2Group).map(([l2, types]: [string, any]) => ({
+      headerName: l2,
+      groupId: `${l1}-${l2}`,
+      headerClass: 'ag-header-center custom-header text-center',
       wrapHeaderText: true,
       autoHeaderHeight: true,
-      cellRenderer: CheckboxCellRenderer,
+      children: types.map((type: any) => ({
+        headerName: type.exposure_category_l3,
+        field: `exposure_${type.exposure_type_id}`,
+        minWidth: 120,
+        flex: 1,
+        headerClass: 'ag-header-center custom-header text-center',
+        wrapHeaderText: true,
+        autoHeaderHeight: true,
+        cellStyle: { 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: 0
+        },
+        cellRenderer: CheckboxCellRenderer,
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
           value: params.value,
