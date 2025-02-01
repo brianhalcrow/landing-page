@@ -17,16 +17,21 @@ const TradeAmountChart = () => {
     const fetchData = async () => {
       try {
         const { data, error } = await supabase
-          .from("hedge_request")
-          .select("entity_name, buy_sell_amount")
-          .not("entity_name", "is", null)
+          .from("hedge_request_draft_trades")
+          .select(`
+            draft_id,
+            buy_sell_amount,
+            hedge_request_draft (
+              entity_name
+            )
+          `)
           .not("buy_sell_amount", "is", null);
 
         if (error) throw error;
 
         // Aggregate data by entity_name
-        const aggregatedData = data.reduce((acc: { [key: string]: number }, curr) => {
-          const entityName = curr.entity_name || "Unknown";
+        const aggregatedData = (data || []).reduce((acc: { [key: string]: number }, curr) => {
+          const entityName = curr.hedge_request_draft?.entity_name || "Unknown";
           acc[entityName] = (acc[entityName] || 0) + (curr.buy_sell_amount || 0);
           return acc;
         }, {});

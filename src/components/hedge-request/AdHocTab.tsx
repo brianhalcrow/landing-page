@@ -16,6 +16,11 @@ const AdHocTab = () => {
           entity_name,
           functional_currency,
           cost_centre,
+          exposure_category_l1,
+          exposure_category_l2,
+          exposure_category_l3,
+          strategy,
+          instrument,
           status
         `)
         .order('created_at', { ascending: false });

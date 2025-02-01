@@ -21,7 +21,7 @@ export const OverviewTab = () => {
       setIsLoading(true);
 
       const { data, error } = await supabase
-        .from("hedge_request")
+        .from("hedge_request_draft")
         .select("*")
         .order("id", { ascending: false });
 
@@ -38,7 +38,7 @@ export const OverviewTab = () => {
       }));
 
       console.log("✅ Fetched hedge requests:", hedgeRequestsWithId);
-      setHedgeRequests(hedgeRequestsWithId);
+      setHedgeRequests(hedgeRequestsWithId as HedgeRequest[]);
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
