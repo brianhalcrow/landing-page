@@ -1,7 +1,6 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import CsvOperationsHeader from "./configuration/CsvOperationsHeader";
 
 export interface TabItem {
   value: string;
@@ -12,10 +11,9 @@ export interface TabItem {
 interface TabsContainerProps {
   tabs: TabItem[];
   defaultTab?: string;
-  showCsvOperations?: boolean;
 }
 
-const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerProps) => {
+const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
   if (!tabs || tabs.length === 0) {
     return <div>No tabs configured</div>;
   }
@@ -39,11 +37,6 @@ const TabsContainer = ({ tabs, defaultTab, showCsvOperations }: TabsContainerPro
           ))}
         </TabsList>
       </div>
-      {showCsvOperations && (
-        <div className="flex justify-end p-4 bg-background">
-          <CsvOperationsHeader />
-        </div>
-      )}
       <div className="p-6">
         {tabs.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>

@@ -12,7 +12,6 @@ const Configuration = () => {
     }>
       <TabsContainer 
         tabs={tabsConfig["configuration"]} 
-        showCsvOperations={true}
       />
     </Suspense>
   );
