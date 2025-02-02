@@ -7,17 +7,46 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
-      headerName: 'Base Currency',
+      headerName: 'Buy',
       editable: true,
       cellDataType: 'text',
       valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
     },
     {
+      field: 'buy_amount',
+      headerName: 'Buy Amount',
+      editable: true,
+      cellDataType: 'number',
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+    },
+    {
       field: 'quote_currency',
-      headerName: 'Quote Currency',
+      headerName: 'Sell',
       editable: true,
       cellDataType: 'text',
       valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
+    },
+    {
+      field: 'sell_amount',
+      headerName: 'Sell Amount',
+      editable: true,
+      cellDataType: 'number',
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+    },
+    {
+      field: 'rate',
+      headerName: 'Spot Rate',
+      editable: false,
+      valueFormatter: (params) => {
+        if (!params.value) {
+          const { base_currency, quote_currency } = params.data;
+          if (base_currency && quote_currency) {
+            const currencyPair = `${base_currency}/${quote_currency}`;
+            return rates?.get(currencyPair)?.toString() || '';
+          }
+        }
+        return params.value;
+      }
     },
     {
       field: 'currency_pair',
@@ -39,20 +68,6 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       valueFormatter: (params) => {
         return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
       }
-    },
-    {
-      field: 'buy_amount',
-      headerName: 'Buy Amount',
-      editable: true,
-      cellDataType: 'number',
-      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
-    },
-    {
-      field: 'sell_amount',
-      headerName: 'Sell Amount',
-      editable: true,
-      cellDataType: 'number',
-      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
     },
     {
       headerName: 'Actions',
