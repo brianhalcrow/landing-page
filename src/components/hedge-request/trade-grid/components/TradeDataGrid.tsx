@@ -72,7 +72,6 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     try {
       console.log('Cell value changed:', event);
       
-      // Safely check if column exists and get its ID
       const column = event.column;
       if (!column) {
         console.error('No column found in event');
@@ -85,32 +84,64 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         return;
       }
 
-      // Only process currency-related changes
-      if (colId === 'base_currency' || colId === 'quote_currency') {
-        const rowNode = event.node;
-        if (!rowNode || !rowNode.data) {
-          console.error('No row node or data found');
-          return;
-        }
+      const rowNode = event.node;
+      if (!rowNode || !rowNode.data) {
+        console.error('No row node or data found');
+        return;
+      }
 
+      // Handle currency selection
+      if (colId === 'base_currency' || colId === 'quote_currency') {
         const { base_currency, quote_currency } = rowNode.data;
         
         if (base_currency && quote_currency) {
           const currencyPair = `${base_currency}/${quote_currency}`;
           console.log('Setting currency pair:', currencyPair);
           
-          // Safely set the currency pair
           try {
             rowNode.setDataValue('currency_pair', currencyPair);
             
-            // Set rate if available
+            // Set rate if available and recalculate amounts
             if (rates?.has(currencyPair)) {
               const rate = rates.get(currencyPair);
               console.log(`Setting rate for ${currencyPair}:`, rate);
               rowNode.setDataValue('rate', rate);
+
+              // Recalculate amounts based on the new rate
+              const { buy_amount, sell_amount } = rowNode.data;
+              if (rate && buy_amount) {
+                rowNode.setDataValue('sell_amount', buy_amount * rate);
+              } else if (rate && sell_amount) {
+                rowNode.setDataValue('buy_amount', sell_amount / rate);
+              }
             }
           } catch (error) {
             console.error('Error updating row values:', error);
+          }
+        }
+      }
+
+      // Handle amount changes
+      if (colId === 'buy_amount' || colId === 'sell_amount') {
+        const { base_currency, quote_currency } = rowNode.data;
+        if (base_currency && quote_currency) {
+          const currencyPair = `${base_currency}/${quote_currency}`;
+          const rate = rates?.get(currencyPair);
+
+          if (rate) {
+            if (colId === 'buy_amount') {
+              const buyAmount = event.newValue;
+              if (buyAmount) {
+                const sellAmount = buyAmount * rate;
+                rowNode.setDataValue('sell_amount', sellAmount);
+              }
+            } else {
+              const sellAmount = event.newValue;
+              if (sellAmount) {
+                const buyAmount = sellAmount / rate;
+                rowNode.setDataValue('buy_amount', buyAmount);
+              }
+            }
           }
         }
       }
