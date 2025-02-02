@@ -25,7 +25,7 @@ const Dashboard = () => {
   // Fetch saved chart preferences only when we have the user
   const { data: chartPreferences } = useQuery({
     queryKey: ['chart-preferences', CHART_ID, user?.id],
-    enabled: !!user?.id, // Only run query when we have a user ID
+    enabled: !!user?.id,
     queryFn: async () => {
       console.log('Fetching chart preferences...');
       const { data, error } = await supabase
@@ -160,22 +160,33 @@ const Dashboard = () => {
               {isLoadingHedgeRequests ? (
                 <Skeleton className="h-[400px] w-full" />
               ) : (
-                <div style={{ width: '100%', height: chartHeight }}>
-                  <ResponsiveContainer>
-                    <BarChart data={hedgeRequests || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="entity" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={70}
-                      />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResizablePanelGroup direction="vertical" className="min-h-[400px] max-h-[600px]">
+                  <ResizablePanel
+                    defaultSize={50}
+                    onResize={(size) => {
+                      const newHeight = Math.round((size / 100) * 600); // Using 600 as max height
+                      setChartHeight(newHeight);
+                      saveChartPreferences(newHeight);
+                    }}
+                  >
+                    <div className="h-full w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={hedgeRequests || []}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="entity" 
+                            angle={-45}
+                            textAnchor="end"
+                            height={70}
+                          />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               )}
             </CardContent>
           </Card>
