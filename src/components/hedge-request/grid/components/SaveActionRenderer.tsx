@@ -5,16 +5,19 @@ import { toast } from 'sonner';
 
 interface SaveActionRendererProps {
   data: any;
+  context?: {
+    table?: string;
+  };
 }
 
-export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
+export const SaveActionRenderer = ({ data, context }: SaveActionRendererProps) => {
   const handleSaveRow = async () => {
     try {
-      // Remove id if it's undefined (new row)
       const { id, ...rowData } = data;
+      const table = context?.table || 'hedge_request_draft';
       
       const { error } = await supabase
-        .from('hedge_request_draft')
+        .from(table)
         .insert([rowData])
         .select();
 
