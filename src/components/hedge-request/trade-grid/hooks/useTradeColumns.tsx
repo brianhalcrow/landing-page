@@ -14,21 +14,27 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       const { data: baseCurrencies, error: baseError } = await supabase
         .from('rates')
         .select('base_currency')
-        .distinct();
+        .then(result => ({
+          data: result.data?.map(row => row.base_currency).filter(Boolean),
+          error: result.error
+        }));
 
       const { data: quoteCurrencies, error: quoteError } = await supabase
         .from('rates')
         .select('quote_currency')
-        .distinct();
+        .then(result => ({
+          data: result.data?.map(row => row.quote_currency).filter(Boolean),
+          error: result.error
+        }));
 
       if (baseError || quoteError) {
         console.error('Error fetching currencies:', baseError || quoteError);
-        return new Set<string>();
+        return [];
       }
 
       const uniqueCurrencies = new Set([
-        ...(baseCurrencies?.map(row => row.base_currency) || []),
-        ...(quoteCurrencies?.map(row => row.quote_currency) || [])
+        ...(baseCurrencies || []),
+        ...(quoteCurrencies || [])
       ]);
 
       return Array.from(uniqueCurrencies).sort();
