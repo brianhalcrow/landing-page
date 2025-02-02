@@ -1,8 +1,9 @@
 import { SaveActionRenderer } from '../components/SaveActionRenderer';
 import { ColDef } from 'ag-grid-community';
 import { HedgeRequestDraft } from '../types';
+import { ValidEntity } from '../types';
 
-export const columnDefs: ColDef<HedgeRequestDraft>[] = [
+export const createColumnDefs = (validEntities?: ValidEntity[]): ColDef<HedgeRequestDraft>[] => [
   {
     headerName: 'Actions',
     cellRenderer: SaveActionRenderer,
@@ -14,6 +15,16 @@ export const columnDefs: ColDef<HedgeRequestDraft>[] = [
     editable: false,
     filter: false,
     width: 100
+  },
+  {
+    headerName: 'ID',
+    field: 'id',
+    editable: false,
+    filter: true,
+    width: 100,
+    valueFormatter: (params) => {
+      return params.value ? `#${params.value}` : '';
+    }
   },
   {
     headerName: 'Entity ID',
