@@ -13,16 +13,26 @@ const CHART_ID = 'hedge-requests-by-entity';
 const Dashboard = () => {
   const [chartHeight, setChartHeight] = useState(400);
 
-  // Fetch saved chart preferences
+  // First query to get the user
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    }
+  });
+
+  // Fetch saved chart preferences only when we have the user
   const { data: chartPreferences } = useQuery({
-    queryKey: ['chart-preferences', CHART_ID],
+    queryKey: ['chart-preferences', CHART_ID, user?.id],
+    enabled: !!user?.id, // Only run query when we have a user ID
     queryFn: async () => {
       console.log('Fetching chart preferences...');
       const { data, error } = await supabase
         .from('chart_preferences')
         .select('height')
         .eq('chart_id', CHART_ID)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -43,8 +53,7 @@ const Dashboard = () => {
 
   // Save chart preferences when height changes
   const saveChartPreferences = async (height: number) => {
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return;
+    if (!user?.id) return;
 
     const { error } = await supabase
       .from('chart_preferences')
