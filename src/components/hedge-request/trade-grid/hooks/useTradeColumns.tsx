@@ -110,6 +110,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Spot Rate',
       editable: false,
       valueFormatter: (params) => {
+        if (!params.data) return '';
         const { buy_currency, sell_currency } = params.data;
         if (buy_currency && sell_currency) {
           const currencyPair = `${buy_currency}/${sell_currency}`;
