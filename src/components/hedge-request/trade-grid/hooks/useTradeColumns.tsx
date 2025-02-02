@@ -20,7 +20,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
   
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
-      const formattedDate = format(date, 'yyyy-MM-dd');
+      const formattedDate = format(date, 'dd/MM/yyyy');
       props.node.setDataValue(props.column.colId, formattedDate);
     }
   };
@@ -43,7 +43,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         <PopoverContent className="w-auto p-0" align="start">
           <CalendarComponent
             mode="single"
-            selected={value ? new Date(value) : undefined}
+            selected={value ? new Date(value.split('/').reverse().join('-')) : undefined}
             onSelect={handleDateSelect}
             initialFocus
           />
