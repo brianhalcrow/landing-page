@@ -602,10 +602,10 @@ export type Database = {
         Row: {
           buy_amount: number | null
           buy_currency: string | null
-          buy_sell_amount: number | null
           created_at: string | null
-          currency_pair: string | null
           draft_id: string | null
+          entity_id: string | null
+          entity_name: string | null
           id: number
           sell_amount: number | null
           sell_currency: string | null
@@ -616,10 +616,10 @@ export type Database = {
         Insert: {
           buy_amount?: number | null
           buy_currency?: string | null
-          buy_sell_amount?: number | null
           created_at?: string | null
-          currency_pair?: string | null
           draft_id?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
           id?: number
           sell_amount?: number | null
           sell_currency?: string | null
@@ -630,10 +630,10 @@ export type Database = {
         Update: {
           buy_amount?: number | null
           buy_currency?: string | null
-          buy_sell_amount?: number | null
           created_at?: string | null
-          currency_pair?: string | null
           draft_id?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
           id?: number
           sell_amount?: number | null
           sell_currency?: string | null

@@ -1,9 +1,6 @@
 import { ColDef } from 'ag-grid-community';
-import { toStringOrNull } from '@/lib/utils';
+import { CurrencySelector } from '../components/CurrencySelector';
 import ActionsCellRenderer from '../components/ActionsCellRenderer';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 const formatNumber = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -13,48 +10,6 @@ const formatNumber = (value: number) => {
 };
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
-  const { data: currencies } = useQuery({
-    queryKey: ['currencies'],
-    queryFn: async () => {
-      const { data: baseCurrencies } = await supabase
-        .from('rates')
-        .select('base_currency');
-
-      const { data: quoteCurrencies } = await supabase
-        .from('rates')
-        .select('quote_currency');
-
-      const uniqueCurrencies = new Set([
-        ...(baseCurrencies?.map(row => row.base_currency) || []),
-        ...(quoteCurrencies?.map(row => row.quote_currency) || [])
-      ]);
-
-      return Array.from(uniqueCurrencies).sort();
-    }
-  });
-
-  const CurrencySelector = (props: any) => {
-    const value = props.value || '';
-    
-    return (
-      <Select
-        value={value}
-        onValueChange={(newValue) => props.setValue(newValue)}
-      >
-        <SelectTrigger className="h-8 w-full border-0 bg-transparent focus:ring-0">
-          <SelectValue placeholder="Select currency" />
-        </SelectTrigger>
-        <SelectContent>
-          {currencies?.map((currency) => (
-            <SelectItem key={currency} value={currency}>
-              {currency}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    );
-  };
-
   return [
     {
       field: 'buy_currency',
@@ -62,7 +17,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       cellRenderer: CurrencySelector,
       cellDataType: 'text',
-      valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
+      valueParser: (params) => params.newValue === "" ? null : params.newValue
     },
     {
       field: 'buy_amount',
@@ -78,7 +33,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       cellRenderer: CurrencySelector,
       cellDataType: 'text',
-      valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
+      valueParser: (params) => params.newValue === "" ? null : params.newValue
     },
     {
       field: 'sell_amount',
