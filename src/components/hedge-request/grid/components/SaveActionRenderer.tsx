@@ -3,23 +3,18 @@ import { Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-type ValidTableNames = 'hedge_request_draft' | 'hedge_request_draft_trades';
-
 interface SaveActionRendererProps {
   data: any;
-  context?: {
-    table?: ValidTableNames;
-  };
 }
 
-export const SaveActionRenderer = ({ data, context }: SaveActionRendererProps) => {
+export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
   const handleSaveRow = async () => {
     try {
+      // Remove id if it's undefined (new row)
       const { id, ...rowData } = data;
-      const table = context?.table || 'hedge_request_draft';
       
       const { error } = await supabase
-        .from(table)
+        .from('hedge_request_draft')
         .insert([rowData])
         .select();
 

@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useState, useCallback } from 'react';
 import { HedgeRequestDraft, ValidEntity } from './types';
 import DraftDataGrid from './components/DraftDataGrid';
-import InputTradeGrid from './InputTradeGrid';
 
 const CACHE_KEY = 'hedge-request-draft-grid-state';
 
@@ -76,17 +75,11 @@ const InputDraftGrid = () => {
   });
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <DraftDataGrid 
-          rowData={rowData}
-          onRowDataChange={updateCache}
-        />
-      </div>
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Trade Details</h3>
-        <InputTradeGrid />
-      </div>
+    <div className="space-y-4">
+      <DraftDataGrid 
+        rowData={rowData}
+        onRowDataChange={updateCache}
+      />
     </div>
   );
 };
