@@ -148,8 +148,14 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           <CalendarComponent
             mode="single"
             selected={currentDate}
-            onSelect={handleDateSelect}
+            onSelect={(date) => {
+              console.log('Calendar date selected:', date);
+              if (date) {
+                handleDateSelect(date);
+              }
+            }}
             initialFocus
+            className="rounded-md border"
           />
         </PopoverContent>
       </Popover>
@@ -186,6 +192,9 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Trade Date',
       editable: false,
       cellRenderer: DatePickerCellRenderer,
+      cellRendererParams: {
+        suppressKeyboardEvent: () => true
+      },
     },
     {
       field: 'settlement_date',
