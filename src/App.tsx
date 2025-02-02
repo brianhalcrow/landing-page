@@ -29,7 +29,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Layout>
+                <Layout hideSearch>
                   <Index />
                 </Layout>
               </ProtectedRoute>

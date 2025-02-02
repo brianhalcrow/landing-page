@@ -12,9 +12,10 @@ import { useEffect, useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
+  hideSearch?: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, hideSearch = false }: LayoutProps) => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -48,19 +49,21 @@ const Layout = ({ children }: LayoutProps) => {
             className="h-8"
           />
         </div>
-        <div className="flex items-center gap-4 mr-[5cm]">
-          <div className="relative w-64">
-            <Search 
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" 
-              aria-hidden="true"
-            />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="pl-8 w-full bg-gray-50"
-            />
+        {!hideSearch && (
+          <div className="flex items-center gap-4 mr-[5cm]">
+            <div className="relative w-64">
+              <Search 
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" 
+                aria-hidden="true"
+              />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="pl-8 w-full bg-gray-50"
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex items-center gap-2">
           {/* Theme toggle button temporarily hidden */}
           {/* Temporarily hide logout button for POC
