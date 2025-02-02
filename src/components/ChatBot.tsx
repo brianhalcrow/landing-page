@@ -3,16 +3,52 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Message {
+  content: string;
+  role: 'user' | 'assistant';
+}
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle message submission here
+    if (!message.trim()) return;
+
+    const userMessage = message.trim();
     setMessage("");
+    
+    // Add user message to chat
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { message: userMessage },
+      });
+
+      if (error) throw error;
+
+      // Add assistant's response to chat
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,10 +97,30 @@ const ChatBot = () => {
           {!isMinimized && (
             <>
               <div className="flex-1 p-4 space-y-4 overflow-y-auto h-[480px] bg-gray-50">
-                <div className="text-gray-600">
-                  How can I help you today?
-                </div>
-                {/* Chat messages will go here */}
+                {messages.length === 0 ? (
+                  <div className="text-gray-600">
+                    How can I help you today?
+                  </div>
+                ) : (
+                  messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "p-3 rounded-lg max-w-[80%]",
+                        msg.role === 'user' 
+                          ? "bg-blue-500 text-white ml-auto" 
+                          : "bg-white border border-gray-200"
+                      )}
+                    >
+                      {msg.content}
+                    </div>
+                  ))
+                )}
+                {isLoading && (
+                  <div className="text-gray-600 animate-pulse">
+                    Assistant is typing...
+                  </div>
+                )}
               </div>
               
               <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
@@ -74,13 +130,15 @@ const ChatBot = () => {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Type your message..."
                     className="flex-1 bg-gray-50 border-gray-200"
+                    disabled={isLoading}
                   />
                   <Button 
                     type="submit" 
                     size="icon"
-                    className="h-10 w-10 rounded-full bg-gray-200 hover:bg-gray-300"
+                    className="h-10 w-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                    disabled={isLoading}
                   >
-                    <Send className="h-4 w-4 text-gray-600" />
+                    <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </form>
