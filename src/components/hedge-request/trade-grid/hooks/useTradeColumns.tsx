@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 interface DatePickerCellRendererProps {
@@ -17,121 +17,70 @@ interface DatePickerCellRendererProps {
 
 const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
   const { value, node, column, api } = props;
+  const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    // Log component initialization
-    console.log('DatePickerCellRenderer initialized:', {
-      value,
-      nodeId: node?.id,
-      columnId: column?.colId,
-      hasSetDataValue: !!node?.setDataValue
-    });
-  }, [value, node, column]);
+  const parseDate = useCallback((dateString: string | undefined): Date | undefined => {
+    if (!dateString) {
+      return undefined;
+    }
+
+    // Try parsing YYYY-MM-DD format first
+    let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
+    
+    if (!isValid(parsedDate)) {
+      // Try DD/MM/YYYY format as fallback
+      parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+    }
+
+    return isValid(parsedDate) ? parsedDate : undefined;
+  }, []);
 
   const handleDateSelect = useCallback((date: Date | undefined) => {
+    console.log('handleDateSelect called with date:', date);
+    
+    if (!date || !isValid(date)) {
+      console.log('Invalid date selected');
+      return;
+    }
+
     try {
-      if (!date) {
-        console.log('No date selected');
-        return;
-      }
-
-      if (!isValid(date)) {
-        console.error('Invalid date object:', date);
-        toast.error('Invalid date selected');
-        return;
-      }
-
-      // Format date as YYYY-MM-DD for storage
       const formattedDate = format(date, 'yyyy-MM-dd');
-      
-      // Log the update attempt
-      console.log('Attempting to update cell:', {
-        date,
-        formattedDate,
-        columnId: column?.colId,
-        nodeId: node?.id,
-        hasNode: !!node,
-        hasSetDataValue: !!node?.setDataValue,
-        hasApi: !!api
-      });
+      console.log('Formatted date:', formattedDate);
 
-      // Try different methods to update the cell
-      if (node?.setDataValue) {
-        // Method 1: Direct node update
-        node.setDataValue(column.colId, formattedDate);
-        console.log('Updated via setDataValue');
-      } else if (api?.applyTransaction) {
-        // Method 2: Grid transaction
+      if (node && column?.colId) {
+        // Update via transaction
         const rowNode = api.getRowNode(node.id);
         if (rowNode) {
+          const updatedData = { ...rowNode.data };
+          updatedData[column.colId] = formattedDate;
+          
           api.applyTransaction({
-            update: [{
-              ...rowNode.data,
-              [column.colId]: formattedDate
-            }]
+            update: [updatedData]
           });
-          console.log('Updated via applyTransaction');
+          
+          console.log('Updated cell via transaction:', {
+            colId: column.colId,
+            newValue: formattedDate,
+            rowId: node.id
+          });
         }
-      } else {
-        console.error('No valid update method available');
-        toast.error('Unable to update grid value');
-        return;
       }
 
-      // Force refresh the grid cell
-      if (api?.refreshCells) {
-        api.refreshCells({
-          force: true,
-          rowNodes: [node],
-          columns: [column.colId]
-        });
-        console.log('Refreshed cells');
-      }
-
-      toast.success('Date updated successfully');
+      // Close the popover after selection
+      setIsOpen(false);
+      
     } catch (error) {
-      console.error('Error in handleDateSelect:', error);
-      toast.error('Error updating date');
+      console.error('Error updating date:', error);
+      toast.error('Failed to update date');
     }
   }, [node, column, api]);
 
-  const parseDate = useCallback((dateString: string | undefined): Date | undefined => {
-    try {
-      if (!dateString) {
-        console.log('No date string provided');
-        return undefined;
-      }
-
-      // Try parsing YYYY-MM-DD format first
-      let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
-      
-      if (!isValid(parsedDate)) {
-        // Try DD/MM/YYYY format as fallback
-        parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
-      }
-
-      if (!isValid(parsedDate)) {
-        console.log('Invalid parsed date for:', dateString);
-        return undefined;
-      }
-
-      return parsedDate;
-    } catch (error) {
-      console.error('Error parsing date:', error);
-      return undefined;
-    }
-  }, []);
-
   const currentDate = parseDate(value);
-  const displayDate = currentDate && isValid(currentDate) 
-    ? format(currentDate, 'dd/MM/yyyy') 
-    : 'Select date';
+  const displayDate = currentDate ? format(currentDate, 'dd/MM/yyyy') : 'Select date';
 
   return (
     <div className="flex items-center justify-between p-1">
-      <Popover onOpenChange={(open) => {
-        console.log('Popover state changed:', { open, columnId: column?.colId });
-      }}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -139,6 +88,10 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
               "w-full justify-start text-left font-normal",
               !value && "text-muted-foreground"
             )}
+            onClick={() => {
+              console.log('DatePicker button clicked');
+              setIsOpen(true);
+            }}
           >
             <Calendar className="mr-2 h-4 w-4" />
             {displayDate}
@@ -148,14 +101,12 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           <CalendarComponent
             mode="single"
             selected={currentDate}
-            onSelect={(date) => {
-              console.log('Calendar date selected:', date);
-              if (date) {
-                handleDateSelect(date);
-              }
+            onSelect={(date: Date | undefined) => {
+              console.log('Calendar onSelect triggered:', date);
+              handleDateSelect(date);
             }}
             initialFocus
-            className="rounded-md border"
+            disabled={false}
           />
         </PopoverContent>
       </Popover>
@@ -172,7 +123,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'quote_currency',
-      headerName: 'Quote Currency', 
+      headerName: 'Quote Currency',
       editable: true,
     },
     {
@@ -193,7 +144,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: false,
       cellRenderer: DatePickerCellRenderer,
       cellRendererParams: {
-        suppressKeyboardEvent: () => true
+        suppressKeyboardEvent: () => true,
       },
     },
     {
@@ -201,6 +152,9 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Settlement Date',
       editable: false,
       cellRenderer: DatePickerCellRenderer,
+      cellRendererParams: {
+        suppressKeyboardEvent: () => true,
+      },
     },
     {
       field: 'buy_sell',
