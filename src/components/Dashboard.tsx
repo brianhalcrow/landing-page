@@ -5,8 +5,62 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ResizablePanel } from "@/components/ui/resizable";
+import { useEffect, useState } from "react";
+
+const CHART_ID = 'hedge-requests-by-entity';
 
 const Dashboard = () => {
+  const [chartHeight, setChartHeight] = useState(400);
+
+  // Fetch saved chart preferences
+  const { data: chartPreferences } = useQuery({
+    queryKey: ['chart-preferences', CHART_ID],
+    queryFn: async () => {
+      console.log('Fetching chart preferences...');
+      const { data, error } = await supabase
+        .from('chart_preferences')
+        .select('height')
+        .eq('chart_id', CHART_ID)
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+        console.error('Error fetching chart preferences:', error);
+        throw error;
+      }
+
+      return data;
+    }
+  });
+
+  // Set initial height from preferences
+  useEffect(() => {
+    if (chartPreferences?.height) {
+      setChartHeight(chartPreferences.height);
+    }
+  }, [chartPreferences]);
+
+  // Save chart preferences when height changes
+  const saveChartPreferences = async (height: number) => {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('chart_preferences')
+      .upsert({
+        user_id: user.id,
+        chart_id: CHART_ID,
+        height
+      }, {
+        onConflict: 'user_id,chart_id'
+      });
+
+    if (error) {
+      console.error('Error saving chart preferences:', error);
+    }
+  };
+
   const { data: hedgeRequests, isLoading: isLoadingHedgeRequests } = useQuery({
     queryKey: ['hedge-request-drafts-by-entity'],
     queryFn: async () => {
@@ -97,20 +151,31 @@ const Dashboard = () => {
               {isLoadingHedgeRequests ? (
                 <Skeleton className="h-[400px] w-full" />
               ) : (
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={hedgeRequests || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="entity" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={70}
-                    />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ResizablePanel
+                  minSize={25}
+                  maxSize={80}
+                  defaultSize={50}
+                  onResize={(size) => {
+                    const newHeight = Math.round((size / 100) * window.innerHeight);
+                    setChartHeight(newHeight);
+                    saveChartPreferences(newHeight);
+                  }}
+                >
+                  <ResponsiveContainer width="100%" height={chartHeight}>
+                    <BarChart data={hedgeRequests || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="entity" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={70}
+                      />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ResizablePanel>
               )}
             </CardContent>
           </Card>

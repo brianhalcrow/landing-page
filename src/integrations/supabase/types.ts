@@ -261,6 +261,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chart_preferences: {
+        Row: {
+          chart_id: string
+          created_at: string
+          height: number | null
+          id: number
+          updated_at: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          chart_id: string
+          created_at?: string
+          height?: number | null
+          id?: number
+          updated_at?: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          chart_id?: string
+          created_at?: string
+          height?: number | null
+          id?: number
+          updated_at?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           content: string | null
