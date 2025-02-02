@@ -17,7 +17,6 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       draft_id: draftId.toString(),
       buy_currency: '',
       sell_currency: '',
-      currency_pair: '',
       trade_date: '',
       settlement_date: '',
       buy_amount: 0,
