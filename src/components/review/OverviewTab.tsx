@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AgGridReact } from 'ag-grid-react';
+import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import RealtimeSubscription from "./RealtimeSubscription";
 import 'ag-grid-community/styles/ag-grid.css';
@@ -27,7 +28,7 @@ export const OverviewTab = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(true);
 
-  const columnDefs = [
+  const columnDefs: ColDef<HedgeRequestOverview>[] = [
     { 
       field: 'entity_name', 
       headerName: 'Entity Name',
@@ -90,7 +91,7 @@ export const OverviewTab = () => {
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center',
-      valueFormatter: (params: any) => {
+      valueFormatter: (params) => {
         return new Date(params.value).toLocaleString();
       }
     },
