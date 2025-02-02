@@ -1,6 +1,6 @@
 import { ColDef } from 'ag-grid-community';
 import { Calendar } from 'lucide-react';
-import { format, parse } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,27 +8,49 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 
 interface DatePickerCellRendererProps {
-  value: string;
-  node: any;
-  column: any;
+  value?: string;
+  node?: any;
+  column?: any;
 }
 
 const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
   const { value, node, column } = props;
-  
+  console.log('DatePickerCellRenderer props:', { value, nodeId: node?.id, columnId: column?.colId });
+
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      console.log('Selected date:', date);
+    try {
+      if (!date || !node || !column) {
+        console.log('Invalid date selection params:', { date, node, column });
+        return;
+      }
+
+      if (!isValid(date)) {
+        console.log('Invalid date object:', date);
+        return;
+      }
+
       const formattedDate = format(date, 'dd/MM/yyyy');
-      console.log('Formatted date:', formattedDate);
+      console.log('Setting formatted date:', formattedDate);
       node.setDataValue(column.colId, formattedDate);
+    } catch (error) {
+      console.error('Error in handleDateSelect:', error);
     }
   };
 
-  const parseDate = (dateString: string) => {
+  const parseDate = (dateString: string | undefined): Date | undefined => {
     try {
-      if (!dateString) return undefined;
-      return parse(dateString, 'dd/MM/yyyy', new Date());
+      if (!dateString) {
+        console.log('No date string provided');
+        return undefined;
+      }
+
+      const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+      if (!isValid(parsedDate)) {
+        console.log('Invalid parsed date for:', dateString);
+        return undefined;
+      }
+
+      return parsedDate;
     } catch (error) {
       console.error('Error parsing date:', error);
       return undefined;
