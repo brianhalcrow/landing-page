@@ -23,6 +23,19 @@ interface HedgeRequestOverview {
   created_by: string | null;
   created_at: string | null;
   updated_at: string | null;
+  // Trade related fields
+  trade_id: number | null;
+  draft_id: string | null;
+  buy_currency: string | null;
+  sell_currency: string | null;
+  buy_amount: number | null;
+  sell_amount: number | null;
+  trade_date: string | null;
+  settlement_date: string | null;
+  trade_created_at: string | null;
+  trade_updated_at: string | null;
+  trade_entity_id: string | null;
+  trade_entity_name: string | null;
 }
 
 export const OverviewTab = () => {
@@ -135,12 +148,69 @@ export const OverviewTab = () => {
         return params.value ? new Date(params.value).toLocaleString() : '';
       }
     },
+    // Trade related columns
+    { 
+      field: 'trade_id', 
+      headerName: 'Trade ID',
+      flex: 0.5,
+      minWidth: 80,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'buy_currency', 
+      headerName: 'Buy Currency',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'sell_currency', 
+      headerName: 'Sell Currency',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'buy_amount', 
+      headerName: 'Buy Amount',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params) => {
+        return params.value ? params.value.toLocaleString() : '';
+      }
+    },
+    { 
+      field: 'sell_amount', 
+      headerName: 'Sell Amount',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params) => {
+        return params.value ? params.value.toLocaleString() : '';
+      }
+    },
+    { 
+      field: 'trade_date', 
+      headerName: 'Trade Date',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params) => {
+        return params.value ? new Date(params.value).toLocaleDateString() : '';
+      }
+    },
+    { 
+      field: 'settlement_date', 
+      headerName: 'Settlement Date',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params) => {
+        return params.value ? new Date(params.value).toLocaleDateString() : '';
+      }
+    }
   ];
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
 
   const fetchHedgeRequests = useCallback(async () => {
     try {
@@ -149,7 +219,23 @@ export const OverviewTab = () => {
 
       const { data, error } = await supabase
         .from("hedge_request_draft")
-        .select("*")
+        .select(`
+          *,
+          trades:hedge_request_draft_trades (
+            id,
+            draft_id,
+            buy_currency,
+            sell_currency,
+            buy_amount,
+            sell_amount,
+            trade_date,
+            settlement_date,
+            created_at,
+            updated_at,
+            entity_id,
+            entity_name
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (!isMounted) return;
@@ -159,8 +245,47 @@ export const OverviewTab = () => {
         throw error;
       }
 
-      console.log("✅ Fetched hedge requests:", data);
-      setRowData(data || []);
+      // Transform the data to flatten the trades
+      const transformedData = data?.flatMap(draft => {
+        if (!draft.trades || draft.trades.length === 0) {
+          // Return the draft without trade data
+          return [{
+            ...draft,
+            trade_id: null,
+            draft_id: null,
+            buy_currency: null,
+            sell_currency: null,
+            buy_amount: null,
+            sell_amount: null,
+            trade_date: null,
+            settlement_date: null,
+            trade_created_at: null,
+            trade_updated_at: null,
+            trade_entity_id: null,
+            trade_entity_name: null
+          }];
+        }
+        
+        // Return a row for each trade
+        return draft.trades.map(trade => ({
+          ...draft,
+          trade_id: trade.id,
+          draft_id: trade.draft_id,
+          buy_currency: trade.buy_currency,
+          sell_currency: trade.sell_currency,
+          buy_amount: trade.buy_amount,
+          sell_amount: trade.sell_amount,
+          trade_date: trade.trade_date,
+          settlement_date: trade.settlement_date,
+          trade_created_at: trade.created_at,
+          trade_updated_at: trade.updated_at,
+          trade_entity_id: trade.entity_id,
+          trade_entity_name: trade.entity_name
+        }));
+      });
+
+      console.log("✅ Fetched hedge requests:", transformedData);
+      setRowData(transformedData || []);
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
@@ -172,6 +297,11 @@ export const OverviewTab = () => {
       }
     }
   }, [isMounted]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   useEffect(() => {
     console.log("🏁 OverviewTab mounted");
