@@ -31,14 +31,17 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       toast.error('Trade and settlement dates are required');
       return false;
     }
+
     if (!trade.buy_currency || !trade.sell_currency) {
       toast.error('Buy and sell currencies are required');
       return false;
     }
+
     if (!trade.buy_amount && !trade.sell_amount) {
       toast.error('Either buy or sell amount is required');
       return false;
     }
+
     return true;
   };
 
@@ -46,24 +49,19 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     if (!dateStr) return null;
     
     try {
-      // First try to parse assuming DD/MM/YYYY format
-      let parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
-      
-      // If the first parse fails, try YYYY-MM-DD format
-      if (!isValid(parsedDate)) {
-        parsedDate = parse(dateStr, 'yyyy-MM-dd', new Date());
-      }
+      // Parse the date from DD/MM/YYYY format
+      const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
       
       if (!isValid(parsedDate)) {
         console.error('Invalid date:', dateStr);
-        throw new Error(`Invalid date format for: ${dateStr}`);
+        return null;
       }
       
       // Format the date as YYYY-MM-DD for the database
       return format(parsedDate, 'yyyy-MM-dd');
     } catch (error) {
       console.error('Error formatting date:', error);
-      throw new Error(`Invalid date format for: ${dateStr}. Please use DD/MM/YYYY format.`);
+      return null;
     }
   };
 
@@ -79,16 +77,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       
       // Format and validate the data before sending to Supabase
       const formattedData = rowData.map(row => {
-        let tradeDate: string | null;
-        let settlementDate: string | null;
-        
-        try {
-          tradeDate = formatDateForDB(row.trade_date);
-          settlementDate = formatDateForDB(row.settlement_date);
-        } catch (error) {
-          toast.error((error as Error).message);
-          throw error;
-        }
+        const tradeDate = formatDateForDB(row.trade_date);
+        const settlementDate = formatDateForDB(row.settlement_date);
         
         if (!tradeDate || !settlementDate) {
           throw new Error('Invalid date format. Please use DD/MM/YYYY format.');
@@ -114,17 +104,17 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       });
 
       console.log('Formatted data to save:', formattedData);
-      
+
       const { error } = await supabase
         .from('hedge_request_draft_trades')
         .insert(formattedData);
-        
+
       if (error) throw error;
       
       toast.success('Trades saved successfully');
     } catch (error) {
       console.error('Error saving trades:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to save trades');
+      toast.error('Failed to save trades');
     }
   };
 
