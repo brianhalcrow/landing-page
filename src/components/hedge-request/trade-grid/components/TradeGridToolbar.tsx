@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { parse, format, isValid } from 'date-fns';
+import { formatDateForDB } from '@/utils/dateUtils';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -32,6 +32,14 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       return false;
     }
 
+    const tradeDate = formatDateForDB(trade.trade_date);
+    const settlementDate = formatDateForDB(trade.settlement_date);
+
+    if (!tradeDate || !settlementDate) {
+      toast.error('Invalid date format. Please use DD/MM/YYYY');
+      return false;
+    }
+
     if (!trade.buy_currency || !trade.sell_currency) {
       toast.error('Buy and sell currencies are required');
       return false;
@@ -43,26 +51,6 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     }
 
     return true;
-  };
-
-  const formatDateForDB = (dateStr: string) => {
-    if (!dateStr) return null;
-    
-    try {
-      // Parse the date from DD/MM/YYYY format
-      const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
-      
-      if (!isValid(parsedDate)) {
-        console.error('Invalid date:', dateStr);
-        return null;
-      }
-      
-      // Format the date as YYYY-MM-DD for the database
-      return format(parsedDate, 'yyyy-MM-dd');
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return null;
-    }
   };
 
   const handleSaveTrades = async () => {
