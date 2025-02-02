@@ -4,8 +4,7 @@ import { format, parse, isValid } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -19,59 +18,51 @@ interface DatePickerCellRendererProps {
 const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
   const { value, node, column, api } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined
+  );
 
-  const parseDate = useCallback((dateString: string | undefined): Date | undefined => {
-    if (!dateString) return undefined;
-    
-    // Try parsing YYYY-MM-DD format first
-    let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
-    
-    if (!isValid(parsedDate)) {
-      // Try DD/MM/YYYY format as fallback
-      parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+  // Effect to handle date updates
+  useEffect(() => {
+    if (selectedDate && isValid(selectedDate) && node && column?.colId && api) {
+      try {
+        // Normalize date to noon to avoid timezone issues
+        const normalizedDate = new Date(selectedDate);
+        normalizedDate.setHours(12, 0, 0, 0);
+
+        // Format for storage (YYYY-MM-DD)
+        const storageFormat = format(normalizedDate, 'yyyy-MM-dd');
+        console.log('Updating cell with storage format:', storageFormat);
+
+        // Update the cell value
+        node.setDataValue(column.colId, storageFormat);
+
+        // Force refresh the cell
+        api.refreshCells({
+          force: true,
+          rowNodes: [node],
+          columns: [column.colId]
+        });
+
+        // Close popover after successful update
+        setIsOpen(false);
+        toast.success('Date updated successfully');
+      } catch (error) {
+        console.error('Error updating date:', error);
+        toast.error('Failed to update date');
+      }
     }
-
-    return isValid(parsedDate) ? parsedDate : undefined;
-  }, []);
+  }, [selectedDate, node, column, api]);
 
   const handleDateSelect = useCallback((date: Date | undefined) => {
-    if (!date || !isValid(date) || !node || !column?.colId || !api) {
-      console.error('Invalid date or missing required props:', { date, node, column, api });
-      return;
-    }
-
-    try {
-      // Normalize date to noon to avoid timezone issues
-      const normalizedDate = new Date(date);
-      normalizedDate.setHours(12, 0, 0, 0);
-
-      // Format for storage (YYYY-MM-DD)
-      const storageFormat = format(normalizedDate, 'yyyy-MM-dd');
-      console.log('Updating cell with storage format:', storageFormat);
-
-      // Update the cell value
-      node.setDataValue(column.colId, storageFormat);
-
-      // Force refresh the cell to ensure the new value is displayed
-      api.refreshCells({
-        force: true,
-        rowNodes: [node],
-        columns: [column.colId]
-      });
-
-      // Close the popover after successful update
-      setIsOpen(false);
-      toast.success('Date updated successfully');
-    } catch (error) {
-      console.error('Error updating date:', error);
-      toast.error('Failed to update date');
-      setIsOpen(false); // Close popover even on error
-    }
-  }, [node, column, api]);
+    console.log('Date selected:', date);
+    setSelectedDate(date);
+  }, []);
 
   // Parse the current value and format for display
-  const currentDate = parseDate(value);
-  const displayDate = currentDate ? format(currentDate, 'dd/MM/yyyy') : 'Select date';
+  const displayDate = selectedDate && isValid(selectedDate) 
+    ? format(selectedDate, 'dd/MM/yyyy') 
+    : 'Select date';
 
   return (
     <div className="flex items-center justify-between p-1">
@@ -91,7 +82,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         <PopoverContent className="w-auto p-0" align="start">
           <CalendarComponent
             mode="single"
-            selected={currentDate}
+            selected={selectedDate}
             onSelect={handleDateSelect}
             initialFocus
           />
