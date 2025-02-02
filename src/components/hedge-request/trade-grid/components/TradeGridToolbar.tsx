@@ -47,6 +47,7 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
 
   const formatDateForDB = (dateStr: string) => {
     if (!dateStr) return null;
+    
     try {
       // Parse the date from DD/MM/YYYY format
       const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
@@ -78,6 +79,10 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       const formattedData = rowData.map(row => {
         const tradeDate = formatDateForDB(row.trade_date);
         const settlementDate = formatDateForDB(row.settlement_date);
+        
+        if (!tradeDate || !settlementDate) {
+          throw new Error('Invalid date format. Please use DD/MM/YYYY format.');
+        }
         
         // Ensure amounts are numbers
         const buyAmount = typeof row.buy_amount === 'string' 
