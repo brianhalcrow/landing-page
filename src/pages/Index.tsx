@@ -1,7 +1,13 @@
 import Dashboard from "@/components/Dashboard";
+import { VectorSearch } from "@/components/VectorSearch";
 
 const Index = () => {
-  return <Dashboard />;
+  return (
+    <div>
+      <Dashboard />
+      <VectorSearch />
+    </div>
+  );
 };
 
 export default Index;
