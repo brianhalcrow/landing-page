@@ -221,20 +221,7 @@ export const OverviewTab = () => {
         .from("hedge_request_draft")
         .select(`
           *,
-          hedge_request_draft_trades (
-            id,
-            draft_id,
-            buy_currency,
-            sell_currency,
-            buy_amount,
-            sell_amount,
-            trade_date,
-            settlement_date,
-            created_at,
-            updated_at,
-            entity_id,
-            entity_name
-          )
+          trades:hedge_request_draft_trades(*)
         `)
         .order("created_at", { ascending: false });
 
@@ -253,12 +240,12 @@ export const OverviewTab = () => {
 
       // Transform the data to flatten the trades
       const transformedData: HedgeRequestOverview[] = data.flatMap(draft => {
-        if (!draft.hedge_request_draft_trades || draft.hedge_request_draft_trades.length === 0) {
+        if (!draft.trades || draft.trades.length === 0) {
           // Return the draft without trade data
           return [{
             ...draft,
             trade_id: null,
-            draft_id: null,
+            draft_id: draft.id.toString(), // Convert id to string
             buy_currency: null,
             sell_currency: null,
             buy_amount: null,
@@ -273,10 +260,10 @@ export const OverviewTab = () => {
         }
         
         // Return a row for each trade
-        return draft.hedge_request_draft_trades.map(trade => ({
+        return draft.trades.map(trade => ({
           ...draft,
           trade_id: trade.id,
-          draft_id: trade.draft_id,
+          draft_id: draft.id.toString(), // Convert id to string
           buy_currency: trade.buy_currency,
           sell_currency: trade.sell_currency,
           buy_amount: trade.buy_amount,
