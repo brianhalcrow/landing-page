@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { isValid, parseISO } from 'date-fns';
+import { parse, format, isValid } from 'date-fns';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -48,15 +48,16 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
   const formatDateForDB = (dateStr: string) => {
     if (!dateStr) return null;
     try {
-      // Since the date is already in YYYY-MM-DD format from the DatePicker
-      const parsedDate = parseISO(dateStr);
+      // Parse the date from DD/MM/YYYY format
+      const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
       
       if (!isValid(parsedDate)) {
         console.error('Invalid date:', dateStr);
         return null;
       }
       
-      return dateStr;
+      // Format the date as YYYY-MM-DD for the database
+      return format(parsedDate, 'yyyy-MM-dd');
     } catch (error) {
       console.error('Error formatting date:', error);
       return null;

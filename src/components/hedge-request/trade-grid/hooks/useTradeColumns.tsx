@@ -1,5 +1,5 @@
 import { ColDef } from 'ag-grid-community';
-import { format } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 import { toStringOrNull } from '@/lib/utils';
 import ActionsCellRenderer from '../components/ActionsCellRenderer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +11,22 @@ const formatNumber = (value: number) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+};
+
+const formatDate = (dateStr: string | null) => {
+  if (!dateStr) return '';
+  try {
+    // First try to parse as ISO date (from DB)
+    let date = new Date(dateStr);
+    if (!isValid(date)) {
+      // If not valid, try to parse DD/MM/YYYY format
+      date = parse(dateStr, 'dd/MM/yyyy', new Date());
+    }
+    return isValid(date) ? format(date, 'dd/MM/yyyy') : '';
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '';
+  }
 };
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
@@ -107,17 +123,13 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'trade_date',
       headerName: 'Trade Date',
       editable: true,
-      valueFormatter: (params) => {
-        return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
-      }
+      valueFormatter: (params) => formatDate(params.value)
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
       editable: true,
-      valueFormatter: (params) => {
-        return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
-      }
+      valueFormatter: (params) => formatDate(params.value)
     },
     {
       headerName: 'Actions',
