@@ -1,14 +1,12 @@
 import { ColDef } from 'ag-grid-community';
+import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, isValid, parse } from 'date-fns';
-import { toast } from 'sonner';
-import ActionsCellRenderer from '../components/ActionsCellRenderer';
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
-      headerName: 'Base\nCurrency',
+      headerName: 'Base Currency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[0])));
@@ -35,7 +33,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'quote_currency',
-      headerName: 'Quote\nCurrency',
+      headerName: 'Quote Currency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[1])));
@@ -64,85 +62,51 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'rate',
       headerName: 'Rate',
       editable: false,
+      valueGetter: (params) => {
+        const { base_currency, quote_currency } = params.data;
+        if (base_currency && quote_currency) {
+          const currencyPair = `${base_currency}/${quote_currency}`;
+          return rates?.get(currencyPair);
+        }
+        return null;
+      },
       valueFormatter: (params) => {
         return params.value ? params.value.toFixed(4) : '';
-      },
+      }
     },
     {
       field: 'trade_date',
-      headerName: 'Trade\nDate',
+      headerName: 'Trade Date',
       editable: true,
       valueFormatter: (params) => {
-        if (!params.value) return '';
-        try {
-          const date = parse(params.value, 'yyyy-MM-dd', new Date());
-          return isValid(date) ? format(date, 'dd/MM/yyyy') : params.value;
-        } catch (error) {
-          return params.value;
-        }
-      },
-      valueSetter: (params) => {
-        try {
-          const inputDate = parse(params.newValue, 'dd/MM/yyyy', new Date());
-          if (isValid(inputDate)) {
-            params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
-            return true;
-          }
-          toast.error('Invalid date format. Please use DD/MM/YYYY');
-          return false;
-        } catch (error) {
-          toast.error('Invalid date format. Please use DD/MM/YYYY');
-          return false;
-        }
+        return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
       }
     },
     {
       field: 'settlement_date',
-      headerName: 'Settlement\nDate',
+      headerName: 'Settlement Date',
       editable: true,
       valueFormatter: (params) => {
-        if (!params.value) return '';
-        try {
-          const date = parse(params.value, 'yyyy-MM-dd', new Date());
-          return isValid(date) ? format(date, 'dd/MM/yyyy') : params.value;
-        } catch (error) {
-          return params.value;
-        }
-      },
-      valueSetter: (params) => {
-        try {
-          const inputDate = parse(params.newValue, 'dd/MM/yyyy', new Date());
-          if (isValid(inputDate)) {
-            params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
-            return true;
-          }
-          toast.error('Invalid date format. Please use DD/MM/YYYY');
-          return false;
-        } catch (error) {
-          toast.error('Invalid date format. Please use DD/MM/YYYY');
-          return false;
-        }
+        return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
       }
     },
     {
       field: 'buy_amount',
-      headerName: 'Buy\nAmount',
+      headerName: 'Buy Amount',
       editable: true,
       type: 'numericColumn',
+      valueFormatter: (params) => {
+        return params.value ? params.value.toFixed(2) : '';
+      }
     },
     {
       field: 'sell_amount',
-      headerName: 'Sell\nAmount',
+      headerName: 'Sell Amount',
       editable: true,
       type: 'numericColumn',
-    },
-    {
-      headerName: 'Actions',
-      minWidth: 100,
-      cellRenderer: ActionsCellRenderer,
-      editable: false,
-      sortable: false,
-      filter: false
+      valueFormatter: (params) => {
+        return params.value ? params.value.toFixed(2) : '';
+      }
     }
   ];
 };
