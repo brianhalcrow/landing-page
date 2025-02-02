@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useTradeColumns } from '../hooks/useTradeColumns';
-import { format } from 'date-fns';
+import { CellValueChangedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 
 interface TradeDataGridProps {
@@ -68,30 +68,54 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     return <div>Error loading trades. Please try again.</div>;
   }
 
-  const handleCellValueChanged = (event: any) => {
-    console.log('Cell value changed:', event);
-    const colId = event.column?.getColId();
-    
-    if (!colId) {
-      console.error('No column ID found in event');
-      return;
-    }
-
-    if (colId === 'base_currency' || colId === 'quote_currency') {
-      const rowNode = event.node;
-      const baseCurrency = rowNode.data.base_currency;
-      const quoteCurrency = rowNode.data.quote_currency;
+  const handleCellValueChanged = (event: CellValueChangedEvent) => {
+    try {
+      console.log('Cell value changed:', event);
       
-      if (baseCurrency && quoteCurrency) {
-        const currencyPair = `${baseCurrency}/${quoteCurrency}`;
-        rowNode.setDataValue('currency_pair', currencyPair);
+      // Safely check if column exists and get its ID
+      const column = event.column;
+      if (!column) {
+        console.error('No column found in event');
+        return;
+      }
+      
+      const colId = column.getColId();
+      if (!colId) {
+        console.error('No column ID found');
+        return;
+      }
+
+      // Only process currency-related changes
+      if (colId === 'base_currency' || colId === 'quote_currency') {
+        const rowNode = event.node;
+        if (!rowNode || !rowNode.data) {
+          console.error('No row node or data found');
+          return;
+        }
+
+        const { base_currency, quote_currency } = rowNode.data;
         
-        if (rates?.has(currencyPair)) {
-          const rate = rates.get(currencyPair);
-          console.log(`Setting rate for ${currencyPair}:`, rate);
-          rowNode.setDataValue('rate', rate);
+        if (base_currency && quote_currency) {
+          const currencyPair = `${base_currency}/${quote_currency}`;
+          console.log('Setting currency pair:', currencyPair);
+          
+          // Safely set the currency pair
+          try {
+            rowNode.setDataValue('currency_pair', currencyPair);
+            
+            // Set rate if available
+            if (rates?.has(currencyPair)) {
+              const rate = rates.get(currencyPair);
+              console.log(`Setting rate for ${currencyPair}:`, rate);
+              rowNode.setDataValue('rate', rate);
+            }
+          } catch (error) {
+            console.error('Error updating row values:', error);
+          }
         }
       }
+    } catch (error) {
+      console.error('Error in handleCellValueChanged:', error);
     }
   };
 
