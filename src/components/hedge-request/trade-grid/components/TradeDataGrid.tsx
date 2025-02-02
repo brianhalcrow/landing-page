@@ -10,11 +10,12 @@ import { toast } from 'sonner';
 
 interface TradeDataGridProps {
   draftId: number;
+  rates?: Map<string, number>;
 }
 
-const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
+const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
   const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([]);
-  const columnDefs = useTradeColumns();
+  const columnDefs = useTradeColumns(rates);
 
   const { data: trades, error } = useQuery({
     queryKey: ['draft-trades', draftId],
@@ -77,6 +78,24 @@ const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
           }}
           onCellValueChanged={(event) => {
             console.log('Cell value changed:', event);
+            // Update currency pair and rate when base or quote currency changes
+            if (event.column.getColId() === 'base_currency' || event.column.getColId() === 'quote_currency') {
+              const rowNode = event.node;
+              const baseCurrency = rowNode.data.base_currency;
+              const quoteCurrency = rowNode.data.quote_currency;
+              
+              if (baseCurrency && quoteCurrency) {
+                const currencyPair = `${baseCurrency}/${quoteCurrency}`;
+                rowNode.setDataValue('currency_pair', currencyPair);
+                
+                // Update rate if available
+                if (rates?.has(currencyPair)) {
+                  const rate = rates.get(currencyPair);
+                  console.log(`Setting rate for ${currencyPair}:`, rate);
+                  // You might want to store this rate in a separate column
+                }
+              }
+            }
           }}
         />
       </div>

@@ -664,6 +664,45 @@ export type Database = {
         }
         Relationships: []
       }
+      pre_trade_rates_forward_curves: {
+        Row: {
+          ask: number | null
+          bid: number | null
+          change: number | null
+          date: string | null
+          high: number | null
+          id: number | null
+          low: number | null
+          symbol: string | null
+          tenor: string | null
+          time: string | null
+        }
+        Insert: {
+          ask?: number | null
+          bid?: number | null
+          change?: number | null
+          date?: string | null
+          high?: number | null
+          id?: number | null
+          low?: number | null
+          symbol?: string | null
+          tenor?: string | null
+          time?: string | null
+        }
+        Update: {
+          ask?: number | null
+          bid?: number | null
+          change?: number | null
+          date?: string | null
+          high?: number | null
+          id?: number | null
+          low?: number | null
+          symbol?: string | null
+          tenor?: string | null
+          time?: string | null
+        }
+        Relationships: []
+      }
       rates: {
         Row: {
           base_currency: string | null

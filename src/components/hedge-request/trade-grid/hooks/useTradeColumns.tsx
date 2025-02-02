@@ -91,7 +91,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
   );
 };
 
-export const useTradeColumns = (): ColDef[] => {
+export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
@@ -106,7 +106,14 @@ export const useTradeColumns = (): ColDef[] => {
     {
       field: 'currency_pair',
       headerName: 'Currency Pair',
-      editable: true,
+      editable: false,
+      valueFormatter: (params) => {
+        if (params.value && rates?.has(params.value)) {
+          const rate = rates.get(params.value);
+          return `${params.value} (Rate: ${rate?.toFixed(4)})`;
+        }
+        return params.value || '';
+      },
     },
     {
       field: 'trade_date',
