@@ -194,9 +194,11 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Trade Date',
       editable: false,
       cellRenderer: DatePickerCellRenderer,
-      cellRendererParams: {
+      cellRendererParams: (params: any) => ({
         suppressKeyboardEvent: () => true,
-      },
+        api: params.api,
+        context: params.context
+      }),
     },
     {
       field: 'settlement_date',
