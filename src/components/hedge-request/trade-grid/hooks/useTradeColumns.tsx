@@ -6,7 +6,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
-      headerName: 'Base Currency',
+      headerName: 'Buy Currency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[0])));
@@ -33,7 +33,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'quote_currency',
-      headerName: 'Quote Currency',
+      headerName: 'Sell Currency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[1])));
