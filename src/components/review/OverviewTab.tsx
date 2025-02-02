@@ -221,7 +221,7 @@ export const OverviewTab = () => {
         .from("hedge_request_draft")
         .select(`
           *,
-          trades:hedge_request_draft_trades (
+          hedge_request_draft_trades (
             id,
             draft_id,
             buy_currency,
@@ -245,9 +245,15 @@ export const OverviewTab = () => {
         throw error;
       }
 
+      if (!data) {
+        console.log("No data returned");
+        setRowData([]);
+        return;
+      }
+
       // Transform the data to flatten the trades
-      const transformedData = data?.flatMap(draft => {
-        if (!draft.trades || draft.trades.length === 0) {
+      const transformedData: HedgeRequestOverview[] = data.flatMap(draft => {
+        if (!draft.hedge_request_draft_trades || draft.hedge_request_draft_trades.length === 0) {
           // Return the draft without trade data
           return [{
             ...draft,
@@ -267,7 +273,7 @@ export const OverviewTab = () => {
         }
         
         // Return a row for each trade
-        return draft.trades.map(trade => ({
+        return draft.hedge_request_draft_trades.map(trade => ({
           ...draft,
           trade_id: trade.id,
           draft_id: trade.draft_id,
@@ -285,7 +291,7 @@ export const OverviewTab = () => {
       });
 
       console.log("✅ Fetched hedge requests:", transformedData);
-      setRowData(transformedData || []);
+      setRowData(transformedData);
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
