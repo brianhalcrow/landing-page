@@ -179,7 +179,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Base Currency',
       editable: true,
       cellRenderer: (params: any) => {
-        const currencies = params.context?.currencies?.base || [];
+        const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[0])));
         return (
           <Select
             value={params.value}
@@ -187,7 +187,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
               params.setValue(value);
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 border-0">
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
@@ -206,7 +206,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Quote Currency',
       editable: true,
       cellRenderer: (params: any) => {
-        const currencies = params.context?.currencies?.quote || [];
+        const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[1])));
         return (
           <Select
             value={params.value}
@@ -214,7 +214,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
               params.setValue(value);
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8 border-0">
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
@@ -265,6 +265,22 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'buy_sell',
       headerName: 'Buy/Sell',
       editable: true,
+      cellRenderer: (params: any) => (
+        <Select
+          value={params.value}
+          onValueChange={(value) => {
+            params.setValue(value);
+          }}
+        >
+          <SelectTrigger className="w-full h-8 border-0">
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="BUY">BUY</SelectItem>
+            <SelectItem value="SELL">SELL</SelectItem>
+          </SelectContent>
+        </Select>
+      )
     },
     {
       field: 'buy_sell_currency_code',
