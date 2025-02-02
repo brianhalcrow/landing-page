@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useTradeColumns } from '../hooks/useTradeColumns';
-import { CellValueChangedEvent } from 'ag-grid-community';
+import { CellValueChangedEvent, CellKeyPressEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 
 interface TradeDataGridProps {
@@ -68,6 +68,62 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     return <div>Error loading trades. Please try again.</div>;
   }
 
+  const calculateAmounts = (
+    rowNode: any,
+    colId: string,
+    value: number,
+    rate?: number
+  ) => {
+    if (!rate) return;
+
+    try {
+      if (colId === 'buy_amount') {
+        const sellAmount = value * rate;
+        rowNode.setDataValue('sell_amount', sellAmount);
+      } else {
+        const buyAmount = value / rate;
+        rowNode.setDataValue('buy_amount', buyAmount);
+      }
+    } catch (error) {
+      console.error('Error calculating amounts:', error);
+    }
+  };
+
+  const handleCellKeyPress = (event: CellKeyPressEvent) => {
+    try {
+      const column = event.column;
+      const colId = column.getColId();
+      
+      if (colId !== 'buy_amount' && colId !== 'sell_amount') return;
+
+      const rowNode = event.node;
+      if (!rowNode || !rowNode.data) return;
+
+      const { base_currency, quote_currency } = rowNode.data;
+      if (!base_currency || !quote_currency) return;
+
+      const currencyPair = `${base_currency}/${quote_currency}`;
+      const rate = rates?.get(currencyPair);
+      if (!rate) return;
+
+      // Get the current value and add the new key
+      const currentValue = event.value || '0';
+      const newChar = event.event.key;
+      
+      // Only process if the key is a number
+      if (!/^\d$/.test(newChar)) return;
+
+      // Combine current value with new digit
+      const newValue = parseFloat(`${currentValue}${newChar}`);
+      if (isNaN(newValue)) return;
+
+      // Calculate the other amount in real-time
+      calculateAmounts(rowNode, colId, newValue, rate);
+    } catch (error) {
+      console.error('Error in handleCellKeyPress:', error);
+    }
+  };
+
   const handleCellValueChanged = (event: CellValueChangedEvent) => {
     try {
       console.log('Cell value changed:', event);
@@ -129,18 +185,9 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           const rate = rates?.get(currencyPair);
 
           if (rate) {
-            if (colId === 'buy_amount') {
-              const buyAmount = event.newValue;
-              if (buyAmount) {
-                const sellAmount = buyAmount * rate;
-                rowNode.setDataValue('sell_amount', sellAmount);
-              }
-            } else {
-              const sellAmount = event.newValue;
-              if (sellAmount) {
-                const buyAmount = sellAmount / rate;
-                rowNode.setDataValue('buy_amount', buyAmount);
-              }
+            const newValue = event.newValue;
+            if (newValue !== undefined && newValue !== null) {
+              calculateAmounts(rowNode, colId, newValue, rate);
             }
           }
         }
@@ -168,6 +215,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           params.api.setFocusedCell(0, 'base_currency');
         }}
         onCellValueChanged={handleCellValueChanged}
+        onCellKeyPress={handleCellKeyPress}
       />
     </div>
   );
