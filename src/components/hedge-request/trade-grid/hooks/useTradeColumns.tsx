@@ -18,31 +18,40 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
   const { value, node, column } = props;
   console.log('DatePickerCellRenderer props:', { value, nodeId: node?.id, columnId: column?.colId });
 
-  const handleDateSelect = (date: Date | undefined) => {
-    try {
-      if (!date || !node || !column) {
-        console.log('Invalid date selection params:', { date, node, column });
-        return;
-      }
-
-      if (!isValid(date)) {
-        console.log('Invalid date object:', date);
-        toast.error('Invalid date selected');
-        return;
-      }
-
-      // Format date as YYYY-MM-DD for storage
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      console.log('Setting formatted date:', formattedDate);
-      
-      // Update the grid cell value
-      node.setDataValue(column.colId, formattedDate);
-      toast.success('Date updated successfully');
-    } catch (error) {
-      console.error('Error in handleDateSelect:', error);
-      toast.error('Error updating date');
+const handleDateSelect = (date: Date | undefined) => {
+  try {
+    if (!date) {
+      console.log('No date selected');
+      return;
     }
-  };
+
+    if (!node?.setDataValue) {
+      console.error('Grid node or setDataValue method not available');
+      toast.error('Unable to update grid value');
+      return;
+    }
+
+    if (!column?.colId) {
+      console.error('Column ID not available');
+      toast.error('Unable to identify column');
+      return;
+    }
+
+    // Format date as YYYY-MM-DD for storage
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    console.log('Updating cell value:', {
+      columnId: column.colId,
+      newValue: formattedDate,
+      nodeId: node.id
+    });
+    
+    node.setDataValue(column.colId, formattedDate);
+    toast.success('Date updated successfully');
+  } catch (error) {
+    console.error('Error in handleDateSelect:', error);
+    toast.error('Error updating date');
+  }
+};
 
   const parseDate = (dateString: string | undefined): Date | undefined => {
     try {
