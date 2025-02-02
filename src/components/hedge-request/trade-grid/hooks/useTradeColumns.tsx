@@ -99,20 +99,13 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Spot Rate',
       editable: false,
       valueFormatter: (params) => {
-        if (!params.value) {
-          const { base_currency, quote_currency } = params.data;
-          if (base_currency && quote_currency) {
-            const currencyPair = `${base_currency}/${quote_currency}`;
-            return rates?.get(currencyPair)?.toString() || '';
-          }
+        const { base_currency, quote_currency } = params.data;
+        if (base_currency && quote_currency) {
+          const currencyPair = `${base_currency}/${quote_currency}`;
+          return rates?.get(currencyPair)?.toString() || '';
         }
-        return params.value;
+        return '';
       }
-    },
-    {
-      field: 'currency_pair',
-      headerName: 'Currency Pair',
-      editable: false
     },
     {
       field: 'trade_date',
