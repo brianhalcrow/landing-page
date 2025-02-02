@@ -215,7 +215,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           params.api.setFocusedCell(0, 'base_currency');
         }}
         onCellValueChanged={handleCellValueChanged}
-        onKeyDown={handleCellKeyDown}
+        onCellKeyDown={handleCellKeyDown}
       />
     </div>
   );
