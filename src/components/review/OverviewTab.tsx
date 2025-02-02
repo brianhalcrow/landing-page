@@ -1,11 +1,100 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AgGridReact } from 'ag-grid-react';
+import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import RealtimeSubscription from "./RealtimeSubscription";
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+
+interface HedgeRequestOverview {
+  id: number;
+  entity_name: string;
+  entity_id: string;
+  functional_currency: string;
+  exposure_category_l1: string;
+  exposure_category_l2: string;
+  exposure_category_l3: string;
+  strategy_description: string;
+  instrument: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export const OverviewTab = () => {
+  const [rowData, setRowData] = useState<HedgeRequestOverview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(true);
+
+  const columnDefs = [
+    { 
+      field: 'entity_name', 
+      headerName: 'Entity Name',
+      flex: 1,
+      minWidth: 150,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'functional_currency', 
+      headerName: 'Currency',
+      flex: 1,
+      minWidth: 100,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'exposure_category_l1', 
+      headerName: 'Category L1',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'exposure_category_l2', 
+      headerName: 'Category L2',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'exposure_category_l3', 
+      headerName: 'Category L3',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'strategy_description', 
+      headerName: 'Strategy',
+      flex: 1,
+      minWidth: 150,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'instrument', 
+      headerName: 'Instrument',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'status', 
+      headerName: 'Status',
+      flex: 1,
+      minWidth: 100,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'created_at', 
+      headerName: 'Created',
+      flex: 1,
+      minWidth: 160,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params: any) => {
+        return new Date(params.value).toLocaleString();
+      }
+    },
+  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -17,10 +106,10 @@ export const OverviewTab = () => {
       console.log("🔄 Fetching hedge requests...");
       setIsLoading(true);
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("hedge_request_draft")
         .select("*")
-        .order("id", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (!isMounted) return;
 
@@ -29,7 +118,8 @@ export const OverviewTab = () => {
         throw error;
       }
 
-      console.log("✅ Fetched hedge requests");
+      console.log("✅ Fetched hedge requests:", data);
+      setRowData(data || []);
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
@@ -59,9 +149,21 @@ export const OverviewTab = () => {
           <span>Loading hedge requests...</span>
         </div>
       ) : (
-        <div className="p-4">
-          <h2 className="text-2xl font-bold mb-4">Overview</h2>
-          <p>Overview content will be implemented here.</p>
+        <div className="ag-theme-alpine h-[600px] w-full">
+          <GridStyles />
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true,
+              suppressSizeToFit: false
+            }}
+            animateRows={true}
+            suppressColumnVirtualisation={true}
+            enableCellTextSelection={true}
+          />
         </div>
       )}
     </div>

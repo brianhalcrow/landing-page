@@ -49,7 +49,6 @@ export const tabsConfig = {
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
   ],
   "review": [
-    { value: "limits", label: "Limits", content: <div>Review Limits</div> },
     { value: "overview", label: "Overview", content: <OverviewTab /> },
     { value: "positions", label: "Positions", content: <PositionsTab /> },
     { value: "reports", label: "Reports", content: <div>Review Reports</div> },
