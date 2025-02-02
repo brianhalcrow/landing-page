@@ -23,7 +23,6 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
     value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined
   );
 
-  // Effect to handle date updates
   useEffect(() => {
     if (selectedDate && isValid(selectedDate) && node && column?.colId && api) {
       try {
@@ -45,7 +44,6 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           columns: [column.colId]
         });
 
-        // Close popover after successful update
         setIsOpen(false);
         toast.success('Date updated successfully');
       } catch (error) {
@@ -55,15 +53,8 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
     }
   }, [selectedDate, node, column, api]);
 
-  const handleDateSelect = useCallback((date: Date | undefined) => {
-    console.log('Date selected:', date);
-    setSelectedDate(date);
-  }, []);
-
-  // Parse the current value and format for display
-  const displayDate = selectedDate && isValid(selectedDate) 
-    ? format(selectedDate, 'dd/MM/yyyy') 
-    : 'Select date';
+  // Parse and format the display date
+  const displayDate = value ? format(parse(value, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy') : 'Select date';
 
   return (
     <div className="flex items-center justify-between p-1">
@@ -84,7 +75,10 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           <CalendarComponent
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
+            onSelect={(date) => {
+              console.log('Date selected:', date);
+              setSelectedDate(date);
+            }}
             initialFocus
           />
         </PopoverContent>
