@@ -20,9 +20,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       currency_pair: '',
       trade_date: '',
       settlement_date: '',
-      buy_sell: 'BUY',
-      buy_sell_currency_code: '',
-      buy_sell_amount: 0
+      buy_amount: 0,
+      sell_amount: 0
     };
     setRowData([...rowData, newRow]);
   };
@@ -38,8 +37,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       return false;
     }
 
-    if (!trade.buy_sell_currency_code || !trade.buy_sell_amount) {
-      toast.error('Buy/Sell currency and amount are required');
+    if (!trade.buy_amount && !trade.sell_amount) {
+      toast.error('Either buy or sell amount is required');
       return false;
     }
 
@@ -79,17 +78,22 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
         const tradeDate = formatDateForDB(row.trade_date);
         const settlementDate = formatDateForDB(row.settlement_date);
         
-        // Ensure buy_sell_amount is a number
-        const amount = typeof row.buy_sell_amount === 'string' 
-          ? parseFloat(row.buy_sell_amount) 
-          : row.buy_sell_amount;
+        // Ensure amounts are numbers
+        const buyAmount = typeof row.buy_amount === 'string' 
+          ? parseFloat(row.buy_amount) 
+          : row.buy_amount;
+        
+        const sellAmount = typeof row.sell_amount === 'string'
+          ? parseFloat(row.sell_amount)
+          : row.sell_amount;
 
         return {
           ...row,
           draft_id: draftId.toString(),
           trade_date: tradeDate,
           settlement_date: settlementDate,
-          buy_sell_amount: amount || 0
+          buy_amount: buyAmount || 0,
+          sell_amount: sellAmount || 0
         };
       });
 
