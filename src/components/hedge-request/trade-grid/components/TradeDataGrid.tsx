@@ -5,6 +5,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import TradeGridToolbar from './TradeGridToolbar';
 import { useTradeColumns } from '../hooks/useTradeColumns';
+import { format } from 'date-fns';
 
 interface TradeDataGridProps {
   draftId: number;
@@ -28,7 +29,12 @@ const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
         throw error;
       }
 
-      return data as HedgeRequestDraftTrade[];
+      // Format dates from DB (YYYY-MM-DD) to display format (DD/MM/YYYY)
+      return data?.map(trade => ({
+        ...trade,
+        trade_date: trade.trade_date ? format(new Date(trade.trade_date), 'dd/MM/yyyy') : '',
+        settlement_date: trade.settlement_date ? format(new Date(trade.settlement_date), 'dd/MM/yyyy') : ''
+      })) as HedgeRequestDraftTrade[];
     }
   });
 

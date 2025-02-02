@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
+import { format, parse } from 'date-fns';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -26,11 +27,31 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     setRowData([...rowData, newRow]);
   };
 
+  const formatDateForDB = (dateStr: string) => {
+    if (!dateStr) return null;
+    try {
+      // Parse the date from DD/MM/YYYY format
+      const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
+      // Format it to YYYY-MM-DD for PostgreSQL
+      return format(parsedDate, 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return null;
+    }
+  };
+
   const handleSaveTrades = async () => {
     try {
+      // Format the data before sending to Supabase
+      const formattedData = rowData.map(row => ({
+        ...row,
+        trade_date: formatDateForDB(row.trade_date),
+        settlement_date: formatDateForDB(row.settlement_date)
+      }));
+
       const { error } = await supabase
         .from('hedge_request_draft_trades')
-        .insert(rowData);
+        .insert(formattedData);
 
       if (error) throw error;
       
