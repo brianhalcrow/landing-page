@@ -3,7 +3,6 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { formatDateForDB } from '@/utils/dateUtils';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -26,17 +25,26 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     setRowData([...rowData, newRow]);
   };
 
+  const validateDate = (dateStr: string): boolean => {
+    // Check if date is in YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateStr)) {
+      return false;
+    }
+    
+    // Check if it's a valid date
+    const date = new Date(dateStr);
+    return date instanceof Date && !isNaN(date.getTime());
+  };
+
   const validateTrade = (trade: HedgeRequestDraftTrade): boolean => {
     if (!trade.trade_date || !trade.settlement_date) {
       toast.error('Trade and settlement dates are required');
       return false;
     }
 
-    const tradeDate = formatDateForDB(trade.trade_date);
-    const settlementDate = formatDateForDB(trade.settlement_date);
-
-    if (!tradeDate || !settlementDate) {
-      toast.error('Invalid date format. Please use DD/MM/YYYY');
+    if (!validateDate(trade.trade_date) || !validateDate(trade.settlement_date)) {
+      toast.error('Dates must be in YYYY-MM-DD format');
       return false;
     }
 
@@ -62,40 +70,10 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       if (!isValid) {
         return;
       }
-      
-      // Format and validate the data before sending to Supabase
-      const formattedData = rowData.map(row => {
-        const tradeDate = formatDateForDB(row.trade_date);
-        const settlementDate = formatDateForDB(row.settlement_date);
-        
-        if (!tradeDate || !settlementDate) {
-          throw new Error('Invalid date format. Please use DD/MM/YYYY format.');
-        }
-        
-        // Ensure amounts are numbers
-        const buyAmount = typeof row.buy_amount === 'string' 
-          ? parseFloat(row.buy_amount) 
-          : row.buy_amount;
-        
-        const sellAmount = typeof row.sell_amount === 'string'
-          ? parseFloat(row.sell_amount)
-          : row.sell_amount;
-
-        return {
-          ...row,
-          draft_id: draftId.toString(),
-          trade_date: tradeDate,
-          settlement_date: settlementDate,
-          buy_amount: buyAmount || 0,
-          sell_amount: sellAmount || 0
-        };
-      });
-
-      console.log('Formatted data to save:', formattedData);
 
       const { error } = await supabase
         .from('hedge_request_draft_trades')
-        .insert(formattedData);
+        .insert(rowData);
 
       if (error) throw error;
       

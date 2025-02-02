@@ -4,7 +4,6 @@ import ActionsCellRenderer from '../components/ActionsCellRenderer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { formatDateForDisplay } from '@/utils/dateUtils';
 
 const formatNumber = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -108,13 +107,21 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'trade_date',
       headerName: 'Trade Date',
       editable: true,
-      valueFormatter: (params) => formatDateForDisplay(params.value)
+      cellEditor: 'agTextCellEditor',
+      cellEditorParams: {
+        type: 'date'
+      },
+      valueFormatter: (params) => params.value || '',
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
       editable: true,
-      valueFormatter: (params) => formatDateForDisplay(params.value)
+      cellEditor: 'agTextCellEditor',
+      cellEditorParams: {
+        type: 'date'
+      },
+      valueFormatter: (params) => params.value || '',
     },
     {
       headerName: 'Actions',
