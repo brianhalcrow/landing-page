@@ -1,91 +1,7 @@
 import { ColDef } from 'ag-grid-community';
-import { Calendar } from 'lucide-react';
-import { format, parse, isValid } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import React, { useCallback, useState, useEffect } from 'react';
-import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-interface DatePickerCellRendererProps {
-  value?: string;
-  node?: any;
-  column?: any;
-  api?: any;
-}
-
-const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
-  const { value, node, column, api } = props;
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined
-  );
-
-  useEffect(() => {
-    if (selectedDate && isValid(selectedDate) && node && column?.colId && api) {
-      try {
-        // Normalize date to noon to avoid timezone issues
-        const normalizedDate = new Date(selectedDate);
-        normalizedDate.setHours(12, 0, 0, 0);
-
-        // Format for storage (YYYY-MM-DD)
-        const storageFormat = format(normalizedDate, 'yyyy-MM-dd');
-        console.log('Updating cell with storage format:', storageFormat);
-
-        // Update the cell value
-        node.setDataValue(column.colId, storageFormat);
-
-        // Force refresh the cell
-        api.refreshCells({
-          force: true,
-          rowNodes: [node],
-          columns: [column.colId]
-        });
-
-        setIsOpen(false);
-        toast.success('Date updated successfully');
-      } catch (error) {
-        console.error('Error updating date:', error);
-        toast.error('Failed to update date');
-      }
-    }
-  }, [selectedDate, node, column, api]);
-
-  // Parse and format the display date
-  const displayDate = value ? format(parse(value, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy') : 'Select date';
-
-  return (
-    <div className="flex items-center justify-between p-1">
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal",
-              !value && "text-muted-foreground"
-            )}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            {displayDate}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => {
-              console.log('Date selected:', date);
-              setSelectedDate(date);
-            }}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-};
+import { format, parse, isValid } from 'date-fns';
+import { toast } from 'sonner';
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
@@ -159,24 +75,65 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     {
       field: 'trade_date',
       headerName: 'Trade Date',
-      editable: false,
-      cellRenderer: DatePickerCellRenderer,
+      editable: true,
+      cellEditor: 'agTextCellEditor',
       valueFormatter: (params) => {
         if (!params.value) return '';
-        const date = parse(params.value, 'yyyy-MM-dd', new Date());
-        return isValid(date) ? format(date, 'dd/MM/yyyy') : '';
+        try {
+          const date = parse(params.value, 'yyyy-MM-dd', new Date());
+          return isValid(date) ? format(date, 'dd/MM/yyyy') : params.value;
+        } catch (error) {
+          return params.value;
+        }
       },
+      valueSetter: (params) => {
+        try {
+          // Try to parse the input value as a date
+          const inputDate = parse(params.newValue, 'dd/MM/yyyy', new Date());
+          if (isValid(inputDate)) {
+            // If valid, store in YYYY-MM-DD format
+            params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
+            return true;
+          }
+          // If invalid, store the raw input
+          params.data[params.column.getColId()] = params.newValue;
+          return true;
+        } catch (error) {
+          console.error('Error setting date:', error);
+          toast.error('Invalid date format. Please use DD/MM/YYYY');
+          return false;
+        }
+      }
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
-      editable: false,
-      cellRenderer: DatePickerCellRenderer,
+      editable: true,
+      cellEditor: 'agTextCellEditor',
       valueFormatter: (params) => {
         if (!params.value) return '';
-        const date = parse(params.value, 'yyyy-MM-dd', new Date());
-        return isValid(date) ? format(date, 'dd/MM/yyyy') : '';
+        try {
+          const date = parse(params.value, 'yyyy-MM-dd', new Date());
+          return isValid(date) ? format(date, 'dd/MM/yyyy') : params.value;
+        } catch (error) {
+          return params.value;
+        }
       },
+      valueSetter: (params) => {
+        try {
+          const inputDate = parse(params.newValue, 'dd/MM/yyyy', new Date());
+          if (isValid(inputDate)) {
+            params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
+            return true;
+          }
+          params.data[params.column.getColId()] = params.newValue;
+          return true;
+        } catch (error) {
+          console.error('Error setting date:', error);
+          toast.error('Invalid date format. Please use DD/MM/YYYY');
+          return false;
+        }
+      }
     },
     {
       field: 'buy_sell',
