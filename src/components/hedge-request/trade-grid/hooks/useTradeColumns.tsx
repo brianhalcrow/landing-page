@@ -29,7 +29,8 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         return;
       }
 
-      const formattedDate = format(date, 'dd/MM/yyyy');
+      // Format date as YYYY-MM-DD for database storage
+      const formattedDate = format(date, 'yyyy-MM-dd');
       console.log('Setting formatted date:', formattedDate);
       node.setDataValue(column.colId, formattedDate);
     } catch (error) {
@@ -44,7 +45,12 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         return undefined;
       }
 
-      const parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+      // Try parsing both formats (YYYY-MM-DD and DD/MM/YYYY)
+      let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
+      if (!isValid(parsedDate)) {
+        parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
+      }
+
       if (!isValid(parsedDate)) {
         console.log('Invalid parsed date for:', dateString);
         return undefined;
@@ -69,7 +75,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
             )}
           >
             <Calendar className="mr-2 h-4 w-4" />
-            {value || "Select date"}
+            {value ? format(parseDate(value) || new Date(), 'dd/MM/yyyy') : "Select date"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

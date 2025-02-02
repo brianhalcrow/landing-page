@@ -27,10 +27,29 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     setRowData([...rowData, newRow]);
   };
 
+  const validateTrade = (trade: HedgeRequestDraftTrade): boolean => {
+    if (!trade.trade_date || !trade.settlement_date) {
+      toast.error('Trade and settlement dates are required');
+      return false;
+    }
+
+    if (!trade.base_currency || !trade.quote_currency) {
+      toast.error('Base and quote currencies are required');
+      return false;
+    }
+
+    if (!trade.buy_sell_currency_code || !trade.buy_sell_amount) {
+      toast.error('Buy/Sell currency and amount are required');
+      return false;
+    }
+
+    return true;
+  };
+
   const formatDateForDB = (dateStr: string) => {
     if (!dateStr) return null;
     try {
-      // Since the date is already in YYYY-MM-DD format, just validate it
+      // Since the date is already in YYYY-MM-DD format from the DatePicker
       const parsedDate = parseISO(dateStr);
       
       if (!isValid(parsedDate)) {
@@ -38,7 +57,6 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
         return null;
       }
       
-      // Return the date string as is since it's already in YYYY-MM-DD format
       return dateStr;
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -49,6 +67,12 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
   const handleSaveTrades = async () => {
     try {
       console.log('Saving trades with data:', rowData);
+      
+      // Validate all trades before saving
+      const isValid = rowData.every(validateTrade);
+      if (!isValid) {
+        return;
+      }
       
       // Format and validate the data before sending to Supabase
       const formattedData = rowData.map(row => {
