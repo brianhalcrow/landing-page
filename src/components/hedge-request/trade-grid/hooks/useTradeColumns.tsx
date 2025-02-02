@@ -43,31 +43,56 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
       return;
     }
 
-    try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      console.log('Formatted date:', formattedDate);
+    if (!node) {
+      console.error('No grid node available');
+      return;
+    }
 
-      if (node && column?.colId) {
-        // Update via transaction
-        const rowNode = api.getRowNode(node.id);
-        if (rowNode) {
-          const updatedData = { ...rowNode.data };
-          updatedData[column.colId] = formattedDate;
-          
-          api.applyTransaction({
-            update: [updatedData]
-          });
-          
-          console.log('Updated cell via transaction:', {
-            colId: column.colId,
-            newValue: formattedDate,
-            rowId: node.id
-          });
-        }
+    if (!column?.colId) {
+      console.error('No column ID available');
+      return;
+    }
+
+    if (!api) {
+      console.error('No grid API available');
+      return;
+    }
+
+    try {
+      // Ensure date is at noon to avoid timezone issues
+      const normalizedDate = new Date(date);
+      normalizedDate.setHours(12, 0, 0, 0);
+      
+      const formattedDate = format(normalizedDate, 'yyyy-MM-dd');
+      console.log('Attempting to update with formatted date:', formattedDate);
+
+      // Try multiple update methods
+      const rowNode = api.getRowNode(node.id);
+      if (rowNode) {
+        console.log('Updating via transaction');
+        const updatedData = { ...rowNode.data };
+        updatedData[column.colId] = formattedDate;
+        
+        api.applyTransaction({
+          update: [updatedData]
+        });
       }
 
-      // Close the popover after selection
+      // Force cell refresh
+      api.refreshCells({
+        force: true,
+        rowNodes: [node],
+        columns: [column.colId]
+      });
+
+      console.log('Update complete:', {
+        colId: column.colId,
+        newValue: formattedDate,
+        rowId: node.id
+      });
+
       setIsOpen(false);
+      toast.success('Date updated successfully');
       
     } catch (error) {
       console.error('Error updating date:', error);
@@ -98,16 +123,42 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={currentDate}
-            onSelect={(date: Date | undefined) => {
-              console.log('Calendar onSelect triggered:', date);
-              handleDateSelect(date);
-            }}
-            initialFocus
-            disabled={false}
-          />
+          <div className="p-0">
+            <CalendarComponent
+              mode="single"
+              selected={currentDate}
+              onSelect={(date: Date | undefined) => {
+                console.log('Calendar onSelect triggered with date:', date);
+                // Force the date to be at noon to avoid timezone issues
+                if (date) {
+                  const adjustedDate = new Date(date);
+                  adjustedDate.setHours(12, 0, 0, 0);
+                  console.log('Adjusted date:', adjustedDate);
+                  handleDateSelect(adjustedDate);
+                }
+              }}
+              fromDate={new Date(2000, 0, 1)}
+              toDate={new Date(2050, 11, 31)}
+              initialFocus
+              disabled={false}
+              footer={
+                <div className="p-2 text-center">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      const today = new Date();
+                      today.setHours(12, 0, 0, 0);
+                      console.log('Setting today:', today);
+                      handleDateSelect(today);
+                    }}
+                  >
+                    Today
+                  </Button>
+                </div>
+              }
+            />
+          </div>
         </PopoverContent>
       </Popover>
     </div>
