@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import TradeGridToolbar from './TradeGridToolbar';
 import { useTradeColumns } from '../hooks/useTradeColumns';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -14,17 +13,16 @@ interface TradeDataGridProps {
 }
 
 const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
-  const emptyRow = {
+  const emptyRow: HedgeRequestDraftTrade = {
     draft_id: draftId.toString(),
     base_currency: '',
     quote_currency: '',
     currency_pair: '',
     trade_date: '',
     settlement_date: '',
-    buy_sell: '',
+    buy_sell: 'BUY', // Set a default value that matches the type
     buy_sell_currency_code: '',
-    buy_sell_amount: 0,
-    rate: 0
+    buy_sell_amount: 0
   };
 
   const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow]);
@@ -54,7 +52,8 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
       return data.map(trade => ({
         ...trade,
         trade_date: trade.trade_date ? format(new Date(trade.trade_date), 'dd/MM/yyyy') : '',
-        settlement_date: trade.settlement_date ? format(new Date(trade.settlement_date), 'dd/MM/yyyy') : ''
+        settlement_date: trade.settlement_date ? format(new Date(trade.settlement_date), 'dd/MM/yyyy') : '',
+        buy_sell: trade.buy_sell || 'BUY' // Ensure buy_sell is always set to a valid value
       })) as HedgeRequestDraftTrade[];
     }
   });
@@ -90,7 +89,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
   return (
     <div className="ag-theme-alpine h-[400px] w-full">
       <AgGridReact
-        rowData={rowData}
+        rowData={trades || [emptyRow]}
         columnDefs={columnDefs}
         defaultColDef={{
           flex: 1,
@@ -100,12 +99,8 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         }}
         onGridReady={(params) => {
           console.log('Grid ready');
-          if (trades?.length) {
-            console.log('Setting initial row data:', trades);
-            setRowData(trades);
-            // Focus on the first cell of the first row
-            params.api.setFocusedCell(0, 'base_currency');
-          }
+          // Focus on the first cell of the first row
+          params.api.setFocusedCell(0, 'base_currency');
         }}
         onCellValueChanged={(event) => {
           console.log('Cell value changed:', event);
