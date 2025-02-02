@@ -2,7 +2,7 @@ import { SaveActionRenderer } from '../components/SaveActionRenderer';
 import { ColDef } from 'ag-grid-community';
 import { HedgeRequestDraft } from '../types';
 
-export const columnDefs: ColDef<HedgeRequestDraft>[] = [
+export const createColumnDefs = (validEntities?: any[]): ColDef<HedgeRequestDraft>[] => [
   {
     headerName: 'Actions',
     cellRenderer: SaveActionRenderer,
