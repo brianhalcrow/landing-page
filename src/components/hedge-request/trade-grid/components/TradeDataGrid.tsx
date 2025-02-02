@@ -68,6 +68,33 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     return <div>Error loading trades. Please try again.</div>;
   }
 
+  const handleCellValueChanged = (event: any) => {
+    console.log('Cell value changed:', event);
+    const colId = event.column?.getColId();
+    
+    if (!colId) {
+      console.error('No column ID found in event');
+      return;
+    }
+
+    if (colId === 'base_currency' || colId === 'quote_currency') {
+      const rowNode = event.node;
+      const baseCurrency = rowNode.data.base_currency;
+      const quoteCurrency = rowNode.data.quote_currency;
+      
+      if (baseCurrency && quoteCurrency) {
+        const currencyPair = `${baseCurrency}/${quoteCurrency}`;
+        rowNode.setDataValue('currency_pair', currencyPair);
+        
+        if (rates?.has(currencyPair)) {
+          const rate = rates.get(currencyPair);
+          console.log(`Setting rate for ${currencyPair}:`, rate);
+          rowNode.setDataValue('rate', rate);
+        }
+      }
+    }
+  };
+
   return (
     <div className="ag-theme-alpine h-[400px] w-full">
       <AgGridReact
@@ -85,25 +112,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           console.log('Grid ready');
           params.api.setFocusedCell(0, 'base_currency');
         }}
-        onCellValueChanged={(event) => {
-          console.log('Cell value changed:', event);
-          if (event.column.getColId() === 'base_currency' || event.column.getColId() === 'quote_currency') {
-            const rowNode = event.node;
-            const baseCurrency = rowNode.data.base_currency;
-            const quoteCurrency = rowNode.data.quote_currency;
-            
-            if (baseCurrency && quoteCurrency) {
-              const currencyPair = `${baseCurrency}/${quoteCurrency}`;
-              rowNode.setDataValue('currency_pair', currencyPair);
-              
-              if (rates?.has(currencyPair)) {
-                const rate = rates.get(currencyPair);
-                console.log(`Setting rate for ${currencyPair}:`, rate);
-                rowNode.setDataValue('rate', rate);
-              }
-            }
-          }
-        }}
+        onCellValueChanged={handleCellValueChanged}
       />
     </div>
   );
