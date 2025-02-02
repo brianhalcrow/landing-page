@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useTradeColumns } from '../hooks/useTradeColumns';
-import { CellValueChangedEvent, CellKeyPressEvent } from 'ag-grid-community';
+import { CellValueChangedEvent, KeyPressEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 
 interface TradeDataGridProps {
@@ -89,7 +89,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     }
   };
 
-  const handleCellKeyPress = (event: CellKeyPressEvent) => {
+  const handleCellKeyDown = (event: KeyPressEvent) => {
     try {
       const column = event.column;
       const colId = column.getColId();
@@ -120,7 +120,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
       // Calculate the other amount in real-time
       calculateAmounts(rowNode, colId, newValue, rate);
     } catch (error) {
-      console.error('Error in handleCellKeyPress:', error);
+      console.error('Error in handleCellKeyDown:', error);
     }
   };
 
@@ -215,7 +215,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           params.api.setFocusedCell(0, 'base_currency');
         }}
         onCellValueChanged={handleCellValueChanged}
-        onCellKeyPress={handleCellKeyPress}
+        onCellKeyDown={handleCellKeyDown}
       />
     </div>
   );
