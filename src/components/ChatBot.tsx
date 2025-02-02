@@ -73,7 +73,7 @@ const ChatBot = () => {
           )}
         >
           <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="font-semibold text-gray-800">SQL Assistant</h3>
+            <h3 className="font-semibold text-gray-800">Hedge Assistant</h3>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -103,7 +103,7 @@ const ChatBot = () => {
               <div className="flex-1 p-4 space-y-4 overflow-y-auto h-[480px] bg-gray-50">
                 {messages.length === 0 ? (
                   <div className="text-gray-600">
-                    Ask me any SQL or database-related questions about your Supabase setup!
+                    How can I assist you with your hedging needs today?
                   </div>
                 ) : (
                   messages.map((msg, index) => (
@@ -132,7 +132,7 @@ const ChatBot = () => {
                   <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask about SQL queries, database structure..."
+                    placeholder="Ask about hedging strategies, exposures..."
                     className="flex-1 bg-gray-50 border-gray-200"
                     disabled={isLoading}
                   />
