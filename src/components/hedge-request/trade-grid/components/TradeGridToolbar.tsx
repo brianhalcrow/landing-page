@@ -15,8 +15,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
   const handleAddRow = () => {
     const newRow: HedgeRequestDraftTrade = {
       draft_id: draftId.toString(),
-      base_currency: '',
-      quote_currency: '',
+      buy_currency: '',
+      sell_currency: '',
       currency_pair: '',
       trade_date: '',
       settlement_date: '',
@@ -32,8 +32,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       return false;
     }
 
-    if (!trade.base_currency || !trade.quote_currency) {
-      toast.error('Base and quote currencies are required');
+    if (!trade.buy_currency || !trade.sell_currency) {
+      toast.error('Buy and sell currencies are required');
       return false;
     }
 
