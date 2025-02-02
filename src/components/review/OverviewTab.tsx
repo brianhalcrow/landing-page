@@ -8,7 +8,22 @@ import RealtimeSubscription from "./RealtimeSubscription";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-interface HedgeRequestOverview {
+interface HedgeRequestDraftTrade {
+  id: number;
+  draft_id: string;
+  buy_currency: string | null;
+  sell_currency: string | null;
+  buy_amount: number | null;
+  sell_amount: number | null;
+  trade_date: string | null;
+  settlement_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  entity_id: string | null;
+  entity_name: string | null;
+}
+
+interface HedgeRequestDraft {
   id: number;
   entity_id: string | null;
   entity_name: string | null;
@@ -23,7 +38,10 @@ interface HedgeRequestOverview {
   created_by: string | null;
   created_at: string | null;
   updated_at: string | null;
-  // Trade related fields
+  trades?: HedgeRequestDraftTrade[];
+}
+
+interface HedgeRequestOverview extends Omit<HedgeRequestDraft, 'trades'> {
   trade_id: number | null;
   draft_id: string | null;
   buy_currency: string | null;
@@ -221,7 +239,7 @@ export const OverviewTab = () => {
         .from("hedge_request_draft")
         .select(`
           *,
-          trades:hedge_request_draft_trades(*)
+          trades:hedge_request_draft_trades!draft_id(*)
         `)
         .order("created_at", { ascending: false });
 
@@ -239,7 +257,7 @@ export const OverviewTab = () => {
       }
 
       // Transform the data to flatten the trades
-      const transformedData: HedgeRequestOverview[] = data.flatMap(draft => {
+      const transformedData: HedgeRequestOverview[] = (data as HedgeRequestDraft[]).flatMap(draft => {
         if (!draft.trades || draft.trades.length === 0) {
           // Return the draft without trade data
           return [{
