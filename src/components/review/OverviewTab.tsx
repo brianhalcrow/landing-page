@@ -10,7 +10,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface HedgeRequestDraftTrade {
   id: number;
-  draft_id: string;
+  draft_id: string | null;
   buy_currency: string | null;
   sell_currency: string | null;
   buy_amount: number | null;
@@ -38,7 +38,6 @@ interface HedgeRequestDraft {
   created_by: string | null;
   created_at: string | null;
   updated_at: string | null;
-  trades?: HedgeRequestDraftTrade[];
 }
 
 interface HedgeRequestOverview extends Omit<HedgeRequestDraft, 'trades'> {
@@ -235,35 +234,53 @@ export const OverviewTab = () => {
       console.log("🔄 Fetching hedge requests...");
       setIsLoading(true);
 
-      const { data, error } = await supabase
-        .from("hedge_request_draft")
-        .select(`
-          *,
-          trades:hedge_request_draft_trades!draft_id(*)
-        `)
-        .order("created_at", { ascending: false });
+      // Fetch drafts and trades separately
+      const [draftsResponse, tradesResponse] = await Promise.all([
+        supabase
+          .from("hedge_request_draft")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("hedge_request_draft_trades")
+          .select("*")
+      ]);
 
       if (!isMounted) return;
 
-      if (error) {
-        console.error("❌ Error fetching data:", error);
-        throw error;
+      if (draftsResponse.error) {
+        console.error("❌ Error fetching drafts:", draftsResponse.error);
+        throw draftsResponse.error;
       }
 
-      if (!data) {
-        console.log("No data returned");
-        setRowData([]);
-        return;
+      if (tradesResponse.error) {
+        console.error("❌ Error fetching trades:", tradesResponse.error);
+        throw tradesResponse.error;
       }
+
+      const drafts = draftsResponse.data || [];
+      const trades = tradesResponse.data || [];
+
+      // Create a map of trades by draft_id for efficient lookup
+      const tradesByDraftId = new Map<string, HedgeRequestDraftTrade[]>();
+      trades.forEach(trade => {
+        if (trade.draft_id) {
+          const draftTrades = tradesByDraftId.get(trade.draft_id) || [];
+          draftTrades.push(trade);
+          tradesByDraftId.set(trade.draft_id, draftTrades);
+        }
+      });
 
       // Transform the data to flatten the trades
-      const transformedData: HedgeRequestOverview[] = (data as HedgeRequestDraft[]).flatMap(draft => {
-        if (!draft.trades || draft.trades.length === 0) {
+      const transformedData: HedgeRequestOverview[] = drafts.flatMap(draft => {
+        const draftId = draft.id.toString();
+        const draftTrades = tradesByDraftId.get(draftId) || [];
+
+        if (draftTrades.length === 0) {
           // Return the draft without trade data
           return [{
             ...draft,
             trade_id: null,
-            draft_id: draft.id.toString(), // Convert id to string
+            draft_id: draftId,
             buy_currency: null,
             sell_currency: null,
             buy_amount: null,
@@ -278,10 +295,10 @@ export const OverviewTab = () => {
         }
         
         // Return a row for each trade
-        return draft.trades.map(trade => ({
+        return draftTrades.map(trade => ({
           ...draft,
           trade_id: trade.id,
-          draft_id: draft.id.toString(), // Convert id to string
+          draft_id: draftId,
           buy_currency: trade.buy_currency,
           sell_currency: trade.sell_currency,
           buy_amount: trade.buy_amount,
