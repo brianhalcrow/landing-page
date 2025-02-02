@@ -1,12 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { HedgeRequest } from "./types";
-import HedgeRequestsGrid from "./HedgeRequestsGrid";
 import RealtimeSubscription from "./RealtimeSubscription";
 
 export const OverviewTab = () => {
-  const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(true);
 
@@ -20,7 +17,7 @@ export const OverviewTab = () => {
       console.log("🔄 Fetching hedge requests...");
       setIsLoading(true);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("hedge_request_draft")
         .select("*")
         .order("id", { ascending: false });
@@ -32,13 +29,7 @@ export const OverviewTab = () => {
         throw error;
       }
 
-      const hedgeRequestsWithId = (data || []).map((request) => ({
-        ...request,
-        id: request.id.toString()
-      }));
-
-      console.log("✅ Fetched hedge requests:", hedgeRequestsWithId);
-      setHedgeRequests(hedgeRequestsWithId as HedgeRequest[]);
+      console.log("✅ Fetched hedge requests");
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {
@@ -68,9 +59,10 @@ export const OverviewTab = () => {
           <span>Loading hedge requests...</span>
         </div>
       ) : (
-        <HedgeRequestsGrid 
-          hedgeRequests={hedgeRequests}
-        />
+        <div className="p-4">
+          <h2 className="text-2xl font-bold mb-4">Overview</h2>
+          <p>Overview content will be implemented here.</p>
+        </div>
       )}
     </div>
   );
