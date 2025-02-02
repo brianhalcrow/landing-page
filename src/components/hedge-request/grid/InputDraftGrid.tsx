@@ -1,5 +1,5 @@
-import { DraftDataGrid } from './components/DraftDataGrid';
-import { TradeDataGrid } from './components/TradeDataGrid';
+import DraftDataGrid from './components/DraftDataGrid';
+import TradeDataGrid from './components/TradeDataGrid';
 
 export const InputDraftGrid = () => {
   return (

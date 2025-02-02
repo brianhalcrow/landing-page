@@ -7,22 +7,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { tradeColumnDefs } from '../config/tradeColumnDefs';
 import { GridStyles } from './GridStyles';
 
-interface TradeDataGridProps {
-  draftId?: string;
-}
-
-export const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
+const TradeDataGrid = () => {
   const [rowData, setRowData] = useState([]);
 
   const { isLoading } = useQuery({
-    queryKey: ['trades', draftId],
+    queryKey: ['trades'],
     queryFn: async () => {
-      if (!draftId) return [];
-      
       const { data, error } = await supabase
         .from('hedge_request_draft_trades')
-        .select('*')
-        .eq('draft_id', draftId);
+        .select('*');
 
       if (error) {
         console.error('Error fetching trades:', error);
