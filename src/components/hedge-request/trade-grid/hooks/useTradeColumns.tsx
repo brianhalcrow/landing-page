@@ -21,9 +21,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
   const [isOpen, setIsOpen] = useState(false);
 
   const parseDate = useCallback((dateString: string | undefined): Date | undefined => {
-    if (!dateString) {
-      return undefined;
-    }
+    if (!dateString) return undefined;
 
     // Try parsing YYYY-MM-DD format first
     let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
@@ -37,76 +35,39 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
   }, []);
 
   const handleDateSelect = useCallback((date: Date | undefined) => {
-    console.log('handleDateSelect called with date:', date);
-    
-    if (!date || !isValid(date)) {
-      console.log('Invalid date selected');
-      return;
-    }
-
-    if (!node) {
-      console.error('No grid node available');
-      return;
-    }
-
-    if (!column?.colId) {
-      console.error('No column ID available');
-      return;
-    }
-
-    if (!api) {
-      console.error('No grid API available');
+    if (!date || !isValid(date) || !node || !column?.colId || !api) {
+      console.error('Invalid date or missing required props:', { date, node, column, api });
       return;
     }
 
     try {
-      // Ensure date is at noon to avoid timezone issues
+      // Normalize date to noon to avoid timezone issues
       const normalizedDate = new Date(date);
       normalizedDate.setHours(12, 0, 0, 0);
-      
-      const formattedDate = format(normalizedDate, 'yyyy-MM-dd');
-      console.log('Attempting to update with formatted date:', formattedDate);
 
-      // Get the current row data
-      const rowData = node.data;
-      console.log('Current row data:', rowData);
+      // Format for storage (YYYY-MM-DD)
+      const storageFormat = format(normalizedDate, 'yyyy-MM-dd');
+      console.log('Updating cell with storage format:', storageFormat);
 
-      // Update the value directly using setDataValue
-      if (node.setDataValue) {
-        console.log('Updating via setDataValue');
-        node.setDataValue(column.colId, formattedDate);
-      } else {
-        console.log('Falling back to transaction update');
-        const updatedData = { ...rowData };
-        updatedData[column.colId] = formattedDate;
-        
-        api.applyTransaction({
-          update: [updatedData]
-        });
-      }
+      // Update the cell value
+      node.setDataValue(column.colId, storageFormat);
 
-      // Force cell refresh
+      // Force refresh the cell to ensure the new value is displayed
       api.refreshCells({
         force: true,
         rowNodes: [node],
         columns: [column.colId]
       });
 
-      console.log('Update complete:', {
-        colId: column.colId,
-        newValue: formattedDate,
-        rowId: node.id
-      });
-
       setIsOpen(false);
       toast.success('Date updated successfully');
-      
     } catch (error) {
       console.error('Error updating date:', error);
       toast.error('Failed to update date');
     }
   }, [node, column, api]);
 
+  // Parse the current value and format for display
   const currentDate = parseDate(value);
   const displayDate = currentDate ? format(currentDate, 'dd/MM/yyyy') : 'Select date';
 
@@ -120,52 +81,25 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
               "w-full justify-start text-left font-normal",
               !value && "text-muted-foreground"
             )}
-            onClick={() => {
-              console.log('DatePicker button clicked');
-              setIsOpen(true);
-            }}
           >
             <Calendar className="mr-2 h-4 w-4" />
             {displayDate}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <div className="p-0">
-            <CalendarComponent
-              mode="single"
-              selected={currentDate}
-              onSelect={(date: Date | undefined) => {
-                console.log('Calendar onSelect triggered with date:', date);
-                // Force the date to be at noon to avoid timezone issues
-                if (date) {
-                  const adjustedDate = new Date(date);
-                  adjustedDate.setHours(12, 0, 0, 0);
-                  console.log('Adjusted date:', adjustedDate);
-                  handleDateSelect(adjustedDate);
-                }
-              }}
-              fromDate={new Date(2000, 0, 1)}
-              toDate={new Date(2050, 11, 31)}
-              initialFocus
-              disabled={false}
-              footer={
-                <div className="p-2 text-center">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => {
-                      const today = new Date();
-                      today.setHours(12, 0, 0, 0);
-                      console.log('Setting today:', today);
-                      handleDateSelect(today);
-                    }}
-                  >
-                    Today
-                  </Button>
-                </div>
+          <CalendarComponent
+            mode="single"
+            selected={currentDate}
+            onSelect={(date) => {
+              if (date) {
+                const adjustedDate = new Date(date);
+                adjustedDate.setHours(12, 0, 0, 0);
+                handleDateSelect(adjustedDate);
               }
-            />
-          </div>
+            }}
+            initialFocus
+            disabled={false}
+          />
         </PopoverContent>
       </Popover>
     </div>
@@ -246,19 +180,21 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Trade Date',
       editable: false,
       cellRenderer: DatePickerCellRenderer,
-      cellRendererParams: (params: any) => ({
-        suppressKeyboardEvent: () => true,
-        api: params.api,
-        context: params.context
-      }),
+      valueFormatter: (params) => {
+        if (!params.value) return '';
+        const date = parse(params.value, 'yyyy-MM-dd', new Date());
+        return isValid(date) ? format(date, 'dd/MM/yyyy') : '';
+      },
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
       editable: false,
       cellRenderer: DatePickerCellRenderer,
-      cellRendererParams: {
-        suppressKeyboardEvent: () => true,
+      valueFormatter: (params) => {
+        if (!params.value) return '';
+        const date = parse(params.value, 'yyyy-MM-dd', new Date());
+        return isValid(date) ? format(date, 'dd/MM/yyyy') : '';
       },
     },
     {
