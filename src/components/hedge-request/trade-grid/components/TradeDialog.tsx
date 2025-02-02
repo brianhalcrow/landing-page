@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import TradeDataGrid from "./TradeDataGrid";
 
 interface TradeDialogProps {
   isOpen: boolean;
@@ -14,8 +15,7 @@ const TradeDialog = ({ isOpen, onClose, draftId }: TradeDialogProps) => {
           <DialogTitle>Add Trades for Draft #{draftId}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          {/* Trade grid will be added here in next step */}
-          <p className="text-muted-foreground">Trade grid coming soon...</p>
+          <TradeDataGrid draftId={draftId} />
         </div>
       </DialogContent>
     </Dialog>

@@ -16,3 +16,16 @@ export interface ValidEntity {
   entity_name: string;
   functional_currency: string;
 }
+
+export interface HedgeRequestDraftTrade {
+  id?: number;
+  draft_id: string;
+  base_currency: string;
+  quote_currency: string;
+  currency_pair: string;
+  trade_date: string;
+  settlement_date: string;
+  buy_sell: 'BUY' | 'SELL';
+  buy_sell_currency_code: string;
+  buy_sell_amount: number;
+}
