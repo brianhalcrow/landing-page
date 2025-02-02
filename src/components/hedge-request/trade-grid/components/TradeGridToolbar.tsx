@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { format, parse } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -32,6 +32,13 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
     try {
       // Parse the date from DD/MM/YYYY format
       const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
+      
+      // Check if the date is valid before formatting
+      if (!isValid(parsedDate)) {
+        console.error('Invalid date:', dateStr);
+        return null;
+      }
+      
       // Format it to YYYY-MM-DD for PostgreSQL
       return format(parsedDate, 'yyyy-MM-dd');
     } catch (error) {
@@ -42,12 +49,24 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
 
   const handleSaveTrades = async () => {
     try {
-      // Format the data before sending to Supabase
-      const formattedData = rowData.map(row => ({
-        ...row,
-        trade_date: formatDateForDB(row.trade_date),
-        settlement_date: formatDateForDB(row.settlement_date)
-      }));
+      // Format and validate the data before sending to Supabase
+      const formattedData = rowData.map(row => {
+        const tradeDate = formatDateForDB(row.trade_date);
+        const settlementDate = formatDateForDB(row.settlement_date);
+        
+        // Ensure buy_sell_amount is a number
+        const amount = typeof row.buy_sell_amount === 'string' 
+          ? parseFloat(row.buy_sell_amount) 
+          : row.buy_sell_amount;
+
+        return {
+          ...row,
+          draft_id: draftId.toString(),
+          trade_date: tradeDate,
+          settlement_date: settlementDate,
+          buy_sell_amount: amount || 0
+        };
+      });
 
       const { error } = await supabase
         .from('hedge_request_draft_trades')
