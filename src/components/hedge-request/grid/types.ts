@@ -20,9 +20,13 @@ export interface HedgeRequestDraftTrade {
   draft_id: string;
   buy_currency: string;
   sell_currency: string;
-  currency_pair: string;
   trade_date: string;
   settlement_date: string;
   buy_amount: number;
   sell_amount: number;
+  entity_id?: string;
+  entity_name?: string;
+  id?: number;
+  created_at?: string;
+  updated_at?: string;
 }

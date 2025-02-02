@@ -17,7 +17,6 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     draft_id: draftId.toString(),
     buy_currency: '',
     sell_currency: '',
-    currency_pair: '',
     trade_date: '',
     settlement_date: '',
     buy_amount: 0,
@@ -159,23 +158,17 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           const currencyPair = `${buy_currency}/${sell_currency}`;
           console.log('Setting currency pair:', currencyPair);
           
-          try {
-            rowNode.setDataValue('currency_pair', currencyPair);
-            
-            if (rates?.has(currencyPair)) {
-              const rate = rates.get(currencyPair);
-              console.log(`Setting rate for ${currencyPair}:`, rate);
-              rowNode.setDataValue('rate', rate);
+          if (rates?.has(currencyPair)) {
+            const rate = rates.get(currencyPair);
+            console.log(`Setting rate for ${currencyPair}:`, rate);
+            rowNode.setDataValue('rate', rate);
 
-              const { buy_amount, sell_amount } = rowNode.data;
-              if (rate && buy_amount) {
-                rowNode.setDataValue('sell_amount', buy_amount * rate);
-              } else if (rate && sell_amount) {
-                rowNode.setDataValue('buy_amount', sell_amount / rate);
-              }
+            const { buy_amount, sell_amount } = rowNode.data;
+            if (rate && buy_amount) {
+              rowNode.setDataValue('sell_amount', buy_amount * rate);
+            } else if (rate && sell_amount) {
+              rowNode.setDataValue('buy_amount', sell_amount / rate);
             }
-          } catch (error) {
-            console.error('Error updating row values:', error);
           }
         }
       }
