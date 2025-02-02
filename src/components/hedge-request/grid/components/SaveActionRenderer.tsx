@@ -2,24 +2,33 @@ import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import TradeDialog from '../../trade-grid/components/TradeDialog';
 
 interface SaveActionRendererProps {
   data: any;
 }
 
 export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [savedDraftId, setSavedDraftId] = useState<number | null>(null);
+
   const handleSaveRow = async () => {
     try {
       // Remove id if it's undefined (new row)
       const { id, ...rowData } = data;
       
-      const { error } = await supabase
+      const { data: savedDraft, error } = await supabase
         .from('hedge_request_draft')
         .insert([rowData])
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
+      
       toast.success('Draft saved successfully');
+      setSavedDraftId(savedDraft.id);
+      setIsDialogOpen(true);
     } catch (error) {
       console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
@@ -27,13 +36,23 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleSaveRow}
-      className="h-8 w-8"
-    >
-      <Save className="h-4 w-4" />
-    </Button>
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleSaveRow}
+        className="h-8 w-8"
+      >
+        <Save className="h-4 w-4" />
+      </Button>
+
+      {savedDraftId && (
+        <TradeDialog 
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          draftId={savedDraftId}
+        />
+      )}
+    </>
   );
 };
