@@ -35,18 +35,6 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         return;
       }
 
-      if (!node?.setDataValue) {
-        console.error('Grid node or setDataValue method not available');
-        toast.error('Unable to update grid value');
-        return;
-      }
-
-      if (!column?.colId) {
-        console.error('Column ID not available');
-        toast.error('Unable to identify column');
-        return;
-      }
-
       if (!isValid(date)) {
         console.error('Invalid date object:', date);
         toast.error('Invalid date selected');
@@ -55,22 +43,49 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
 
       // Format date as YYYY-MM-DD for storage
       const formattedDate = format(date, 'yyyy-MM-dd');
-      console.log('Updating cell value:', {
-        columnId: column.colId,
-        newValue: formattedDate,
-        nodeId: node.id
+      
+      // Log the update attempt
+      console.log('Attempting to update cell:', {
+        date,
+        formattedDate,
+        columnId: column?.colId,
+        nodeId: node?.id,
+        hasNode: !!node,
+        hasSetDataValue: !!node?.setDataValue,
+        hasApi: !!api
       });
-      
-      // Update the grid cell value
-      node.setDataValue(column.colId, formattedDate);
-      
-      // Ensure the grid refreshes the cell
+
+      // Try different methods to update the cell
+      if (node?.setDataValue) {
+        // Method 1: Direct node update
+        node.setDataValue(column.colId, formattedDate);
+        console.log('Updated via setDataValue');
+      } else if (api?.applyTransaction) {
+        // Method 2: Grid transaction
+        const rowNode = api.getRowNode(node.id);
+        if (rowNode) {
+          api.applyTransaction({
+            update: [{
+              ...rowNode.data,
+              [column.colId]: formattedDate
+            }]
+          });
+          console.log('Updated via applyTransaction');
+        }
+      } else {
+        console.error('No valid update method available');
+        toast.error('Unable to update grid value');
+        return;
+      }
+
+      // Force refresh the grid cell
       if (api?.refreshCells) {
         api.refreshCells({
           force: true,
           rowNodes: [node],
           columns: [column.colId]
         });
+        console.log('Refreshed cells');
       }
 
       toast.success('Date updated successfully');
