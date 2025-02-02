@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import TradeGridToolbar from './TradeGridToolbar';
@@ -14,7 +14,20 @@ interface TradeDataGridProps {
 }
 
 const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
-  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([]);
+  const emptyRow = {
+    draft_id: draftId.toString(),
+    base_currency: '',
+    quote_currency: '',
+    currency_pair: '',
+    trade_date: '',
+    settlement_date: '',
+    buy_sell: '',
+    buy_sell_currency_code: '',
+    buy_sell_amount: 0,
+    rate: 0
+  };
+
+  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow]);
   const columnDefs = useTradeColumns(rates);
 
   const { data: trades, error } = useQuery({
@@ -32,9 +45,9 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         throw error;
       }
 
-      if (!data) {
-        console.log('No trades found');
-        return [];
+      if (!data?.length) {
+        console.log('No trades found, using empty row');
+        return [emptyRow];
       }
 
       // Format dates from DB (YYYY-MM-DD) to display format (DD/MM/YYYY)
@@ -46,59 +59,74 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     }
   });
 
+  // Fetch unique currencies from rates table
+  const { data: currencies } = useQuery({
+    queryKey: ['currencies'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('rates')
+        .select('base_currency, quote_currency');
+      
+      if (error) {
+        console.error('Error fetching currencies:', error);
+        return { base: [], quote: [] };
+      }
+
+      const baseCurrencies = new Set(data?.map(rate => rate.base_currency));
+      const quoteCurrencies = new Set(data?.map(rate => rate.quote_currency));
+
+      return {
+        base: Array.from(baseCurrencies),
+        quote: Array.from(quoteCurrencies)
+      };
+    }
+  });
+
   if (error) {
     console.error('Query error:', error);
     return <div>Error loading trades. Please try again.</div>;
   }
 
   return (
-    <div className="space-y-4">
-      <TradeGridToolbar 
-        draftId={draftId} 
-        rowData={rowData} 
-        setRowData={setRowData} 
-      />
-      
-      <div className="ag-theme-alpine h-[400px] w-full">
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={{
-            flex: 1,
-            minWidth: 100,
-            sortable: true,
-            filter: true
-          }}
-          onGridReady={(params) => {
-            console.log('Grid ready');
-            if (trades) {
-              console.log('Setting initial row data:', trades);
-              setRowData(trades);
-            }
-          }}
-          onCellValueChanged={(event) => {
-            console.log('Cell value changed:', event);
-            // Update currency pair and rate when base or quote currency changes
-            if (event.column.getColId() === 'base_currency' || event.column.getColId() === 'quote_currency') {
-              const rowNode = event.node;
-              const baseCurrency = rowNode.data.base_currency;
-              const quoteCurrency = rowNode.data.quote_currency;
+    <div className="ag-theme-alpine h-[400px] w-full">
+      <AgGridReact
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={{
+          flex: 1,
+          minWidth: 100,
+          sortable: true,
+          filter: true
+        }}
+        onGridReady={(params) => {
+          console.log('Grid ready');
+          if (trades?.length) {
+            console.log('Setting initial row data:', trades);
+            setRowData(trades);
+            // Focus on the first cell of the first row
+            params.api.setFocusedCell(0, 'base_currency');
+          }
+        }}
+        onCellValueChanged={(event) => {
+          console.log('Cell value changed:', event);
+          if (event.column.getColId() === 'base_currency' || event.column.getColId() === 'quote_currency') {
+            const rowNode = event.node;
+            const baseCurrency = rowNode.data.base_currency;
+            const quoteCurrency = rowNode.data.quote_currency;
+            
+            if (baseCurrency && quoteCurrency) {
+              const currencyPair = `${baseCurrency}/${quoteCurrency}`;
+              rowNode.setDataValue('currency_pair', currencyPair);
               
-              if (baseCurrency && quoteCurrency) {
-                const currencyPair = `${baseCurrency}/${quoteCurrency}`;
-                rowNode.setDataValue('currency_pair', currencyPair);
-                
-                // Update rate if available
-                if (rates?.has(currencyPair)) {
-                  const rate = rates.get(currencyPair);
-                  console.log(`Setting rate for ${currencyPair}:`, rate);
-                  // You might want to store this rate in a separate column
-                }
+              if (rates?.has(currencyPair)) {
+                const rate = rates.get(currencyPair);
+                console.log(`Setting rate for ${currencyPair}:`, rate);
+                rowNode.setDataValue('rate', rate);
               }
             }
-          }}
-        />
-      </div>
+          }
+        }}
+      />
     </div>
   );
 };

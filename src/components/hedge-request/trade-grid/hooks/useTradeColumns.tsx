@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import React, { useCallback, useState } from 'react';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface DatePickerCellRendererProps {
   value?: string;
@@ -177,22 +178,67 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'base_currency',
       headerName: 'Base Currency',
       editable: true,
+      cellRenderer: (params: any) => {
+        const currencies = params.context?.currencies?.base || [];
+        return (
+          <Select
+            value={params.value}
+            onValueChange={(value) => {
+              params.setValue(value);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map((currency: string) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
     },
     {
       field: 'quote_currency',
       headerName: 'Quote Currency',
       editable: true,
+      cellRenderer: (params: any) => {
+        const currencies = params.context?.currencies?.quote || [];
+        return (
+          <Select
+            value={params.value}
+            onValueChange={(value) => {
+              params.setValue(value);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map((currency: string) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
     },
     {
       field: 'currency_pair',
       headerName: 'Currency Pair',
       editable: false,
+    },
+    {
+      field: 'rate',
+      headerName: 'Rate',
+      editable: false,
       valueFormatter: (params) => {
-        if (params.value && rates?.has(params.value)) {
-          const rate = rates.get(params.value);
-          return `${params.value} (Rate: ${rate?.toFixed(4)})`;
-        }
-        return params.value || '';
+        return params.value ? params.value.toFixed(4) : '';
       },
     },
     {
