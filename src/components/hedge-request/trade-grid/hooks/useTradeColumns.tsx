@@ -5,14 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
-const DatePickerCellRenderer = (props: any) => {
+interface DatePickerCellRendererProps {
+  value: string;
+  api: any;
+  node: any;
+  column: any;
+  data: any;
+}
+
+const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
   const value = props.value;
   
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       const formattedDate = format(date, 'yyyy-MM-dd');
-      props.setValue(formattedDate);
+      props.node.setDataValue(props.column.colId, formattedDate);
     }
   };
 
@@ -64,13 +73,13 @@ export const useTradeColumns = (): ColDef[] => {
     {
       field: 'trade_date',
       headerName: 'Trade Date',
-      editable: true,
+      editable: false,
       cellRenderer: DatePickerCellRenderer,
     },
     {
       field: 'settlement_date',
       headerName: 'Settlement Date',
-      editable: true,
+      editable: false,
       cellRenderer: DatePickerCellRenderer,
     },
     {
