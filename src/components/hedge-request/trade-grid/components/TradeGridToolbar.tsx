@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { format, parse, isValid } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 
 interface TradeGridToolbarProps {
   draftId: number;
@@ -30,17 +30,16 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
   const formatDateForDB = (dateStr: string) => {
     if (!dateStr) return null;
     try {
-      // Parse the date from DD/MM/YYYY format
-      const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
+      // Since the date is already in YYYY-MM-DD format, just validate it
+      const parsedDate = parseISO(dateStr);
       
-      // Check if the date is valid before formatting
       if (!isValid(parsedDate)) {
         console.error('Invalid date:', dateStr);
         return null;
       }
       
-      // Format it to YYYY-MM-DD for PostgreSQL
-      return format(parsedDate, 'yyyy-MM-dd');
+      // Return the date string as is since it's already in YYYY-MM-DD format
+      return dateStr;
     } catch (error) {
       console.error('Error formatting date:', error);
       return null;
@@ -49,6 +48,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
 
   const handleSaveTrades = async () => {
     try {
+      console.log('Saving trades with data:', rowData);
+      
       // Format and validate the data before sending to Supabase
       const formattedData = rowData.map(row => {
         const tradeDate = formatDateForDB(row.trade_date);
@@ -67,6 +68,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
           buy_sell_amount: amount || 0
         };
       });
+
+      console.log('Formatted data to save:', formattedData);
 
       const { error } = await supabase
         .from('hedge_request_draft_trades')
