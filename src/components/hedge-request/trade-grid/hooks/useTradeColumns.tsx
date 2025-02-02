@@ -1,6 +1,6 @@
 import { ColDef } from 'ag-grid-community';
 import { Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,19 +9,29 @@ import React from 'react';
 
 interface DatePickerCellRendererProps {
   value: string;
-  api: any;
   node: any;
   column: any;
-  data: any;
 }
 
 const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) => {
-  const value = props.value;
+  const { value, node, column } = props;
   
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
+      console.log('Selected date:', date);
       const formattedDate = format(date, 'dd/MM/yyyy');
-      props.node.setDataValue(props.column.colId, formattedDate);
+      console.log('Formatted date:', formattedDate);
+      node.setDataValue(column.colId, formattedDate);
+    }
+  };
+
+  const parseDate = (dateString: string) => {
+    try {
+      if (!dateString) return undefined;
+      return parse(dateString, 'dd/MM/yyyy', new Date());
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return undefined;
     }
   };
 
@@ -43,7 +53,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         <PopoverContent className="w-auto p-0" align="start">
           <CalendarComponent
             mode="single"
-            selected={value ? new Date(value.split('/').reverse().join('-')) : undefined}
+            selected={parseDate(value)}
             onSelect={handleDateSelect}
             initialFocus
           />
