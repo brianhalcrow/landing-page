@@ -160,33 +160,22 @@ const Dashboard = () => {
               {isLoadingHedgeRequests ? (
                 <Skeleton className="h-[400px] w-full" />
               ) : (
-                <ResizablePanelGroup direction="vertical">
-                  <ResizablePanel
-                    minSize={25}
-                    maxSize={80}
-                    defaultSize={50}
-                    onResize={(size) => {
-                      const newHeight = Math.round((size / 100) * window.innerHeight);
-                      setChartHeight(newHeight);
-                      saveChartPreferences(newHeight);
-                    }}
-                  >
-                    <ResponsiveContainer width="100%" height={chartHeight}>
-                      <BarChart data={hedgeRequests || []}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="entity" 
-                          angle={-45}
-                          textAnchor="end"
-                          height={70}
-                        />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+                <div style={{ width: '100%', height: chartHeight }}>
+                  <ResponsiveContainer>
+                    <BarChart data={hedgeRequests || []}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="entity" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={70}
+                      />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </CardContent>
           </Card>
