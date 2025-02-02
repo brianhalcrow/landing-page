@@ -8,7 +8,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
-      headerName: 'Base Currency',
+      headerName: 'Base\nCurrency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[0])));
@@ -35,7 +35,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'quote_currency',
-      headerName: 'Quote Currency',
+      headerName: 'Quote\nCurrency',
       editable: true,
       cellRenderer: (params: any) => {
         const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[1])));
@@ -61,11 +61,6 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       }
     },
     {
-      field: 'currency_pair',
-      headerName: 'Currency Pair',
-      editable: false,
-    },
-    {
       field: 'rate',
       headerName: 'Rate',
       editable: false,
@@ -75,7 +70,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'trade_date',
-      headerName: 'Trade Date',
+      headerName: 'Trade\nDate',
       editable: true,
       valueFormatter: (params) => {
         if (!params.value) return '';
@@ -103,7 +98,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     },
     {
       field: 'settlement_date',
-      headerName: 'Settlement Date',
+      headerName: 'Settlement\nDate',
       editable: true,
       valueFormatter: (params) => {
         if (!params.value) return '';
@@ -130,34 +125,14 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       }
     },
     {
-      field: 'buy_sell',
-      headerName: 'Buy/Sell',
+      field: 'buy_amount',
+      headerName: 'Buy\nAmount',
       editable: true,
-      cellRenderer: (params: any) => (
-        <Select
-          value={params.value}
-          onValueChange={(value) => {
-            params.setValue(value);
-          }}
-        >
-          <SelectTrigger className="w-full h-8 border-0">
-            <SelectValue placeholder="Select type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="BUY">BUY</SelectItem>
-            <SelectItem value="SELL">SELL</SelectItem>
-          </SelectContent>
-        </Select>
-      )
+      type: 'numericColumn',
     },
     {
-      field: 'buy_sell_currency_code',
-      headerName: 'Buy/Sell Currency',
-      editable: true,
-    },
-    {
-      field: 'buy_sell_amount',
-      headerName: 'Amount',
+      field: 'sell_amount',
+      headerName: 'Sell\nAmount',
       editable: true,
       type: 'numericColumn',
     },

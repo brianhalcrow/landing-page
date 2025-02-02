@@ -1,5 +1,4 @@
 export interface HedgeRequestDraft {
-  id?: number;
   entity_id: string;
   entity_name: string;
   functional_currency: string;
@@ -18,14 +17,12 @@ export interface ValidEntity {
 }
 
 export interface HedgeRequestDraftTrade {
-  id?: number;
   draft_id: string;
   base_currency: string;
   quote_currency: string;
   currency_pair: string;
   trade_date: string;
   settlement_date: string;
-  buy_sell: 'BUY' | 'SELL';
-  buy_sell_currency_code: string;
-  buy_sell_amount: number;
+  buy_amount: number;
+  sell_amount: number;
 }

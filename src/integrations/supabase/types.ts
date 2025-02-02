@@ -547,42 +547,42 @@ export type Database = {
       hedge_request_draft_trades: {
         Row: {
           base_currency: string | null
-          buy_sell: string | null
+          buy_amount: number | null
           buy_sell_amount: number | null
-          buy_sell_currency_code: string | null
           created_at: string | null
           currency_pair: string | null
           draft_id: string | null
           id: number
           quote_currency: string | null
+          sell_amount: number | null
           settlement_date: string | null
           trade_date: string | null
           updated_at: string | null
         }
         Insert: {
           base_currency?: string | null
-          buy_sell?: string | null
+          buy_amount?: number | null
           buy_sell_amount?: number | null
-          buy_sell_currency_code?: string | null
           created_at?: string | null
           currency_pair?: string | null
           draft_id?: string | null
           id?: number
           quote_currency?: string | null
+          sell_amount?: number | null
           settlement_date?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
         Update: {
           base_currency?: string | null
-          buy_sell?: string | null
+          buy_amount?: number | null
           buy_sell_amount?: number | null
-          buy_sell_currency_code?: string | null
           created_at?: string | null
           currency_pair?: string | null
           draft_id?: string | null
           id?: number
           quote_currency?: string | null
+          sell_amount?: number | null
           settlement_date?: string | null
           trade_date?: string | null
           updated_at?: string | null

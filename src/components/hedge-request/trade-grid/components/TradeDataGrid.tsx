@@ -20,9 +20,8 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     currency_pair: '',
     trade_date: '',
     settlement_date: '',
-    buy_sell: 'BUY',
-    buy_sell_currency_code: '',
-    buy_sell_amount: 0
+    buy_amount: 0,
+    sell_amount: 0
   };
 
   const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow]);
@@ -52,7 +51,8 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         ...trade,
         trade_date: trade.trade_date || '',
         settlement_date: trade.settlement_date || '',
-        buy_sell: trade.buy_sell || 'BUY'
+        buy_amount: trade.buy_amount || 0,
+        sell_amount: trade.sell_amount || 0
       })) as HedgeRequestDraftTrade[];
     }
   });
@@ -77,7 +77,9 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
           flex: 1,
           minWidth: 100,
           sortable: true,
-          filter: true
+          filter: true,
+          wrapHeaderText: true,
+          autoHeaderHeight: true,
         }}
         onGridReady={(params) => {
           console.log('Grid ready');
