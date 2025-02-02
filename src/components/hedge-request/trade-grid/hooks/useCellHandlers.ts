@@ -40,7 +40,7 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
       if (!rate) return;
 
       const currentValue = event.value?.toString() || '0';
-      const newChar = event.event.key;
+      const newChar = (event.event as KeyboardEvent).key;
       
       if (!/^\d$/.test(newChar)) return;
 

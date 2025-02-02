@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { HedgeRequest } from "./types";
+import { Position } from "./types";
 import PositionsGrid from "./PositionsGrid";
 import RealtimeSubscription from "./RealtimeSubscription";
 
 export const PositionsTab = () => {
-  const [hedgeRequests, setHedgeRequests] = useState<HedgeRequest[]>([]);
+  const [hedgeRequests, setHedgeRequests] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(true);
 
@@ -38,7 +38,7 @@ export const PositionsTab = () => {
       }));
 
       console.log("✅ Fetched hedge requests for positions:", hedgeRequestsWithId);
-      setHedgeRequests(hedgeRequestsWithId as HedgeRequest[]);
+      setHedgeRequests(hedgeRequestsWithId as Position[]);
     } catch (error) {
       console.error("❌ Error in fetchHedgeRequests:", error);
       if (isMounted) {

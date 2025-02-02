@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-import { HedgeRequest } from './types';
+import { Position } from './types';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface PositionsGridProps {
-  hedgeRequests: HedgeRequest[];
+  hedgeRequests: Position[];
 }
 
 const PositionsGrid = ({ hedgeRequests }: PositionsGridProps) => {
@@ -17,7 +17,6 @@ const PositionsGrid = ({ hedgeRequests }: PositionsGridProps) => {
     { field: 'strategy', headerName: 'Strategy', width: 120 },
     { field: 'base_currency', headerName: 'Base', width: 90 },
     { field: 'quote_currency', headerName: 'Quote', width: 90 },
-    { field: 'currency_pair', headerName: 'Pair', width: 100 },
     { field: 'trade_date', headerName: 'Trade Date', width: 120 },
     { field: 'settlement_date', headerName: 'Settlement', width: 120 },
     { field: 'buy_sell', headerName: 'B/S', width: 80 },
