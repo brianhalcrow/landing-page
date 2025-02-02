@@ -22,7 +22,7 @@ const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
       const { data, error } = await supabase
         .from('hedge_request_draft_trades')
         .select('*')
-        .eq('draft_id', draftId);
+        .eq('draft_id', draftId.toString()); // Convert number to string here
 
       if (error) {
         console.error('Error fetching trades:', error);
@@ -54,7 +54,7 @@ const TradeDataGrid = ({ draftId }: TradeDataGridProps) => {
 
   const handleAddRow = () => {
     const newRow: HedgeRequestDraftTrade = {
-      draft_id: draftId.toString(),
+      draft_id: draftId.toString(), // Convert number to string here as well
       base_currency: '',
       quote_currency: '',
       currency_pair: '',
