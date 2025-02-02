@@ -32,6 +32,15 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       }
     },
     {
+      field: 'buy_amount',
+      headerName: 'Buy Amount',
+      editable: true,
+      type: 'numericColumn',
+      valueFormatter: (params) => {
+        return params.value ? params.value.toFixed(2) : '';
+      }
+    },
+    {
       field: 'quote_currency',
       headerName: 'Sell Currency',
       editable: true,
@@ -56,6 +65,15 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
             </SelectContent>
           </Select>
         );
+      }
+    },
+    {
+      field: 'sell_amount',
+      headerName: 'Sell Amount',
+      editable: true,
+      type: 'numericColumn',
+      valueFormatter: (params) => {
+        return params.value ? params.value.toFixed(2) : '';
       }
     },
     {
@@ -88,24 +106,6 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       valueFormatter: (params) => {
         return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
-      }
-    },
-    {
-      field: 'buy_amount',
-      headerName: 'Buy Amount',
-      editable: true,
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toFixed(2) : '';
-      }
-    },
-    {
-      field: 'sell_amount',
-      headerName: 'Sell Amount',
-      editable: true,
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toFixed(2) : '';
       }
     }
   ];
