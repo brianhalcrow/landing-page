@@ -3,10 +3,12 @@ import { Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+type ValidTableNames = 'hedge_request_draft' | 'hedge_request_draft_trades';
+
 interface SaveActionRendererProps {
   data: any;
   context?: {
-    table?: string;
+    table?: ValidTableNames;
   };
 }
 

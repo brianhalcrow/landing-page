@@ -1,104 +1,81 @@
-import { ColDef } from 'ag-grid-community';
 import { SaveActionRenderer } from '../components/SaveActionRenderer';
+import { ColDef } from 'ag-grid-community';
+import { HedgeRequestDraftTrade } from '../types/tradeTypes';
 
-export const createTradeColumnDefs = (): ColDef[] => [
-  {
-    field: 'id',
-    headerName: 'ID',
-    minWidth: 100,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: false,
-    valueFormatter: (params) => {
-      return params.value ? `#${params.value}` : '';
-    }
-  },
-  {
-    field: 'draft_id',
-    headerName: 'Draft ID',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'base_currency',
-    headerName: 'Base Currency',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'quote_currency',
-    headerName: 'Quote Currency',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'currency_pair',
-    headerName: 'Currency Pair',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'trade_date',
-    headerName: 'Trade Date',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'settlement_date',
-    headerName: 'Settlement Date',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'buy_sell',
-    headerName: 'Buy/Sell',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'buy_sell_currency_code',
-    headerName: 'Buy/Sell Currency',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
-  },
-  {
-    field: 'buy_sell_amount',
-    headerName: 'Amount',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    valueFormatter: (params) => {
-      if (params.value) {
-        return params.value.toLocaleString();
-      }
-      return '';
-    }
-  },
+export const tradeColumnDefs: ColDef<HedgeRequestDraftTrade>[] = [
   {
     headerName: 'Actions',
-    minWidth: 100,
-    flex: 0.5,
-    headerClass: 'ag-header-center',
     cellRenderer: SaveActionRenderer,
+    cellRendererParams: {
+      context: {
+        table: 'hedge_request_draft_trades'
+      }
+    },
     editable: false,
-    sortable: false,
-    filter: false
+    filter: false,
+    width: 100
+  },
+  {
+    headerName: 'Draft ID',
+    field: 'draft_id',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Base Currency',
+    field: 'base_currency',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Quote Currency',
+    field: 'quote_currency',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Currency Pair',
+    field: 'currency_pair',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Trade Date',
+    field: 'trade_date',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Settlement Date',
+    field: 'settlement_date',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Buy/Sell',
+    field: 'buy_sell',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Buy/Sell Currency Code',
+    field: 'buy_sell_currency_code',
+    editable: true,
+    filter: true,
+    width: 150
+  },
+  {
+    headerName: 'Buy/Sell Amount',
+    field: 'buy_sell_amount',
+    editable: true,
+    filter: true,
+    width: 150
   }
 ];
