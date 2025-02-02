@@ -6,6 +6,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { toast } from 'sonner';
 
 interface DatePickerCellRendererProps {
   value?: string;
@@ -26,15 +27,20 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
 
       if (!isValid(date)) {
         console.log('Invalid date object:', date);
+        toast.error('Invalid date selected');
         return;
       }
 
-      // Format date as YYYY-MM-DD for database storage
+      // Format date as YYYY-MM-DD for storage
       const formattedDate = format(date, 'yyyy-MM-dd');
       console.log('Setting formatted date:', formattedDate);
+      
+      // Update the grid cell value
       node.setDataValue(column.colId, formattedDate);
+      toast.success('Date updated successfully');
     } catch (error) {
       console.error('Error in handleDateSelect:', error);
+      toast.error('Error updating date');
     }
   };
 
@@ -45,9 +51,11 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         return undefined;
       }
 
-      // Try parsing both formats (YYYY-MM-DD and DD/MM/YYYY)
+      // Try parsing YYYY-MM-DD format first
       let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
+      
       if (!isValid(parsedDate)) {
+        // Try DD/MM/YYYY format as fallback
         parsedDate = parse(dateString, 'dd/MM/yyyy', new Date());
       }
 
@@ -63,6 +71,8 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
     }
   };
 
+  const displayDate = value ? format(parseDate(value) || new Date(), 'dd/MM/yyyy') : 'Select date';
+
   return (
     <div className="flex items-center justify-between p-1">
       <Popover>
@@ -75,7 +85,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
             )}
           >
             <Calendar className="mr-2 h-4 w-4" />
-            {value ? format(parseDate(value) || new Date(), 'dd/MM/yyyy') : "Select date"}
+            {displayDate}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
