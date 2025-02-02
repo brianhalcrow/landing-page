@@ -20,7 +20,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     currency_pair: '',
     trade_date: '',
     settlement_date: '',
-    buy_sell: 'BUY', // Set a default value that matches the type
+    buy_sell: 'BUY',
     buy_sell_currency_code: '',
     buy_sell_amount: 0
   };
@@ -48,38 +48,20 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         return [emptyRow];
       }
 
-      // Format dates from DB (YYYY-MM-DD) to display format (DD/MM/YYYY)
       return data.map(trade => ({
         ...trade,
-        trade_date: trade.trade_date ? format(new Date(trade.trade_date), 'dd/MM/yyyy') : '',
-        settlement_date: trade.settlement_date ? format(new Date(trade.settlement_date), 'dd/MM/yyyy') : '',
-        buy_sell: trade.buy_sell || 'BUY' // Ensure buy_sell is always set to a valid value
+        trade_date: trade.trade_date || '',
+        settlement_date: trade.settlement_date || '',
+        buy_sell: trade.buy_sell || 'BUY'
       })) as HedgeRequestDraftTrade[];
     }
   });
 
-  // Fetch unique currencies from rates table
-  const { data: currencies } = useQuery({
-    queryKey: ['currencies'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('rates')
-        .select('base_currency, quote_currency');
-      
-      if (error) {
-        console.error('Error fetching currencies:', error);
-        return { base: [], quote: [] };
-      }
-
-      const baseCurrencies = new Set(data?.map(rate => rate.base_currency));
-      const quoteCurrencies = new Set(data?.map(rate => rate.quote_currency));
-
-      return {
-        base: Array.from(baseCurrencies),
-        quote: Array.from(quoteCurrencies)
-      };
+  useEffect(() => {
+    if (trades) {
+      setRowData(trades);
     }
-  });
+  }, [trades]);
 
   if (error) {
     console.error('Query error:', error);
@@ -89,7 +71,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
   return (
     <div className="ag-theme-alpine h-[400px] w-full">
       <AgGridReact
-        rowData={trades || [emptyRow]}
+        rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={{
           flex: 1,
@@ -99,7 +81,6 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         }}
         onGridReady={(params) => {
           console.log('Grid ready');
-          // Focus on the first cell of the first row
           params.api.setFocusedCell(0, 'base_currency');
         }}
         onCellValueChanged={(event) => {

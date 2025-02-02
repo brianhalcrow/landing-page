@@ -39,7 +39,7 @@ const TradeDialog = ({ isOpen, onClose, draftId }: TradeDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] w-[1200px]">
+      <DialogContent className="max-w-[95vw] w-[1400px]">
         <DialogHeader>
           <DialogTitle>Add Trades for Draft #{draftId}</DialogTitle>
         </DialogHeader>

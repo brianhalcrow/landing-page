@@ -1,7 +1,8 @@
 import { ColDef } from 'ag-grid-community';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, parse, isValid } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 import { toast } from 'sonner';
+import ActionsCellRenderer from '../components/ActionsCellRenderer';
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
@@ -76,7 +77,6 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'trade_date',
       headerName: 'Trade Date',
       editable: true,
-      cellEditor: 'agTextCellEditor',
       valueFormatter: (params) => {
         if (!params.value) return '';
         try {
@@ -88,18 +88,14 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       },
       valueSetter: (params) => {
         try {
-          // Try to parse the input value as a date
           const inputDate = parse(params.newValue, 'dd/MM/yyyy', new Date());
           if (isValid(inputDate)) {
-            // If valid, store in YYYY-MM-DD format
             params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
             return true;
           }
-          // If invalid, store the raw input
-          params.data[params.column.getColId()] = params.newValue;
-          return true;
+          toast.error('Invalid date format. Please use DD/MM/YYYY');
+          return false;
         } catch (error) {
-          console.error('Error setting date:', error);
           toast.error('Invalid date format. Please use DD/MM/YYYY');
           return false;
         }
@@ -109,7 +105,6 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       field: 'settlement_date',
       headerName: 'Settlement Date',
       editable: true,
-      cellEditor: 'agTextCellEditor',
       valueFormatter: (params) => {
         if (!params.value) return '';
         try {
@@ -126,10 +121,9 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
             params.data[params.column.getColId()] = format(inputDate, 'yyyy-MM-dd');
             return true;
           }
-          params.data[params.column.getColId()] = params.newValue;
-          return true;
+          toast.error('Invalid date format. Please use DD/MM/YYYY');
+          return false;
         } catch (error) {
-          console.error('Error setting date:', error);
           toast.error('Invalid date format. Please use DD/MM/YYYY');
           return false;
         }
@@ -167,5 +161,13 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       type: 'numericColumn',
     },
+    {
+      headerName: 'Actions',
+      minWidth: 100,
+      cellRenderer: ActionsCellRenderer,
+      editable: false,
+      sortable: false,
+      filter: false
+    }
   ];
 };
