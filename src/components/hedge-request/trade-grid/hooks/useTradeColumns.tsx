@@ -1,96 +1,28 @@
 import { ColDef } from 'ag-grid-community';
 import { format } from 'date-fns';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toStringOrNull } from '@/lib/utils';
+import ActionsCellRenderer from '../components/ActionsCellRenderer';
 
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
   return [
     {
       field: 'base_currency',
-      headerName: 'Buy Currency',
+      headerName: 'Base Currency',
       editable: true,
-      cellRenderer: (params: any) => {
-        const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[0])));
-        return (
-          <Select
-            value={params.value}
-            onValueChange={(value) => {
-              params.setValue(value);
-            }}
-          >
-            <SelectTrigger className="w-full h-8 border-0">
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map((currency: string) => (
-                <SelectItem key={currency} value={currency}>
-                  {currency}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
-    },
-    {
-      field: 'buy_amount',
-      headerName: 'Buy Amount',
-      editable: true,
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toFixed(2) : '';
-      }
+      cellDataType: 'text',
+      valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
     },
     {
       field: 'quote_currency',
-      headerName: 'Sell Currency',
+      headerName: 'Quote Currency',
       editable: true,
-      cellRenderer: (params: any) => {
-        const currencies = Array.from(new Set(Array.from(rates?.keys() || []).map(pair => pair.split('/')[1])));
-        return (
-          <Select
-            value={params.value}
-            onValueChange={(value) => {
-              params.setValue(value);
-            }}
-          >
-            <SelectTrigger className="w-full h-8 border-0">
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map((currency: string) => (
-                <SelectItem key={currency} value={currency}>
-                  {currency}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
+      cellDataType: 'text',
+      valueParser: (params) => params.newValue === "" ? null : toStringOrNull(params.newValue)
     },
     {
-      field: 'sell_amount',
-      headerName: 'Sell Amount',
-      editable: true,
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toFixed(2) : '';
-      }
-    },
-    {
-      field: 'rate',
-      headerName: 'Rate',
-      editable: false,
-      valueGetter: (params) => {
-        const { base_currency, quote_currency } = params.data;
-        if (base_currency && quote_currency) {
-          const currencyPair = `${base_currency}/${quote_currency}`;
-          return rates?.get(currencyPair);
-        }
-        return null;
-      },
-      valueFormatter: (params) => {
-        return params.value ? params.value.toFixed(4) : '';
-      }
+      field: 'currency_pair',
+      headerName: 'Currency Pair',
+      editable: false
     },
     {
       field: 'trade_date',
@@ -107,6 +39,28 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       valueFormatter: (params) => {
         return params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '';
       }
+    },
+    {
+      field: 'buy_amount',
+      headerName: 'Buy Amount',
+      editable: true,
+      cellDataType: 'number',
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+    },
+    {
+      field: 'sell_amount',
+      headerName: 'Sell Amount',
+      editable: true,
+      cellDataType: 'number',
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+    },
+    {
+      headerName: 'Actions',
+      cellRenderer: ActionsCellRenderer,
+      editable: false,
+      sortable: false,
+      filter: false,
+      width: 100
     }
   ];
 };
