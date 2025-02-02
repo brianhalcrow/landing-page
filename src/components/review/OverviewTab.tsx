@@ -10,17 +10,19 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface HedgeRequestOverview {
   id: number;
-  entity_name: string;
-  entity_id: string;
-  functional_currency: string;
-  exposure_category_l1: string;
-  exposure_category_l2: string;
-  exposure_category_l3: string;
-  strategy_description: string;
-  instrument: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
+  entity_id: string | null;
+  entity_name: string | null;
+  cost_centre: string | null;
+  functional_currency: string | null;
+  exposure_category_l1: string | null;
+  exposure_category_l2: string | null;
+  exposure_category_l3: string | null;
+  strategy_description: string | null;
+  instrument: string | null;
+  status: string | null;
+  created_by: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const OverviewTab = () => {
@@ -30,10 +32,31 @@ export const OverviewTab = () => {
 
   const columnDefs: ColDef<HedgeRequestOverview>[] = [
     { 
+      field: 'id', 
+      headerName: 'ID',
+      flex: 0.5,
+      minWidth: 80,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'entity_id', 
+      headerName: 'Entity ID',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
       field: 'entity_name', 
       headerName: 'Entity Name',
       flex: 1,
       minWidth: 150,
+      headerClass: 'ag-header-center',
+    },
+    { 
+      field: 'cost_centre', 
+      headerName: 'Cost Centre',
+      flex: 1,
+      minWidth: 120,
       headerClass: 'ag-header-center',
     },
     { 
@@ -86,13 +109,30 @@ export const OverviewTab = () => {
       headerClass: 'ag-header-center',
     },
     { 
+      field: 'created_by', 
+      headerName: 'Created By',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center',
+    },
+    { 
       field: 'created_at', 
       headerName: 'Created',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center',
       valueFormatter: (params) => {
-        return new Date(params.value).toLocaleString();
+        return params.value ? new Date(params.value).toLocaleString() : '';
+      }
+    },
+    { 
+      field: 'updated_at', 
+      headerName: 'Updated',
+      flex: 1,
+      minWidth: 160,
+      headerClass: 'ag-header-center',
+      valueFormatter: (params) => {
+        return params.value ? new Date(params.value).toLocaleString() : '';
       }
     },
   ];
