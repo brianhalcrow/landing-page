@@ -6,35 +6,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
 export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
-  // Fetch unique currency codes from rates table
   const { data: currencies } = useQuery({
     queryKey: ['currencies'],
     queryFn: async () => {
-      const { data: baseCurrencies, error: baseError } = await supabase
+      const { data: baseCurrencies } = await supabase
         .from('rates')
-        .select('base_currency')
-        .then(result => ({
-          data: result.data?.map(row => row.base_currency).filter(Boolean),
-          error: result.error
-        }));
+        .select('base_currency');
 
-      const { data: quoteCurrencies, error: quoteError } = await supabase
+      const { data: quoteCurrencies } = await supabase
         .from('rates')
-        .select('quote_currency')
-        .then(result => ({
-          data: result.data?.map(row => row.quote_currency).filter(Boolean),
-          error: result.error
-        }));
-
-      if (baseError || quoteError) {
-        console.error('Error fetching currencies:', baseError || quoteError);
-        return [];
-      }
+        .select('quote_currency');
 
       const uniqueCurrencies = new Set([
-        ...(baseCurrencies || []),
-        ...(quoteCurrencies || [])
+        ...(baseCurrencies?.map(row => row.base_currency) || []),
+        ...(quoteCurrencies?.map(row => row.quote_currency) || [])
       ]);
 
       return Array.from(uniqueCurrencies).sort();
@@ -65,7 +58,7 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
 
   return [
     {
-      field: 'base_currency',
+      field: 'buy_currency',
       headerName: 'Buy',
       editable: true,
       cellRenderer: CurrencySelector,
@@ -77,10 +70,11 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Buy Amount',
       editable: true,
       cellDataType: 'number',
-      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
+      valueFormatter: (params) => params.value ? formatNumber(params.value) : ''
     },
     {
-      field: 'quote_currency',
+      field: 'sell_currency',
       headerName: 'Sell',
       editable: true,
       cellRenderer: CurrencySelector,
@@ -92,17 +86,19 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       headerName: 'Sell Amount',
       editable: true,
       cellDataType: 'number',
-      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue)
+      valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
+      valueFormatter: (params) => params.value ? formatNumber(params.value) : ''
     },
     {
       field: 'rate',
       headerName: 'Spot Rate',
       editable: false,
       valueFormatter: (params) => {
-        const { base_currency, quote_currency } = params.data;
-        if (base_currency && quote_currency) {
-          const currencyPair = `${base_currency}/${quote_currency}`;
-          return rates?.get(currencyPair)?.toString() || '';
+        const { buy_currency, sell_currency } = params.data;
+        if (buy_currency && sell_currency) {
+          const currencyPair = `${buy_currency}/${sell_currency}`;
+          const rate = rates?.get(currencyPair);
+          return rate ? formatNumber(rate) : '';
         }
         return '';
       }

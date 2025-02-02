@@ -15,8 +15,8 @@ interface TradeDataGridProps {
 const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
   const emptyRow: HedgeRequestDraftTrade = {
     draft_id: draftId.toString(),
-    base_currency: '',
-    quote_currency: '',
+    buy_currency: '',
+    sell_currency: '',
     currency_pair: '',
     trade_date: '',
     settlement_date: '',
@@ -99,20 +99,18 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
       const rowNode = event.node;
       if (!rowNode || !rowNode.data) return;
 
-      const { base_currency, quote_currency } = rowNode.data;
-      if (!base_currency || !quote_currency) return;
+      const { buy_currency, sell_currency } = rowNode.data;
+      if (!buy_currency || !sell_currency) return;
 
-      const currencyPair = `${base_currency}/${quote_currency}`;
+      const currencyPair = `${buy_currency}/${sell_currency}`;
       const rate = rates?.get(currencyPair);
       if (!rate) return;
 
       const currentValue = event.value?.toString() || '0';
       const newChar = event.event.key;
       
-      // Only process if the key is a number
       if (!/^\d$/.test(newChar)) return;
 
-      // Build the new value string
       let newValueStr;
       if (currentValue === '0') {
         newValueStr = newChar;
@@ -120,14 +118,11 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         newValueStr = currentValue + newChar;
       }
 
-      // Convert to number and validate
       const newValue = parseFloat(newValueStr);
       if (isNaN(newValue)) return;
 
-      // Update the cell value
       event.node.setDataValue(colId, newValue);
 
-      // Calculate the corresponding amount
       calculateAmounts(rowNode, colId, newValue, rate);
 
     } catch (error) {
@@ -157,24 +152,21 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         return;
       }
 
-      // Handle currency selection
-      if (colId === 'base_currency' || colId === 'quote_currency') {
-        const { base_currency, quote_currency } = rowNode.data;
+      if (colId === 'buy_currency' || colId === 'sell_currency') {
+        const { buy_currency, sell_currency } = rowNode.data;
         
-        if (base_currency && quote_currency) {
-          const currencyPair = `${base_currency}/${quote_currency}`;
+        if (buy_currency && sell_currency) {
+          const currencyPair = `${buy_currency}/${sell_currency}`;
           console.log('Setting currency pair:', currencyPair);
           
           try {
             rowNode.setDataValue('currency_pair', currencyPair);
             
-            // Set rate if available and recalculate amounts
             if (rates?.has(currencyPair)) {
               const rate = rates.get(currencyPair);
               console.log(`Setting rate for ${currencyPair}:`, rate);
               rowNode.setDataValue('rate', rate);
 
-              // Recalculate amounts based on the new rate
               const { buy_amount, sell_amount } = rowNode.data;
               if (rate && buy_amount) {
                 rowNode.setDataValue('sell_amount', buy_amount * rate);
@@ -188,11 +180,10 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         }
       }
 
-      // Handle amount changes
       if (colId === 'buy_amount' || colId === 'sell_amount') {
-        const { base_currency, quote_currency } = rowNode.data;
-        if (base_currency && quote_currency) {
-          const currencyPair = `${base_currency}/${quote_currency}`;
+        const { buy_currency, sell_currency } = rowNode.data;
+        if (buy_currency && sell_currency) {
+          const currencyPair = `${buy_currency}/${sell_currency}`;
           const rate = rates?.get(currencyPair);
 
           if (rate) {
@@ -223,7 +214,7 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
         }}
         onGridReady={(params) => {
           console.log('Grid ready');
-          params.api.setFocusedCell(0, 'base_currency');
+          params.api.setFocusedCell(0, 'buy_currency');
         }}
         onCellValueChanged={handleCellValueChanged}
         onCellKeyDown={handleCellKeyDown}

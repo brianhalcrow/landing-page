@@ -18,8 +18,8 @@ export interface ValidEntity {
 
 export interface HedgeRequestDraftTrade {
   draft_id: string;
-  base_currency: string;
-  quote_currency: string;
+  buy_currency: string;
+  sell_currency: string;
   currency_pair: string;
   trade_date: string;
   settlement_date: string;
