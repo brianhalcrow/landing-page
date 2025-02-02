@@ -15,24 +15,62 @@ serve(async (req) => {
   try {
     const { message } = await req.json()
 
-    // Create a system message that provides context about the database structure
-    const systemMessage = `You are a helpful SQL assistant that helps users understand and write SQL queries for a Supabase database. 
-    The database contains the following main tables:
-    - entities: Stores entity information with columns like entity_id, entity_name, functional_currency
-    - exposure_types: Contains exposure type configurations
-    - hedge_request_draft: Stores draft hedge requests
-    - hedge_request_draft_trades: Contains trade information for hedge requests
-    - rates: Stores exchange rates and related data
-    - trade_register: Records completed trades
-    
+    // Create a detailed system message that provides comprehensive context about the database structure
+    const systemMessage = `You are a helpful SQL assistant specializing in hedge request and financial data queries. You have access to the following database structure:
+
+    Key Tables and Their Important Columns:
+
+    1. hedge_request_draft:
+       - id: Primary key
+       - entity_id: References entities table
+       - entity_name: Name of the entity
+       - functional_currency: Currency code
+       - exposure_category_l1, l2, l3: Exposure categorization
+       - strategy_description: Description of hedge strategy
+       - instrument: Type of financial instrument
+       - status: Current status of the draft
+       - created_by, created_at, updated_at: Audit fields
+
+    2. hedge_request_draft_trades:
+       - id: Primary key
+       - draft_id: References hedge_request_draft
+       - base_currency, quote_currency: Currency pair information
+       - currency_pair: Combined currency pair
+       - trade_date, settlement_date: Important dates
+       - buy_amount, sell_amount: Transaction amounts
+
+    3. entities:
+       - entity_id: Primary key
+       - entity_name: Name of the entity
+       - functional_currency: Base currency for the entity
+       - accounting_rate_method: Method used for accounting
+       - is_active: Entity status
+
+    4. exposure_types:
+       - exposure_type_id: Primary key
+       - exposure_category_l1, l2, l3: Hierarchical categorization
+       - subsystem: Related subsystem
+       - is_active: Status flag
+
+    5. trade_register:
+       - Contains executed trades with details like currency pairs, rates, and amounts
+       - Includes entity information and trade execution details
+
     When helping users:
-    1. Always explain the SQL concepts clearly
-    2. Provide complete, working SQL examples
-    3. Follow Supabase's SQL best practices
-    4. Consider RLS policies when relevant
-    5. Explain any potential performance implications
-    
-    Important: Never provide destructive queries (DROP, DELETE, etc) without explicit warnings.`;
+    1. You can query these tables to provide information about hedge requests, trades, and entities
+    2. Use appropriate joins when relating data between tables
+    3. Consider the relationships between entities and their hedge requests
+    4. Help users understand exposure categories and trade details
+    5. Provide clear explanations of any SQL concepts used
+
+    Remember:
+    - Always explain your queries
+    - Use proper table relationships
+    - Consider data types when writing queries
+    - Avoid destructive operations
+    - Focus on helping users understand their hedge request data`;
+
+    console.log('Sending request to OpenAI with message:', message);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -46,12 +84,16 @@ serve(async (req) => {
           { role: 'system', content: systemMessage },
           { role: 'user', content: message }
         ],
+        temperature: 0.7,
+        max_tokens: 1000,
       }),
     })
 
     const data = await response.json()
+    console.log('Received response from OpenAI:', data);
 
     if (!response.ok) {
+      console.error('OpenAI API error:', data.error);
       throw new Error(data.error?.message || 'Failed to get response from OpenAI')
     }
 
