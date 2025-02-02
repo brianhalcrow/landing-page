@@ -31,7 +31,11 @@ const ChatBot = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('chat', {
+      // Use sql-chat endpoint if the message contains SQL-related keywords
+      const isSQLQuery = /\b(sql|query|table|select|from|where|join|database)\b/i.test(userMessage);
+      const endpoint = isSQLQuery ? 'sql-chat' : 'chat';
+      
+      const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { message: userMessage },
       });
 
@@ -69,7 +73,7 @@ const ChatBot = () => {
           )}
         >
           <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="font-semibold text-gray-800">Chat Assistant</h3>
+            <h3 className="font-semibold text-gray-800">SQL Assistant</h3>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -99,7 +103,7 @@ const ChatBot = () => {
               <div className="flex-1 p-4 space-y-4 overflow-y-auto h-[480px] bg-gray-50">
                 {messages.length === 0 ? (
                   <div className="text-gray-600">
-                    How can I help you today?
+                    Ask me any SQL or database-related questions about your Supabase setup!
                   </div>
                 ) : (
                   messages.map((msg, index) => (
@@ -128,7 +132,7 @@ const ChatBot = () => {
                   <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder="Ask about SQL queries, database structure..."
                     className="flex-1 bg-gray-50 border-gray-200"
                     disabled={isLoading}
                   />
