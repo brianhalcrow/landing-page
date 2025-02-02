@@ -22,7 +22,7 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
 
   const parseDate = useCallback((dateString: string | undefined): Date | undefined => {
     if (!dateString) return undefined;
-
+    
     // Try parsing YYYY-MM-DD format first
     let parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
     
@@ -59,11 +59,13 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
         columns: [column.colId]
       });
 
+      // Close the popover after successful update
       setIsOpen(false);
       toast.success('Date updated successfully');
     } catch (error) {
       console.error('Error updating date:', error);
       toast.error('Failed to update date');
+      setIsOpen(false); // Close popover even on error
     }
   }, [node, column, api]);
 
@@ -90,15 +92,8 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
           <CalendarComponent
             mode="single"
             selected={currentDate}
-            onSelect={(date) => {
-              if (date) {
-                const adjustedDate = new Date(date);
-                adjustedDate.setHours(12, 0, 0, 0);
-                handleDateSelect(adjustedDate);
-              }
-            }}
+            onSelect={handleDateSelect}
             initialFocus
-            disabled={false}
           />
         </PopoverContent>
       </Popover>
