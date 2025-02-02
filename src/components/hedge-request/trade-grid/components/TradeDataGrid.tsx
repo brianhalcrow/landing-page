@@ -106,18 +106,23 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
       const rate = rates?.get(currencyPair);
       if (!rate) return;
 
-      // Get the current value and add the new key
-      const currentValue = event.value || '0';
+      // Get the current value as a string, defaulting to '0' if undefined
+      const currentValue = (event.value || '0').toString();
       const newChar = event.event.key;
       
       // Only process if the key is a number
       if (!/^\d$/.test(newChar)) return;
 
-      // Combine current value with new digit
-      const newValue = parseFloat(`${currentValue}${newChar}`);
+      // Properly concatenate the current value with the new digit
+      const newValueStr = currentValue === '0' ? newChar : currentValue + newChar;
+      const newValue = parseFloat(newValueStr);
+      
       if (isNaN(newValue)) return;
 
-      // Calculate the other amount in real-time
+      // Update the current cell with the new concatenated value
+      rowNode.setDataValue(colId, newValue);
+
+      // Calculate the other amount based on the new value
       calculateAmounts(rowNode, colId, newValue, rate);
     } catch (error) {
       console.error('Error in handleCellKeyDown:', error);
