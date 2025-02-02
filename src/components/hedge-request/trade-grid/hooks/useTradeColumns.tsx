@@ -66,11 +66,17 @@ const DatePickerCellRenderer: React.FC<DatePickerCellRendererProps> = (props) =>
       const formattedDate = format(normalizedDate, 'yyyy-MM-dd');
       console.log('Attempting to update with formatted date:', formattedDate);
 
-      // Try multiple update methods
-      const rowNode = api.getRowNode(node.id);
-      if (rowNode) {
-        console.log('Updating via transaction');
-        const updatedData = { ...rowNode.data };
+      // Get the current row data
+      const rowData = node.data;
+      console.log('Current row data:', rowData);
+
+      // Update the value directly using setDataValue
+      if (node.setDataValue) {
+        console.log('Updating via setDataValue');
+        node.setDataValue(column.colId, formattedDate);
+      } else {
+        console.log('Falling back to transaction update');
+        const updatedData = { ...rowData };
         updatedData[column.colId] = formattedDate;
         
         api.applyTransaction({
