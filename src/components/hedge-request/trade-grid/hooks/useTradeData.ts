@@ -10,7 +10,7 @@ export const useTradeData = (draftId: number, emptyRow: HedgeRequestDraftTrade) 
       console.log('Fetching trades for draft:', draftId);
       const { data, error } = await supabase
         .from('hedge_request_draft_trades')
-        .select('*')
+        .select('id, draft_id, buy_currency, sell_currency, trade_date, settlement_date, buy_amount, sell_amount, entity_id, entity_name, created_at, updated_at, spot_rate, contract_rate')
         .eq('draft_id', draftId.toString());
 
       if (error) {
