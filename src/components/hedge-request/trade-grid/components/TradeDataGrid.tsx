@@ -11,8 +11,7 @@ interface TradeDataGridProps {
 }
 
 const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
-  const emptyRow: HedgeRequestDraftTrade = {
-    id: 0,
+  const emptyRow: Omit<HedgeRequestDraftTrade, 'id'> = {
     draft_id: draftId.toString(),
     buy_currency: null,
     sell_currency: null,
@@ -28,11 +27,11 @@ const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
     contract_rate: null
   };
 
-  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow]);
+  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow as HedgeRequestDraftTrade]);
   const columnDefs = useTradeColumns(rates);
   const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(rates);
 
-  const { data: trades, error } = useTradeData(draftId, emptyRow);
+  const { data: trades, error } = useTradeData(draftId, emptyRow as HedgeRequestDraftTrade);
 
   useEffect(() => {
     if (trades) {

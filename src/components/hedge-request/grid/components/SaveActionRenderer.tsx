@@ -17,7 +17,7 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
     try {
       console.log('Saving trade data:', data);
       
-      // Remove id and any undefined fields before saving
+      // Remove id, calculated fields, and any undefined fields before saving
       const { id, spot_rate, contract_rate, ...rowData } = data;
       
       const { data: savedDraft, error } = await supabase

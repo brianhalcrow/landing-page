@@ -13,8 +13,7 @@ interface TradeGridToolbarProps {
 
 const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProps) => {
   const handleAddRow = () => {
-    const newRow: HedgeRequestDraftTrade = {
-      id: 0,
+    const newRow: Omit<HedgeRequestDraftTrade, 'id'> = {
       draft_id: draftId.toString(),
       buy_currency: null,
       sell_currency: null,
@@ -29,7 +28,7 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       spot_rate: null,
       contract_rate: null
     };
-    setRowData([...rowData, newRow]);
+    setRowData([...rowData, newRow as HedgeRequestDraftTrade]);
   };
 
   const handleSaveTrades = async () => {
@@ -42,9 +41,12 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
         return;
       }
 
+      // Remove ids and calculated fields before saving
+      const tradesForSaving = rowData.map(({ id, spot_rate, contract_rate, ...trade }) => trade);
+
       const { error } = await supabase
         .from('hedge_request_draft_trades')
-        .insert(rowData);
+        .insert(tradesForSaving);
 
       if (error) throw error;
       
