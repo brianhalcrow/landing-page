@@ -3,17 +3,18 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { validateTrade } from '../utils/tradeValidation';
 
 interface TradeGridToolbarProps {
   draftId: number;
   rowData: HedgeRequestDraftTrade[];
   setRowData: (data: HedgeRequestDraftTrade[]) => void;
+  entityId?: string | null;
+  entityName?: string | null;
 }
 
-const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProps) => {
+const TradeGridToolbar = ({ draftId, rowData, setRowData, entityId, entityName }: TradeGridToolbarProps) => {
   const handleAddRow = () => {
-    const newRow: Omit<HedgeRequestDraftTrade, 'id'> = {
+    const newRow: Partial<HedgeRequestDraftTrade> = {
       draft_id: draftId.toString(),
       buy_currency: null,
       sell_currency: null,
@@ -21,8 +22,8 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       settlement_date: null,
       buy_amount: null,
       sell_amount: null,
-      entity_id: null,
-      entity_name: null,
+      entity_id: entityId || null,
+      entity_name: entityName || null,
       created_at: null,
       updated_at: null,
       spot_rate: null,
@@ -36,14 +37,23 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
       console.log('Saving trades with data:', rowData);
       
       // Validate all trades before saving
-      const isValid = rowData.every(validateTrade);
+      const isValid = rowData.every(trade => {
+        if (!trade.buy_currency || !trade.sell_currency) {
+          toast.error('All trades must have buy and sell currencies');
+          return false;
+        }
+        return true;
+      });
+
       if (!isValid) {
         return;
       }
 
-      // Only remove id and calculated fields, preserve timestamps
+      // Prepare trades for saving with timestamps and entity info
       const tradesForSaving = rowData.map(({ id, spot_rate, contract_rate, ...trade }) => ({
         ...trade,
+        entity_id: entityId || trade.entity_id,
+        entity_name: entityName || trade.entity_name,
         created_at: trade.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
       }));

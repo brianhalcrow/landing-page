@@ -1,68 +1,46 @@
-import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useTradeColumns } from '../hooks/useTradeColumns';
-import { useTradeData } from '../hooks/useTradeData';
-import { useCellHandlers } from '../hooks/useCellHandlers';
+import { GridStyles } from '../../grid/components/GridStyles';
+import { useRef } from 'react';
+import { HedgeRequestDraftTrade } from '../../grid/types';
 
 interface TradeDataGridProps {
-  draftId: number;
-  rates?: Map<string, number>;
+  rowData: HedgeRequestDraftTrade[];
+  onRowDataChange: (data: HedgeRequestDraftTrade[]) => void;
+  entityId?: string | null;
+  entityName?: string | null;
 }
 
-const TradeDataGrid = ({ draftId, rates }: TradeDataGridProps) => {
-  const emptyRow: Omit<HedgeRequestDraftTrade, 'id'> = {
-    draft_id: draftId.toString(),
-    buy_currency: null,
-    sell_currency: null,
-    trade_date: null,
-    settlement_date: null,
-    buy_amount: null,
-    sell_amount: null,
-    entity_id: null,
-    entity_name: null,
-    created_at: null,
-    updated_at: null,
-    spot_rate: null,
-    contract_rate: null
-  };
-
-  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow as HedgeRequestDraftTrade]);
-  const columnDefs = useTradeColumns(rates);
-  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(rates);
-
-  const { data: trades, error } = useTradeData(draftId, emptyRow as HedgeRequestDraftTrade);
-
-  useEffect(() => {
-    if (trades) {
-      setRowData(trades);
-    }
-  }, [trades]);
-
-  if (error) {
-    console.error('Query error:', error);
-    return <div>Error loading trades. Please try again.</div>;
-  }
+const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: TradeDataGridProps) => {
+  const gridRef = useRef<AgGridReact>(null);
+  const columnDefs = useTradeColumns();
 
   return (
-    <div className="ag-theme-alpine h-[400px] w-full">
+    <div className="w-full h-[300px] ag-theme-alpine">
+      <GridStyles />
       <AgGridReact
+        ref={gridRef}
         rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={{
-          flex: 1,
-          minWidth: 100,
           sortable: true,
           filter: true,
-          wrapHeaderText: true,
-          autoHeaderHeight: true,
+          resizable: true,
+          suppressSizeToFit: false
         }}
-        onGridReady={(params) => {
-          console.log('Grid ready');
-          params.api.setFocusedCell(0, 'buy_currency');
+        animateRows={true}
+        suppressColumnVirtualisation={true}
+        enableCellTextSelection={true}
+        onCellValueChanged={(event) => {
+          const newData = [...rowData];
+          newData[event.rowIndex] = { 
+            ...newData[event.rowIndex], 
+            [event.colDef.field]: event.newValue,
+            entity_id: entityId || newData[event.rowIndex].entity_id,
+            entity_name: entityName || newData[event.rowIndex].entity_name
+          };
+          onRowDataChange(newData);
         }}
-        onCellValueChanged={handleCellValueChanged}
-        onCellKeyDown={handleCellKeyDown}
       />
     </div>
   );

@@ -1,7 +1,10 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import TradeDataGrid from "./TradeDataGrid";
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import TradeGridToolbar from "./TradeGridToolbar";
+import { useState } from "react";
+import { HedgeRequestDraftTrade } from "../../grid/types";
 
 interface TradeDialogProps {
   isOpen: boolean;
@@ -10,41 +13,58 @@ interface TradeDialogProps {
 }
 
 const TradeDialog = ({ isOpen, onClose, draftId }: TradeDialogProps) => {
-  // Fetch latest rates
-  const { data: rates } = useQuery({
-    queryKey: ['rates'],
+  // Fetch the draft details to get entity information
+  const { data: draftDetails } = useQuery({
+    queryKey: ['draft-details', draftId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('rates')
+        .from('hedge_request_draft')
         .select('*')
-        .order('rate_date', { ascending: false });
+        .eq('id', draftId)
+        .single();
 
-      if (error) {
-        console.error('Error fetching rates:', error);
-        throw error;
-      }
-
-      // Create a map of currency pairs to their latest rates
-      const latestRates = new Map();
-      data?.forEach(rate => {
-        const pair = `${rate.base_currency}/${rate.quote_currency}`;
-        if (!latestRates.has(pair)) {
-          latestRates.set(pair, rate.closing_rate);
-        }
-      });
-
-      return latestRates;
-    }
+      if (error) throw error;
+      return data;
+    },
+    enabled: isOpen && !!draftId
   });
+
+  const emptyRow: Partial<HedgeRequestDraftTrade> = {
+    draft_id: draftId.toString(),
+    buy_currency: null,
+    sell_currency: null,
+    trade_date: null,
+    settlement_date: null,
+    buy_amount: null,
+    sell_amount: null,
+    entity_id: draftDetails?.entity_id || null,
+    entity_name: draftDetails?.entity_name || null,
+    created_at: null,
+    updated_at: null,
+    spot_rate: null,
+    contract_rate: null
+  };
+
+  const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow as HedgeRequestDraftTrade]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] w-[1400px]">
-        <DialogHeader>
-          <DialogTitle>Add Trades for Draft #{draftId}</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <TradeDataGrid draftId={draftId} rates={rates} />
+      <DialogContent className="max-w-[1200px] p-0">
+        <div className="p-6 space-y-4">
+          <h2 className="text-2xl font-semibold">Add Trades</h2>
+          <TradeGridToolbar
+            draftId={draftId}
+            rowData={rowData}
+            setRowData={setRowData}
+            entityId={draftDetails?.entity_id}
+            entityName={draftDetails?.entity_name}
+          />
+          <TradeDataGrid
+            rowData={rowData}
+            onRowDataChange={setRowData}
+            entityId={draftDetails?.entity_id}
+            entityName={draftDetails?.entity_name}
+          />
         </div>
       </DialogContent>
     </Dialog>
