@@ -3,7 +3,7 @@ import { HedgeRequestDraftTrade } from '../../grid/types';
 
 export const useCellHandlers = (rates?: Map<string, number>) => {
   const handleCellKeyDown = (e: CellKeyDownEvent) => {
-    if (e.event.key === 'Tab') {
+    if (e.event instanceof KeyboardEvent && e.event.key === 'Tab') {
       const colId = e.column.getColId();
       if (colId === 'buy_currency' || colId === 'sell_currency') {
         e.event.preventDefault();
