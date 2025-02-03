@@ -12,9 +12,19 @@ const ActionsCellRenderer = ({ data }: ActionsCellRendererProps) => {
   const handleSave = async () => {
     try {
       console.log('Saving trade data:', data);
+      
+      // Remove id and calculated fields, preserve/set timestamps
+      const { id, spot_rate, contract_rate, ...tradeData } = data;
+      
+      const dataToSave = {
+        ...tradeData,
+        created_at: tradeData.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from('hedge_request_draft_trades')
-        .insert([data]);
+        .insert([dataToSave]);
 
       if (error) throw error;
       toast.success('Trade saved successfully');

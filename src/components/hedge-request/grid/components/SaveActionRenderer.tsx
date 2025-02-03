@@ -17,12 +17,18 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
     try {
       console.log('Saving trade data:', data);
       
-      // Remove id, calculated fields, and any undefined fields before saving
+      // Remove id, calculated fields, but preserve timestamps
       const { id, spot_rate, contract_rate, ...rowData } = data;
       
+      const dataToSave = {
+        ...rowData,
+        created_at: rowData.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
       const { data: savedDraft, error } = await supabase
         .from('hedge_request_draft')
-        .insert([rowData])
+        .insert([dataToSave])
         .select()
         .single();
 
