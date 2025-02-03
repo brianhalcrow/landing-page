@@ -1,5 +1,11 @@
 import { CellKeyDownEvent, CellValueChangedEvent } from 'ag-grid-community';
 import { HedgeRequestDraftTrade } from '../../grid/types';
+import { toast } from 'sonner';
+
+const isValidDateFormat = (dateStr: string): boolean => {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  return dateRegex.test(dateStr);
+};
 
 export const useCellHandlers = (rates?: Map<string, number>) => {
   const handleCellKeyDown = (e: CellKeyDownEvent) => {
@@ -14,6 +20,17 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
   const handleCellValueChanged = (e: CellValueChangedEvent<HedgeRequestDraftTrade>) => {
     const { data, colDef, node } = e;
     if (!data || !node || !colDef.field) return;
+
+    // Validate date fields
+    if (colDef.field === 'trade_date' || colDef.field === 'settlement_date') {
+      if (!isValidDateFormat(e.newValue)) {
+        toast.error(`Please enter the ${colDef.field.replace('_', ' ')} in YYYY-MM-DD format`);
+        // Reset to previous value if invalid
+        data[colDef.field] = e.oldValue;
+        node.setData({ ...data });
+        return;
+      }
+    }
 
     // Update spot rate when currencies change
     if (colDef.field === 'buy_currency' || colDef.field === 'sell_currency') {
