@@ -9,16 +9,21 @@ const CACHE_KEY = 'hedge-request-draft-grid-state';
 const InputDraftGrid = () => {
   const queryClient = useQueryClient();
   
-  const emptyRow = {
-    entity_id: '',
-    entity_name: '',
-    functional_currency: '',
-    cost_centre: '',
-    exposure_category_l1: '',
-    exposure_category_l2: '',
-    exposure_category_l3: '',
-    strategy_description: '',
-    instrument: ''
+  const emptyRow: HedgeRequestDraft = {
+    id: 0,
+    entity_id: null,
+    entity_name: null,
+    functional_currency: null,
+    cost_centre: null,
+    exposure_category_l1: null,
+    exposure_category_l2: null,
+    exposure_category_l3: null,
+    strategy_description: null,
+    instrument: null,
+    status: 'DRAFT',
+    created_by: null,
+    created_at: null,
+    updated_at: null
   };
   
   const cachedState = queryClient.getQueryData<HedgeRequestDraft[]>([CACHE_KEY]) || [emptyRow];

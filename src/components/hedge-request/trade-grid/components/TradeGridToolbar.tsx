@@ -14,13 +14,20 @@ interface TradeGridToolbarProps {
 const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProps) => {
   const handleAddRow = () => {
     const newRow: HedgeRequestDraftTrade = {
+      id: 0,
       draft_id: draftId.toString(),
-      buy_currency: '',
-      sell_currency: '',
-      trade_date: '',
-      settlement_date: '',
-      buy_amount: 0,
-      sell_amount: 0
+      buy_currency: null,
+      sell_currency: null,
+      trade_date: null,
+      settlement_date: null,
+      buy_amount: null,
+      sell_amount: null,
+      entity_id: null,
+      entity_name: null,
+      created_at: null,
+      updated_at: null,
+      spot_rate: null,
+      contract_rate: null
     };
     setRowData([...rowData, newRow]);
   };
