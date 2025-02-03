@@ -16,7 +16,7 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
   const handleSaveRow = async () => {
     try {
       // Remove id if it's undefined (new row)
-      const { id, ...rowData } = data;
+      const { id, spot_rate, contract_rate, ...rowData } = data;
       
       const { data: savedDraft, error } = await supabase
         .from('hedge_request_draft')

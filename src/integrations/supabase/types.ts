@@ -602,6 +602,7 @@ export type Database = {
         Row: {
           buy_amount: number | null
           buy_currency: string | null
+          contract_rate: number | null
           created_at: string | null
           draft_id: string | null
           entity_id: string | null
@@ -610,12 +611,14 @@ export type Database = {
           sell_amount: number | null
           sell_currency: string | null
           settlement_date: string | null
+          spot_rate: number | null
           trade_date: string | null
           updated_at: string | null
         }
         Insert: {
           buy_amount?: number | null
           buy_currency?: string | null
+          contract_rate?: number | null
           created_at?: string | null
           draft_id?: string | null
           entity_id?: string | null
@@ -624,12 +627,14 @@ export type Database = {
           sell_amount?: number | null
           sell_currency?: string | null
           settlement_date?: string | null
+          spot_rate?: number | null
           trade_date?: string | null
           updated_at?: string | null
         }
         Update: {
           buy_amount?: number | null
           buy_currency?: string | null
+          contract_rate?: number | null
           created_at?: string | null
           draft_id?: string | null
           entity_id?: string | null
@@ -638,6 +643,7 @@ export type Database = {
           sell_amount?: number | null
           sell_currency?: string | null
           settlement_date?: string | null
+          spot_rate?: number | null
           trade_date?: string | null
           updated_at?: string | null
         }

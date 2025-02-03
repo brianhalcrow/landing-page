@@ -29,7 +29,9 @@ export const useTradeData = (draftId: number, emptyRow: HedgeRequestDraftTrade) 
         trade_date: trade.trade_date || '',
         settlement_date: trade.settlement_date || '',
         buy_amount: trade.buy_amount || 0,
-        sell_amount: trade.sell_amount || 0
+        sell_amount: trade.sell_amount || 0,
+        spot_rate: trade.spot_rate || null,
+        contract_rate: trade.contract_rate || null
       })) as HedgeRequestDraftTrade[];
     }
   });
