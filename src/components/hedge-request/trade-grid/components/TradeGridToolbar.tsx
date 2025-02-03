@@ -41,8 +41,12 @@ const TradeGridToolbar = ({ draftId, rowData, setRowData }: TradeGridToolbarProp
         return;
       }
 
-      // Remove ids and calculated fields before saving
-      const tradesForSaving = rowData.map(({ id, spot_rate, contract_rate, ...trade }) => trade);
+      // Only remove id and calculated fields, preserve timestamps
+      const tradesForSaving = rowData.map(({ id, spot_rate, contract_rate, ...trade }) => ({
+        ...trade,
+        created_at: trade.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
 
       const { error } = await supabase
         .from('hedge_request_draft_trades')
