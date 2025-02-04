@@ -23,22 +23,23 @@ const DataSources = () => {
         throw error;
       }
 
-      // Filter out RUNNING status if we have a COMPLETED status for the same pipeline execution
-      const filteredData = data?.reduce((acc: any[], current: any) => {
-        const existingIndex = acc.findIndex(item => 
-          item.pipeline_name === current.pipeline_name && 
-          item.start_time === current.start_time
-        );
-
-        if (existingIndex === -1) {
-          // No existing record found, add this one
-          acc.push(current);
-        } else if (current.status === 'COMPLETED' && acc[existingIndex].status === 'RUNNING') {
-          // Replace RUNNING with COMPLETED status
-          acc[existingIndex] = current;
+      // Group by pipeline_name and keep the most recent status
+      const latestExecutions = data?.reduce((acc: { [key: string]: any }, current: any) => {
+        const existing = acc[current.pipeline_name];
+        
+        // If no existing entry or current is more recent, update it
+        if (!existing || new Date(current.start_time) > new Date(existing.start_time)) {
+          acc[current.pipeline_name] = current;
+        } else if (current.status === 'COMPLETED' && existing.status === 'RUNNING') {
+          // If same timestamp but current is COMPLETED and existing is RUNNING, prefer COMPLETED
+          acc[current.pipeline_name] = current;
         }
+        
         return acc;
-      }, []);
+      }, {});
+
+      // Convert back to array
+      const filteredData = Object.values(latestExecutions);
 
       console.log("✅ Fetched pipeline executions:", filteredData);
       return filteredData;
