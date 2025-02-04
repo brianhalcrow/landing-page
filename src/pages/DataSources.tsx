@@ -23,9 +23,27 @@ const DataSources = () => {
         throw error;
       }
 
-      console.log("✅ Fetched pipeline executions:", data);
-      return data;
+      // Filter out RUNNING status if we have a COMPLETED status for the same pipeline execution
+      const filteredData = data?.reduce((acc: any[], current: any) => {
+        const existingIndex = acc.findIndex(item => 
+          item.pipeline_name === current.pipeline_name && 
+          item.start_time === current.start_time
+        );
+
+        if (existingIndex === -1) {
+          // No existing record found, add this one
+          acc.push(current);
+        } else if (current.status === 'COMPLETED' && acc[existingIndex].status === 'RUNNING') {
+          // Replace RUNNING with COMPLETED status
+          acc[existingIndex] = current;
+        }
+        return acc;
+      }, []);
+
+      console.log("✅ Fetched pipeline executions:", filteredData);
+      return filteredData;
     },
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   const handleDataChange = async () => {
