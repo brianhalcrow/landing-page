@@ -601,6 +601,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pipeline_executions: {
+        Row: {
+          created_at: string | null
+          end_time: string | null
+          error_message: string | null
+          id: number
+          pipeline_name: string
+          records_processed: number | null
+          source_system: string
+          start_time: string | null
+          status: string
+          target_table: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_time?: string | null
+          error_message?: string | null
+          id?: number
+          pipeline_name: string
+          records_processed?: number | null
+          source_system: string
+          start_time?: string | null
+          status: string
+          target_table: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string | null
+          error_message?: string | null
+          id?: number
+          pipeline_name?: string
+          records_processed?: number | null
+          source_system?: string
+          start_time?: string | null
+          status?: string
+          target_table?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pre_trade_rates_forward_curves: {
         Row: {
           ask: number | null
