@@ -25,8 +25,8 @@ export const PipelineRealtimeSubscription = ({
           console.log("Event type:", payload.eventType);
           console.log("Full payload:", JSON.stringify(payload, null, 2));
 
-          // Trigger data refresh
-          await onDataChange();
+          // Trigger data refresh immediately
+          onDataChange();
         }
       )
       .subscribe((status) => {

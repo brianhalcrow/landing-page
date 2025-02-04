@@ -1,15 +1,18 @@
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DataSourcesGrid from "@/components/data-sources/DataSourcesGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 import PipelineRealtimeSubscription from "@/components/data-sources/PipelineRealtimeSubscription";
 
 const DataSources = () => {
-  const { data: executions, isLoading, refetch } = useQuery({
+  const queryClient = useQueryClient();
+  
+  const { data: executions, isLoading } = useQuery({
     queryKey: ["pipeline-executions"],
     queryFn: async () => {
+      console.log("🔍 Fetching pipeline executions...");
       const { data, error } = await supabase
         .from("pipeline_executions")
         .select("*")
@@ -20,13 +23,14 @@ const DataSources = () => {
         throw error;
       }
 
+      console.log("✅ Fetched pipeline executions:", data);
       return data;
     },
   });
 
   const handleDataChange = async () => {
-    console.log("🔄 Refreshing pipeline executions data...");
-    await refetch();
+    console.log("🔄 Invalidating pipeline executions cache...");
+    await queryClient.invalidateQueries({ queryKey: ["pipeline-executions"] });
   };
 
   return (
