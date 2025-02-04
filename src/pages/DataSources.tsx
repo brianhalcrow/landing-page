@@ -6,15 +6,16 @@ import DataSourcesGrid from "@/components/data-sources/DataSourcesGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DataSources = () => {
-  const { data: connections, isLoading } = useQuery({
-    queryKey: ["table-connections"],
+  const { data: executions, isLoading } = useQuery({
+    queryKey: ["pipeline-executions"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("table_connections")
-        .select("*");
+        .from("pipeline_executions")
+        .select("*")
+        .order('start_time', { ascending: false });
 
       if (error) {
-        console.error("Error fetching connections:", error);
+        console.error("Error fetching pipeline executions:", error);
         throw error;
       }
 
@@ -31,11 +32,11 @@ const DataSources = () => {
       <div className="p-6">
         {isLoading ? (
           <Skeleton className="h-[600px] w-full" />
-        ) : connections ? (
-          <DataSourcesGrid connections={connections} />
+        ) : executions ? (
+          <DataSourcesGrid executions={executions} />
         ) : (
           <div className="text-center text-muted-foreground">
-            No data sources found
+            No pipeline executions found
           </div>
         )}
       </div>
