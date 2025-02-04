@@ -9,210 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      cf_firmcom_ap: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number | null
-          created_date: string | null
-          currency: string | null
-          description: string | null
-          due_date: string | null
-          entity: string | null
-          entity_id: string | null
-          geo_structure_entity_id: number | null
-          id: number
-          invoice_date: string
-          invoice_id: string | null
-          legal_entity_id: string | null
-          paid_date: string | null
-          payment_terms_days: number | null
-          po_id: string | null
-          subsystem_code: string | null
-          subtotal: number | null
-          tax: number | null
-          total: number | null
-          vendor_id: string | null
-          vendor_name: string | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          created_date?: string | null
-          currency?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity?: string | null
-          entity_id?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          invoice_date: string
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          created_date?: string | null
-          currency?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity?: string | null
-          entity_id?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          invoice_date?: string
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Relationships: []
-      }
-      cf_firmcom_ar: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number | null
-          currency: string | null
-          customer_id: string | null
-          customer_name: string | null
-          description: string | null
-          due_date: string | null
-          entity_id: string | null
-          entity_name: string | null
-          geo_structure_entity_id: number | null
-          id: number
-          invoice_date: string | null
-          invoice_id: string | null
-          legal_entity_id: string | null
-          paid_date: string | null
-          payment_terms_days: number | null
-          subsystem_code: string | null
-          subtotal: number | null
-          tax: number | null
-          total: number | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          currency?: string | null
-          customer_id?: string | null
-          customer_name?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          currency?: string | null
-          customer_id?: string | null
-          customer_name?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-        }
-        Relationships: []
-      }
-      cf_firmcom_po: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number | null
-          currency: string | null
-          delivery_date: string | null
-          description: string | null
-          entity_name: string | null
-          expected_delivery_date: string | null
-          geo_structure_entity_id: number | null
-          id: number
-          legal_entity_id: string | null
-          po_date: string | null
-          po_date_time: string | null
-          po_id: string | null
-          subsystem_code: string | null
-          subtotal: number | null
-          vendor_id: string
-          vendor_name: string | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          currency?: string | null
-          delivery_date?: string | null
-          description?: string | null
-          entity_name?: string | null
-          expected_delivery_date?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          legal_entity_id?: string | null
-          po_date?: string | null
-          po_date_time?: string | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          vendor_id: string
-          vendor_name?: string | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          currency?: string | null
-          delivery_date?: string | null
-          description?: string | null
-          entity_name?: string | null
-          expected_delivery_date?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number
-          legal_entity_id?: string | null
-          po_date?: string | null
-          po_date_time?: string | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          vendor_id?: string
-          vendor_name?: string | null
-        }
-        Relationships: []
-      }
       chart_of_accounts: {
         Row: {
           account_category_level_1: string | null
@@ -390,6 +186,78 @@ export type Database = {
             referencedColumns: ["exposure_type_id"]
           },
         ]
+      }
+      erp_po_module: {
+        Row: {
+          cost_centre: string | null
+          country_currency_id: number | null
+          created_date: string | null
+          description: string | null
+          due_date: string | null
+          entity_name: string | null
+          geo_structure_entity_id: number | null
+          id: number | null
+          invoice_date: string
+          invoice_id: string
+          legal_entity_id: string | null
+          paid_date: string | null
+          payment_terms_days: number | null
+          po_id: string | null
+          subsystem_code: string | null
+          subtotal: number | null
+          tax: number | null
+          total: number | null
+          transaction_currency: string
+          vendor_id: string | null
+          vendor_name: string | null
+        }
+        Insert: {
+          cost_centre?: string | null
+          country_currency_id?: number | null
+          created_date?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date: string
+          invoice_id: string
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency: string
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Update: {
+          cost_centre?: string | null
+          country_currency_id?: number | null
+          created_date?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date?: string
+          invoice_id?: string
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency?: string
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Relationships: []
       }
       exposure_types: {
         Row: {
@@ -686,9 +554,18 @@ export type Database = {
         Relationships: []
       }
       instruments: {
-        Row: {}
-        Insert: {}
-        Update: {}
+        Row: {
+          id: number
+          instrument: string | null
+        }
+        Insert: {
+          id?: number
+          instrument?: string | null
+        }
+        Update: {
+          id?: number
+          instrument?: string | null
+        }
         Relationships: []
       }
       management_structure: {
@@ -882,67 +759,118 @@ export type Database = {
       }
       trade_register: {
         Row: {
-          base_currency: string | null
-          base_currency_amount: number | null
-          buy_sell: string | null
-          buy_sell_currency_code: string | null
+          ccy_1: string | null
+          ccy_1_amount: number | null
+          ccy_2: string | null
+          ccy_2_amount: number | null
           contract_rate: number | null
           counterparty: string | null
+          created_at: string | null
+          created_by: string | null
           currency_pair: string | null
-          deal_id: string | null
+          deal_no: number
           entity_id: string | null
           entity_name: string | null
-          id: number
           instrument: string | null
-          quote_currency: string | null
-          quote_currency_amount: string | null
           settlement_date: string | null
           spot_rate: number | null
           strategy: string | null
-          ticket_ref: string | null
           trade_date: string | null
+          updated_at: string | null
         }
         Insert: {
-          base_currency?: string | null
-          base_currency_amount?: number | null
-          buy_sell?: string | null
-          buy_sell_currency_code?: string | null
+          ccy_1?: string | null
+          ccy_1_amount?: number | null
+          ccy_2?: string | null
+          ccy_2_amount?: number | null
           contract_rate?: number | null
           counterparty?: string | null
+          created_at?: string | null
+          created_by?: string | null
           currency_pair?: string | null
-          deal_id?: string | null
+          deal_no?: number
           entity_id?: string | null
           entity_name?: string | null
-          id?: number
           instrument?: string | null
-          quote_currency?: string | null
-          quote_currency_amount?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
           strategy?: string | null
-          ticket_ref?: string | null
           trade_date?: string | null
+          updated_at?: string | null
         }
         Update: {
-          base_currency?: string | null
-          base_currency_amount?: number | null
-          buy_sell?: string | null
-          buy_sell_currency_code?: string | null
+          ccy_1?: string | null
+          ccy_1_amount?: number | null
+          ccy_2?: string | null
+          ccy_2_amount?: number | null
           contract_rate?: number | null
           counterparty?: string | null
+          created_at?: string | null
+          created_by?: string | null
           currency_pair?: string | null
-          deal_id?: string | null
+          deal_no?: number
           entity_id?: string | null
           entity_name?: string | null
-          id?: number
           instrument?: string | null
-          quote_currency?: string | null
-          quote_currency_amount?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
           strategy?: string | null
-          ticket_ref?: string | null
           trade_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trade_requests: {
+        Row: {
+          ccy_1: string | null
+          ccy_1_amount: number | null
+          ccy_2: string | null
+          ccy_2_amount: number | null
+          ccy_pair: string | null
+          created_at: string | null
+          created_by: string | null
+          entity_id: string | null
+          entity_name: string | null
+          instrument: string | null
+          request_no: number
+          settlement_date: string | null
+          strategy: string | null
+          trade_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ccy_1?: string | null
+          ccy_1_amount?: number | null
+          ccy_2?: string | null
+          ccy_2_amount?: number | null
+          ccy_pair?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          instrument?: string | null
+          request_no?: number
+          settlement_date?: string | null
+          strategy?: string | null
+          trade_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ccy_1?: string | null
+          ccy_1_amount?: number | null
+          ccy_2?: string | null
+          ccy_2_amount?: number | null
+          ccy_pair?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          instrument?: string | null
+          request_no?: number
+          settlement_date?: string | null
+          strategy?: string | null
+          trade_date?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
