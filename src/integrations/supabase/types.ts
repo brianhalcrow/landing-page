@@ -187,7 +187,7 @@ export type Database = {
           },
         ]
       }
-      erp_po_module: {
+      erp_ap_module: {
         Row: {
           cost_centre: string | null
           country_currency_id: number | null
