@@ -4,9 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DataSourcesGrid from "@/components/data-sources/DataSourcesGrid";
 import { Skeleton } from "@/components/ui/skeleton";
+import PipelineRealtimeSubscription from "@/components/data-sources/PipelineRealtimeSubscription";
 
 const DataSources = () => {
-  const { data: executions, isLoading } = useQuery({
+  const { data: executions, isLoading, refetch } = useQuery({
     queryKey: ["pipeline-executions"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -23,8 +24,14 @@ const DataSources = () => {
     },
   });
 
+  const handleDataChange = async () => {
+    console.log("🔄 Refreshing pipeline executions data...");
+    await refetch();
+  };
+
   return (
     <div className="h-full">
+      <PipelineRealtimeSubscription onDataChange={handleDataChange} />
       <TabsContainer 
         tabs={tabsConfig["data-sources"]} 
         defaultTab="connections" 
