@@ -1,7 +1,7 @@
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
-import { format } from 'date-fns';
+import { format, differenceInMinutes } from 'date-fns';
 
 interface PipelineExecution {
   id: number;
@@ -20,6 +20,31 @@ interface DataSourcesGridProps {
 }
 
 const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
+  const getStatusColor = (params: any) => {
+    const status = params.value;
+    const startTime = new Date(params.data.start_time);
+    const now = new Date();
+    const runningTooLong = differenceInMinutes(now, startTime) > 10;
+
+    if (status === 'COMPLETED') return 'text-green-600';
+    if (status === 'FAILED') return 'text-red-600';
+    if (status === 'RUNNING' && runningTooLong) return 'text-orange-600';
+    if (status === 'RUNNING') return 'text-blue-600';
+    return '';
+  };
+
+  const getStatusText = (params: any) => {
+    const status = params.value;
+    const startTime = new Date(params.data.start_time);
+    const now = new Date();
+    const runningTooLong = differenceInMinutes(now, startTime) > 10;
+
+    if (status === 'RUNNING' && runningTooLong) {
+      return `${status} (Stale)`;
+    }
+    return status;
+  };
+
   const columnDefs: ColDef[] = [
     { 
       field: 'pipeline_name', 
@@ -49,12 +74,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center',
-      cellClass: (params) => {
-        if (params.value === 'COMPLETED') return 'text-green-600';
-        if (params.value === 'FAILED') return 'text-red-600';
-        if (params.value === 'RUNNING') return 'text-blue-600';
-        return '';
-      }
+      cellClass: getStatusColor,
+      valueFormatter: getStatusText
     },
     { 
       field: 'records_processed', 
