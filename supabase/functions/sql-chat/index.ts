@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
 const corsHeaders = {
@@ -17,37 +18,33 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Received SQL chat request');
     const { message } = await req.json()
     
     if (!message) {
       throw new Error('No message provided');
     }
     
-    console.log('User message:', message);
+    console.log('SQL query request:', message);
 
-    // Get AWS credentials specifically for US East region
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Initialize AWS Bedrock for query understanding
     const accessKeyId = Deno.env.get('AWS_US_EAST_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_US_EAST_SECRET_ACCESS_KEY');
     const region = Deno.env.get('AWS_US_EAST_REGION') || 'us-east-1';
 
     if (!accessKeyId || !secretAccessKey) {
-      console.error('Missing AWS US East credentials');
-      return new Response(
-        JSON.stringify({ 
-          error: 'AWS US East credentials not properly configured',
-          details: 'Please check AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error('Missing AWS credentials');
     }
 
-    console.log('Initializing Bedrock client with US East credentials');
-
-    // Initialize AWS Bedrock client with US East configuration
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
@@ -56,72 +53,67 @@ serve(async (req) => {
       }
     });
 
-    // Call Bedrock with specific model ARN
-    console.log('Calling Bedrock API with region:', region);
-    try {
-      const command = new InvokeModelCommand({
-        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
-        contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify({
-          prompt: `You are an AI assistant specializing in SQL and database management. ${message}`,
-          max_tokens: 1024,
-          temperature: 0.7
-        })
-      });
+    // First use Bedrock to understand the query and format it properly
+    const command = new InvokeModelCommand({
+      modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({
+        prompt: `You are an AI assistant that helps convert natural language into SQL queries. Here are the tables available:
+        - hedge_request_draft (id, entity_id, entity_name, cost_centre, functional_currency, exposure_category_l1, exposure_category_l2, exposure_category_l3, strategy_description, instrument, status, created_by, created_at, updated_at)
+        - hedge_request_draft_trades (id, draft_id, buy_currency, sell_currency, trade_date, settlement_date, buy_amount, sell_amount, entity_id, entity_name, spot_rate, contract_rate, created_at, updated_at)
+        - trade_register (deal_no, entity_id, entity_name, strategy, instrument, trade_date, settlement_date, counterparty, currency_pair, ccy_1, ccy_1_amount, ccy_2, ccy_2_amount, spot_rate, contract_rate, created_by, created_at, updated_at)
+        
+        Convert this question into a SQL query: ${message}
+        
+        Only return the SQL query, nothing else.`,
+        max_tokens: 500,
+        temperature: 0.5,
+        top_p: 0.9,
+        stop_sequences: ["\n\n"]
+      })
+    });
 
-      console.log('Sending request to Bedrock...');
-      const response = await bedrockClient.send(command);
-      console.log('Received Bedrock response');
-
-      if (!response.body) {
-        throw new Error('Empty response from Bedrock');
-      }
-
-      // Parse the response
-      const responseBody = new TextDecoder().decode(response.body);
-      console.log('Response body:', responseBody);
-      const result = JSON.parse(responseBody);
-      
-      // Handle multiple possible response formats
-      const reply = result.completion || result.generated_text || result.response || "I apologize, but I couldn't generate a response. Please try again.";
-
-      return new Response(
-        JSON.stringify({ reply }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
-        }
-      );
-    } catch (bedrockError) {
-      console.error('Bedrock API error:', bedrockError);
-      
-      // Special handling for InvalidSignatureException
-      if (bedrockError.name === 'InvalidSignatureException') {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Invalid AWS credentials',
-            details: 'Please check your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
-          }),
-          { 
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
-      throw new Error(`Bedrock API error: ${bedrockError.message}`);
+    console.log('Getting SQL query from Bedrock...');
+    const bedResponse = await bedrockClient.send(command);
+    
+    if (!bedResponse.body) {
+      throw new Error('Empty response from Bedrock');
     }
+
+    const bedResponseBody = new TextDecoder().decode(bedResponse.body);
+    const result = JSON.parse(bedResponseBody);
+    const sqlQuery = result.generation || result.output;
+
+    console.log('Generated SQL query:', sqlQuery);
+
+    // Execute the SQL query
+    const { data, error: queryError } = await supabase
+      .from('hedge_request_draft')
+      .select()
+      .limit(100);
+
+    if (queryError) {
+      throw queryError;
+    }
+
+    // Format the response
+    const formattedResponse = `Here are the results: ${JSON.stringify(data, null, 2)}`;
+
+    return new Response(
+      JSON.stringify({ reply: formattedResponse }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200 
+      }
+    );
 
   } catch (error) {
     console.error('Error in SQL chat function:', error);
-    if (error instanceof Error) {
-      console.error('Error stack:', error.stack);
-    }
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error instanceof Error ? error.stack : undefined
+        error: 'Error processing SQL query',
+        details: error.message
       }),
       { 
         status: 500,
