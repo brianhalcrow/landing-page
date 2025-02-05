@@ -53,8 +53,7 @@ serve(async (req) => {
       credentials: {
         accessKeyId,
         secretAccessKey,
-      },
-      maxAttempts: 3
+      }
     });
 
     // Call Bedrock with specific model ARN

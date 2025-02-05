@@ -33,18 +33,27 @@ serve(async (req) => {
     
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS US East credentials');
-      throw new Error('AWS US East credentials not properly configured');
+      return new Response(
+        JSON.stringify({ 
+          error: 'AWS US East credentials not properly configured',
+          details: 'Please check AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('Initializing Bedrock client with US East credentials');
+    
     // Initialize AWS Bedrock client with US East configuration
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
         accessKeyId,
         secretAccessKey,
-      },
-      maxAttempts: 3
+      }
     });
 
     // Prepare the Anthropic Claude prompt 
@@ -63,7 +72,7 @@ serve(async (req) => {
     console.log('Calling Bedrock API');
     try {
       const command = new InvokeModelCommand({
-        modelId: 'anthropic.claude-v2', // or your specific imported model
+        modelId: 'anthropic.claude-v2',
         contentType: 'application/json',
         accept: 'application/json',
         body: JSON.stringify(anthropicPrompt)
@@ -101,8 +110,24 @@ serve(async (req) => {
         code: bedrockError.code,
         stack: bedrockError.stack
       });
+      
+      // Special handling for InvalidSignatureException
+      if (bedrockError.name === 'InvalidSignatureException') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid AWS credentials',
+            details: 'Please check your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
+          }),
+          { 
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+      
       throw new Error(`Bedrock API error: ${bedrockError.message}`);
     }
+
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(
