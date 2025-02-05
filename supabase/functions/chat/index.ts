@@ -30,12 +30,35 @@ serve(async (req) => {
     const secretAccessKey = Deno.env.get('AWS_US_EAST_SECRET_ACCESS_KEY');
     const region = Deno.env.get('AWS_US_EAST_REGION') || 'us-east-1';
     
+    // Enhanced credential logging and validation
+    console.log('Credential Debug:', {
+      accessKeyIdPrefix: accessKeyId?.substring(0, 4) + '***',
+      accessKeyIdLength: accessKeyId?.length,
+      secretKeyLength: secretAccessKey?.length,
+      region: region
+    });
+
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS US East credentials');
       return new Response(
         JSON.stringify({ 
           error: 'AWS US East credentials not properly configured',
           details: 'Please check AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Additional credential validation
+    if (accessKeyId.length < 10 || secretAccessKey.length < 20) {
+      console.error('Invalid AWS credential format');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid AWS Credentials',
+          details: 'Credentials do not meet minimum length requirements'
         }),
         { 
           status: 500,
@@ -52,18 +75,18 @@ serve(async (req) => {
       credentials: {
         accessKeyId,
         secretAccessKey,
-      }
+      },
+      maxAttempts: 2 // Reduce retry attempts
     });
 
     // Call Bedrock with imported model
-    console.log('Calling Bedrock API');
+    console.log('Preparing to call Bedrock API');
     try {
       const command = new InvokeModelCommand({
         modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2', // Your imported model ARN
         contentType: 'application/json',
         accept: 'application/json',
         body: JSON.stringify({
-          // Note: Adjust this payload structure based on your specific imported model's requirements
           prompt: message,
           max_tokens: 1024
         })
@@ -83,7 +106,7 @@ serve(async (req) => {
 
       const result = JSON.parse(responseBody);
       
-      // Note: Adjust response parsing based on your imported model's output format
+      // Flexible response parsing
       const reply = result.content || result.completion || "I apologize, but I couldn't generate a response.";
 
       return new Response(
@@ -102,12 +125,12 @@ serve(async (req) => {
         stack: bedrockError.stack
       });
       
-      // Special handling for InvalidSignatureException
+      // Specific error handling
       if (bedrockError.name === 'InvalidSignatureException') {
         return new Response(
           JSON.stringify({ 
             error: 'Invalid AWS credentials',
-            details: 'Please check your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
+            details: 'Please verify your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
           }),
           { 
             status: 401,
@@ -116,15 +139,25 @@ serve(async (req) => {
         );
       }
       
-      throw new Error(`Bedrock API error: ${bedrockError.message}`);
+      // Generic error response
+      return new Response(
+        JSON.stringify({ 
+          error: 'Bedrock API Error',
+          details: bedrockError.message
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
   } catch (error) {
-    console.error('Error in chat function:', error);
+    console.error('Unhandled error in chat function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error instanceof Error ? error.stack : undefined
+        error: 'Unexpected Error',
+        details: error.message
       }),
       { 
         status: 500,
