@@ -83,12 +83,14 @@ serve(async (req) => {
     console.log('Preparing to call Bedrock API');
     try {
       const command = new InvokeModelCommand({
-        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2', // Your imported model ARN
+        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
         contentType: 'application/json',
         accept: 'application/json',
         body: JSON.stringify({
           prompt: message,
-          max_tokens: 1024
+          max_new_tokens: 256,
+          temperature: 0.7,
+          top_p: 0.9
         })
       });
 
