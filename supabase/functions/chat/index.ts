@@ -89,7 +89,7 @@ serve(async (req) => {
         accept: 'application/json',
         body: JSON.stringify({
           prompt: message,
-          max_tokens: 2048,
+          max_tokens: 1024,
           temperature: 0.5,
           top_p: 0.9
           stop_sequences: ["\n\n"],  // More flexible stop condition
