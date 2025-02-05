@@ -26,12 +26,22 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
+    // Validate AWS credentials
+    const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
+    const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
+    const region = Deno.env.get('AWS_REGION');
+
+    if (!accessKeyId || !secretAccessKey || !region) {
+      console.error('Missing AWS credentials');
+      throw new Error('AWS credentials not properly configured');
+    }
+
     // Initialize AWS Bedrock client
     const bedrockClient = new BedrockRuntimeClient({
-      region: Deno.env.get('AWS_REGION'),
+      region,
       credentials: {
-        accessKeyId: Deno.env.get('AWS_ACCESS_KEY_ID') || '',
-        secretAccessKey: Deno.env.get('AWS_SECRET_ACCESS_KEY') || '',
+        accessKeyId,
+        secretAccessKey,
       },
     });
 
@@ -48,30 +58,36 @@ serve(async (req) => {
 
     // Call Bedrock
     console.log('Calling Bedrock API');
-    const command = new InvokeModelCommand({
-      modelId: 'anthropic.claude-v2',
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify(prompt)
-    });
+    try {
+      const command = new InvokeModelCommand({
+        modelId: 'anthropic.claude-v2',
+        contentType: 'application/json',
+        accept: 'application/json',
+        body: JSON.stringify(prompt)
+      });
 
-    const response = await bedrockClient.send(command);
-    console.log('Received Bedrock response');
+      const response = await bedrockClient.send(command);
+      console.log('Received Bedrock response');
 
-    // Parse the response
-    const responseBody = new TextDecoder().decode(response.body);
-    const result = JSON.parse(responseBody);
-    
-    // Extract the assistant's response
-    const reply = result.completion || "I apologize, but I couldn't generate a response. Please try again.";
+      // Parse the response
+      const responseBody = new TextDecoder().decode(response.body);
+      console.log('Response body:', responseBody);
+      const result = JSON.parse(responseBody);
+      
+      // Extract the assistant's response
+      const reply = result.completion || "I apologize, but I couldn't generate a response. Please try again.";
 
-    return new Response(
-      JSON.stringify({ reply }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
-      }
-    );
+      return new Response(
+        JSON.stringify({ reply }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      );
+    } catch (bedrockError) {
+      console.error('Bedrock API error:', bedrockError);
+      throw new Error(`Bedrock API error: ${bedrockError.message}`);
+    }
 
   } catch (error) {
     console.error('Error in SQL chat function:', error);
@@ -90,3 +106,4 @@ serve(async (req) => {
     );
   }
 });
+
