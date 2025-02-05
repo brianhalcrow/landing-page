@@ -36,7 +36,7 @@ serve(async (req) => {
       throw new Error('AWS credentials not properly configured');
     }
 
-    // Initialize AWS Bedrock client
+    // Initialize AWS Bedrock client with explicit credentials
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
@@ -47,23 +47,26 @@ serve(async (req) => {
 
     console.log('Initialized Bedrock client');
 
-    // Prepare the prompt for hedging-related queries
-    const prompt = {
-      prompt: `\nHuman: You are an AI assistant specializing in hedging strategies and financial risk management. Please help with this query: ${message}\n\nAssistant:`,
-      max_tokens: 512,
-      temperature: 0.7,
-      top_p: 0.9,
-      stop_sequences: ["\n\nHuman:"]
+    // Prepare the Anthropic Claude prompt
+    const anthropicPrompt = {
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: message
+        }
+      ]
     };
 
-    // Call Bedrock
+    // Call Bedrock with proper content type
     console.log('Calling Bedrock API');
     try {
       const command = new InvokeModelCommand({
         modelId: 'anthropic.claude-v2',
         contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify(prompt)
+        accept: '*/*',
+        body: JSON.stringify(anthropicPrompt)
       });
 
       const response = await bedrockClient.send(command);
@@ -75,7 +78,7 @@ serve(async (req) => {
       const result = JSON.parse(responseBody);
       
       // Extract the assistant's response
-      const reply = result.completion || "I apologize, but I couldn't generate a response. Please try again.";
+      const reply = result.messages?.[0]?.content || "I apologize, but I couldn't generate a response. Please try again.";
 
       return new Response(
         JSON.stringify({ reply }),
