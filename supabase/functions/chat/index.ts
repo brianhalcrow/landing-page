@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
@@ -56,26 +55,18 @@ serve(async (req) => {
       }
     });
 
-    // Prepare the Anthropic Claude prompt 
-    const anthropicPrompt = {
-      anthropic_version: "bedrock-2023-05-31",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: message
-        }
-      ]
-    };
-
-    // Call Bedrock with proper content type and response handling
+    // Call Bedrock with imported model
     console.log('Calling Bedrock API');
     try {
       const command = new InvokeModelCommand({
-        modelId: 'anthropic.claude-v2',
+        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2', // Your imported model ARN
         contentType: 'application/json',
         accept: 'application/json',
-        body: JSON.stringify(anthropicPrompt)
+        body: JSON.stringify({
+          // Note: Adjust this payload structure based on your specific imported model's requirements
+          prompt: message,
+          max_tokens: 1024
+        })
       });
 
       console.log('Sending request to Bedrock...');
@@ -92,8 +83,8 @@ serve(async (req) => {
 
       const result = JSON.parse(responseBody);
       
-      // Extract the assistant's response
-      const reply = result.content?.[0]?.text || "I apologize, but I couldn't generate a response.";
+      // Note: Adjust response parsing based on your imported model's output format
+      const reply = result.content || result.completion || "I apologize, but I couldn't generate a response.";
 
       return new Response(
         JSON.stringify({ reply }),
