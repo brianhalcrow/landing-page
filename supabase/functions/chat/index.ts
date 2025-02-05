@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
@@ -29,27 +28,16 @@ serve(async (req) => {
     // Get AWS credentials from environment variables
     const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = 'us-east-1'; // Hardcode region as per ARN
-
+    
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS credentials');
-      return new Response(
-        JSON.stringify({ 
-          error: 'AWS credentials not properly configured',
-          details: 'Please check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error('AWS credentials not properly configured');
     }
 
     console.log('Initializing Bedrock client');
-
-    // Initialize AWS Bedrock client
+    // Initialize AWS Bedrock client with complete configuration
     const bedrockClient = new BedrockRuntimeClient({
-      region,
+      region: 'us-east-1', // Explicitly set to us-east-1
       credentials: {
         accessKeyId,
         secretAccessKey,
@@ -57,18 +45,26 @@ serve(async (req) => {
       maxAttempts: 3
     });
 
-    // Call Bedrock with specific model ARN
-    console.log('Calling Bedrock API with region:', region);
+    // Prepare the Anthropic Claude prompt 
+    const anthropicPrompt = {
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: message
+        }
+      ]
+    };
+
+    // Call Bedrock with proper content type and response handling
+    console.log('Calling Bedrock API');
     try {
       const command = new InvokeModelCommand({
-        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
+        modelId: 'anthropic.claude-v2', // or your specific imported model
         contentType: 'application/json',
         accept: 'application/json',
-        body: JSON.stringify({
-          prompt: message,
-          max_tokens: 1024,
-          temperature: 0.7
-        })
+        body: JSON.stringify(anthropicPrompt)
       });
 
       console.log('Sending request to Bedrock...');
@@ -81,11 +77,12 @@ serve(async (req) => {
 
       // Parse the response
       const responseBody = new TextDecoder().decode(response.body);
-      console.log('Response body:', responseBody);
+      console.log('Raw response body:', responseBody);
+
       const result = JSON.parse(responseBody);
       
-      // Handle multiple possible response formats
-      const reply = result.completion || result.generated_text || result.response || "I apologize, but I couldn't generate a response. Please try again.";
+      // Extract the assistant's response
+      const reply = result.content?.[0]?.text || "I apologize, but I couldn't generate a response.";
 
       return new Response(
         JSON.stringify({ reply }),
@@ -94,31 +91,18 @@ serve(async (req) => {
           status: 200
         }
       );
+
     } catch (bedrockError) {
-      console.error('Bedrock API error:', bedrockError);
-      
-      // Special handling for InvalidSignatureException
-      if (bedrockError.name === 'InvalidSignatureException') {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Invalid AWS credentials',
-            details: 'Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
-          }),
-          { 
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
+      console.error('Detailed Bedrock API error:', {
+        name: bedrockError.name,
+        message: bedrockError.message,
+        code: bedrockError.code,
+        stack: bedrockError.stack
+      });
       throw new Error(`Bedrock API error: ${bedrockError.message}`);
     }
-
   } catch (error) {
     console.error('Error in chat function:', error);
-    if (error instanceof Error) {
-      console.error('Error stack:', error.stack);
-    }
     return new Response(
       JSON.stringify({ 
         error: error.message,
@@ -130,4 +114,5 @@ serve(async (req) => {
       }
     );
   }
+});
 });
