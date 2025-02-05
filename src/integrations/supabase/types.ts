@@ -1215,6 +1215,12 @@ export type Database = {
             }
             Returns: unknown
           }
+      execute_sql_query: {
+        Args: {
+          query_text: string
+        }
+        Returns: Json
+      }
       get_draft_with_options: {
         Args: {
           draft_id: string
