@@ -14,13 +14,28 @@ const AWS_REGION = Deno.env.get('AWS_REGION')
 const MODEL_ID = 'dj1b82d4nlp2'
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    })
   }
 
   try {
+    // Validate AWS credentials
+    if (!AWS_ACCESS_KEY || !AWS_SECRET_KEY || !AWS_REGION) {
+      console.error('Missing AWS credentials');
+      throw new Error('AWS credentials not configured');
+    }
+
     console.log('Received chat request');
     const { message } = await req.json()
+    
+    if (!message) {
+      throw new Error('No message provided');
+    }
+    
     console.log('User message:', message);
 
     // Create AWS Bedrock request
@@ -52,44 +67,61 @@ serve(async (req) => {
 
     console.log('Request body:', requestBody);
 
-    const signedRequest = await signer.sign({
-      method: 'POST',
-      hostname: endpoint.hostname,
-      path: endpoint.pathname,
-      headers: {
-        'Content-Type': 'application/json',
-        host: endpoint.hostname,
-      },
-      body: requestBody,
-    });
+    try {
+      const signedRequest = await signer.sign({
+        method: 'POST',
+        hostname: endpoint.hostname,
+        path: endpoint.pathname,
+        headers: {
+          'Content-Type': 'application/json',
+          host: endpoint.hostname,
+        },
+        body: requestBody,
+      });
 
-    console.log('Making request to Bedrock');
-    const response = await fetch(endpoint, {
-      ...signedRequest,
-      body: requestBody,
-    });
+      console.log('Making request to Bedrock');
+      const response = await fetch(endpoint, {
+        ...signedRequest,
+        body: requestBody,
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('Bedrock API error:', error);
-      throw new Error(`Failed to get response from AWS Bedrock: ${error}`);
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('Bedrock API error:', error);
+        throw new Error(`Bedrock API error: ${error}`);
+      }
+
+      const data = await response.json();
+      console.log('Bedrock response:', data);
+      
+      if (!data.completion) {
+        throw new Error('Invalid response from Bedrock API');
+      }
+      
+      return new Response(
+        JSON.stringify({ reply: data.completion }),
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json'
+          },
+          status: 200
+        }
+      );
+    } catch (bedrockError) {
+      console.error('Bedrock API call failed:', bedrockError);
+      throw new Error(`Failed to communicate with Bedrock: ${bedrockError.message}`);
     }
-
-    const data = await response.json();
-    console.log('Bedrock response:', data);
-    const reply = data.completion;
-
-    return new Response(
-      JSON.stringify({ reply }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
     console.error('Error in chat function:', error);
     if (error instanceof Error) {
       console.error('Error stack:', error.stack);
     }
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error instanceof Error ? error.stack : undefined
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
