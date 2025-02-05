@@ -83,19 +83,16 @@ serve(async (req) => {
     // Call Bedrock with imported DeepSeek Llama model
     console.log('Preparing to call DeepSeek Llama model');
     try {
-    const command = new InvokeModelCommand({
+      const command = new InvokeModelCommand({
+        modelId: 'anthropic.claude-v2', // Specify the model ID
         body: JSON.stringify({
-          prompt: `Explain the difference between functional currency and transaction currency. 
-          
-          Response format:
-          1. Provide a clear, concise definition of each term
-          2. Give a specific example
-          3. Highlight key differences
-          4. Summarize in one concluding sentence`,
-          max_tokens: 500,  // Adjust as needed
+          prompt: message,
+          max_tokens: 500,
           temperature: 0.7,
           top_p: 0.9
-        })
+        }),
+        contentType: 'application/json',
+        accept: 'application/json',
       });
 
       console.log('Sending request to Bedrock...');
@@ -112,12 +109,8 @@ serve(async (req) => {
 
       const result = JSON.parse(responseBody);
       
-      // Flexible response parsing for Llama models
-      const reply = 
-        result.generation || 
-        result.output || 
-        result.text || 
-        "I apologize, but I couldn't generate a complete response.";
+      // Flexible response parsing for Claude model
+      const reply = result.completion || result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
 
       return new Response(
         JSON.stringify({ reply }),
