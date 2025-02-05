@@ -26,17 +26,17 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
-    // Get AWS credentials from environment variables
-    const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = 'us-east-1'; // Hardcode region as per ARN
+    // Get AWS credentials specifically for US East region
+    const accessKeyId = Deno.env.get('AWS_US_EAST_ACCESS_KEY_ID');
+    const secretAccessKey = Deno.env.get('AWS_US_EAST_SECRET_ACCESS_KEY');
+    const region = Deno.env.get('AWS_US_EAST_REGION') || 'us-east-1';
 
     if (!accessKeyId || !secretAccessKey) {
-      console.error('Missing AWS credentials');
+      console.error('Missing AWS US East credentials');
       return new Response(
         JSON.stringify({ 
-          error: 'AWS credentials not properly configured',
-          details: 'Please check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
+          error: 'AWS US East credentials not properly configured',
+          details: 'Please check AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
         }),
         { 
           status: 500,
@@ -45,9 +45,9 @@ serve(async (req) => {
       );
     }
 
-    console.log('Initializing Bedrock client');
+    console.log('Initializing Bedrock client with US East credentials');
 
-    // Initialize AWS Bedrock client
+    // Initialize AWS Bedrock client with US East configuration
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
@@ -102,7 +102,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             error: 'Invalid AWS credentials',
-            details: 'Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
+            details: 'Please check your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
           }),
           { 
             status: 401,
@@ -131,3 +131,4 @@ serve(async (req) => {
     );
   }
 });
+

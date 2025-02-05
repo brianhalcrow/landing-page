@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
@@ -25,19 +26,20 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
-    // Get AWS credentials from environment variables
-    const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
+    // Get AWS credentials specifically for US East region
+    const accessKeyId = Deno.env.get('AWS_US_EAST_ACCESS_KEY_ID');
+    const secretAccessKey = Deno.env.get('AWS_US_EAST_SECRET_ACCESS_KEY');
+    const region = Deno.env.get('AWS_US_EAST_REGION') || 'us-east-1';
     
     if (!accessKeyId || !secretAccessKey) {
-      console.error('Missing AWS credentials');
-      throw new Error('AWS credentials not properly configured');
+      console.error('Missing AWS US East credentials');
+      throw new Error('AWS US East credentials not properly configured');
     }
 
-    console.log('Initializing Bedrock client');
-    // Initialize AWS Bedrock client with complete configuration
+    console.log('Initializing Bedrock client with US East credentials');
+    // Initialize AWS Bedrock client with US East configuration
     const bedrockClient = new BedrockRuntimeClient({
-      region: 'us-east-1', // Explicitly set to us-east-1
+      region,
       credentials: {
         accessKeyId,
         secretAccessKey,
@@ -115,4 +117,4 @@ serve(async (req) => {
     );
   }
 });
-});
+
