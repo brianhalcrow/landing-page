@@ -87,11 +87,10 @@ serve(async (req) => {
 
     console.log('Generated SQL query:', sqlQuery);
 
-    // Execute the SQL query
+    // Execute the SQL query using Supabase
     const { data, error: queryError } = await supabase
-      .from('hedge_request_draft')
-      .select()
-      .limit(100);
+      .rpc('execute_sql_query', { query_text: sqlQuery })
+      .single();
 
     if (queryError) {
       throw queryError;
