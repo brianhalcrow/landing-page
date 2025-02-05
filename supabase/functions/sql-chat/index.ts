@@ -11,6 +11,7 @@ const corsHeaders = {
 const AWS_ACCESS_KEY = Deno.env.get('AWS_ACCESS_KEY_ID')
 const AWS_SECRET_KEY = Deno.env.get('AWS_SECRET_ACCESS_KEY')
 const AWS_REGION = Deno.env.get('AWS_REGION')
+const MODEL_ID = 'dj1b82d4nlp2'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -89,7 +90,7 @@ serve(async (req) => {
        - Highlight important WHERE conditions`
 
     // Create AWS Bedrock request
-    const endpoint = new URL(`https://bedrock-runtime.${AWS_REGION}.amazonaws.com/model/anthropic.claude-v2/invoke`)
+    const endpoint = new URL(`https://bedrock-runtime.${AWS_REGION}.amazonaws.com/model/imported-model/${MODEL_ID}/invoke`)
     
     const signer = new SignatureV4({
       service: 'bedrock',
