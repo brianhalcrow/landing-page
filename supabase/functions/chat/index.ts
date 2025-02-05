@@ -89,7 +89,7 @@ serve(async (req) => {
         accept: 'application/json',
         body: JSON.stringify({
           prompt: message,
-          max_tokens: 1024,
+          max_tokens: 2048,
           temperature: 0.5,
           top_p: 0.9,
           stop_sequences: ["\n\n"],  // Added comma before this line
