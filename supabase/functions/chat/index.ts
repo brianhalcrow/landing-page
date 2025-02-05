@@ -25,10 +25,30 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
-    // Simple response for testing connectivity
+    // Validate AWS credentials
+    const awsAccessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
+    const awsSecretKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
+    const awsRegion = Deno.env.get('AWS_REGION');
+
+    if (!awsAccessKeyId || !awsSecretKey || !awsRegion) {
+      console.error('Missing AWS credentials');
+      return new Response(
+        JSON.stringify({ 
+          reply: "Configuration error: AWS credentials are not properly configured. Please check the Edge Function configuration.",
+          error: 'Missing AWS credentials'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      );
+    }
+
+    // For now, return a test response with AWS credential status
     return new Response(
       JSON.stringify({ 
-        reply: "This is a test response from the chat function. If you see this, the basic connectivity is working." 
+        reply: "AWS credentials are properly configured. Next step is to implement Bedrock integration.",
+        awsConfigured: true
       }),
       { 
         headers: { 
@@ -56,4 +76,3 @@ serve(async (req) => {
     );
   }
 });
-
