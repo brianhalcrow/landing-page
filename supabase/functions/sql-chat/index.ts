@@ -29,14 +29,14 @@ serve(async (req) => {
     // Get AWS credentials from environment variables
     const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = Deno.env.get('AWS_REGION') || 'us-east-1'; // Provide default region
+    const region = 'us-east-1'; // Explicitly set to us-east-1 where Bedrock is available
 
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS credentials');
       throw new Error('AWS credentials not properly configured');
     }
 
-    console.log('Initializing Bedrock client with region:', region);
+    console.log('Initializing Bedrock client');
 
     // Initialize AWS Bedrock client with complete configuration
     const bedrockClient = new BedrockRuntimeClient({
@@ -48,7 +48,7 @@ serve(async (req) => {
       maxAttempts: 3
     });
 
-    // Prepare the Anthropic Claude prompt for SQL
+    // Prepare the Anthropic Claude prompt for SQL with explicit version
     const anthropicPrompt = {
       anthropic_version: "bedrock-2023-05-31",
       max_tokens: 1024,
@@ -65,7 +65,7 @@ serve(async (req) => {
     };
 
     // Call Bedrock with proper content type and response handling
-    console.log('Calling Bedrock API');
+    console.log('Calling Bedrock API with region:', region);
     try {
       const command = new InvokeModelCommand({
         modelId: 'anthropic.claude-v2',
@@ -74,6 +74,7 @@ serve(async (req) => {
         body: JSON.stringify(anthropicPrompt)
       });
 
+      console.log('Sending request to Bedrock...');
       const response = await bedrockClient.send(command);
       console.log('Received Bedrock response');
 
@@ -98,6 +99,9 @@ serve(async (req) => {
       );
     } catch (bedrockError) {
       console.error('Bedrock API error:', bedrockError);
+      if (bedrockError.name === 'InvalidSignatureException') {
+        console.error('Invalid AWS credentials - please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY');
+      }
       throw new Error(`Bedrock API error: ${bedrockError.message}`);
     }
 
