@@ -19,10 +19,13 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Received chat request');
     const { message } = await req.json()
+    console.log('User message:', message);
 
     // Create AWS Bedrock request
     const endpoint = new URL(`https://bedrock-runtime.${AWS_REGION}.amazonaws.com/model/imported-model/${MODEL_ID}/invoke`)
+    console.log('Endpoint URL:', endpoint.toString());
     
     const signer = new SignatureV4({
       service: 'bedrock',
@@ -47,6 +50,8 @@ serve(async (req) => {
       top_p: 0.9,
     });
 
+    console.log('Request body:', requestBody);
+
     const signedRequest = await signer.sign({
       method: 'POST',
       hostname: endpoint.hostname,
@@ -58,6 +63,7 @@ serve(async (req) => {
       body: requestBody,
     });
 
+    console.log('Making request to Bedrock');
     const response = await fetch(endpoint, {
       ...signedRequest,
       body: requestBody,
@@ -65,10 +71,12 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.text();
+      console.error('Bedrock API error:', error);
       throw new Error(`Failed to get response from AWS Bedrock: ${error}`);
     }
 
     const data = await response.json();
+    console.log('Bedrock response:', data);
     const reply = data.completion;
 
     return new Response(
@@ -77,6 +85,9 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in chat function:', error);
+    if (error instanceof Error) {
+      console.error('Error stack:', error.stack);
+    }
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -86,4 +97,3 @@ serve(async (req) => {
     );
   }
 });
-
