@@ -84,15 +84,15 @@ serve(async (req) => {
     console.log('Preparing to call DeepSeek Llama model');
     try {
       const command = new InvokeModelCommand({
-        modelId: 'anthropic.claude-v2', // Specify the model ID
+        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
+        contentType: 'application/json',
+        accept: 'application/json',
         body: JSON.stringify({
           prompt: message,
           max_tokens: 500,
           temperature: 0.7,
           top_p: 0.9
-        }),
-        contentType: 'application/json',
-        accept: 'application/json',
+        })
       });
 
       console.log('Sending request to Bedrock...');
@@ -109,8 +109,8 @@ serve(async (req) => {
 
       const result = JSON.parse(responseBody);
       
-      // Flexible response parsing for Claude model
-      const reply = result.completion || result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
+      // Parse response for DeepSeek Llama model
+      const reply = result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
 
       return new Response(
         JSON.stringify({ reply }),
