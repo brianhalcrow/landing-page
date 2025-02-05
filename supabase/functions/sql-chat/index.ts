@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,36 +26,49 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
-    // Validate AWS credentials
-    const awsAccessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
-    const awsSecretKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const awsRegion = Deno.env.get('AWS_REGION');
+    // Initialize AWS Bedrock client
+    const bedrockClient = new BedrockRuntimeClient({
+      region: Deno.env.get('AWS_REGION'),
+      credentials: {
+        accessKeyId: Deno.env.get('AWS_ACCESS_KEY_ID') || '',
+        secretAccessKey: Deno.env.get('AWS_SECRET_ACCESS_KEY') || '',
+      },
+    });
 
-    if (!awsAccessKeyId || !awsSecretKey || !awsRegion) {
-      console.error('Missing AWS credentials');
-      return new Response(
-        JSON.stringify({ 
-          reply: "Configuration error: AWS credentials are not properly configured. Please check the Edge Function configuration.",
-          error: 'Missing AWS credentials'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500
-        }
-      );
-    }
+    console.log('Initialized Bedrock client');
 
-    // For now, return a test response with AWS credential status
+    // Prepare the prompt for SQL-related queries
+    const prompt = {
+      prompt: `\nHuman: You are an AI assistant specializing in SQL and database management. Please help with this query: ${message}\n\nAssistant:`,
+      max_tokens: 512,
+      temperature: 0.7,
+      top_p: 0.9,
+      stop_sequences: ["\n\nHuman:"]
+    };
+
+    // Call Bedrock
+    console.log('Calling Bedrock API');
+    const command = new InvokeModelCommand({
+      modelId: 'anthropic.claude-v2',
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify(prompt)
+    });
+
+    const response = await bedrockClient.send(command);
+    console.log('Received Bedrock response');
+
+    // Parse the response
+    const responseBody = new TextDecoder().decode(response.body);
+    const result = JSON.parse(responseBody);
+    
+    // Extract the assistant's response
+    const reply = result.completion || "I apologize, but I couldn't generate a response. Please try again.";
+
     return new Response(
-      JSON.stringify({ 
-        reply: "AWS credentials are properly configured. Next step is to implement Bedrock integration.",
-        awsConfigured: true
-      }),
+      JSON.stringify({ reply }),
       { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json'
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
       }
     );
