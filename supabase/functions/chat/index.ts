@@ -26,26 +26,27 @@ serve(async (req) => {
     
     console.log('User message:', message);
 
-    // Validate AWS credentials
+    // Get AWS credentials from environment variables
     const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = Deno.env.get('AWS_REGION');
+    const region = Deno.env.get('AWS_REGION') || 'us-east-1'; // Provide default region
 
-    if (!accessKeyId || !secretAccessKey || !region) {
+    if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS credentials');
       throw new Error('AWS credentials not properly configured');
     }
 
-    // Initialize AWS Bedrock client with explicit credentials
+    console.log('Initializing Bedrock client with region:', region);
+
+    // Initialize AWS Bedrock client with complete configuration
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
         accessKeyId,
         secretAccessKey,
       },
+      maxAttempts: 3
     });
-
-    console.log('Initialized Bedrock client');
 
     // Prepare the Anthropic Claude prompt
     const anthropicPrompt = {
@@ -59,18 +60,22 @@ serve(async (req) => {
       ]
     };
 
-    // Call Bedrock with proper content type
+    // Call Bedrock with proper content type and response handling
     console.log('Calling Bedrock API');
     try {
       const command = new InvokeModelCommand({
         modelId: 'anthropic.claude-v2',
         contentType: 'application/json',
-        accept: '*/*',
+        accept: 'application/json',
         body: JSON.stringify(anthropicPrompt)
       });
 
       const response = await bedrockClient.send(command);
       console.log('Received Bedrock response');
+
+      if (!response.body) {
+        throw new Error('Empty response from Bedrock');
+      }
 
       // Parse the response
       const responseBody = new TextDecoder().decode(response.body);
@@ -109,4 +114,3 @@ serve(async (req) => {
     );
   }
 });
-
