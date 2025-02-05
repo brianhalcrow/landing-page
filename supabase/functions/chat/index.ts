@@ -29,11 +29,20 @@ serve(async (req) => {
     // Get AWS credentials from environment variables
     const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = 'us-east-1';
+    const region = 'us-east-1'; // Hardcode region as per ARN
 
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS credentials');
-      throw new Error('AWS credentials not properly configured');
+      return new Response(
+        JSON.stringify({ 
+          error: 'AWS credentials not properly configured',
+          details: 'Please check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('Initializing Bedrock client');
@@ -48,21 +57,18 @@ serve(async (req) => {
       maxAttempts: 3
     });
 
-    // Prepare the prompt with your custom model format
-    const promptData = {
-      prompt: message,
-      max_tokens: 1024,
-      temperature: 0.7
-    };
-
-    // Call Bedrock with your specific model
+    // Call Bedrock with specific model ARN
     console.log('Calling Bedrock API with region:', region);
     try {
       const command = new InvokeModelCommand({
         modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
         contentType: 'application/json',
         accept: 'application/json',
-        body: JSON.stringify(promptData)
+        body: JSON.stringify({
+          prompt: message,
+          max_tokens: 1024,
+          temperature: 0.7
+        })
       });
 
       console.log('Sending request to Bedrock...');
@@ -78,7 +84,7 @@ serve(async (req) => {
       console.log('Response body:', responseBody);
       const result = JSON.parse(responseBody);
       
-      // Extract the response based on your model's output format
+      // Handle multiple possible response formats
       const reply = result.completion || result.generated_text || result.response || "I apologize, but I couldn't generate a response. Please try again.";
 
       return new Response(
@@ -90,9 +96,21 @@ serve(async (req) => {
       );
     } catch (bedrockError) {
       console.error('Bedrock API error:', bedrockError);
+      
+      // Special handling for InvalidSignatureException
       if (bedrockError.name === 'InvalidSignatureException') {
-        console.error('Invalid AWS credentials - please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY');
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid AWS credentials',
+            details: 'Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY'
+          }),
+          { 
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
       }
+      
       throw new Error(`Bedrock API error: ${bedrockError.message}`);
     }
 
