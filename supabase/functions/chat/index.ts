@@ -83,17 +83,18 @@ serve(async (req) => {
     // Call Bedrock with imported DeepSeek Llama model
     console.log('Preparing to call DeepSeek Llama model');
     try {
-      const command = new InvokeModelCommand({
-        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
-        contentType: 'application/json',
-        accept: 'application/json',
+    const command = new InvokeModelCommand({
         body: JSON.stringify({
-          prompt: message,
-          max_tokens: 1024,  // Increase from 256 to 1024
+          prompt: `Explain the difference between functional currency and transaction currency. 
+          
+          Response format:
+          1. Provide a clear, concise definition of each term
+          2. Give a specific example
+          3. Highlight key differences
+          4. Summarize in one concluding sentence`,
+          max_tokens: 500,  // Adjust as needed
           temperature: 0.7,
-          top_p: 0.9,
-          stop_sequences: ["\n\n"],  // More flexible stop condition
-          stream: false
+          top_p: 0.9
         })
       });
 
