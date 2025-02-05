@@ -29,7 +29,7 @@ serve(async (req) => {
     // Get AWS credentials from environment variables
     const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
     const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
-    const region = 'us-east-1'; // Explicitly set to us-east-1 where Bedrock is available
+    const region = 'us-east-1';
 
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS credentials');
@@ -38,7 +38,7 @@ serve(async (req) => {
 
     console.log('Initializing Bedrock client');
 
-    // Initialize AWS Bedrock client with complete configuration
+    // Initialize AWS Bedrock client
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
@@ -48,26 +48,21 @@ serve(async (req) => {
       maxAttempts: 3
     });
 
-    // Prepare the Anthropic Claude prompt with explicit version
-    const anthropicPrompt = {
-      anthropic_version: "bedrock-2023-05-31",
+    // Prepare the prompt with your custom model format
+    const promptData = {
+      prompt: message,
       max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: message
-        }
-      ]
+      temperature: 0.7
     };
 
-    // Call Bedrock with proper content type and response handling
+    // Call Bedrock with your specific model
     console.log('Calling Bedrock API with region:', region);
     try {
       const command = new InvokeModelCommand({
-        modelId: 'anthropic.claude-v2',
+        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
         contentType: 'application/json',
         accept: 'application/json',
-        body: JSON.stringify(anthropicPrompt)
+        body: JSON.stringify(promptData)
       });
 
       console.log('Sending request to Bedrock...');
@@ -83,8 +78,8 @@ serve(async (req) => {
       console.log('Response body:', responseBody);
       const result = JSON.parse(responseBody);
       
-      // Extract the assistant's response
-      const reply = result.messages?.[0]?.content || "I apologize, but I couldn't generate a response. Please try again.";
+      // Extract the response based on your model's output format
+      const reply = result.completion || result.generated_text || result.response || "I apologize, but I couldn't generate a response. Please try again.";
 
       return new Response(
         JSON.stringify({ reply }),
