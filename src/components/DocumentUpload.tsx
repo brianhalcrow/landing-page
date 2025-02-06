@@ -5,9 +5,12 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from 'pdfjs-dist';
+import { PDFWorker } from 'pdfjs-dist/legacy/build/pdf.worker.mjs';
 
 // Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerPort = new PDFWorker();
+}
 
 export function DocumentUpload() {
   const [loading, setLoading] = useState(false);
@@ -15,7 +18,7 @@ export function DocumentUpload() {
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     let fullText = '';
     
     for (let i = 1; i <= pdf.numPages; i++) {
