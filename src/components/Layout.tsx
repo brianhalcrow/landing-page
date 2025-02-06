@@ -1,6 +1,6 @@
 import { Search, Moon, Sun, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -10,12 +10,7 @@ import { toast } from "sonner";
 import { Toaster } from "sonner";
 import { useEffect, useState } from "react";
 
-interface LayoutProps {
-  children: React.ReactNode;
-  hideSearch?: boolean;
-}
-
-const Layout = ({ children, hideSearch = false }: LayoutProps) => {
+const Layout = () => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -49,21 +44,19 @@ const Layout = ({ children, hideSearch = false }: LayoutProps) => {
             className="h-8"
           />
         </div>
-        {!hideSearch && (
-          <div className="flex items-center gap-4 mr-[5cm]">
-            <div className="relative w-64">
-              <Search 
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" 
-                aria-hidden="true"
-              />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="pl-8 w-full bg-gray-50"
-              />
-            </div>
+        <div className="flex items-center gap-4 mr-[5cm]">
+          <div className="relative w-64">
+            <Search 
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" 
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="pl-8 w-full bg-gray-50"
+            />
           </div>
-        )}
+        </div>
         <div className="flex items-center gap-2">
           {/* Theme toggle button temporarily hidden */}
           {/* Temporarily hide logout button for POC
@@ -83,7 +76,7 @@ const Layout = ({ children, hideSearch = false }: LayoutProps) => {
           <Sidebar />
         </div>
         <main className="flex-1 bg-white overflow-y-auto">
-          {children}
+          <Outlet />
         </main>
       </div>
       <ChatBot />
