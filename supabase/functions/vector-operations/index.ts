@@ -1,6 +1,8 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +17,12 @@ serve(async (req) => {
 
   try {
     const { action, content, metadata, embedding, match_threshold, match_count } = await req.json();
+
+    // Initialize OpenAI
+    const configuration = new Configuration({
+      apiKey: Deno.env.get('OPENAI_API_KEY'),
+    });
+    const openai = new OpenAIApi(configuration);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -31,6 +39,14 @@ serve(async (req) => {
 
     switch (action) {
       case 'store':
+        // Generate embedding using OpenAI
+        const embeddingResponse = await openai.createEmbedding({
+          model: "text-embedding-ada-002",
+          input: content,
+        });
+        
+        const [{ embedding: generatedEmbedding }] = embeddingResponse.data.data;
+
         // Store document with embedding
         const { data: insertData, error: insertError } = await supabaseClient
           .from('documents')
@@ -38,7 +54,7 @@ serve(async (req) => {
             {
               content,
               metadata,
-              embedding
+              embedding: generatedEmbedding
             }
           ])
           .select()

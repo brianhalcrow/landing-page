@@ -7,13 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Initialize PDF.js worker
-if (typeof window !== 'undefined') {
-  // Use local worker from node_modules
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url
-  ).toString();
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 export function DocumentUpload() {
   const [loading, setLoading] = useState(false);
@@ -51,7 +45,7 @@ export function DocumentUpload() {
         throw new Error('Unsupported file type');
       }
       
-      // Call the vector-operations function to process and store the document
+      // Store the document with vector embedding
       const { data, error } = await supabase.functions.invoke('vector-operations', {
         body: {
           action: 'store',
@@ -59,7 +53,8 @@ export function DocumentUpload() {
           metadata: { 
             filename: file.name,
             fileType: file.type,
-            size: file.size
+            size: file.size,
+            uploadedAt: new Date().toISOString()
           }
         }
       });
