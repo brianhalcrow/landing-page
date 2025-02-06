@@ -1,7 +1,8 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ExposureType {
+export interface ExposureType {
   exposure_type_id: number;
   exposure_category_l1: string;
   exposure_category_l2: string;
@@ -10,6 +11,7 @@ interface ExposureType {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  exposure_type_name?: string;
 }
 
 export const useExposureTypes = () => {

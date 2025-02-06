@@ -5,7 +5,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { createBaseColumnDefs } from './columnDefs/baseColumns';
 import { createProcessColumnGroups } from './columnDefs/processColumns';
-import { createActionsColumn } from './columnDefs/actionsColumn';
+import { createActionColumn } from './columnDefs/actionsColumn';
 import { gridStyles } from './styles/gridStyles';
 
 interface ProcessConfigurationGridProps {
@@ -18,7 +18,7 @@ const ProcessConfigurationGrid = ({ entities, processTypes }: ProcessConfigurati
 
   const baseColumnDefs = createBaseColumnDefs();
   const processColumnGroups = createProcessColumnGroups(processTypes);
-  const actionsColumn = createActionsColumn();
+  const actionsColumn = createActionColumn();
 
   const columnDefs = [...baseColumnDefs, ...processColumnGroups, actionsColumn];
 

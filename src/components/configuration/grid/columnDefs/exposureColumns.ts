@@ -8,7 +8,7 @@ export const createExposureColumns = (
 ): ColDef[] => {
   return exposureTypes.map((type) => ({
     field: `exposure_${type.exposure_type_id}`,
-    headerName: type.exposure_type_name,
+    headerName: type.exposure_type_name || `Exposure ${type.exposure_type_id}`,
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center custom-header',
