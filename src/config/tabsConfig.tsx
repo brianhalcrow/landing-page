@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -7,7 +8,7 @@ import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import EntityConfigurationTab from "@/components/configuration/EntityConfigurationTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
-import ProcessTab from "@/components/configuration/ProcessTab";
+import ProcessGrid from "@/components/process/ProcessGrid";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 
@@ -30,7 +31,7 @@ export const tabsConfig = {
   "configuration": [
     { value: "general", label: "Entity Configuration", content: <EntityConfigurationTab /> },
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
-    { value: "process", label: "Process", content: <ProcessTab /> },
+    { value: "process", label: "Process", content: <ProcessGrid /> },
   ],
   "exposure": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },

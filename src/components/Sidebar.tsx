@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   Database, 
@@ -21,7 +22,6 @@ const Sidebar = () => {
     { icon: LayoutDashboard, label: "Dashboard", href: "/" },
     { icon: Database, label: "Data Sources", href: "/data-sources" },
     { icon: Settings, label: "Configuration", href: "/configuration" },
-    { icon: Cog, label: "Process", href: "/process" },
     { 
       label: "Pre-Trade",
       type: "section",
