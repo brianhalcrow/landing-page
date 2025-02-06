@@ -75,7 +75,7 @@ const ScheduleConfigurationModal = ({
         const { error: detailsError } = await supabase
           .from('schedule_details')
           .upsert({
-            schedule_id: existingSchedule?.id,
+            schedule_id: existingSchedule?.schedule_id,
             frequency: data.frequency,
             day_of_week: data.daysOfWeek,
             day_of_month: data.daysOfMonth,
@@ -87,7 +87,7 @@ const ScheduleConfigurationModal = ({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['schedule', entityId, processSettingId]);
+      queryClient.invalidateQueries({ queryKey: ['schedule', entityId, processSettingId] });
       toast.success('Schedule updated successfully');
       onClose();
     },
@@ -177,7 +177,7 @@ const ScheduleConfigurationModal = ({
           </Button>
           <Button 
             onClick={handleSave}
-            disabled={isLoading || updateSchedule.isLoading}
+            disabled={isLoading || updateSchedule.isPending}
           >
             Save Changes
           </Button>
@@ -188,3 +188,4 @@ const ScheduleConfigurationModal = ({
 };
 
 export default ScheduleConfigurationModal;
+
