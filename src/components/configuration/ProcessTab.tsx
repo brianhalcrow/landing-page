@@ -1,4 +1,4 @@
-import { ProcessGrid } from "@/components/process/ProcessGrid";
+import ProcessGrid from "@/components/process/ProcessGrid";
 
 const ProcessTab = () => {
   return (
