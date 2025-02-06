@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -12,6 +13,7 @@ import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
+import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -26,8 +28,8 @@ export const tabsConfig = {
     { value: "pending", label: "Pending", content: <div>Pending Settlements</div> },
   ],
   "data-sources": [
-    { value: "connections", label: "Connections", content: <div>Data Source Connections</div> },
-    { value: "history", label: "History", content: <div>Connection History</div> },
+    { value: "connections", label: "Connections", content: <ConnectionsTab /> },
+    { value: "history", label: "History", content: <HistoryTab /> },
     { value: "documents", label: "Documents", content: <DocumentsTab /> },
   ],
   "configuration": [
