@@ -9,21 +9,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const MAX_CHUNK_SIZE = 2000; // Maximum characters per chunk
-const CHUNK_OVERLAP = 200; // Number of characters to overlap between chunks
-const MAX_CHUNKS = 10; // Maximum number of chunks to process
+const MAX_CHUNK_SIZE = 2000;
+const CHUNK_OVERLAP = 200;
+const MAX_CHUNKS = 10;
 
 async function processFileContent(base64Content: string, fileType: string): Promise<string> {
-  // For text files, simply decode the base64
   if (fileType === 'text/plain') {
     return atob(base64Content);
   }
   
-  // For PDFs, use a basic text extraction approach
   if (fileType === 'application/pdf') {
     const decoded = atob(base64Content);
     return decoded
-      .replace(/[\x00-\x1F\x7F-\xFF]/g, '') // Remove non-printable chars
+      .replace(/[\x00-\x1F\x7F-\xFF]/g, '')
       .replace(/\\n/g, '\n')
       .replace(/\s+/g, ' ')
       .trim();
@@ -37,20 +35,14 @@ function chunkText(text: string): string[] {
   let currentIndex = 0;
 
   while (currentIndex < text.length && chunks.length < MAX_CHUNKS) {
-    // Calculate the end index for this chunk
     const endIndex = Math.min(currentIndex + MAX_CHUNK_SIZE, text.length);
-    
-    // If this isn't the first chunk, include some overlap
     const startIndex = currentIndex === 0 ? 0 : currentIndex - CHUNK_OVERLAP;
-    
-    // Extract the chunk
     const chunk = text.slice(startIndex, endIndex).trim();
     
     if (chunk.length > 0) {
       chunks.push(chunk);
     }
     
-    // Move to the next chunk
     currentIndex = endIndex;
   }
 
@@ -58,13 +50,16 @@ function chunkText(text: string): string[] {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, file, metadata } = await req.json();
-    console.log(`Processing ${action} request for file:`, file?.name);
+    // Clone the request before reading the body
+    const clonedReq = req.clone();
+    const { action } = await clonedReq.json();
+    console.log(`Processing ${action} request`);
 
     // Initialize OpenAI
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -91,11 +86,11 @@ serve(async (req) => {
 
     switch (action) {
       case 'store': {
+        const { file, metadata } = await req.json();
         if (!file?.content) {
           throw new Error('File content is required');
         }
 
-        // Process the file content
         console.log('Processing file content');
         const extractedText = await processFileContent(file.content, file.type);
         
@@ -104,17 +99,13 @@ serve(async (req) => {
         }
 
         console.log('Text extracted, length:', extractedText.length);
-
-        // Split content into chunks
         const chunks = chunkText(extractedText);
         console.log(`Split content into ${chunks.length} chunks`);
 
-        // Process each chunk
         const processedChunks = [];
         for (const [index, chunk] of chunks.entries()) {
           console.log(`Processing chunk ${index + 1}/${chunks.length}`);
           
-          // Generate embedding for chunk
           const embeddingResponse = await openai.createEmbedding({
             model: "text-embedding-ada-002",
             input: chunk,
@@ -122,7 +113,6 @@ serve(async (req) => {
 
           const [{ embedding }] = embeddingResponse.data.data;
           
-          // Store chunk with its embedding
           const { data: documentChunk, error: insertError } = await supabaseClient
             .from('documents')
             .insert({
