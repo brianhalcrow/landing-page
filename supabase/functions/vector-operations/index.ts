@@ -17,6 +17,7 @@ serve(async (req) => {
 
   try {
     const { action, content, metadata, embedding, match_threshold, match_count } = await req.json();
+    console.log(`Processing ${action} request with metadata:`, metadata);
 
     // Initialize OpenAI
     const configuration = new Configuration({
@@ -39,6 +40,8 @@ serve(async (req) => {
 
     switch (action) {
       case 'store':
+        console.log('Generating embedding for content length:', content.length);
+        
         // Generate embedding using OpenAI
         const embeddingResponse = await openai.createEmbedding({
           model: "text-embedding-ada-002",
@@ -46,6 +49,7 @@ serve(async (req) => {
         });
         
         const [{ embedding: generatedEmbedding }] = embeddingResponse.data.data;
+        console.log('Successfully generated embedding');
 
         // Store document with embedding
         const { data: insertData, error: insertError } = await supabaseClient
@@ -60,11 +64,17 @@ serve(async (req) => {
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error inserting document:', insertError);
+          throw insertError;
+        }
+        
+        console.log('Successfully stored document with ID:', insertData.id);
         result = insertData;
         break;
 
       case 'search':
+        console.log('Searching for similar documents with threshold:', match_threshold);
         // Search for similar documents
         const { data: searchData, error: searchError } = await supabaseClient
           .rpc('match_documents', {
@@ -73,7 +83,12 @@ serve(async (req) => {
             match_count: match_count || 10
           });
 
-        if (searchError) throw searchError;
+        if (searchError) {
+          console.error('Error searching documents:', searchError);
+          throw searchError;
+        }
+        
+        console.log('Found', searchData?.length || 0, 'matching documents');
         result = searchData;
         break;
 
@@ -87,7 +102,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error processing request:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
