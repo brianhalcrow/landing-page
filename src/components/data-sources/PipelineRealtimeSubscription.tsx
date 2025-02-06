@@ -24,7 +24,10 @@ export const PipelineRealtimeSubscription = ({
       )
       .subscribe((status) => {
         if (status !== "SUBSCRIBED") {
-          console.error("Pipeline executions subscription failed:", status);
+          // Only log actual errors, not normal closure
+          if (status !== "CLOSED") {
+            console.error("Pipeline executions subscription failed:", status);
+          }
         }
       });
 
