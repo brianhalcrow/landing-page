@@ -5,7 +5,7 @@ import TradeRequestsGrid from "@/components/control/TradeRequestsGrid";
 
 const Control = () => {
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container-fluid px-6 py-6 space-y-6">
       <TabsContainer tabs={tabsConfig["control"]} />
       <TradeRequestsGrid />
     </div>
@@ -13,3 +13,4 @@ const Control = () => {
 };
 
 export default Control;
+
