@@ -56,10 +56,20 @@ serve(async (req) => {
   }
 
   try {
-    // Clone the request before reading the body
-    const clonedReq = req.clone();
-    const { action } = await clonedReq.json();
-    console.log(`Processing ${action} request`);
+    console.log('Received request:', req.method);
+    const bodyText = await req.text();
+    console.log('Request body:', bodyText);
+    
+    let body;
+    try {
+      body = JSON.parse(bodyText);
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { action } = body;
+    console.log('Action:', action);
 
     // Initialize OpenAI
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -86,7 +96,9 @@ serve(async (req) => {
 
     switch (action) {
       case 'store': {
-        const { file, metadata } = await req.json();
+        const { file, metadata } = body;
+        console.log('Processing store action for file:', file?.name);
+        
         if (!file?.content) {
           throw new Error('File content is required');
         }
@@ -106,32 +118,38 @@ serve(async (req) => {
         for (const [index, chunk] of chunks.entries()) {
           console.log(`Processing chunk ${index + 1}/${chunks.length}`);
           
-          const embeddingResponse = await openai.createEmbedding({
-            model: "text-embedding-ada-002",
-            input: chunk,
-          });
+          try {
+            const embeddingResponse = await openai.createEmbedding({
+              model: "text-embedding-ada-002",
+              input: chunk,
+            });
 
-          const [{ embedding }] = embeddingResponse.data.data;
-          
-          const { data: documentChunk, error: insertError } = await supabaseClient
-            .from('documents')
-            .insert({
-              content: chunk,
-              embedding,
-              metadata: {
-                ...metadata,
-                chunk: index + 1,
-                totalChunks: chunks.length,
-                fileName: file.name,
-                fileType: file.type,
-                status: 'completed'
-              }
-            })
-            .select()
-            .single();
+            const [{ embedding }] = embeddingResponse.data.data;
+            
+            const { data: documentChunk, error: insertError } = await supabaseClient
+              .from('documents')
+              .insert({
+                content: chunk,
+                embedding,
+                metadata: {
+                  ...metadata,
+                  chunk: index + 1,
+                  totalChunks: chunks.length,
+                  fileName: file.name,
+                  fileType: file.type,
+                  status: 'completed'
+                }
+              })
+              .select()
+              .single();
 
-          if (insertError) throw insertError;
-          processedChunks.push(documentChunk);
+            if (insertError) throw insertError;
+            processedChunks.push(documentChunk);
+            
+          } catch (error) {
+            console.error(`Error processing chunk ${index + 1}:`, error);
+            throw error;
+          }
         }
 
         result = {
@@ -142,7 +160,7 @@ serve(async (req) => {
       }
 
       case 'search': {
-        const { embedding, match_threshold, match_count } = await req.json();
+        const { embedding, match_threshold, match_count } = body;
         console.log('Searching for similar documents with threshold:', match_threshold);
         
         const { data: searchData, error: searchError } = await supabaseClient
