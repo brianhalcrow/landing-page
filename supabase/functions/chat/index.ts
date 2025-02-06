@@ -54,9 +54,9 @@ serve(async (req) => {
       },
     });
 
-    // Use the updated Anthropic Claude model ID
+    // Prepare the command with original model configuration
     const command = new InvokeModelCommand({
-      modelId: 'anthropic.claude-v2',  // Updated to use Claude v2
+      modelId: 'anthropic.claude-instant-v1',
       contentType: 'application/json',
       accept: 'application/json',
       body: JSON.stringify({
@@ -144,3 +144,4 @@ serve(async (req) => {
     );
   }
 });
+
