@@ -28,7 +28,8 @@ const ProcessGrid = () => {
             option_name,
             process_settings (
               process_setting_id,
-              setting_name
+              setting_name,
+              setting_type
             )
           )
         `)
