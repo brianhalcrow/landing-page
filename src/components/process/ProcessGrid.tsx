@@ -7,21 +7,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 
 const ProcessGrid = () => {
-  const { data: processSettings, isLoading } = useQuery({
+  // First, fetch process settings to create columns
+  const { data: processSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ['process-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('process_settings')
-        .select(`
-          *,
-          process_options (
-            option_name,
-            process_type_id,
-            process_types (
-              process_name
-            )
-          )
-        `)
+        .select('*')
         .eq('is_active', true);
 
       if (error) throw error;
@@ -29,66 +21,71 @@ const ProcessGrid = () => {
     },
   });
 
+  // Then, fetch entities with their process settings
+  const { data: entitySettings, isLoading: isLoadingEntities } = useQuery({
+    queryKey: ['entity-process-settings'],
+    queryFn: async () => {
+      // First get entities with exposure type 4
+      const { data: entities, error: entitiesError } = await supabase
+        .from('entity_exposure_config')
+        .select(`
+          entity_id,
+          entities (
+            entity_name
+          )
+        `)
+        .eq('exposure_type_id', 4)
+        .eq('is_active', true);
+
+      if (entitiesError) throw entitiesError;
+
+      // Then get their process settings
+      const { data: settings, error: settingsError } = await supabase
+        .from('entity_process_settings')
+        .select('*')
+        .in('entity_id', entities?.map(e => e.entity_id) || []);
+
+      if (settingsError) throw settingsError;
+
+      // Map settings to entities
+      return entities?.map(entity => {
+        const entitySettings = settings?.filter(s => s.entity_id === entity.entity_id) || [];
+        
+        // Create an object with all process settings as columns
+        const settingsMap = Object.fromEntries(
+          (processSettings || []).map(ps => [
+            `setting_${ps.process_setting_id}`,
+            entitySettings.find(es => es.process_setting_id === ps.process_setting_id)?.setting_value || ''
+          ])
+        );
+
+        return {
+          entity_id: entity.entity_id,
+          entity_name: entity.entities?.entity_name,
+          ...settingsMap
+        };
+      });
+    },
+    enabled: !!processSettings
+  });
+
+  // Create dynamic columns based on process settings
   const columnDefs: ColDef[] = [
     {
-      field: 'process_setting_id',
-      headerName: 'ID',
-      width: 80,
+      field: 'entity_name',
+      headerName: 'Entity',
+      width: 200,
       sort: 'asc',
+      pinned: 'left'
     },
-    {
-      field: 'process_options.process_types.process_name',
-      headerName: 'Process',
+    ...(processSettings || []).map(setting => ({
+      field: `setting_${setting.process_setting_id}`,
+      headerName: setting.setting_name,
       flex: 1,
-    },
-    {
-      field: 'process_options.option_name',
-      headerName: 'Option',
-      flex: 1,
-    },
-    {
-      field: 'setting_name',
-      headerName: 'Setting Name',
-      flex: 1,
-    },
-    {
-      field: 'setting_type',
-      headerName: 'Setting Type',
-      flex: 1,
-    },
-    {
-      field: 'is_active',
-      headerName: 'Active',
-      width: 100,
-      cellRenderer: (params: any) => {
-        return params.value ? '✓' : '✗';
-      },
-    },
-    {
-      field: 'created_at',
-      headerName: 'Created At',
-      flex: 1,
-      valueFormatter: (params) => {
-        if (params.value) {
-          return new Date(params.value).toLocaleString();
-        }
-        return '';
-      },
-    },
-    {
-      field: 'updated_at',
-      headerName: 'Updated At',
-      flex: 1,
-      valueFormatter: (params) => {
-        if (params.value) {
-          return new Date(params.value).toLocaleString();
-        }
-        return '';
-      },
-    },
+    }))
   ];
 
-  if (isLoading) {
+  if (isLoadingSettings || isLoadingEntities) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
         Loading process settings...
@@ -96,10 +93,10 @@ const ProcessGrid = () => {
     );
   }
 
-  if (!processSettings?.length) {
+  if (!entitySettings?.length) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
-        No process settings found.
+        No entities found with exposure type 4.
       </div>
     );
   }
@@ -108,7 +105,7 @@ const ProcessGrid = () => {
     <div className="w-full h-[600px] ag-theme-alpine">
       <GridStyles />
       <AgGridReact
-        rowData={processSettings}
+        rowData={entitySettings}
         columnDefs={columnDefs}
         defaultColDef={{
           sortable: true,
