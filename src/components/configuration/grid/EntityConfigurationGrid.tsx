@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useCallback } from 'react';
 import CheckboxCellRenderer from './cellRenderers/CheckboxCellRenderer';
+import ActionsCellRenderer from './cellRenderers/ActionsCellRenderer';
 
 interface EntityConfigurationGridProps {
   entities: any[];
@@ -119,7 +120,8 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         enableCellTextSelection={true}
         getRowId={(params) => params.data.entity_id}
         components={{
-          checkboxCellRenderer: CheckboxCellRenderer
+          checkboxCellRenderer: CheckboxCellRenderer,
+          actionsCellRenderer: ActionsCellRenderer
         }}
       />
     </div>
