@@ -31,20 +31,11 @@ serve(async (req) => {
     const secretAccessKey = Deno.env.get('AWS_US_EAST_SECRET_ACCESS_KEY');
     const region = Deno.env.get('AWS_US_EAST_REGION') || 'us-east-1';
     
-    // Comprehensive credential logging and validation
-    console.log('Credential Debug:', {
-      accessKeyIdPrefix: accessKeyId?.substring(0, 4) + '***',
-      accessKeyIdLength: accessKeyId?.length,
-      secretKeyLength: secretAccessKey?.length,
-      region: region
-    });
-
     if (!accessKeyId || !secretAccessKey) {
       console.error('Missing AWS US East credentials');
       return new Response(
         JSON.stringify({ 
-          error: 'AWS US East credentials not properly configured',
-          details: 'Please check AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY in Supabase Edge Function secrets'
+          error: 'AWS US East credentials not properly configured'
         }),
         { 
           status: 500,
@@ -53,156 +44,97 @@ serve(async (req) => {
       );
     }
 
-    // Additional credential validation
-    if (accessKeyId.length < 10 || secretAccessKey.length < 20) {
-      console.error('Invalid AWS credential format');
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid AWS Credentials',
-          details: 'Credentials do not meet minimum length requirements'
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    console.log('Initializing Bedrock client with US East credentials');
+    console.log('Initializing Bedrock client');
     
-    // Initialize AWS Bedrock client with US East configuration
     const bedrockClient = new BedrockRuntimeClient({
       region,
       credentials: {
         accessKeyId,
         secretAccessKey,
       },
-      maxAttempts: 3, // Increased retry attempts
     });
 
-    // Call Bedrock with imported DeepSeek Llama model
-    console.log('Preparing to call DeepSeek Llama model');
-    try {
-      const command = new InvokeModelCommand({
-        modelId: 'arn:aws:bedrock:us-east-1:897729103708:imported-model/dj1b82d4nlp2',
-        contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify({
-          prompt: message,
-          max_tokens: 2048,
-          temperature: 0.5,
-          top_p: 0.9,
-          stop_sequences: ["\n\n"],
-          stream: false
-        })
-      });
+    // Prepare the command with a more reliable configuration
+    const command = new InvokeModelCommand({
+      modelId: 'anthropic.claude-v2',  // Using Claude v2 which is more stable
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({
+        prompt: `\n\nHuman: ${message}\n\nAssistant:`,
+        max_tokens_to_sample: 1000,
+        temperature: 0.7,
+        top_k: 250,
+        top_p: 0.999,
+        stop_sequences: ["\n\nHuman:"],
+        anthropic_version: "bedrock-2023-05-31"
+      })
+    });
 
-      // Add exponential backoff retry logic
-      let maxRetries = 3;
-      let retryCount = 0;
-      let lastError;
+    console.log('Sending request to Bedrock');
 
-      while (retryCount < maxRetries) {
-        try {
-          console.log(`Attempt ${retryCount + 1} of ${maxRetries}`);
-          const response = await bedrockClient.send(command);
-          console.log('Received Bedrock response');
+    // Add retry logic with exponential backoff
+    const maxRetries = 3;
+    let attempt = 0;
+    let lastError;
 
-          if (!response.body) {
-            throw new Error('Empty response from Bedrock');
-          }
-
-          // Parse the response
-          const responseBody = new TextDecoder().decode(response.body);
-          console.log('Raw response body:', responseBody);
-
-          const result = JSON.parse(responseBody);
-          const reply = result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
-
-          return new Response(
-            JSON.stringify({ reply }),
-            { 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              status: 200
-            }
-          );
-        } catch (error) {
-          console.error(`Attempt ${retryCount + 1} failed:`, error);
-          lastError = error;
-          
-          // Check if error is related to model not being ready
-          if (error.message?.includes('Model is not ready for inference')) {
-            // Wait with exponential backoff before retrying
-            const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-            console.log(`Model not ready, waiting ${delay}ms before retry`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            retryCount++;
-          } else {
-            // If it's a different error, don't retry
-            throw error;
-          }
+    while (attempt < maxRetries) {
+      try {
+        console.log(`Attempt ${attempt + 1} of ${maxRetries}`);
+        const response = await bedrockClient.send(command);
+        
+        if (!response.body) {
+          throw new Error('Empty response from Bedrock');
         }
-      }
 
-      // If we've exhausted retries, throw the last error
-      if (lastError) {
-        throw lastError;
-      }
+        const responseText = new TextDecoder().decode(response.body);
+        const parsedResponse = JSON.parse(responseText);
+        const reply = parsedResponse.completion || "I apologize, but I couldn't generate a complete response.";
 
-    } catch (bedrockError) {
-      console.error('Detailed Bedrock API error:', {
-        name: bedrockError.name,
-        message: bedrockError.message,
-        code: bedrockError.code,
-        stack: bedrockError.stack
-      });
-      
-      // Specific error handling
-      if (bedrockError.name === 'InvalidSignatureException') {
+        console.log('Successfully generated response');
+
         return new Response(
-          JSON.stringify({ 
-            error: 'Invalid AWS credentials',
-            details: 'Please verify your AWS_US_EAST_ACCESS_KEY_ID and AWS_US_EAST_SECRET_ACCESS_KEY'
-          }),
+          JSON.stringify({ reply: reply.trim() }),
           { 
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
           }
         );
-      }
-      
-      // Model not ready error
-      if (bedrockError.message?.includes('Model is not ready for inference')) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Model Temporarily Unavailable',
-            details: 'The AI model is currently initializing. Please try again in a few moments.'
-          }),
-          { 
-            status: 503,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
-      // Generic error response
-      return new Response(
-        JSON.stringify({ 
-          error: 'Bedrock API Error',
-          details: bedrockError.message
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      } catch (error) {
+        console.error(`Attempt ${attempt + 1} failed:`, error);
+        lastError = error;
+        
+        if (error.name === 'ThrottlingException' || 
+            error.message?.includes('Model is not ready')) {
+          // Wait with exponential backoff
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Waiting ${delay}ms before retry`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          attempt++;
+        } else {
+          // If it's a different error, don't retry
+          break;
         }
-      );
+      }
     }
 
+    // If we've exhausted retries or hit a non-retriable error
+    console.error('All attempts failed or non-retriable error encountered');
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to generate response',
+        details: lastError?.message || 'Unknown error'
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
+
   } catch (error) {
-    console.error('Unhandled error in chat function:', error);
+    console.error('Unhandled error:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Unexpected Error',
+        error: 'Internal Server Error',
         details: error.message
       }),
       { 

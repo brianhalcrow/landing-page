@@ -1616,14 +1616,12 @@ export type Database = {
       v_entity_configurations: {
         Row: {
           accounting_rate_method: string | null
-          core_config: Json | null
+          configurations: Json | null
           created_at: string | null
           entity_id: string | null
           entity_name: string | null
-          exposure_config: Json | null
           functional_currency: string | null
           is_active: boolean | null
-          process_settings: Json | null
           updated_at: string | null
         }
         Relationships: []
