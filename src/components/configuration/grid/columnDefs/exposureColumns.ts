@@ -17,21 +17,6 @@ export const createExposureColumns = (
     autoHeaderHeight: true,
     editable: (params) => !!params.data?.isEditing,
     cellRenderer: 'checkboxCellRenderer',
-    cellRendererParams: (params: any) => ({
-      value: params.value,
-      disabled: !params.data?.isEditing,
-      onChange: (checked: boolean) => {
-        if (params.node && params.api) {
-          const updatedData = { ...params.data };
-          updatedData[params.column.getColId()] = checked;
-          params.node.setData(updatedData);
-          params.api.refreshCells({ 
-            rowNodes: [params.node],
-            force: true
-          });
-        }
-      }
-    }),
     onCellValueChanged
   }));
 };

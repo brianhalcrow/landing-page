@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
@@ -77,7 +76,7 @@ serve(async (req) => {
         accessKeyId,
         secretAccessKey,
       },
-      maxAttempts: 3, // Increased retry attempts
+      maxAttempts: 2 // Reduce retry attempts
     });
 
     // Call Bedrock with imported DeepSeek Llama model
@@ -97,57 +96,30 @@ serve(async (req) => {
         })
       });
 
-      // Add exponential backoff retry logic
-      let maxRetries = 3;
-      let retryCount = 0;
-      let lastError;
+      console.log('Sending request to Bedrock...');
+      const response = await bedrockClient.send(command);
+      console.log('Received Bedrock response');
 
-      while (retryCount < maxRetries) {
-        try {
-          console.log(`Attempt ${retryCount + 1} of ${maxRetries}`);
-          const response = await bedrockClient.send(command);
-          console.log('Received Bedrock response');
+      if (!response.body) {
+        throw new Error('Empty response from Bedrock');
+      }
 
-          if (!response.body) {
-            throw new Error('Empty response from Bedrock');
-          }
+      // Parse the response
+      const responseBody = new TextDecoder().decode(response.body);
+      console.log('Raw response body:', responseBody);
 
-          // Parse the response
-          const responseBody = new TextDecoder().decode(response.body);
-          console.log('Raw response body:', responseBody);
+      const result = JSON.parse(responseBody);
+      
+      // Parse response for DeepSeek Llama model
+      const reply = result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
 
-          const result = JSON.parse(responseBody);
-          const reply = result.generation || result.output || "I apologize, but I couldn't generate a complete response.";
-
-          return new Response(
-            JSON.stringify({ reply }),
-            { 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              status: 200
-            }
-          );
-        } catch (error) {
-          console.error(`Attempt ${retryCount + 1} failed:`, error);
-          lastError = error;
-          
-          // Check if error is related to model not being ready
-          if (error.message?.includes('Model is not ready for inference')) {
-            // Wait with exponential backoff before retrying
-            const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-            console.log(`Model not ready, waiting ${delay}ms before retry`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            retryCount++;
-          } else {
-            // If it's a different error, don't retry
-            throw error;
-          }
+      return new Response(
+        JSON.stringify({ reply }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
         }
-      }
-
-      // If we've exhausted retries, throw the last error
-      if (lastError) {
-        throw lastError;
-      }
+      );
 
     } catch (bedrockError) {
       console.error('Detailed Bedrock API error:', {
@@ -166,20 +138,6 @@ serve(async (req) => {
           }),
           { 
             status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
-      // Model not ready error
-      if (bedrockError.message?.includes('Model is not ready for inference')) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Model Temporarily Unavailable',
-            details: 'The AI model is currently initializing. Please try again in a few moments.'
-          }),
-          { 
-            status: 503,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         );

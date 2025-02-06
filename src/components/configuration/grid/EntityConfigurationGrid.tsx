@@ -9,8 +9,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useCallback } from 'react';
-import CheckboxCellRenderer from './cellRenderers/CheckboxCellRenderer';
-import ActionsCellRenderer from './cellRenderers/ActionsCellRenderer';
 
 interface EntityConfigurationGridProps {
   entities: any[];
@@ -102,6 +100,12 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
           .text-left {
             justify-content: flex-start !important;
           }
+          .ag-header-viewport {
+            overflow: visible !important;
+          }
+          .ag-header-container {
+            overflow: visible !important;
+          }
         `}
       </style>
       <AgGridReact
@@ -119,10 +123,6 @@ const EntityConfigurationGrid = ({ entities, exposureTypes }: EntityConfiguratio
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
         getRowId={(params) => params.data.entity_id}
-        components={{
-          checkboxCellRenderer: CheckboxCellRenderer,
-          actionsCellRenderer: ActionsCellRenderer
-        }}
       />
     </div>
   );
