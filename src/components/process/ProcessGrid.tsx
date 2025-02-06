@@ -7,17 +7,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 
 const ProcessGrid = () => {
-  const { data: processTypes, isLoading } = useQuery({
-    queryKey: ['process-types'],
+  const { data: processSettings, isLoading } = useQuery({
+    queryKey: ['process-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('process_types')
+        .from('process_settings')
         .select(`
           *,
-          exposure_types (
-            exposure_category_l1,
-            exposure_category_l2,
-            exposure_category_l3
+          process_options (
+            option_name,
+            process_type_id,
+            process_types (
+              process_name
+            )
           )
         `)
         .eq('is_active', true);
@@ -29,29 +31,29 @@ const ProcessGrid = () => {
 
   const columnDefs: ColDef[] = [
     {
-      field: 'process_type_id',
+      field: 'process_setting_id',
       headerName: 'ID',
       width: 80,
       sort: 'asc',
     },
     {
-      field: 'process_name',
-      headerName: 'Process Name',
+      field: 'process_options.process_types.process_name',
+      headerName: 'Process',
       flex: 1,
     },
     {
-      field: 'exposure_types.exposure_category_l1',
-      headerName: 'Exposure Category L1',
+      field: 'process_options.option_name',
+      headerName: 'Option',
       flex: 1,
     },
     {
-      field: 'exposure_types.exposure_category_l2',
-      headerName: 'Exposure Category L2',
+      field: 'setting_name',
+      headerName: 'Setting Name',
       flex: 1,
     },
     {
-      field: 'exposure_types.exposure_category_l3',
-      headerName: 'Exposure Category L3',
+      field: 'setting_type',
+      headerName: 'Setting Type',
       flex: 1,
     },
     {
@@ -89,15 +91,15 @@ const ProcessGrid = () => {
   if (isLoading) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
-        Loading process types...
+        Loading process settings...
       </div>
     );
   }
 
-  if (!processTypes?.length) {
+  if (!processSettings?.length) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
-        No process types found.
+        No process settings found.
       </div>
     );
   }
@@ -106,7 +108,7 @@ const ProcessGrid = () => {
     <div className="w-full h-[600px] ag-theme-alpine">
       <GridStyles />
       <AgGridReact
-        rowData={processTypes}
+        rowData={processSettings}
         columnDefs={columnDefs}
         defaultColDef={{
           sortable: true,
