@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { BedrockRuntimeClient, InvokeModelCommand } from "npm:@aws-sdk/client-bedrock-runtime";
 
@@ -92,7 +91,7 @@ serve(async (req) => {
           max_tokens: 2048,
           temperature: 0.5,
           top_p: 0.9,
-          stop_sequences: ["\n\n"],  // Added comma before this line
+          stop_sequences: ["\n\n"],
           stream: false
         })
       });

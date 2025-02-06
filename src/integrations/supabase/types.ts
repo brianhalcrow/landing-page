@@ -165,25 +165,105 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "entity_exposure_config_entity_id_fkey"
+            foreignKeyName: "entity_exposure_config_exposure_type_id_fkey"
+            columns: ["exposure_type_id"]
+            isOneToOne: false
+            referencedRelation: "exposure_types"
+            referencedColumns: ["exposure_type_id"]
+          },
+          {
+            foreignKeyName: "fk_entity"
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
             referencedColumns: ["entity_id"]
           },
           {
-            foreignKeyName: "entity_exposure_config_entity_id_fkey"
+            foreignKeyName: "fk_entity"
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "v_entity_config"
             referencedColumns: ["entity_id"]
           },
+        ]
+      }
+      entity_process_selections: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          exposure_type_id: number
+          is_active: boolean | null
+          process_option_id: number
+          process_type_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          exposure_type_id: number
+          is_active?: boolean | null
+          process_option_id: number
+          process_type_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          exposure_type_id?: number
+          is_active?: boolean | null
+          process_option_id?: number
+          process_type_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "entity_exposure_config_exposure_type_id_fkey"
-            columns: ["exposure_type_id"]
+            foreignKeyName: "fk_entity_exposure"
+            columns: ["entity_id", "exposure_type_id"]
             isOneToOne: false
-            referencedRelation: "exposure_types"
-            referencedColumns: ["exposure_type_id"]
+            referencedRelation: "entity_exposure_config"
+            referencedColumns: ["entity_id", "exposure_type_id"]
+          },
+          {
+            foreignKeyName: "fk_process_option"
+            columns: ["process_option_id"]
+            isOneToOne: false
+            referencedRelation: "process_options"
+            referencedColumns: ["process_option_id"]
+          },
+        ]
+      }
+      entity_process_settings: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          is_active: boolean | null
+          process_setting_id: number
+          setting_value: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          is_active?: boolean | null
+          process_setting_id: number
+          setting_value: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          is_active?: boolean | null
+          process_setting_id?: number
+          setting_value?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_process_setting"
+            columns: ["process_setting_id"]
+            isOneToOne: false
+            referencedRelation: "process_settings"
+            referencedColumns: ["process_setting_id"]
           },
         ]
       }
@@ -934,6 +1014,124 @@ export type Database = {
         }
         Relationships: []
       }
+      process_options: {
+        Row: {
+          created_at: string | null
+          is_active: boolean | null
+          option_name: string
+          process_option_id: number
+          process_type_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          is_active?: boolean | null
+          option_name: string
+          process_option_id?: number
+          process_type_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          is_active?: boolean | null
+          option_name?: string
+          process_option_id?: number
+          process_type_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_process_type"
+            columns: ["process_type_id"]
+            isOneToOne: false
+            referencedRelation: "process_types"
+            referencedColumns: ["process_type_id"]
+          },
+        ]
+      }
+      process_settings: {
+        Row: {
+          created_at: string | null
+          is_active: boolean | null
+          parent_setting_id: number | null
+          process_option_id: number
+          process_setting_id: number
+          setting_name: string
+          setting_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          is_active?: boolean | null
+          parent_setting_id?: number | null
+          process_option_id: number
+          process_setting_id?: number
+          setting_name: string
+          setting_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          is_active?: boolean | null
+          parent_setting_id?: number | null
+          process_option_id?: number
+          process_setting_id?: number
+          setting_name?: string
+          setting_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_parent_setting"
+            columns: ["parent_setting_id"]
+            isOneToOne: false
+            referencedRelation: "process_settings"
+            referencedColumns: ["process_setting_id"]
+          },
+          {
+            foreignKeyName: "fk_process_option"
+            columns: ["process_option_id"]
+            isOneToOne: false
+            referencedRelation: "process_options"
+            referencedColumns: ["process_option_id"]
+          },
+        ]
+      }
+      process_types: {
+        Row: {
+          created_at: string | null
+          exposure_type_id: number
+          is_active: boolean | null
+          process_name: string
+          process_type_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          exposure_type_id: number
+          is_active?: boolean | null
+          process_name: string
+          process_type_id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          exposure_type_id?: number
+          is_active?: boolean | null
+          process_name?: string
+          process_type_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_exposure_type"
+            columns: ["exposure_type_id"]
+            isOneToOne: false
+            referencedRelation: "exposure_types"
+            referencedColumns: ["exposure_type_id"]
+          },
+        ]
+      }
       rates: {
         Row: {
           base_currency: string | null
@@ -969,6 +1167,170 @@ export type Database = {
           timestamp?: string | null
         }
         Relationships: []
+      }
+      schedule_configs: {
+        Row: {
+          created_at: string | null
+          day_of_month: number[] | null
+          day_of_week: number[] | null
+          frequency: Database["public"]["Enums"]["schedule_frequency"]
+          is_active: boolean | null
+          process_setting_id: number
+          schedule_config_id: number
+          time_of_day: string[]
+          timezone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_month?: number[] | null
+          day_of_week?: number[] | null
+          frequency: Database["public"]["Enums"]["schedule_frequency"]
+          is_active?: boolean | null
+          process_setting_id: number
+          schedule_config_id?: number
+          time_of_day: string[]
+          timezone?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_month?: number[] | null
+          day_of_week?: number[] | null
+          frequency?: Database["public"]["Enums"]["schedule_frequency"]
+          is_active?: boolean | null
+          process_setting_id?: number
+          schedule_config_id?: number
+          time_of_day?: string[]
+          timezone?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_process_setting"
+            columns: ["process_setting_id"]
+            isOneToOne: false
+            referencedRelation: "process_settings"
+            referencedColumns: ["process_setting_id"]
+          },
+        ]
+      }
+      schedule_definitions: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          is_active: boolean | null
+          process_setting_id: number
+          schedule_id: number
+          schedule_type: Database["public"]["Enums"]["schedule_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          is_active?: boolean | null
+          process_setting_id: number
+          schedule_id?: number
+          schedule_type: Database["public"]["Enums"]["schedule_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          is_active?: boolean | null
+          process_setting_id?: number
+          schedule_id?: number
+          schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_entity_process_setting"
+            columns: ["entity_id", "process_setting_id"]
+            isOneToOne: false
+            referencedRelation: "entity_process_settings"
+            referencedColumns: ["entity_id", "process_setting_id"]
+          },
+        ]
+      }
+      schedule_details: {
+        Row: {
+          created_at: string | null
+          day_of_month: number[] | null
+          day_of_week: number[] | null
+          execution_time: string[]
+          frequency: Database["public"]["Enums"]["schedule_frequency"]
+          is_active: boolean | null
+          schedule_id: number
+          timezone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_month?: number[] | null
+          day_of_week?: number[] | null
+          execution_time: string[]
+          frequency: Database["public"]["Enums"]["schedule_frequency"]
+          is_active?: boolean | null
+          schedule_id: number
+          timezone?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_month?: number[] | null
+          day_of_week?: number[] | null
+          execution_time?: string[]
+          frequency?: Database["public"]["Enums"]["schedule_frequency"]
+          is_active?: boolean | null
+          schedule_id?: number
+          timezone?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_schedule"
+            columns: ["schedule_id"]
+            isOneToOne: true
+            referencedRelation: "schedule_definitions"
+            referencedColumns: ["schedule_id"]
+          },
+        ]
+      }
+      schedule_parameters: {
+        Row: {
+          created_at: string | null
+          is_active: boolean | null
+          parameter_name: string
+          parameter_value: string
+          schedule_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          is_active?: boolean | null
+          parameter_name: string
+          parameter_value: string
+          schedule_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          is_active?: boolean | null
+          parameter_name?: string
+          parameter_value?: string
+          schedule_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_schedule"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_definitions"
+            referencedColumns: ["schedule_id"]
+          },
+        ]
       }
       table_connections: {
         Row: {
@@ -1401,7 +1763,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      schedule_frequency: "daily" | "weekly" | "monthly" | "on_demand"
+      schedule_type: "on_demand" | "scheduled"
     }
     CompositeTypes: {
       [_ in never]: never
