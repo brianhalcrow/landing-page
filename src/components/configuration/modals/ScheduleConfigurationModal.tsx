@@ -47,7 +47,8 @@ const ScheduleConfigurationModal = ({
         `)
         .eq('entity_id', entityId)
         .eq('process_setting_id', processSettingId)
-        .single();
+        .eq('is_active', true)
+        .maybeSingle();
 
       if (error) throw error;
       return data;
