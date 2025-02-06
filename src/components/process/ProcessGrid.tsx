@@ -1,5 +1,5 @@
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,12 +14,23 @@ const ProcessGrid = () => {
   const queryClient = useQueryClient();
 
   // First, fetch process settings to create columns
-  const { data: processSettings, isLoading: isLoadingSettings } = useQuery({
-    queryKey: ['process-settings'],
+  const { data: processTypes, isLoading: isLoadingTypes } = useQuery({
+    queryKey: ['process-types'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('process_settings')
-        .select('*')
+        .from('process_types')
+        .select(`
+          process_type_id,
+          process_name,
+          process_options (
+            process_option_id,
+            option_name,
+            process_settings (
+              process_setting_id,
+              setting_name
+            )
+          )
+        `)
         .eq('is_active', true);
 
       if (error) throw error;
@@ -59,10 +70,14 @@ const ProcessGrid = () => {
         
         // Create an object with all process settings as columns
         const settingsMap = Object.fromEntries(
-          (processSettings || []).map(ps => [
-            `setting_${ps.process_setting_id}`,
-            entitySettings.find(es => es.process_setting_id === ps.process_setting_id)?.setting_value === 'true'
-          ])
+          (processTypes || []).flatMap(pt => 
+            pt.process_options.flatMap(po => 
+              po.process_settings.map(ps => [
+                `setting_${ps.process_setting_id}`,
+                entitySettings.find(es => es.process_setting_id === ps.process_setting_id)?.setting_value === 'true'
+              ])
+            )
+          )
         );
 
         return {
@@ -73,7 +88,7 @@ const ProcessGrid = () => {
         };
       });
     },
-    enabled: !!processSettings
+    enabled: !!processTypes
   });
 
   const updateSettings = useMutation({
@@ -121,8 +136,8 @@ const ProcessGrid = () => {
     }
   };
 
-  // Create dynamic columns based on process settings
-  const columnDefs: ColDef[] = [
+  // Create base columns for entity information
+  const baseColumnDefs: ColDef[] = [
     {
       field: 'entity_id',
       headerName: 'Entity ID',
@@ -137,69 +152,82 @@ const ProcessGrid = () => {
       width: 200,
       pinned: 'left',
       headerClass: 'ag-header-center custom-header'
-    },
-    ...(processSettings || []).map(setting => ({
-      field: `setting_${setting.process_setting_id}`,
-      headerName: setting.setting_name,
-      flex: 1,
-      headerClass: 'ag-header-center custom-header',
-      cellRenderer: CheckboxCellRenderer,
-      cellRendererParams: (params: any) => ({
-        disabled: !params.data?.isEditing,
-        value: params.value,
-        onChange: (checked: boolean) => {
-          if (params.node && params.api) {
-            const updatedData = { ...params.data };
-            updatedData[params.column.getColId()] = checked;
-            params.node.setData(updatedData);
-            params.api.refreshCells({ 
-              rowNodes: [params.node],
-              force: true
-            });
-          }
-        }
-      })
-    })),
-    {
-      headerName: 'Actions',
-      minWidth: 100,
-      maxWidth: 100,
-      headerClass: 'ag-header-center custom-header',
-      cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center gap-2">
-          {!params.data.isEditing ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const updatedData = { ...params.data, isEditing: true };
-                params.node.setData(updatedData);
-                params.api.refreshCells({ rowNodes: [params.node] });
-              }}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const updatedData = { ...params.data, isEditing: false };
-                params.node.setData(updatedData);
-                params.api.refreshCells({ rowNodes: [params.node] });
-              }}
-              className="h-8 w-8 p-0"
-            >
-              <Save className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      )
     }
   ];
 
-  if (isLoadingSettings || isLoadingEntities) {
+  // Create dynamic column groups based on process types and their settings
+  const processColumnGroups: ColGroupDef[] = (processTypes || []).map(processType => ({
+    headerName: processType.process_name,
+    headerClass: 'ag-header-center custom-header',
+    children: processType.process_options.flatMap(option => 
+      option.process_settings.map(setting => ({
+        field: `setting_${setting.process_setting_id}`,
+        headerName: setting.setting_name,
+        flex: 1,
+        headerClass: 'ag-header-center custom-header',
+        cellRenderer: CheckboxCellRenderer,
+        cellRendererParams: (params: any) => ({
+          disabled: !params.data?.isEditing,
+          value: params.value,
+          onChange: (checked: boolean) => {
+            if (params.node && params.api) {
+              const updatedData = { ...params.data };
+              updatedData[params.column.getColId()] = checked;
+              params.node.setData(updatedData);
+              params.api.refreshCells({ 
+                rowNodes: [params.node],
+                force: true
+              });
+            }
+          }
+        })
+      }))
+    )
+  }));
+
+  // Add actions column
+  const actionsColumn: ColDef = {
+    headerName: 'Actions',
+    minWidth: 100,
+    maxWidth: 100,
+    headerClass: 'ag-header-center custom-header',
+    cellRenderer: (params: any) => (
+      <div className="flex items-center justify-center gap-2">
+        {!params.data.isEditing ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const updatedData = { ...params.data, isEditing: true };
+              params.node.setData(updatedData);
+              params.api.refreshCells({ rowNodes: [params.node] });
+            }}
+            className="h-8 w-8 p-0"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const updatedData = { ...params.data, isEditing: false };
+              params.node.setData(updatedData);
+              params.api.refreshCells({ rowNodes: [params.node] });
+            }}
+            className="h-8 w-8 p-0"
+          >
+            <Save className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    )
+  };
+
+  // Combine all column definitions
+  const columnDefs = [...baseColumnDefs, ...processColumnGroups, actionsColumn];
+
+  if (isLoadingTypes || isLoadingEntities) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
         Loading process settings...
