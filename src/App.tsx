@@ -6,10 +6,19 @@ import DataSources from "@/pages/DataSources";
 import Configuration from "@/pages/Configuration";
 import Process from "@/pages/Process";
 import NotFound from "@/pages/NotFound";
-import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "react-hot-toast";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import HedgeRequest from "@/pages/HedgeRequest";
+import Settings from "@/pages/Settings";
+import Monitor from "@/pages/Monitor";
+import Review from "@/pages/Review";
+import Forecast from "@/pages/Forecast";
+import Exposure from "@/pages/Exposure";
+import Confirmation from "@/pages/Confirmation";
+import Control from "@/pages/Control";
+import HedgeAccounting from "@/pages/HedgeAccounting";
 
 const App = () => {
   return (
