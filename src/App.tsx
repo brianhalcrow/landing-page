@@ -1,174 +1,45 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./components/AuthProvider";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import Layout from "./components/Layout";
-import Auth from "./pages/Auth";
-import Configuration from "./pages/Configuration";
-import Index from "./pages/Index";
-import Settings from "./pages/Settings";
-import Settlement from "./pages/Settlement";
-import Monitor from "./pages/Monitor";
-import Review from "./pages/Review";
-import Control from "./pages/Control";
-import Execution from "./pages/Execution";
-import Confirmation from "./pages/Confirmation";
-import HedgeAccounting from "./pages/HedgeAccounting";
-import DataSources from "./pages/DataSources";
-import Exposure from "./pages/Exposure";
-import Forecast from "./pages/Forecast";
-import HedgeRequest from "./pages/HedgeRequest";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Auth from "@/pages/Auth";
+import Layout from "@/components/Layout";
+import Index from "@/pages/Index";
+import DataSources from "@/pages/DataSources";
+import Configuration from "@/pages/Configuration";
+import Process from "@/pages/Process";
+import NotFound from "@/pages/NotFound";
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-function App() {
+const App = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/callback" element={<Navigate to="/" replace />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout hideSearch>
-                  <Index />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/configuration"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Configuration />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/data-sources"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <DataSources />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/monitor"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Monitor />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/exposure"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Exposure />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/forecast"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Forecast />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hedge-request"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <HedgeRequest />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/review"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Review />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/control"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Control />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/execution"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Execution />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/confirmation"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Confirmation />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settlement"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settlement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hedge-accounting"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <HedgeAccounting />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <ThemeProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route path="/" element={<Index />} />
+              <Route path="/data-sources" element={<DataSources />} />
+              <Route path="/configuration" element={<Configuration />} />
+              <Route path="/process" element={<Process />} />
+              <Route path="/hedge-request" element={<HedgeRequest />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/monitor" element={<Monitor />} />
+              <Route path="/review" element={<Review />} />
+              <Route path="/forecast" element={<Forecast />} />
+              <Route path="/exposure" element={<Exposure />} />
+              <Route path="/confirmation" element={<Confirmation />} />
+              <Route path="/control" element={<Control />} />
+              <Route path="/hedge-accounting" element={<HedgeAccounting />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+          <Toaster />
+        </ThemeProvider>
       </AuthProvider>
-    </Router>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
