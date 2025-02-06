@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -169,6 +170,9 @@ const ProcessGrid = () => {
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
           value: params.value,
+          hasSchedule: setting.setting_type === 'scheduled',
+          entityId: params.data?.entity_id,
+          processSettingId: setting.process_setting_id,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const updatedData = { ...params.data };
