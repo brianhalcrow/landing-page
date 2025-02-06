@@ -8,12 +8,31 @@ import { ColDef } from 'ag-grid-community';
 import { supabase } from "@/integrations/supabase/client";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { Badge } from "@/components/ui/badge";
 
 export function VectorSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
+
+  const getStatusBadge = (params: any) => {
+    const status = params.data.metadata?.status || 'unknown';
+    const hasEmbedding = params.data.embedding != null;
+    
+    if (hasEmbedding) {
+      return <Badge className="bg-green-500">Vectorized</Badge>;
+    }
+    
+    switch (status) {
+      case 'pending':
+        return <Badge className="bg-yellow-500">Processing</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-500">Failed</Badge>;
+      default:
+        return <Badge className="bg-gray-500">Unknown</Badge>;
+    }
+  };
 
   const columnDefs: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
@@ -39,25 +58,45 @@ export function VectorSearch() {
       }
     },
     {
-      field: 'embedding',
-      headerName: 'Vector Status',
+      field: 'status',
+      headerName: 'Status',
       width: 130,
-      valueGetter: (params) => params.data.embedding ? 'Vectorized' : 'Pending'
+      cellRenderer: getStatusBadge
     }
   ];
 
   useEffect(() => {
     fetchDocuments();
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('documents_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'documents' }, 
+        () => {
+          fetchDocuments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchDocuments = async () => {
     try {
+      console.log('Fetching documents...');
       const { data, error } = await supabase
         .from('documents')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching documents:', error);
+        throw error;
+      }
+      
+      console.log('Fetched documents:', data?.length || 0);
       setDocuments(data || []);
     } catch (error) {
       console.error('Error fetching documents:', error);
