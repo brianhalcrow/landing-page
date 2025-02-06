@@ -1218,28 +1218,37 @@ export type Database = {
       schedule_definitions: {
         Row: {
           created_at: string | null
+          description: string | null
           entity_id: string
           is_active: boolean | null
+          process_option_id: number | null
           process_setting_id: number
           schedule_id: number
+          schedule_name: string
           schedule_type: Database["public"]["Enums"]["schedule_type"]
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           entity_id: string
           is_active?: boolean | null
+          process_option_id?: number | null
           process_setting_id: number
           schedule_id?: number
+          schedule_name?: string
           schedule_type: Database["public"]["Enums"]["schedule_type"]
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           entity_id?: string
           is_active?: boolean | null
+          process_option_id?: number | null
           process_setting_id?: number
           schedule_id?: number
+          schedule_name?: string
           schedule_type?: Database["public"]["Enums"]["schedule_type"]
           updated_at?: string | null
         }
@@ -1250,6 +1259,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "entity_process_settings"
             referencedColumns: ["entity_id", "process_setting_id"]
+          },
+          {
+            foreignKeyName: "schedule_definitions_process_option_id_fkey"
+            columns: ["process_option_id"]
+            isOneToOne: false
+            referencedRelation: "process_options"
+            referencedColumns: ["process_option_id"]
           },
         ]
       }
@@ -1295,6 +1311,27 @@ export type Database = {
             referencedRelation: "schedule_definitions"
             referencedColumns: ["schedule_id"]
           },
+          {
+            foreignKeyName: "fk_schedule"
+            columns: ["schedule_id"]
+            isOneToOne: true
+            referencedRelation: "v_schedule_configurations"
+            referencedColumns: ["schedule_id"]
+          },
+          {
+            foreignKeyName: "fk_schedule_definition"
+            columns: ["schedule_id"]
+            isOneToOne: true
+            referencedRelation: "schedule_definitions"
+            referencedColumns: ["schedule_id"]
+          },
+          {
+            foreignKeyName: "fk_schedule_definition"
+            columns: ["schedule_id"]
+            isOneToOne: true
+            referencedRelation: "v_schedule_configurations"
+            referencedColumns: ["schedule_id"]
+          },
         ]
       }
       schedule_parameters: {
@@ -1328,6 +1365,27 @@ export type Database = {
             columns: ["schedule_id"]
             isOneToOne: false
             referencedRelation: "schedule_definitions"
+            referencedColumns: ["schedule_id"]
+          },
+          {
+            foreignKeyName: "fk_schedule"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "v_schedule_configurations"
+            referencedColumns: ["schedule_id"]
+          },
+          {
+            foreignKeyName: "fk_schedule_definition"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_definitions"
+            referencedColumns: ["schedule_id"]
+          },
+          {
+            foreignKeyName: "fk_schedule_definition"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "v_schedule_configurations"
             referencedColumns: ["schedule_id"]
           },
         ]
@@ -1561,6 +1619,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      v_schedule_configurations: {
+        Row: {
+          day_of_month: number[] | null
+          day_of_week: number[] | null
+          description: string | null
+          entity_id: string | null
+          execution_time: string[] | null
+          frequency: Database["public"]["Enums"]["schedule_frequency"] | null
+          is_active: boolean | null
+          parameter_name: string | null
+          parameter_value: string | null
+          process_option_id: number | null
+          process_setting_id: number | null
+          schedule_id: number | null
+          schedule_name: string | null
+          schedule_type: Database["public"]["Enums"]["schedule_type"] | null
+          timezone: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_entity_process_setting"
+            columns: ["entity_id", "process_setting_id"]
+            isOneToOne: false
+            referencedRelation: "entity_process_settings"
+            referencedColumns: ["entity_id", "process_setting_id"]
+          },
+          {
+            foreignKeyName: "schedule_definitions_process_option_id_fkey"
+            columns: ["process_option_id"]
+            isOneToOne: false
+            referencedRelation: "process_options"
+            referencedColumns: ["process_option_id"]
+          },
+        ]
       }
     }
     Functions: {
