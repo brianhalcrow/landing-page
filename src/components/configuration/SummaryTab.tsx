@@ -5,8 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 import { ColDef } from 'ag-grid-community';
 import { Skeleton } from '../ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const SummaryTab = () => {
+  const { toast } = useToast();
+  
   const { data: entityConfigs, isLoading } = useQuery({
     queryKey: ['entity-configurations'],
     queryFn: async () => {
@@ -14,7 +17,15 @@ const SummaryTab = () => {
         .from('v_entity_configurations')
         .select('*');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching entity configurations:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load entity configurations"
+        });
+        throw error;
+      }
       return data;
     }
   });
@@ -55,7 +66,7 @@ const SummaryTab = () => {
       flex: 2,
       headerClass: 'ag-header-center',
       valueFormatter: (params) => {
-        if (!params.value) return '';
+        if (!params.value) return '0 configured';
         const settings = Object.keys(params.value).length;
         return `${settings} configured`;
       }
@@ -67,7 +78,7 @@ const SummaryTab = () => {
       flex: 2,
       headerClass: 'ag-header-center',
       valueFormatter: (params) => {
-        if (!params.value) return '';
+        if (!params.value) return '0 configured';
         const exposures = Object.keys(params.value).filter(k => k !== 'no_exposure').length;
         return `${exposures} configured`;
       }
