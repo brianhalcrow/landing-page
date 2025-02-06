@@ -11,6 +11,7 @@ import EntitiesTab from "@/components/configuration/EntitiesTab";
 import ProcessGrid from "@/components/process/ProcessGrid";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
+import SummaryTab from "@/components/configuration/SummaryTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -29,6 +30,7 @@ export const tabsConfig = {
     { value: "history", label: "History", content: <div>Connection History</div> },
   ],
   "configuration": [
+    { value: "summary", label: "Summary", content: <SummaryTab /> },
     { value: "general", label: "Entity Configuration", content: <EntityConfigurationTab /> },
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
     { value: "process", label: "Process", content: <ProcessGrid /> },
