@@ -4,10 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export function DocumentUpload() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    
+    return fullText;
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -16,15 +35,26 @@ export function DocumentUpload() {
     try {
       setLoading(true);
       
-      // Read the file content
-      const text = await file.text();
+      // Extract text based on file type
+      let text;
+      if (file.type === 'application/pdf') {
+        text = await extractTextFromPDF(file);
+      } else if (file.type === 'text/plain') {
+        text = await file.text();
+      } else {
+        throw new Error('Unsupported file type');
+      }
       
       // Call the vector-operations function to process and store the document
       const { data, error } = await supabase.functions.invoke('vector-operations', {
         body: {
           action: 'store',
           content: text,
-          metadata: { filename: file.name }
+          metadata: { 
+            filename: file.name,
+            fileType: file.type,
+            size: file.size
+          }
         }
       });
 
@@ -39,7 +69,7 @@ export function DocumentUpload() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload and process document",
+        description: error.message || "Failed to upload and process document",
       });
     } finally {
       setLoading(false);
@@ -53,7 +83,7 @@ export function DocumentUpload() {
         <div className="flex items-center gap-4">
           <input
             type="file"
-            accept=".txt"
+            accept=".pdf,.txt"
             onChange={handleFileUpload}
             disabled={loading}
             className="block w-full text-sm text-slate-500
