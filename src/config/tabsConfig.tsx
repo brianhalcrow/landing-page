@@ -7,6 +7,7 @@ import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import EntityConfigurationTab from "@/components/configuration/EntityConfigurationTab";
 import EntitiesTab from "@/components/configuration/EntitiesTab";
+import ProcessTab from "@/components/configuration/ProcessTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 
@@ -29,6 +30,7 @@ export const tabsConfig = {
   "configuration": [
     { value: "general", label: "Entity Configuration", content: <EntityConfigurationTab /> },
     { value: "entities", label: "Entities", content: <EntitiesTab /> },
+    { value: "process", label: "Process", content: <ProcessTab /> },
   ],
   "exposure": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },

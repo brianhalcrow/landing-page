@@ -4,7 +4,6 @@ import Layout from "@/components/Layout";
 import Index from "@/pages/Index";
 import DataSources from "@/pages/DataSources";
 import Configuration from "@/pages/Configuration";
-import Process from "@/pages/Process";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -31,7 +30,6 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/data-sources" element={<DataSources />} />
               <Route path="/configuration" element={<Configuration />} />
-              <Route path="/process" element={<Process />} />
               <Route path="/hedge-request" element={<HedgeRequest />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/monitor" element={<Monitor />} />
