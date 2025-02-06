@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +20,8 @@ const ProcessConfigurationTab = () => {
             process_settings (
               process_setting_id,
               setting_name,
-              setting_type
+              setting_type,
+              parent_setting_id
             )
           )
         `)
@@ -40,21 +42,37 @@ const ProcessConfigurationTab = () => {
 
       if (entitiesError) throw entitiesError;
 
-      const { data: settingsData, error: settingsError } = await supabase
+      const { data: processSettingsData, error: settingsError } = await supabase
         .from('entity_process_settings')
         .select('*')
         .in('entity_id', entitiesData.map(entity => entity.entity_id));
 
       if (settingsError) throw settingsError;
 
+      const { data: scheduleDefinitionsData, error: scheduleError } = await supabase
+        .from('schedule_definitions')
+        .select(`
+          *,
+          schedule_details (*),
+          schedule_parameters (*)
+        `)
+        .in('entity_id', entitiesData.map(entity => entity.entity_id));
+
+      if (scheduleError) throw scheduleError;
+
       const mappedEntities = entitiesData.map(entity => {
-        const entitySettings = settingsData.filter(setting => 
+        const entitySettings = processSettingsData?.filter(setting => 
           setting.entity_id === entity.entity_id
-        );
+        ) || [];
+
+        const entitySchedules = scheduleDefinitionsData?.filter(schedule => 
+          schedule.entity_id === entity.entity_id
+        ) || [];
 
         return {
           ...entity,
           settings: entitySettings,
+          schedules: entitySchedules,
           isEditing: false
         };
       });

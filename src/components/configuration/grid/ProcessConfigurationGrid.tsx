@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -38,6 +39,7 @@ const ProcessConfigurationGrid = ({ entities, processTypes }: ProcessConfigurati
     }
   ];
 
+  // Create process type column groups
   const processColumnGroups: ColGroupDef[] = processTypes.map(processType => ({
     headerName: processType.process_name,
     groupId: `process_${processType.process_type_id}`,
@@ -56,6 +58,7 @@ const ProcessConfigurationGrid = ({ entities, processTypes }: ProcessConfigurati
         cellRendererParams: (params: any) => ({
           disabled: !params.data?.isEditing,
           value: params.value,
+          hasSchedule: setting.setting_type === 'scheduled',
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const updatedData = { ...params.data };
