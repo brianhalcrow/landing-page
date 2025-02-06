@@ -6,6 +6,7 @@ import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 import { ColDef } from 'ag-grid-community';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import CheckboxCellRenderer from './grid/cellRenderers/CheckboxCellRenderer';
 
 const SummaryTab = () => {
   const { toast } = useToast();
@@ -26,11 +27,20 @@ const SummaryTab = () => {
         });
         throw error;
       }
-      return data;
+
+      // Transform the data to flatten configurations
+      return data.map(config => {
+        const flattened = {
+          ...config,
+          ...config.configurations
+        };
+        delete flattened.configurations;
+        return flattened;
+      });
     }
   });
 
-  const columnDefs: ColDef[] = [
+  const getBaseColumns = (): ColDef[] => [
     {
       field: 'entity_id',
       headerName: 'Entity ID',
@@ -60,30 +70,6 @@ const SummaryTab = () => {
       headerClass: 'ag-header-center'
     },
     {
-      field: 'process_settings',
-      headerName: 'Process Settings',
-      minWidth: 200,
-      flex: 2,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        if (!params.value) return '0 configured';
-        const settings = Object.keys(params.value).length;
-        return `${settings} configured`;
-      }
-    },
-    {
-      field: 'exposure_config',
-      headerName: 'Exposure Config',
-      minWidth: 200,
-      flex: 2,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        if (!params.value) return '0 configured';
-        const exposures = Object.keys(params.value).filter(k => k !== 'no_exposure').length;
-        return `${exposures} configured`;
-      }
-    },
-    {
       field: 'updated_at',
       headerName: 'Last Updated',
       minWidth: 180,
@@ -94,6 +80,30 @@ const SummaryTab = () => {
       }
     }
   ];
+
+  const getDynamicColumns = (): ColDef[] => {
+    if (!entityConfigs || entityConfigs.length === 0) return [];
+
+    // Get all unique configuration keys from the first row
+    const configKeys = Object.keys(entityConfigs[0]).filter(key => 
+      !['entity_id', 'entity_name', 'functional_currency', 'accounting_rate_method', 
+        'is_active', 'created_at', 'updated_at'].includes(key)
+    );
+
+    return configKeys.map(key => ({
+      field: key,
+      headerName: key,
+      minWidth: 150,
+      flex: 1,
+      headerClass: 'ag-header-center',
+      cellRenderer: CheckboxCellRenderer,
+      cellRendererParams: {
+        disabled: true
+      }
+    }));
+  };
+
+  const columnDefs = [...getBaseColumns(), ...getDynamicColumns()];
 
   if (isLoading) {
     return <Skeleton className="h-[600px] w-full" />;
