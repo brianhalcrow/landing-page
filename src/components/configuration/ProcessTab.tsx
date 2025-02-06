@@ -1,9 +1,9 @@
-import ProcessGrid from "@/components/process/ProcessGrid";
+import ProcessConfigurationTab from "./ProcessConfigurationTab";
 
 const ProcessTab = () => {
   return (
     <div className="space-y-6">
-      <ProcessGrid />
+      <ProcessConfigurationTab />
     </div>
   );
 };
