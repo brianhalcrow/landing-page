@@ -43,8 +43,7 @@ const ScheduleConfigurationModal = ({
         .from('schedule_definitions')
         .select(`
           *,
-          schedule_details!fk_schedule_definition (*),
-          schedule_parameters (*)
+          schedule_details!fk_schedule_definition (*)
         `)
         .eq('entity_id', entityId)
         .eq('process_setting_id', processSettingId)
@@ -73,17 +72,20 @@ const ScheduleConfigurationModal = ({
       if (definitionError) throw definitionError;
 
       if (data.scheduleType === 'scheduled' && scheduleDefinition) {
-        // Then, upsert the schedule details using the schedule_id from the definition
+        // Then, upsert the schedule details
+        const scheduleDetails = {
+          schedule_id: scheduleDefinition.schedule_id,
+          frequency: data.frequency,
+          day_of_week: data.daysOfWeek || [],
+          day_of_month: data.daysOfMonth || [],
+          execution_time: data.executionTimes,
+          timezone: data.timezone,
+          is_active: true
+        };
+
         const { error: detailsError } = await supabase
           .from('schedule_details')
-          .upsert({
-            schedule_id: scheduleDefinition.schedule_id,
-            frequency: data.frequency,
-            day_of_week: data.daysOfWeek,
-            day_of_month: data.daysOfMonth,
-            execution_time: data.executionTimes,
-            timezone: data.timezone
-          });
+          .upsert(scheduleDetails);
 
         if (detailsError) throw detailsError;
       }

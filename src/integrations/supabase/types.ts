@@ -1305,20 +1305,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_schedule"
-            columns: ["schedule_id"]
-            isOneToOne: true
-            referencedRelation: "schedule_definitions"
-            referencedColumns: ["schedule_id"]
-          },
-          {
-            foreignKeyName: "fk_schedule"
-            columns: ["schedule_id"]
-            isOneToOne: true
-            referencedRelation: "v_schedule_configurations"
-            referencedColumns: ["schedule_id"]
-          },
-          {
             foreignKeyName: "fk_schedule_definition"
             columns: ["schedule_id"]
             isOneToOne: true
