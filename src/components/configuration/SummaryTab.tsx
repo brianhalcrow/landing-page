@@ -40,11 +40,30 @@ const SummaryTab = () => {
       }
 
       // Transform the configurations from the view into flat objects
-      return data.map((config: EntityConfiguration) => ({
-        ...config,
-        ...(config.configurations || {})
-      }));
-    }
+      return data.map((config: EntityConfiguration) => {
+        // Create a new object with the base properties
+        const flatConfig = {
+          entity_id: config.entity_id,
+          entity_name: config.entity_name,
+          functional_currency: config.functional_currency,
+          accounting_rate_method: config.accounting_rate_method,
+          is_active: config.is_active,
+          created_at: config.created_at,
+          updated_at: config.updated_at,
+        };
+
+        // Spread the configurations if they exist
+        if (config.configurations) {
+          Object.entries(config.configurations).forEach(([key, value]) => {
+            flatConfig[key] = value;
+          });
+        }
+
+        return flatConfig;
+      });
+    },
+    staleTime: 1000 * 60, // Consider data fresh for 1 minute
+    refetchOnWindowFocus: true
   });
 
   const getBaseColumns = (): ColDef[] => [
