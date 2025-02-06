@@ -8,6 +8,17 @@ import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import CheckboxCellRenderer from './grid/cellRenderers/CheckboxCellRenderer';
 
+interface EntityConfiguration {
+  entity_id: string;
+  entity_name: string;
+  functional_currency: string;
+  accounting_rate_method: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  configurations: Record<string, boolean>;
+}
+
 const SummaryTab = () => {
   const { toast } = useToast();
   
@@ -29,14 +40,10 @@ const SummaryTab = () => {
       }
 
       // Transform the data to flatten configurations
-      return data.map(config => {
-        const flattened = {
-          ...config,
-          ...config.configurations
-        };
-        delete flattened.configurations;
-        return flattened;
-      });
+      return data.map((config: EntityConfiguration) => ({
+        ...config,
+        ...config.configurations
+      }));
     }
   });
 
@@ -87,7 +94,7 @@ const SummaryTab = () => {
     // Get all unique configuration keys from the first row
     const configKeys = Object.keys(entityConfigs[0]).filter(key => 
       !['entity_id', 'entity_name', 'functional_currency', 'accounting_rate_method', 
-        'is_active', 'created_at', 'updated_at'].includes(key)
+        'is_active', 'created_at', 'updated_at', 'configurations'].includes(key)
     );
 
     return configKeys.map(key => ({
