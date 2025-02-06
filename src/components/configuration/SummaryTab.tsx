@@ -7,6 +7,19 @@ import { ColDef } from 'ag-grid-community';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import CheckboxCellRenderer from './grid/cellRendlers/CheckboxCellRenderer';
+import { Json } from '@/integrations/supabase/types';
+
+interface EntityConfig {
+  entity_id: string;
+  entity_name: string;
+  functional_currency: string;
+  accounting_rate_method: string;
+  configurations: {
+    process_settings?: Record<string, { value: string }>;
+    exposure_config?: Record<string, boolean>;
+  } & Json;
+  updated_at: string;
+}
 
 const SummaryTab = () => {
   const { toast } = useToast();
@@ -29,7 +42,7 @@ const SummaryTab = () => {
       }
 
       // Transform data to flatten process settings and exposure config
-      return data.map(config => {
+      return (data as EntityConfig[]).map(config => {
         const flattenedConfig = {
           entity_id: config.entity_id,
           entity_name: config.entity_name,
@@ -39,17 +52,17 @@ const SummaryTab = () => {
         };
 
         // Add process settings as individual columns
-        if (config.process_settings) {
-          Object.entries(config.process_settings).forEach(([key, value]: [string, any]) => {
+        if (config.configurations?.process_settings) {
+          Object.entries(config.configurations.process_settings).forEach(([key, value]) => {
             flattenedConfig[`process_${key}`] = value.value === 'true';
           });
         }
 
         // Add exposure configs as individual columns
-        if (config.exposure_config) {
-          Object.entries(config.exposure_config).forEach(([key, value]: [string, any]) => {
+        if (config.configurations?.exposure_config) {
+          Object.entries(config.configurations.exposure_config).forEach(([key, value]) => {
             if (key !== 'no_exposure') {
-              flattenedConfig[`exposure_${key}`] = true; // If it exists in config, it's enabled
+              flattenedConfig[`exposure_${key}`] = value;
             }
           });
         }
