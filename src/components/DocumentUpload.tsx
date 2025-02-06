@@ -1,15 +1,13 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFWorker } from 'pdfjs-dist/legacy/build/pdf.worker.mjs';
 
 // Initialize PDF.js worker
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerPort = new PDFWorker();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 }
 
 export function DocumentUpload() {
