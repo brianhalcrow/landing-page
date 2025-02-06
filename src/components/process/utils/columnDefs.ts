@@ -1,8 +1,7 @@
 
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import CheckboxCellRenderer from '@/components/configuration/grid/cellRenderers/CheckboxCellRenderer';
-import { Edit, Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import ActionsCellRenderer from '../grid/ActionsCellRenderer';
 
 export const createBaseColumnDefs = (): ColDef[] => [
   {
@@ -60,35 +59,10 @@ export const createActionsColumn = (): ColDef => ({
   minWidth: 100,
   maxWidth: 100,
   headerClass: 'ag-header-center custom-header',
-  cellRenderer: (params: any) => (
-    <div className="flex items-center justify-center gap-2">
-      {!params.data.isEditing ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const updatedData = { ...params.data, isEditing: true };
-            params.node.setData(updatedData);
-            params.api.refreshCells({ rowNodes: [params.node] });
-          }}
-          className="h-8 w-8 p-0"
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const updatedData = { ...params.data, isEditing: false };
-            params.node.setData(updatedData);
-            params.api.refreshCells({ rowNodes: [params.node] });
-          }}
-          className="h-8 w-8 p-0"
-        >
-          <Save className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
-  )
+  cellRenderer: ActionsCellRenderer,
+  cellRendererParams: (params: any) => ({
+    data: params.data,
+    node: params.node,
+    api: params.api
+  })
 });
