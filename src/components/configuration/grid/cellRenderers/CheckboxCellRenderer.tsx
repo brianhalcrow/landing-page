@@ -62,6 +62,7 @@ const CheckboxCellRenderer = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={handleScheduleClick}
+                data-testid="schedule-button"
               >
                 <Calendar className="h-4 w-4" />
               </Button>
@@ -86,4 +87,3 @@ const CheckboxCellRenderer = ({
 };
 
 export default CheckboxCellRenderer;
-

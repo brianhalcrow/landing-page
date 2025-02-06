@@ -29,8 +29,8 @@ export const createProcessColumnGroups = (processTypes: any[]): ColGroupDef[] =>
               const updatedData = { ...params.data };
               updatedData[params.column.getColId()] = checked;
               params.node.setData(updatedData);
-              params.api.refreshCells({ 
-                rowNodes: [params.node],
+              api.refreshCells({ 
+                rowNodes: [node],
                 force: true
               });
             }
@@ -39,4 +39,3 @@ export const createProcessColumnGroups = (processTypes: any[]): ColGroupDef[] =>
       }))
     }))
   }));
-
