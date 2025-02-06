@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -8,10 +8,11 @@ import { Progress } from "@/components/ui/progress";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
-export function DocumentUpload() {
+export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File) => {
     if (file.size > MAX_FILE_SIZE) {
@@ -76,6 +77,12 @@ export function DocumentUpload() {
         title: "Success",
         description: "Document uploaded and processed successfully",
       });
+      
+      // Call the success callback if provided
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+      
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -86,8 +93,10 @@ export function DocumentUpload() {
     } finally {
       setLoading(false);
       setProgress(0);
-      // Reset the file input
-      event.target.value = '';
+      // Reset the file input using the ref
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -97,6 +106,7 @@ export function DocumentUpload() {
         <h2 className="text-lg font-semibold">Upload Documents</h2>
         <div className="flex flex-col gap-4">
           <input
+            ref={fileInputRef}
             type="file"
             accept=".pdf,.txt"
             onChange={handleFileUpload}

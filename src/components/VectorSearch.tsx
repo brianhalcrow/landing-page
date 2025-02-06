@@ -65,24 +65,6 @@ export function VectorSearch() {
     }
   ];
 
-  useEffect(() => {
-    fetchDocuments();
-    // Set up real-time subscription
-    const subscription = supabase
-      .channel('documents_changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'documents' }, 
-        () => {
-          fetchDocuments();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const fetchDocuments = async () => {
     try {
       console.log('Fetching documents...');
@@ -102,6 +84,25 @@ export function VectorSearch() {
       console.error('Error fetching documents:', error);
     }
   };
+
+  useEffect(() => {
+    fetchDocuments();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('documents_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'documents' }, 
+        () => {
+          fetchDocuments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSearch = async () => {
     try {
