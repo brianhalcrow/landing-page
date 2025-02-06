@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import ScheduleConfigurationModal from "../../modals/ScheduleConfigurationModal";
 
 interface CheckboxCellRendererProps {
@@ -25,7 +26,6 @@ const CheckboxCellRenderer = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (checked: boolean | string) => {
-    console.log('Checkbox change:', checked);
     onChange?.(!!checked);
   };
 
@@ -36,25 +36,43 @@ const CheckboxCellRenderer = ({
   };
 
   return (
-    <>
+    <TooltipProvider>
       <div className="flex items-center justify-center gap-2">
-        <Checkbox 
-          checked={!!value}
-          disabled={disabled}
-          onCheckedChange={handleChange}
-          className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <Checkbox 
+                checked={!!value}
+                disabled={disabled}
+                onCheckedChange={handleChange}
+                className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{value ? 'Enabled' : 'Disabled'}</p>
+          </TooltipContent>
+        </Tooltip>
+
         {hasSchedule && value && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScheduleClick}
-          >
-            <Calendar className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleScheduleClick}
+              >
+                <Calendar className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Configure Schedule</p>
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
+
       {isModalOpen && entityId && processSettingId && (
         <ScheduleConfigurationModal
           isOpen={isModalOpen}
@@ -63,7 +81,7 @@ const CheckboxCellRenderer = ({
           processSettingId={processSettingId}
         />
       )}
-    </>
+    </TooltipProvider>
   );
 };
 
