@@ -12,7 +12,6 @@ const DataSources = () => {
   const { data: executions, isLoading } = useQuery({
     queryKey: ["pipeline-executions"],
     queryFn: async () => {
-      console.log("🔍 Fetching pipeline executions...");
       const { data, error } = await supabase
         .from("pipeline_executions")
         .select("*")
@@ -23,32 +22,24 @@ const DataSources = () => {
         throw error;
       }
 
-      // Group by pipeline_name and keep the most recent status
       const latestExecutions = data?.reduce((acc: { [key: string]: any }, current: any) => {
         const existing = acc[current.pipeline_name];
         
-        // If no existing entry or current is more recent, update it
         if (!existing || new Date(current.start_time) > new Date(existing.start_time)) {
           acc[current.pipeline_name] = current;
         } else if (current.status === 'COMPLETED' && existing.status === 'RUNNING') {
-          // If same timestamp but current is COMPLETED and existing is RUNNING, prefer COMPLETED
           acc[current.pipeline_name] = current;
         }
         
         return acc;
       }, {});
 
-      // Convert back to array
-      const filteredData = Object.values(latestExecutions);
-
-      console.log("✅ Fetched pipeline executions:", filteredData);
-      return filteredData;
+      return Object.values(latestExecutions);
     },
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 10000,
   });
 
   const handleDataChange = async () => {
-    console.log("🔄 Invalidating pipeline executions cache...");
     await queryClient.invalidateQueries({ queryKey: ["pipeline-executions"] });
   };
 
