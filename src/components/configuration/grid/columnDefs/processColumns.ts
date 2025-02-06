@@ -22,6 +22,8 @@ export const createProcessColumnGroups = (processTypes: any[]): ColGroupDef[] =>
           disabled: !params.data?.isEditing,
           value: params.value,
           hasSchedule: setting.setting_type === 'scheduled',
+          entityId: params.data?.entity_id,
+          processSettingId: setting.process_setting_id,
           onChange: (checked: boolean) => {
             if (params.node && params.api) {
               const updatedData = { ...params.data };
@@ -37,3 +39,4 @@ export const createProcessColumnGroups = (processTypes: any[]): ColGroupDef[] =>
       }))
     }))
   }));
+

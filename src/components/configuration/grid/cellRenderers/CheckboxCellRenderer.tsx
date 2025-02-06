@@ -71,18 +71,19 @@ const CheckboxCellRenderer = ({
             </TooltipContent>
           </Tooltip>
         )}
-      </div>
 
-      {isModalOpen && entityId && processSettingId && (
-        <ScheduleConfigurationModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          entityId={entityId}
-          processSettingId={processSettingId}
-        />
-      )}
+        {isModalOpen && entityId && processSettingId && (
+          <ScheduleConfigurationModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            entityId={entityId}
+            processSettingId={processSettingId}
+          />
+        )}
+      </div>
     </TooltipProvider>
   );
 };
 
 export default CheckboxCellRenderer;
+
