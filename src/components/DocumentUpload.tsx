@@ -8,7 +8,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { Progress } from "@/components/ui/progress";
 
 // Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
@@ -29,21 +29,26 @@ export function DocumentUpload() {
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     console.log('Starting PDF text extraction');
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-    let fullText = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      setProgress((i / pdf.numPages) * 50); // First 50% is PDF processing
-      console.log(`Processing PDF page ${i}/${pdf.numPages}`);
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      fullText += pageText + '\n';
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+      let fullText = '';
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setProgress((i / pdf.numPages) * 50); // First 50% is PDF processing
+        console.log(`Processing PDF page ${i}/${pdf.numPages}`);
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+      
+      console.log('PDF text extraction completed');
+      return fullText;
+    } catch (error) {
+      console.error('PDF extraction error:', error);
+      throw new Error(`Failed to extract text from PDF: ${error.message}`);
     }
-    
-    console.log('PDF text extraction completed');
-    return fullText;
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
