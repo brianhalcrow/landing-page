@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 import CheckboxCellRenderer from '../configuration/grid/CheckboxCellRenderer';
 import { toast } from 'sonner';
+import { Edit, Save } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const ProcessGrid = () => {
   const queryClient = useQueryClient();
@@ -122,10 +124,17 @@ const ProcessGrid = () => {
   // Create dynamic columns based on process settings
   const columnDefs: ColDef[] = [
     {
-      field: 'entity_name',
-      headerName: 'Entity',
-      width: 200,
+      field: 'entity_id',
+      headerName: 'Entity ID',
+      width: 120,
       sort: 'asc',
+      pinned: 'left',
+      headerClass: 'ag-header-center custom-header'
+    },
+    {
+      field: 'entity_name',
+      headerName: 'Entity Name',
+      width: 200,
       pinned: 'left',
       headerClass: 'ag-header-center custom-header'
     },
@@ -159,27 +168,31 @@ const ProcessGrid = () => {
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center gap-2">
           {!params.data.isEditing ? (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 const updatedData = { ...params.data, isEditing: true };
                 params.node.setData(updatedData);
                 params.api.refreshCells({ rowNodes: [params.node] });
               }}
-              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="h-8 w-8 p-0"
             >
-              Edit
-            </button>
+              <Edit className="h-4 w-4" />
+            </Button>
           ) : (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 const updatedData = { ...params.data, isEditing: false };
                 params.node.setData(updatedData);
                 params.api.refreshCells({ rowNodes: [params.node] });
               }}
-              className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+              className="h-8 w-8 p-0"
             >
-              Save
-            </button>
+              <Save className="h-4 w-4" />
+            </Button>
           )}
         </div>
       )
