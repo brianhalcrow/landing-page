@@ -29,8 +29,8 @@ export const createProcessColumnGroups = (processTypes: any[]): ColGroupDef[] =>
               const updatedData = { ...params.data };
               updatedData[params.column.getColId()] = checked;
               params.node.setData(updatedData);
-              api.refreshCells({ 
-                rowNodes: [node],
+              params.api.refreshCells({ 
+                rowNodes: [params.node],
                 force: true
               });
             }
