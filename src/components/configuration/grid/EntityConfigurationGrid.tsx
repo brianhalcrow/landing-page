@@ -1,7 +1,10 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { createBaseColumnDefs, createExposureColumns, createActionColumn } from './columnDefs';
+import { createBaseColumnDefs } from './columnDefs/baseColumns';
+import { createExposureColumns } from './columnDefs/exposureColumns';
+import { createActionColumn } from './columnDefs/actionsColumn';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
