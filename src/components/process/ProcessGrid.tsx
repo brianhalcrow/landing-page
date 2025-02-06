@@ -5,7 +5,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from '../hedge-request/grid/components/GridStyles';
-import CheckboxCellRenderer from '../configuration/grid/CheckboxCellRenderer';
+import CheckboxCellRenderer from '@/components/configuration/grid/cellRenderers/CheckboxCellRenderer';
 import { toast } from 'sonner';
 import { Edit, Save } from 'lucide-react';
 import { Button } from '../ui/button';
