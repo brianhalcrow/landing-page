@@ -185,6 +185,13 @@ export type Database = {
             referencedRelation: "v_entity_config"
             referencedColumns: ["entity_id"]
           },
+          {
+            foreignKeyName: "fk_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_entity_configurations"
+            referencedColumns: ["entity_id"]
+          },
         ]
       }
       entity_process_selections: {
@@ -1603,6 +1610,21 @@ export type Database = {
           functional_currency?: string | null
           is_active?: boolean | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_entity_configurations: {
+        Row: {
+          accounting_rate_method: string | null
+          core_config: Json | null
+          created_at: string | null
+          entity_id: string | null
+          entity_name: string | null
+          exposure_config: Json | null
+          functional_currency: string | null
+          is_active: boolean | null
+          process_settings: Json | null
+          updated_at: string | null
         }
         Relationships: []
       }
