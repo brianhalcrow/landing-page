@@ -39,10 +39,10 @@ const SummaryTab = () => {
         throw error;
       }
 
-      // Transform the data to flatten configurations
+      // Transform the configurations from the view into flat objects
       return data.map((config: EntityConfiguration) => ({
         ...config,
-        ...config.configurations
+        ...(config.configurations || {})
       }));
     }
   });
@@ -91,15 +91,22 @@ const SummaryTab = () => {
   const getDynamicColumns = (): ColDef[] => {
     if (!entityConfigs || entityConfigs.length === 0) return [];
 
-    // Get all unique configuration keys from the first row
-    const configKeys = Object.keys(entityConfigs[0]).filter(key => 
+    const firstRow = entityConfigs[0];
+    const configKeys = Object.keys(firstRow).filter(key => 
       !['entity_id', 'entity_name', 'functional_currency', 'accounting_rate_method', 
         'is_active', 'created_at', 'updated_at', 'configurations'].includes(key)
     );
 
     return configKeys.map(key => ({
       field: key,
-      headerName: key,
+      headerName: key
+        .replace('exp_', 'Exposure: ')
+        .replace('setting_', 'Setting: ')
+        .replace('process_', 'Process: ')
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' '),
       minWidth: 150,
       flex: 1,
       headerClass: 'ag-header-center',
