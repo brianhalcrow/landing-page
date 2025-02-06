@@ -25,25 +25,41 @@ async function retryOperation(operation: () => Promise<any>, attempts: number): 
   }
 }
 
+async function processFileContent(base64Content: string, fileType: string): Promise<string> {
+  // For text files, simply decode the base64
+  if (fileType === 'text/plain') {
+    return atob(base64Content);
+  }
+  
+  // For PDFs, we'll use a text-based approach to extract content
+  // This is a simplified approach that might not work for all PDFs,
+  // but it avoids the complexity of PDF.js
+  if (fileType === 'application/pdf') {
+    const decoded = atob(base64Content);
+    // Basic text extraction - this won't work perfectly for all PDFs
+    // but it's a starting point that doesn't require external dependencies
+    return decoded
+      .replace(/[\x00-\x1F\x7F-\xFF]/g, '') // Remove non-printable chars
+      .replace(/\\n/g, '\n')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  throw new Error('Unsupported file type');
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Request received:', req.method);
-    const { action, content, metadata } = await req.json();
-    console.log(`Processing ${action} request with metadata:`, metadata);
-
-    if (!content) {
-      throw new Error('Content is required');
-    }
+    const { action, file, metadata } = await req.json();
+    console.log(`Processing ${action} request for file:`, file?.name);
 
     // Initialize OpenAI
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiApiKey) {
-      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
@@ -55,7 +71,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Supabase configuration missing');
       throw new Error('Supabase configuration missing');
     }
 
@@ -67,52 +82,52 @@ serve(async (req) => {
 
     switch (action) {
       case 'store': {
-        console.log('Processing content length:', content.length);
-        
-        // Content validation
-        if (content.length === 0) {
-          throw new Error('Content is empty');
+        if (!file?.content) {
+          throw new Error('File content is required');
         }
+
+        // Process the file content
+        console.log('Processing file content');
+        const extractedText = await processFileContent(file.content, file.type);
+        
+        if (!extractedText || extractedText.trim().length === 0) {
+          throw new Error('No text could be extracted from the file');
+        }
+
+        console.log('Text extracted, length:', extractedText.length);
 
         // Split content if too long
         const contentChunks = [];
-        for (let i = 0; i < content.length; i += MAX_CONTENT_LENGTH) {
-          contentChunks.push(content.slice(i, i + MAX_CONTENT_LENGTH));
+        for (let i = 0; i < extractedText.length; i += MAX_CONTENT_LENGTH) {
+          contentChunks.push(extractedText.slice(i, i + MAX_CONTENT_LENGTH));
         }
         console.log(`Split content into ${contentChunks.length} chunks`);
 
-        // Store initial document record with pending status
+        // Store initial document record
         const { data: initialDoc, error: insertError } = await supabaseClient
           .from('documents')
           .insert([{
-            content,
-            metadata: { ...metadata, status: 'pending' }
+            content: extractedText,
+            metadata: { ...metadata, status: 'processing' }
           }])
           .select()
           .single();
 
-        if (insertError) {
-          console.error('Error creating initial document:', insertError);
-          throw insertError;
-        }
+        if (insertError) throw insertError;
 
-        console.log('Created initial document record:', initialDoc.id);
-
-        // Generate embedding with retry logic
+        // Generate embedding
         const embeddingResponse = await retryOperation(async () => {
           console.log('Generating embedding...');
           const response = await openai.createEmbedding({
             model: "text-embedding-ada-002",
             input: contentChunks[0], // Start with first chunk
           });
-          console.log('Embedding generated successfully');
           return response;
         }, RETRY_ATTEMPTS);
 
         const [{ embedding }] = embeddingResponse.data.data;
-        console.log('Successfully generated embedding');
 
-        // Update document with embedding and completed status
+        // Update document with embedding
         const { data: updatedDoc, error: updateError } = await supabaseClient
           .from('documents')
           .update({
@@ -123,12 +138,8 @@ serve(async (req) => {
           .select()
           .single();
 
-        if (updateError) {
-          console.error('Error updating document with embedding:', updateError);
-          throw updateError;
-        }
+        if (updateError) throw updateError;
 
-        console.log('Successfully updated document with embedding:', updatedDoc.id);
         result = updatedDoc;
         break;
       }
@@ -166,11 +177,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing request:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        stack: error.stack,
-        details: error.details || 'No additional details available'
-      }),
+      JSON.stringify({ error: error.message }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

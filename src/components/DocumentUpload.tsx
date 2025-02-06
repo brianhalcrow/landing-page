@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import * as pdfjsLib from 'pdfjs-dist';
 import { Progress } from "@/components/ui/progress";
-
-// Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
@@ -27,30 +23,6 @@ export function DocumentUpload() {
     }
   };
 
-  const extractTextFromPDF = async (file: File): Promise<string> => {
-    console.log('Starting PDF text extraction');
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-      let fullText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        setProgress((i / pdf.numPages) * 50); // First 50% is PDF processing
-        console.log(`Processing PDF page ${i}/${pdf.numPages}`);
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
-        fullText += pageText + '\n';
-      }
-      
-      console.log('PDF text extraction completed');
-      return fullText;
-    } catch (error) {
-      console.error('PDF extraction error:', error);
-      throw new Error(`Failed to extract text from PDF: ${error.message}`);
-    }
-  };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -63,29 +35,28 @@ export function DocumentUpload() {
       // Validate file
       validateFile(file);
       
-      // Extract text based on file type
-      let text;
-      if (file.type === 'application/pdf') {
-        text = await extractTextFromPDF(file);
-      } else if (file.type === 'text/plain') {
-        text = await file.text();
-        setProgress(50);
-      }
+      // Convert file to base64
+      const buffer = await file.arrayBuffer();
+      const base64String = btoa(
+        new Uint8Array(buffer).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ''
+        )
+      );
 
-      console.log('Text extracted, length:', text?.length);
-      
-      if (!text || text.trim().length === 0) {
-        throw new Error('No text could be extracted from the file');
-      }
+      setProgress(25);
+      console.log('File converted to base64, sending to vector-operations');
 
-      // Store the document with vector embedding
-      console.log('Sending to vector-operations function');
-      setProgress(75);
-      
+      // Send to vector-operations function for processing
       const { data, error } = await supabase.functions.invoke('vector-operations', {
         body: {
           action: 'store',
-          content: text,
+          file: {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            content: base64String
+          },
           metadata: { 
             filename: file.name,
             fileType: file.type,
@@ -141,9 +112,9 @@ export function DocumentUpload() {
             <div className="space-y-2">
               <Progress value={progress} className="w-full" />
               <p className="text-sm text-slate-500">
-                {progress < 50 && "Extracting text..."}
-                {progress >= 50 && progress < 75 && "Processing text..."}
-                {progress >= 75 && "Generating embedding..."}
+                {progress < 50 && "Processing file..."}
+                {progress >= 50 && progress < 75 && "Generating embedding..."}
+                {progress >= 75 && "Saving document..."}
               </p>
             </div>
           )}
