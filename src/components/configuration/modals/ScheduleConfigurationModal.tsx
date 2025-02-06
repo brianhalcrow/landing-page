@@ -43,7 +43,7 @@ const ScheduleConfigurationModal = ({
         .from('schedule_definitions')
         .select(`
           *,
-          schedule_details (*),
+          schedule_details!fk_schedule_definition (*),
           schedule_parameters (*)
         `)
         .eq('entity_id', entityId)
@@ -58,7 +58,8 @@ const ScheduleConfigurationModal = ({
   // Update schedule configuration
   const updateSchedule = useMutation({
     mutationFn: async (data: ScheduleFormData) => {
-      const { error } = await supabase
+      // First, upsert the schedule definition
+      const { data: scheduleDefinition, error: definitionError } = await supabase
         .from('schedule_definitions')
         .upsert({
           entity_id: entityId,
@@ -69,13 +70,14 @@ const ScheduleConfigurationModal = ({
         .select()
         .single();
 
-      if (error) throw error;
+      if (definitionError) throw definitionError;
 
-      if (data.scheduleType === 'scheduled') {
+      if (data.scheduleType === 'scheduled' && scheduleDefinition) {
+        // Then, upsert the schedule details using the schedule_id from the definition
         const { error: detailsError } = await supabase
           .from('schedule_details')
           .upsert({
-            schedule_id: existingSchedule?.schedule_id,
+            schedule_id: scheduleDefinition.schedule_id,
             frequency: data.frequency,
             day_of_week: data.daysOfWeek,
             day_of_month: data.daysOfMonth,
@@ -188,4 +190,3 @@ const ScheduleConfigurationModal = ({
 };
 
 export default ScheduleConfigurationModal;
-
