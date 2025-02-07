@@ -19,7 +19,8 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
     }
     
-    if (file.type !== 'application/zip' && file.type !== 'text/plain') {
+    const allowedTypes = ['application/zip', 'text/plain', 'application/x-zip-compressed'];
+    if (!allowedTypes.includes(file.type)) {
       throw new Error('Only zip archives and text files (.txt) are supported');
     }
   };
@@ -62,7 +63,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       // Validate file
       validateFile(file);
       
-      if (file.type === 'application/zip') {
+      if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
         const zip = new JSZip();
         const zipContent = await zip.loadAsync(file);
         const textFiles = Object.values(zipContent.files).filter(
