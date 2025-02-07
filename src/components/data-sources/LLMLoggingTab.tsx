@@ -78,6 +78,9 @@ const LLMLoggingTab = () => {
       flex: 2,
       minWidth: 300,
       headerClass: 'ag-header-center',
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { whiteSpace: 'normal', lineHeight: '1.5' },
       valueFormatter: (params) => 
         params.value ? JSON.stringify(params.value, null, 2) : ''
     },
@@ -85,8 +88,11 @@ const LLMLoggingTab = () => {
       field: 'response', 
       headerName: 'Response',
       flex: 2,
-      minWidth: 300,
+      minWidth: 400,
       headerClass: 'ag-header-center',
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { whiteSpace: 'normal', lineHeight: '1.5' },
       valueFormatter: (params) => 
         params.value ? JSON.stringify(params.value, null, 2) : ''
     }
@@ -117,3 +123,4 @@ const LLMLoggingTab = () => {
 };
 
 export default LLMLoggingTab;
+
