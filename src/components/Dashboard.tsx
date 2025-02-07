@@ -15,6 +15,7 @@ const MIN_CHART_HEIGHT = 200;
 
 const Dashboard = () => {
   const [chartHeight, setChartHeight] = useState(400);
+  const [chartWidth, setChartWidth] = useState('100%');
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -130,6 +131,7 @@ const Dashboard = () => {
       setChartHeight(newHeight);
       saveChartPreferences(newHeight);
     }
+    setChartWidth(element.style.width);
   };
 
   return (
@@ -189,8 +191,8 @@ const Dashboard = () => {
                 <Skeleton className="h-[400px] w-full" />
               ) : (
                 <div 
-                  className="relative w-full min-h-[200px] resize-y overflow-hidden"
-                  style={{ height: chartHeight }}
+                  className="relative w-full min-h-[200px] resize overflow-hidden cursor-se-resize"
+                  style={{ height: chartHeight, width: chartWidth }}
                   onMouseUp={(e) => handleResize(e.currentTarget)}
                 >
                   <AgChartsReact options={chartOptions} />
