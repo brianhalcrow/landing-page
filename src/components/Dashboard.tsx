@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -7,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { AgChartsReact } from 'ag-charts-react';
 import { AgChartOptions } from 'ag-charts-community';
-import { GripDots } from "lucide-react";
+import { GripVertical } from "lucide-react";
 
 const CHART_ID = 'hedge-requests-by-entity';
 const MIN_CHART_HEIGHT = 200;
@@ -194,7 +195,7 @@ const Dashboard = () => {
                 >
                   <AgChartsReact options={chartOptions} />
                   <div className="absolute bottom-2 right-2 text-gray-400">
-                    <GripDots className="h-4 w-4" />
+                    <GripVertical className="h-4 w-4" />
                   </div>
                 </div>
               )}
