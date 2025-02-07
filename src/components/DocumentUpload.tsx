@@ -28,6 +28,9 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
   const processTextFile = async (content: string, filename: string) => {
     console.log(`Processing text file: ${filename}, length: ${content.length}`);
     
+    // Convert the text content to base64
+    const base64Content = btoa(unescape(encodeURIComponent(content)));
+    
     const { data, error } = await supabase.functions.invoke('vector-operations', {
       body: {
         action: 'store',
@@ -35,7 +38,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           name: filename,
           type: 'text/plain',
           size: content.length,
-          content: content
+          content: base64Content
         },
         metadata: { 
           filename: filename,
