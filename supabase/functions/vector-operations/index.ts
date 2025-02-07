@@ -9,9 +9,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const MAX_CHUNK_SIZE = 2000;
-const CHUNK_OVERLAP = 200;
-const MAX_CHUNKS = 10;
+const CHUNK_SIZE = 400;  // New smaller chunk size
+const CHUNK_OVERLAP = 50;  // Reduced overlap for smaller chunks
 const MIN_CHUNK_LENGTH = 50; // Minimum characters for a meaningful chunk
 
 async function processFileContent(base64Content: string, fileType: string): Promise<string> {
@@ -48,8 +47,19 @@ function chunkText(text: string): string[] {
   const chunks: string[] = [];
   let currentIndex = 0;
 
-  while (currentIndex < text.length && chunks.length < MAX_CHUNKS) {
-    const endIndex = Math.min(currentIndex + MAX_CHUNK_SIZE, text.length);
+  while (currentIndex < text.length) {
+    // Find the end of the current chunk
+    let endIndex = Math.min(currentIndex + CHUNK_SIZE, text.length);
+    
+    // Try to find a natural break point (period, question mark, or exclamation mark)
+    const naturalBreakIndex = text.substring(currentIndex, endIndex + 20)
+      .search(/[.!?]\s/);
+    
+    if (naturalBreakIndex > 0 && (currentIndex + naturalBreakIndex) < text.length) {
+      endIndex = currentIndex + naturalBreakIndex + 1;
+    }
+
+    // Get the chunk with overlap
     const startIndex = currentIndex === 0 ? 0 : currentIndex - CHUNK_OVERLAP;
     const chunk = text.slice(startIndex, endIndex).trim();
     
@@ -61,6 +71,7 @@ function chunkText(text: string): string[] {
     currentIndex = endIndex;
   }
 
+  console.log(`Split content into ${chunks.length} chunks`);
   return chunks;
 }
 
@@ -134,7 +145,7 @@ serve(async (req) => {
 
         const processedChunks = [];
         for (const [index, chunk] of chunks.entries()) {
-          console.log(`Processing chunk ${index + 1}/${chunks.length}`);
+          console.log(`Processing chunk ${index + 1}/${chunks.length}, size: ${chunk.length}`);
           console.log('Chunk sample:', chunk.substring(0, 100));
           
           try {
@@ -154,6 +165,7 @@ serve(async (req) => {
                   ...metadata,
                   chunk: index + 1,
                   totalChunks: chunks.length,
+                  chunkSize: chunk.length,
                   fileName: file.name,
                   fileType: file.type,
                   status: 'completed'
