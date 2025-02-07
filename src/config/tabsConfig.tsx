@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -14,6 +15,7 @@ import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 import ChatFXTab from "@/components/data-sources/ChatFXTab";
+import LLMLoggingTab from "@/components/data-sources/LLMLoggingTab";
 import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 
@@ -33,6 +35,7 @@ export const tabsConfig = {
     { value: "connections", label: "Connections", content: <ConnectionsTab /> },
     { value: "chatfx", label: "ChatFX", content: <ChatFXTab /> },
     { value: "documents", label: "Documents", content: <DocumentsTab /> },
+    { value: "llm-logging", label: "LLM Logging", content: <LLMLoggingTab /> }
   ],
   "configuration": [
     { value: "summary", label: "Summary", content: <SummaryTab /> },
