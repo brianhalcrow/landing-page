@@ -22,10 +22,11 @@ const TestAgChart = () => {
   };
 
   return (
-    <div className="w-full h-[400px]">
+    <div className="w-[10cm] h-[10cm] mx-auto">
       <AgChartsReact options={chartOptions} />
     </div>
   );
 };
 
 export default TestAgChart;
+
