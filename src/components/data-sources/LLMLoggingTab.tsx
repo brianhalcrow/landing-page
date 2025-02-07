@@ -23,14 +23,14 @@ const LLMLoggingTab = () => {
       const { data, error } = await supabase
         .from('api_logs')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: APILog[] | null; error: any };
 
       if (error) {
         console.error('Error fetching API logs:', error);
         throw error;
       }
 
-      return data as APILog[];
+      return data || [];
     },
     refetchInterval: 5000 // Refresh every 5 seconds
   });
