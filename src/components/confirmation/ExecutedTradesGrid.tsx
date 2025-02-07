@@ -36,17 +36,19 @@ const ExecutedTradesGrid = () => {
       valueFormatter: (params: any) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
-    { field: 'entity_name', headerName: 'Entity', filter: true },
-    { field: 'ccy_1', headerName: 'Base CCY', filter: true },
-    { field: 'ccy_2', headerName: 'Quote CCY', filter: true },
-    { field: 'ccy_1_amount', headerName: 'Base Amount', filter: true },
-    { field: 'ccy_2_amount', headerName: 'Quote Amount', filter: true },
     { field: 'spot_rate', headerName: 'Spot Rate', filter: true },
-    { field: 'contract_rate', headerName: 'Contract Rate', filter: true },
+    { field: 'ccy_2_amount', headerName: 'Quote Amount', filter: true },
+    { field: 'ccy_1_amount', headerName: 'Base Amount', filter: true },
+    { field: 'ccy_1', headerName: 'Base CCY', filter: true },
+    { field: 'currency_pair', headerName: 'Currency Pair', filter: true },
+    { field: 'ccy_2', headerName: 'Quote CCY', filter: true },
+    { field: 'created_by', headerName: 'Created By', filter: true },
     { field: 'counterparty', headerName: 'Counterparty', filter: true },
+    { field: 'entity_id', headerName: 'Entity ID', filter: true },
+    { field: 'entity_name', headerName: 'Entity', filter: true },
     { field: 'strategy', headerName: 'Strategy', filter: true },
     { field: 'instrument', headerName: 'Instrument', filter: true },
-    { field: 'created_by', headerName: 'Created By', filter: true }
+    { field: 'contract_rate', headerName: 'Contract Rate', filter: true }
   ];
 
   if (isLoading) {
