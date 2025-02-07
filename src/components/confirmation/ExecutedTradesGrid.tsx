@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TradeRegister } from './types';
 import { format } from 'date-fns';
+import { ColDef } from 'ag-grid-community';
 
 const ExecutedTradesGrid = () => {
   const { data: trades, isLoading } = useQuery({
@@ -19,7 +20,7 @@ const ExecutedTradesGrid = () => {
     }
   });
 
-  const columnDefs = [
+  const columnDefs: ColDef<TradeRegister>[] = [
     { field: 'deal_no', headerName: 'Deal No', filter: true },
     { 
       field: 'trade_date', 
@@ -53,7 +54,7 @@ const ExecutedTradesGrid = () => {
   }
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
+    <div className="w-full h-[calc(100vh-200px)] ag-theme-alpine">
       <AgGridReact
         rowData={trades}
         columnDefs={columnDefs}
