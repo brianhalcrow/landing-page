@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
@@ -110,7 +111,10 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       flex: 2,
       minWidth: 200,
       headerClass: 'ag-header-center',
-      cellClass: 'text-red-500'
+      cellClass: 'text-red-500',
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.5' }
     }
   ];
 
