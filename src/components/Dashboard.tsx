@@ -16,6 +16,7 @@ const MIN_CHART_HEIGHT = 200;
 const Dashboard = () => {
   const [chartHeight, setChartHeight] = useState(400);
   const [chartWidth, setChartWidth] = useState('100%');
+  const [containerWidth, setContainerWidth] = useState('100%');
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -132,6 +133,7 @@ const Dashboard = () => {
       saveChartPreferences(newHeight);
     }
     setChartWidth(element.style.width);
+    setContainerWidth(element.style.width);
   };
 
   return (
@@ -182,27 +184,32 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Draft Hedge Requests by Entity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingHedgeRequests ? (
-                <Skeleton className="h-[400px] w-full" />
-              ) : (
-                <div 
-                  className="relative w-full min-h-[200px] resize overflow-hidden cursor-se-resize"
-                  style={{ height: chartHeight, width: chartWidth }}
-                  onMouseUp={(e) => handleResize(e.currentTarget)}
-                >
-                  <AgChartsReact options={chartOptions} />
-                  <div className="absolute bottom-2 right-2 text-gray-400">
-                    <GripVertical className="h-4 w-4" />
+          <div 
+            className="mt-6 relative resize overflow-hidden cursor-se-resize inline-block min-w-[300px]"
+            style={{ width: containerWidth }}
+            onMouseUp={(e) => handleResize(e.currentTarget)}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Draft Hedge Requests by Entity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingHedgeRequests ? (
+                  <Skeleton className="h-[400px] w-full" />
+                ) : (
+                  <div 
+                    className="relative w-full min-h-[200px] overflow-hidden"
+                    style={{ height: chartHeight }}
+                  >
+                    <AgChartsReact options={chartOptions} />
+                    <div className="absolute bottom-2 right-2 text-gray-400">
+                      <GripVertical className="h-4 w-4" />
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         <TabsContent value="analytics">Analytics content</TabsContent>
       </Tabs>
