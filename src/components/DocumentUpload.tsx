@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import JSZip from 'jszip';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
@@ -18,9 +19,35 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
     }
     
-    if (file.type !== 'text/plain') {
-      throw new Error('Only text files (.txt) are supported');
+    if (file.type !== 'application/zip' && file.type !== 'text/plain') {
+      throw new Error('Only zip archives and text files (.txt) are supported');
     }
+  };
+
+  const processTextFile = async (content: string, filename: string) => {
+    console.log(`Processing text file: ${filename}, length: ${content.length}`);
+    
+    const { data, error } = await supabase.functions.invoke('vector-operations', {
+      body: {
+        action: 'store',
+        file: {
+          name: filename,
+          type: 'text/plain',
+          size: content.length,
+          content: content
+        },
+        metadata: { 
+          filename: filename,
+          fileType: 'text/plain',
+          size: content.length,
+          uploadedAt: new Date().toISOString(),
+          status: 'processing'
+        }
+      }
+    });
+
+    if (error) throw error;
+    return data;
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,42 +62,41 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       // Validate file
       validateFile(file);
       
-      // Read text file content
-      const text = await file.text();
-      console.log('File content loaded, length:', text.length);
+      if (file.type === 'application/zip') {
+        const zip = new JSZip();
+        const zipContent = await zip.loadAsync(file);
+        const textFiles = Object.values(zipContent.files).filter(
+          zipEntry => !zipEntry.dir && zipEntry.name.toLowerCase().endsWith('.txt')
+        );
 
-      setProgress(25);
-      console.log('Sending to vector-operations');
-
-      // Send to vector-operations function for processing
-      const { data, error } = await supabase.functions.invoke('vector-operations', {
-        body: {
-          action: 'store',
-          file: {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            content: text
-          },
-          metadata: { 
-            filename: file.name,
-            fileType: file.type,
-            size: file.size,
-            uploadedAt: new Date().toISOString(),
-            status: 'processing'
-          }
+        if (textFiles.length === 0) {
+          throw new Error('No text files found in the zip archive');
         }
-      });
 
-      if (error) throw error;
+        let processedFiles = 0;
+        for (const zipEntry of textFiles) {
+          const content = await zipEntry.async('string');
+          await processTextFile(content, zipEntry.name);
+          processedFiles++;
+          setProgress((processedFiles / textFiles.length) * 100);
+        }
 
-      setProgress(100);
-      console.log('Document processed successfully:', data);
-
-      toast({
-        title: "Success",
-        description: "Document uploaded and processed successfully",
-      });
+        toast({
+          title: "Success",
+          description: `Processed ${processedFiles} text files from zip archive`,
+        });
+      } else {
+        // Handle single text file
+        const text = await file.text();
+        setProgress(50);
+        await processTextFile(text, file.name);
+        setProgress(100);
+        
+        toast({
+          title: "Success",
+          description: "Document uploaded and processed successfully",
+        });
+      }
       
       // Call the success callback if provided
       if (onUploadSuccess) {
@@ -102,7 +128,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           <input
             ref={fileInputRef}
             type="file"
-            accept=".txt"
+            accept=".txt,.zip"
             onChange={handleFileUpload}
             disabled={loading}
             className="block w-full text-sm text-slate-500
