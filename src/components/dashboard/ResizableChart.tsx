@@ -4,6 +4,7 @@ import { useChartPreferences } from "./hooks/useChartPreferences";
 import { useChartData } from "./hooks/useChartData";
 import { useChartInteractions } from "./hooks/useChartInteractions";
 import ChartContainer from "./components/ChartContainer";
+import { AgCartesianChartOptions } from "ag-charts-community";
 
 const ResizableChart = () => {
   const {
@@ -46,7 +47,7 @@ const ResizableChart = () => {
     }
   }, [chartPreferences, setContainerWidth, setPosition]);
 
-  const chartOptions = {
+  const chartOptions: AgCartesianChartOptions = {
     title: {
       text: 'Draft Hedge Requests by Entity',
     },
@@ -99,3 +100,4 @@ const ResizableChart = () => {
 };
 
 export default ResizableChart;
+
