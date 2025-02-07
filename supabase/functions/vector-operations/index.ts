@@ -12,22 +12,36 @@ const corsHeaders = {
 const MAX_CHUNK_SIZE = 2000;
 const CHUNK_OVERLAP = 200;
 const MAX_CHUNKS = 10;
+const MIN_CHUNK_LENGTH = 50; // Minimum characters for a meaningful chunk
 
 async function processFileContent(base64Content: string, fileType: string): Promise<string> {
-  if (fileType === 'text/plain') {
-    return atob(base64Content);
-  }
-  
-  if (fileType === 'application/pdf') {
-    const decoded = atob(base64Content);
-    return decoded
-      .replace(/[\x00-\x1F\x7F-\xFF]/g, '')
-      .replace(/\\n/g, '\n')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
+  try {
+    let text = '';
+    
+    if (fileType === 'text/plain') {
+      text = atob(base64Content);
+    } else if (fileType === 'application/pdf') {
+      const decoded = atob(base64Content);
+      text = decoded
+        .replace(/[\x00-\x1F\x7F-\xFF]/g, ' ') // Replace control chars with spaces
+        .replace(/\\n/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+    } else {
+      throw new Error('Unsupported file type');
+    }
 
-  throw new Error('Unsupported file type');
+    // Basic validation of extracted text
+    if (!text || text.length < 10) {
+      throw new Error('No meaningful text could be extracted from the file');
+    }
+
+    console.log('Extracted text sample:', text.substring(0, 200));
+    return text;
+  } catch (error) {
+    console.error('Error processing file content:', error);
+    throw error;
+  }
 }
 
 function chunkText(text: string): string[] {
@@ -39,7 +53,8 @@ function chunkText(text: string): string[] {
     const startIndex = currentIndex === 0 ? 0 : currentIndex - CHUNK_OVERLAP;
     const chunk = text.slice(startIndex, endIndex).trim();
     
-    if (chunk.length > 0) {
+    // Only add chunks that have meaningful content
+    if (chunk.length >= MIN_CHUNK_LENGTH) {
       chunks.push(chunk);
     }
     
@@ -50,14 +65,15 @@ function chunkText(text: string): string[] {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Clone the request before reading it
+    const reqClone = req.clone();
+    const bodyText = await reqClone.text();
     console.log('Received request:', req.method);
-    const bodyText = await req.text();
     console.log('Request body:', bodyText);
     
     let body;
@@ -111,12 +127,15 @@ serve(async (req) => {
         }
 
         console.log('Text extracted, length:', extractedText.length);
+        console.log('Sample of extracted text:', extractedText.substring(0, 200));
+        
         const chunks = chunkText(extractedText);
         console.log(`Split content into ${chunks.length} chunks`);
 
         const processedChunks = [];
         for (const [index, chunk] of chunks.entries()) {
           console.log(`Processing chunk ${index + 1}/${chunks.length}`);
+          console.log('Chunk sample:', chunk.substring(0, 100));
           
           try {
             const embeddingResponse = await openai.createEmbedding({
@@ -160,9 +179,23 @@ serve(async (req) => {
       }
 
       case 'search': {
-        const { embedding, match_threshold, match_count } = body;
-        console.log('Searching for similar documents with threshold:', match_threshold);
+        const { query, match_threshold, match_count } = body;
+        console.log('Processing search with query:', query);
         
+        if (!query) {
+          throw new Error('Search query is required');
+        }
+
+        // Get embedding for the search query
+        const embeddingResponse = await openai.createEmbedding({
+          model: "text-embedding-ada-002",
+          input: query,
+        });
+
+        const [{ embedding }] = embeddingResponse.data.data;
+        
+        console.log('Generated embedding for search query');
+
         const { data: searchData, error: searchError } = await supabaseClient
           .rpc('match_documents', {
             query_embedding: embedding,

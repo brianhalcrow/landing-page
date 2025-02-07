@@ -34,6 +34,11 @@ export function VectorSearch() {
     }
   };
 
+  const viewContent = (content: string) => {
+    const truncatedContent = content?.substring(0, 200) + (content?.length > 200 ? '...' : '');
+    return truncatedContent || 'No content available';
+  };
+
   const columnDefs: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { 
@@ -47,6 +52,12 @@ export function VectorSearch() {
       headerName: 'File Type',
       width: 120,
       valueGetter: (params) => params.data.metadata?.fileType || 'N/A'
+    },
+    {
+      field: 'content',
+      headerName: 'Content Preview',
+      flex: 2,
+      valueFormatter: (params) => viewContent(params.value)
     },
     {
       field: 'metadata.uploadedAt',
@@ -108,13 +119,10 @@ export function VectorSearch() {
     try {
       setLoading(true);
       
-      // For demonstration, we're using a simple embedding (you should replace this with proper embedding generation)
-      const mockEmbedding = Array(1536).fill(0).map(() => Math.random());
-      
       const { data, error } = await supabase.functions.invoke('vector-operations', {
         body: {
           action: 'search',
-          embedding: mockEmbedding,
+          query: searchQuery,
           match_threshold: 0.8,
           match_count: 5
         }
