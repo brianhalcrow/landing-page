@@ -17,6 +17,8 @@ const ResizableChart = () => {
   const [chartHeight, setChartHeight] = useState(400);
   const [chartWidth, setChartWidth] = useState('100%');
   const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -35,7 +37,7 @@ const ResizableChart = () => {
       console.log('Fetching chart preferences...');
       const { data, error } = await supabase
         .from('chart_preferences')
-        .select('height, width')
+        .select('height, width, position_x, position_y')
         .eq('chart_id', CHART_ID)
         .eq('user_id', user.id)
         .maybeSingle();
@@ -62,7 +64,6 @@ const ResizableChart = () => {
         throw error;
       }
 
-      // Process data for the chart
       const entityCounts = data.reduce((acc: { [key: string]: number }, curr) => {
         const entityName = curr.entity_name || 'Unspecified';
         acc[entityName] = (acc[entityName] || 0) + 1;
@@ -76,18 +77,31 @@ const ResizableChart = () => {
     }
   });
 
-  // Set initial height and width from preferences
+  // Set initial height, width and position from preferences
   useEffect(() => {
-    if (chartPreferences?.height) {
-      setChartHeight(chartPreferences.height);
-    }
-    if (chartPreferences?.width) {
-      setContainerWidth(chartPreferences.width);
+    if (chartPreferences) {
+      if (chartPreferences.height) {
+        setChartHeight(chartPreferences.height);
+      }
+      if (chartPreferences.width) {
+        setContainerWidth(chartPreferences.width);
+      }
+      if (chartPreferences.position_x !== undefined && chartPreferences.position_y !== undefined) {
+        setPosition({ 
+          x: chartPreferences.position_x, 
+          y: chartPreferences.position_y 
+        });
+      }
     }
   }, [chartPreferences]);
 
-  // Save chart preferences when dimensions change
-  const saveChartPreferences = async (height: number, width: string) => {
+  // Save chart preferences when dimensions or position change
+  const saveChartPreferences = async (
+    height: number, 
+    width: string, 
+    position_x: number, 
+    position_y: number
+  ) => {
     if (!user?.id) return;
 
     const { error } = await supabase
@@ -96,7 +110,9 @@ const ResizableChart = () => {
         user_id: user.id,
         chart_id: CHART_ID,
         height,
-        width
+        width,
+        position_x,
+        position_y
       }, {
         onConflict: 'user_id,chart_id'
       });
@@ -127,6 +143,13 @@ const ResizableChart = () => {
       type: 'number',
       position: 'left',
     }],
+    // Add padding to prevent legend cutoff
+    padding: {
+      top: 20,
+      right: 40,
+      bottom: 40,
+      left: 40
+    },
   };
 
   const handleResize = (element: HTMLDivElement) => {
@@ -143,37 +166,69 @@ const ResizableChart = () => {
       setChartWidth(newWidth);
       setContainerWidth(newWidth);
       
-      // Save both height and width
-      saveChartPreferences(newHeight, newWidth);
+      // Save dimensions and current position
+      saveChartPreferences(newHeight, newWidth, position.x, position.y);
     }
+  };
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrag = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+
+    const newX = position.x + e.movementX;
+    const newY = position.y + e.movementY;
+    
+    setPosition({ x: newX, y: newY });
+    saveChartPreferences(chartHeight, containerWidth, newX, newY);
   };
 
   return (
     <div 
-      className="mt-6 relative resize overflow-hidden cursor-se-resize inline-block min-w-[300px]"
-      style={{ width: containerWidth }}
-      onMouseUp={(e) => handleResize(e.currentTarget)}
+      className="absolute"
+      style={{ 
+        left: position.x,
+        top: position.y,
+        cursor: isDragging ? 'grabbing' : 'grab'
+      }}
+      onMouseDown={handleDragStart}
+      onMouseUp={handleDragEnd}
+      onMouseMove={handleDrag}
+      onMouseLeave={handleDragEnd}
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Draft Hedge Requests by Entity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoadingHedgeRequests ? (
-            <Skeleton className="h-[400px] w-full" />
-          ) : (
-            <div 
-              className="relative w-full min-h-[200px] overflow-hidden"
-              style={{ height: chartHeight }}
-            >
-              <AgChartsReact options={chartOptions} />
-              <div className="absolute bottom-2 right-2 text-gray-400">
-                <GripVertical className="h-4 w-4" />
+      <div 
+        className="mt-6 relative resize overflow-hidden cursor-se-resize inline-block min-w-[300px]"
+        style={{ width: containerWidth }}
+        onMouseUp={(e) => handleResize(e.currentTarget)}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Draft Hedge Requests by Entity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoadingHedgeRequests ? (
+              <Skeleton className="h-[400px] w-full" />
+            ) : (
+              <div 
+                className="relative w-full min-h-[200px] overflow-hidden"
+                style={{ height: chartHeight }}
+              >
+                <AgChartsReact options={chartOptions} />
+                <div className="absolute bottom-2 right-2 text-gray-400">
+                  <GripVertical className="h-4 w-4" />
+                </div>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
