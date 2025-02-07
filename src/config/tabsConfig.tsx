@@ -14,6 +14,7 @@ import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
+import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -43,6 +44,7 @@ export const tabsConfig = {
     { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Exposure</div> },
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Exposure</div> },
+    { value: "gl-transactions", label: "GL Transactions", content: <GLTransactionsTab /> }
   ],
   "forecast": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <ForecastAdHocTab /> },
