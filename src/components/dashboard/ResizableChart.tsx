@@ -19,6 +19,7 @@ const ResizableChart = () => {
   const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -86,7 +87,7 @@ const ResizableChart = () => {
       if (chartPreferences.width) {
         setContainerWidth(chartPreferences.width);
       }
-      if (chartPreferences.position_x !== undefined && chartPreferences.position_y !== undefined) {
+      if (chartPreferences.position_x !== null && chartPreferences.position_y !== null) {
         setPosition({ 
           x: chartPreferences.position_x, 
           y: chartPreferences.position_y 
@@ -143,7 +144,6 @@ const ResizableChart = () => {
       type: 'number',
       position: 'left',
     }],
-    // Add padding to prevent legend cutoff
     padding: {
       top: 20,
       right: 40,
@@ -152,26 +152,38 @@ const ResizableChart = () => {
     },
   };
 
-  const handleResize = (element: HTMLDivElement) => {
-    if (!element) return;
-    
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent dragging when resizing
+    setIsResizing(true);
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+  };
+
+  const handleResize = (e: React.MouseEvent) => {
+    if (!isResizing) return;
+
+    const element = e.currentTarget as HTMLDivElement;
     const newHeight = element.offsetHeight;
-    const newWidth = element.style.width;
+    const newWidth = element.offsetWidth;
     
     if (newHeight >= MIN_CHART_HEIGHT) {
       setChartHeight(newHeight);
     }
     
-    if (element.offsetWidth >= MIN_CONTAINER_WIDTH) {
-      setChartWidth(newWidth);
-      setContainerWidth(newWidth);
+    if (newWidth >= MIN_CONTAINER_WIDTH) {
+      const widthString = `${newWidth}px`;
+      setChartWidth(widthString);
+      setContainerWidth(widthString);
       
       // Save dimensions and current position
-      saveChartPreferences(newHeight, newWidth, position.x, position.y);
+      saveChartPreferences(newHeight, widthString, position.x, position.y);
     }
   };
 
   const handleDragStart = (e: React.MouseEvent) => {
+    if (isResizing) return; // Don't start dragging if we're resizing
     e.preventDefault();
     setIsDragging(true);
   };
@@ -181,7 +193,7 @@ const ResizableChart = () => {
   };
 
   const handleDrag = (e: React.MouseEvent) => {
-    if (!isDragging) return;
+    if (!isDragging || isResizing) return;
 
     const newX = position.x + e.movementX;
     const newY = position.y + e.movementY;
@@ -201,12 +213,17 @@ const ResizableChart = () => {
       onMouseDown={handleDragStart}
       onMouseUp={handleDragEnd}
       onMouseMove={handleDrag}
-      onMouseLeave={handleDragEnd}
+      onMouseLeave={() => {
+        handleDragEnd();
+        handleResizeEnd();
+      }}
     >
       <div 
         className="mt-6 relative resize overflow-hidden cursor-se-resize inline-block min-w-[300px]"
         style={{ width: containerWidth }}
-        onMouseUp={(e) => handleResize(e.currentTarget)}
+        onMouseDown={handleResizeStart}
+        onMouseUp={handleResizeEnd}
+        onMouseMove={handleResize}
       >
         <Card>
           <CardHeader>
@@ -234,3 +251,4 @@ const ResizableChart = () => {
 };
 
 export default ResizableChart;
+
