@@ -31,12 +31,30 @@ const ChatBot = () => {
     
     setIsLoading(true);
     try {
-      // Use sql-chat endpoint if the message contains SQL-related keywords
-      const isSQLQuery = /\b(sql|query|table|select|from|where|join|database)\b/i.test(userMessage);
-      const endpoint = isSQLQuery ? 'sql-chat' : 'chat';
-      
-      const { data, error } = await supabase.functions.invoke(endpoint, {
-        body: { message: userMessage },
+      // First, search for relevant documents
+      const { data: vectorSearchData, error: searchError } = await supabase.functions.invoke('vector-operations', {
+        body: {
+          action: 'search',
+          query: userMessage,
+          match_threshold: 0.7,
+          match_count: 3
+        }
+      });
+
+      if (searchError) throw searchError;
+
+      // Extract relevant context from search results
+      const context = vectorSearchData
+        ?.map((result: any) => result.content)
+        .join('\n\n');
+
+      // Use chat endpoint with context
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { 
+          message: userMessage,
+          context: context || '',
+          previousMessages: messages.slice(-4) // Include last 4 messages for context
+        },
       });
 
       if (error) throw error;
@@ -103,7 +121,7 @@ const ChatBot = () => {
               <div className="flex-1 p-4 space-y-4 overflow-y-auto h-[480px] bg-gray-50">
                 {messages.length === 0 ? (
                   <div className="text-gray-600">
-                    How can I assist you with your hedging needs today?
+                    How can I assist you with your hedging needs today? I can help you understand your documents and answer questions about hedging strategies.
                   </div>
                 ) : (
                   messages.map((msg, index) => (
@@ -122,7 +140,7 @@ const ChatBot = () => {
                 )}
                 {isLoading && (
                   <div className="text-gray-600 animate-pulse">
-                    Assistant is typing...
+                    Assistant is thinking...
                   </div>
                 )}
               </div>
@@ -132,7 +150,7 @@ const ChatBot = () => {
                   <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask about hedging strategies, exposures..."
+                    placeholder="Ask about your documents or hedging strategies..."
                     className="flex-1 bg-gray-50 border-gray-200"
                     disabled={isLoading}
                   />
