@@ -8,17 +8,14 @@ import { processFileContent } from './text-processor.ts';
 import { chunkText } from './text-chunker.ts';
 
 serve(async (req) => {
-  // Ensure we handle preflight requests properly
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Log the incoming request details
-    console.log('Received request:', {
-      method: req.method,
-      headers: Object.fromEntries(req.headers.entries()),
-    });
+    console.log('Starting vector-operations function');
+    const startTime = Date.now();
 
     let body;
     try {
@@ -41,7 +38,7 @@ serve(async (req) => {
     const { action } = body;
     console.log('Action:', action);
 
-    // Initialize OpenAI
+    // Initialize OpenAI with timeout
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiApiKey) {
       throw new Error('OpenAI API key not configured');
@@ -134,27 +131,37 @@ serve(async (req) => {
       }
 
       case 'search': {
-        const { query, match_threshold, match_count } = body;
+        const { query, match_threshold = 0.7, match_count = 3 } = body;
         console.log('Processing search with query:', query);
         
         if (!query) {
           throw new Error('Search query is required');
         }
 
-        const embeddingResponse = await openai.createEmbedding({
+        // Set a timeout for the embedding request
+        const embedTimeout = 10000; // 10 seconds
+        const embedPromise = openai.createEmbedding({
           model: "text-embedding-ada-002",
-          input: query,
+          input: query.slice(0, 1000), // Limit query length
         });
+
+        const embeddingResponse = await Promise.race([
+          embedPromise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Embedding request timeout')), embedTimeout)
+          )
+        ]);
 
         const [{ embedding }] = embeddingResponse.data.data;
         
         console.log('Generated embedding for search query');
 
+        // Add limits to the RPC call
         const { data: searchData, error: searchError } = await supabaseClient
           .rpc('match_documents', {
             query_embedding: embedding,
-            match_threshold: match_threshold || 0.8,
-            match_count: match_count || 10
+            match_threshold: match_threshold,
+            match_count: Math.min(match_count, 5) // Never return more than 5 matches
           });
 
         if (searchError) {
@@ -163,6 +170,11 @@ serve(async (req) => {
         }
         
         console.log('Found', searchData?.length || 0, 'matching documents');
+        
+        // Log execution time
+        const executionTime = Date.now() - startTime;
+        console.log(`Search completed in ${executionTime}ms`);
+        
         result = searchData;
         break;
       }
@@ -184,9 +196,12 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing request:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'If this error persists, try reducing the complexity of your query.'
+      }),
       { 
-        status: 500,
+        status: error.status || 500,
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json'
@@ -195,4 +210,3 @@ serve(async (req) => {
     );
   }
 });
-
