@@ -1,5 +1,5 @@
 
-import { CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH } from './text-processor';
+import { CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH } from './text-processor.ts';
 
 export function chunkText(text: string): string[] {
   const chunks: string[] = [];
