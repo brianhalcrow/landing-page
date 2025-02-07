@@ -1,11 +1,10 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
-import ChatBot from '../ChatBot';
+import InlineChatBot from '../InlineChatBot';
 
 interface APILog {
   id: number;
@@ -122,13 +121,11 @@ const LLMLoggingTab = () => {
         />
       </div>
       
-      {/* ChatBot section */}
       <div className="w-full">
-        <ChatBot />
+        <InlineChatBot />
       </div>
     </div>
   );
 };
 
 export default LLMLoggingTab;
-
