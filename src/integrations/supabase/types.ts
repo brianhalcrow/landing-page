@@ -312,8 +312,10 @@ export type Database = {
           cost_centre: string | null
           country_currency_id: number | null
           created_date: string | null
+          currency: string | null
           description: string | null
           due_date: string | null
+          entity: string | null
           entity_name: string | null
           geo_structure_entity_id: number | null
           id: number | null
@@ -335,8 +337,10 @@ export type Database = {
           cost_centre?: string | null
           country_currency_id?: number | null
           created_date?: string | null
+          currency?: string | null
           description?: string | null
           due_date?: string | null
+          entity?: string | null
           entity_name?: string | null
           geo_structure_entity_id?: number | null
           id?: number | null
@@ -358,8 +362,10 @@ export type Database = {
           cost_centre?: string | null
           country_currency_id?: number | null
           created_date?: string | null
+          currency?: string | null
           description?: string | null
           due_date?: string | null
+          entity?: string | null
           entity_name?: string | null
           geo_structure_entity_id?: number | null
           id?: number | null
@@ -468,7 +474,7 @@ export type Database = {
           document_date: string | null
           document_type: string | null
           entity: string | null
-          entity_id: number | null
+          entity_id: string | null
           geo_level_1: string | null
           geo_level_2: string | null
           geo_level_3: string | null
@@ -509,7 +515,7 @@ export type Database = {
           document_date?: string | null
           document_type?: string | null
           entity?: string | null
-          entity_id?: number | null
+          entity_id?: string | null
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
@@ -550,7 +556,7 @@ export type Database = {
           document_date?: string | null
           document_type?: string | null
           entity?: string | null
-          entity_id?: number | null
+          entity_id?: string | null
           geo_level_1?: string | null
           geo_level_2?: string | null
           geo_level_3?: string | null
