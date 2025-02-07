@@ -23,12 +23,24 @@ const ChatBot = () => {
   const logApiCall = async (endpoint: string, requestBody: any, response: any, status: string, startTime: number) => {
     const duration = Date.now() - startTime;
     try {
+      // Add more context about vector search results
+      let enrichedResponse = response;
+      if (endpoint === 'vector-operations') {
+        enrichedResponse = {
+          documentsFound: response?.length || 0,
+          searchResults: response?.map((r: any) => ({
+            similarity: (r.similarity * 100).toFixed(2) + '%',
+            content: r.content.substring(0, 100) + '...'
+          }))
+        };
+      }
+      
       await supabase
         .from('api_logs')
         .insert({
           endpoint,
           request_body: requestBody,
-          response,
+          response: enrichedResponse,
           status,
           duration_ms: duration
         });
@@ -78,6 +90,8 @@ const ChatBot = () => {
         ?.map((result: any) => result.content)
         .join('\n\n');
 
+      console.log('Found context from documents:', context ? 'Yes' : 'No');
+      
       // Use chat endpoint with context
       const chatRequestBody = { 
         message: userMessage,
@@ -223,3 +237,4 @@ const ChatBot = () => {
 };
 
 export default ChatBot;
+
