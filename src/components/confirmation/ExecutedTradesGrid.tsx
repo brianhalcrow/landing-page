@@ -20,6 +20,23 @@ const ExecutedTradesGrid = () => {
     }
   });
 
+  const formatAmount = (params: any) => {
+    if (params.value === null || params.value === undefined) return '';
+    const value = params.value;
+    const formattedValue = Math.abs(value).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return value < 0 ? `-${formattedValue}` : formattedValue;
+  };
+
+  const amountCellStyle = (params: any) => {
+    if (params.value < 0) {
+      return { color: 'red' };
+    }
+    return null;
+  };
+
   const columnDefs: ColDef<TradeRegister>[] = [
     { field: 'deal_no', headerName: 'Deal No', filter: true },
     { 
@@ -37,8 +54,20 @@ const ExecutedTradesGrid = () => {
         params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
     { field: 'spot_rate', headerName: 'Spot Rate', filter: true },
-    { field: 'ccy_2_amount', headerName: 'Quote Amount', filter: true },
-    { field: 'ccy_1_amount', headerName: 'Base Amount', filter: true },
+    { 
+      field: 'ccy_2_amount', 
+      headerName: 'Quote Amount', 
+      filter: true,
+      valueFormatter: formatAmount,
+      cellStyle: amountCellStyle
+    },
+    { 
+      field: 'ccy_1_amount', 
+      headerName: 'Base Amount', 
+      filter: true,
+      valueFormatter: formatAmount,
+      cellStyle: amountCellStyle
+    },
     { field: 'ccy_1', headerName: 'Base CCY', filter: true },
     { field: 'currency_pair', headerName: 'Currency Pair', filter: true },
     { field: 'ccy_2', headerName: 'Quote CCY', filter: true },
