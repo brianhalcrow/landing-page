@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -115,13 +116,6 @@ const Dashboard = () => {
             >
               Analytics
             </TabsTrigger>
-            <Separator orientation="vertical" className="h-6 mx-1" />
-            <TabsTrigger 
-              value="reports"
-              className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
-            >
-              Reports
-            </TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="overview" className="mt-6">
@@ -192,7 +186,6 @@ const Dashboard = () => {
           </Card>
         </TabsContent>
         <TabsContent value="analytics">Analytics content</TabsContent>
-        <TabsContent value="reports">Reports content</TabsContent>
       </Tabs>
     </div>
   );
