@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useEffect, useState } from "react";
+import { AgChartsReact } from 'ag-charts-react';
+import { AgChartOptions } from 'ag-charts-community';
 
 const CHART_ID = 'hedge-requests-by-entity';
 
@@ -91,12 +92,35 @@ const Dashboard = () => {
         return acc;
       }, {});
 
-      return Object.entries(entityCounts).map(([name, value]) => ({
-        entity: name,
-        count: value
+      return Object.entries(entityCounts).map(([entity, count]) => ({
+        entity,
+        count
       }));
     }
   });
+
+  const chartOptions: AgChartOptions = {
+    title: {
+      text: 'Draft Hedge Requests by Entity',
+    },
+    data: hedgeRequests || [],
+    series: [{
+      type: 'bar',
+      xKey: 'entity',
+      yKey: 'count',
+      yName: 'Number of Requests',
+    }],
+    axes: [{
+      type: 'category',
+      position: 'bottom',
+      label: {
+        rotation: -45,
+      },
+    }, {
+      type: 'number',
+      position: 'left',
+    }],
+  };
 
   return (
     <div className="space-y-6">
@@ -158,26 +182,13 @@ const Dashboard = () => {
                   <ResizablePanel
                     defaultSize={50}
                     onResize={(size) => {
-                      const newHeight = Math.round((size / 100) * 600); // Using 600 as max height
+                      const newHeight = Math.round((size / 100) * 600);
                       setChartHeight(newHeight);
                       saveChartPreferences(newHeight);
                     }}
                   >
                     <div className="h-full w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={hedgeRequests || []}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="entity" 
-                            angle={-45}
-                            textAnchor="end"
-                            height={70}
-                          />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="count" fill="#8884d8" name="Number of Requests" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <AgChartsReact options={chartOptions} />
                     </div>
                   </ResizablePanel>
                 </ResizablePanelGroup>
