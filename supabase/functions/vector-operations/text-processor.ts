@@ -76,17 +76,6 @@ async function processPdfContent(base64Content: string): Promise<string> {
     throw new Error('Extracted text appears to be corrupted or invalid');
   }
 
-  // Sample the text at different positions
-  const samples = [
-    text.substring(0, 100),
-    text.substring(Math.floor(text.length / 2), Math.floor(text.length / 2) + 100),
-    text.substring(text.length - 100)
-  ];
-
-  console.log('Text samples from different positions:');
-  samples.forEach((sample, i) => {
-    console.log(`Sample ${i + 1}:`, sample);
-  });
-
   return text;
 }
+

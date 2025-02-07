@@ -32,3 +32,4 @@ export function chunkText(text: string): string[] {
   console.log(`Split content into ${chunks.length} chunks`);
   return chunks;
 }
+
