@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,8 +18,8 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
     }
     
-    if (!['application/pdf', 'text/plain'].includes(file.type)) {
-      throw new Error('Only PDF and text files are supported');
+    if (file.type !== 'text/plain') {
+      throw new Error('Only text files (.txt) are supported');
     }
   };
 
@@ -36,17 +35,12 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       // Validate file
       validateFile(file);
       
-      // Convert file to base64
-      const buffer = await file.arrayBuffer();
-      const base64String = btoa(
-        new Uint8Array(buffer).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ''
-        )
-      );
+      // Read text file content
+      const text = await file.text();
+      console.log('File content loaded, length:', text.length);
 
       setProgress(25);
-      console.log('File converted to base64, sending to vector-operations');
+      console.log('Sending to vector-operations');
 
       // Send to vector-operations function for processing
       const { data, error } = await supabase.functions.invoke('vector-operations', {
@@ -56,7 +50,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
             name: file.name,
             type: file.type,
             size: file.size,
-            content: base64String
+            content: text
           },
           metadata: { 
             filename: file.name,
@@ -108,7 +102,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.txt"
+            accept=".txt"
             onChange={handleFileUpload}
             disabled={loading}
             className="block w-full text-sm text-slate-500
