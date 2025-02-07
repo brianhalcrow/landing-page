@@ -1,14 +1,13 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from "@/components/ui/resizable";
 import { useEffect, useState } from "react";
 import { AgChartsReact } from 'ag-charts-react';
 import { AgChartOptions } from 'ag-charts-community';
+import { GripDots } from "lucide-react";
 
 const CHART_ID = 'hedge-requests-by-entity';
 const MIN_CHART_HEIGHT = 200;
@@ -123,6 +122,15 @@ const Dashboard = () => {
     }],
   };
 
+  const handleResize = (element: HTMLDivElement) => {
+    if (!element) return;
+    const newHeight = element.offsetHeight;
+    if (newHeight >= MIN_CHART_HEIGHT) {
+      setChartHeight(newHeight);
+      saveChartPreferences(newHeight);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview" className="w-full">
@@ -179,34 +187,16 @@ const Dashboard = () => {
               {isLoadingHedgeRequests ? (
                 <Skeleton className="h-[400px] w-full" />
               ) : (
-                <ResizablePanelGroup direction="vertical" className="min-h-[200px]">
-                  <ResizablePanel 
-                    defaultSize={50}
-                    minSize={25}
-                  >
-                    <div style={{ height: chartHeight }} className="w-full">
-                      <AgChartsReact options={chartOptions} />
-                    </div>
-                  </ResizablePanel>
-                  <ResizableHandle withHandle />
-                  <ResizablePanel 
-                    defaultSize={50}
-                    minSize={25}
-                    onResize={(size) => {
-                      const newHeight = Math.max(MIN_CHART_HEIGHT, Math.round((size / 100) * window.innerHeight * 0.6));
-                      setChartHeight(newHeight);
-                      saveChartPreferences(newHeight);
-                    }}
-                  >
-                    <div className="h-full w-full bg-muted/10 p-4">
-                      <h3 className="text-lg font-semibold mb-2">Chart Details</h3>
-                      <p className="text-muted-foreground">
-                        This chart shows the distribution of draft hedge requests across different entities.
-                        Drag the handle above to resize the chart view.
-                      </p>
-                    </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+                <div 
+                  className="relative w-full min-h-[200px] resize-y overflow-hidden"
+                  style={{ height: chartHeight }}
+                  onMouseUp={(e) => handleResize(e.currentTarget)}
+                >
+                  <AgChartsReact options={chartOptions} />
+                  <div className="absolute bottom-2 right-2 text-gray-400">
+                    <GripDots className="h-4 w-4" />
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
