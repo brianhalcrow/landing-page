@@ -25,8 +25,23 @@ export const useGLTransactions = (page: number) => {
       
       if (error) throw error;
 
+      // Transform the data to match GLTransaction interface
+      const transformedData = data?.map(item => ({
+        entity: item.entity || '',
+        entity_id: item.entity_id || 0,
+        cost_centre: item.cost_centre || '',
+        account_number: item.account_number || '',
+        account_name: item.account_name || '',
+        transaction_currency: item.transaction_currency || '',
+        transaction_amount: item.transaction_amount || 0,
+        base_amount: item.base_amount || 0,
+        document_date: item.document_date || '',
+        period: item.period || '',
+        year: (item.year || '').toString()
+      })) as GLTransaction[];
+
       return {
-        transactions: data as GLTransaction[],
+        transactions: transformedData,
         totalRows: count || 0
       };
     }
@@ -34,3 +49,4 @@ export const useGLTransactions = (page: number) => {
 };
 
 export { PAGE_SIZE };
+

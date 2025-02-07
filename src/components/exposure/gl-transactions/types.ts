@@ -1,7 +1,7 @@
 
 export interface GLTransaction {
   entity: string;
-  entity_id: string;
+  entity_id: number;  // Changed from string to number to match DB schema
   cost_centre: string;
   account_number: string;
   account_name: string;
@@ -20,3 +20,4 @@ export interface GLTransactionsPaginationProps {
   pageSize: number;
   onPageChange: (newPage: number) => void;
 }
+
