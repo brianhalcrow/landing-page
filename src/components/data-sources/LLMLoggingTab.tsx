@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
+import ChatBot from '../ChatBot';
 
 interface APILog {
   id: number;
@@ -103,21 +104,28 @@ const LLMLoggingTab = () => {
   }
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
-      <GridStyles />
-      <AgGridReact
-        rowData={logs}
-        columnDefs={columnDefs}
-        defaultColDef={{
-          sortable: true,
-          filter: true,
-          resizable: true,
-          suppressSizeToFit: false
-        }}
-        animateRows={true}
-        suppressColumnVirtualisation={true}
-        enableCellTextSelection={true}
-      />
+    <div className="flex flex-col space-y-8">
+      <div className="w-full h-[600px] ag-theme-alpine">
+        <GridStyles />
+        <AgGridReact
+          rowData={logs}
+          columnDefs={columnDefs}
+          defaultColDef={{
+            sortable: true,
+            filter: true,
+            resizable: true,
+            suppressSizeToFit: false
+          }}
+          animateRows={true}
+          suppressColumnVirtualisation={true}
+          enableCellTextSelection={true}
+        />
+      </div>
+      
+      {/* ChatBot section */}
+      <div className="w-full">
+        <ChatBot />
+      </div>
     </div>
   );
 };
