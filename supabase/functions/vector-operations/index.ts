@@ -9,8 +9,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const CHUNK_SIZE = 400;  // New smaller chunk size
-const CHUNK_OVERLAP = 50;  // Reduced overlap for smaller chunks
+const CHUNK_SIZE = 400;  // Keep smaller chunk size
+const CHUNK_OVERLAP = 50;  // Keep reduced overlap
 const MIN_CHUNK_LENGTH = 50; // Minimum characters for a meaningful chunk
 
 async function processFileContent(base64Content: string, fileType: string): Promise<string> {
@@ -20,22 +20,44 @@ async function processFileContent(base64Content: string, fileType: string): Prom
     if (fileType === 'text/plain') {
       text = atob(base64Content);
     } else if (fileType === 'application/pdf') {
+      // Improved PDF text extraction
       const decoded = atob(base64Content);
+      
+      // Clean up PDF text content
       text = decoded
-        .replace(/[\x00-\x1F\x7F-\xFF]/g, ' ') // Replace control chars with spaces
-        .replace(/\\n/g, '\n')
-        .replace(/\s+/g, ' ')
+        .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters but keep newlines
+        .replace(/[\uFFFD\uFFFE\uFFFF]/g, '') // Remove Unicode replacement characters
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n') // Add newlines after sentence endings
         .trim();
+
+      // Basic validation of extracted text
+      if (!text || text.length < 10 || !/[a-zA-Z]/.test(text)) {
+        throw new Error('No valid text content could be extracted from the PDF');
+      }
+
+      // Remove any remaining non-printable characters
+      text = text.replace(/[^\x20-\x7E\n]/g, '');
     } else {
       throw new Error('Unsupported file type');
     }
 
-    // Basic validation of extracted text
-    if (!text || text.length < 10) {
-      throw new Error('No meaningful text could be extracted from the file');
+    // Validate the extracted text
+    if (!text || text.trim().length === 0) {
+      throw new Error('No text could be extracted from the file');
     }
 
     console.log('Extracted text sample:', text.substring(0, 200));
+    console.log('Total text length:', text.length);
+    
+    // Check for text quality
+    const wordCount = text.split(/\s+/).length;
+    console.log('Word count:', wordCount);
+    
+    if (wordCount < 5) {
+      throw new Error('Extracted text appears to be invalid or corrupted');
+    }
+
     return text;
   } catch (error) {
     console.error('Error processing file content:', error);
