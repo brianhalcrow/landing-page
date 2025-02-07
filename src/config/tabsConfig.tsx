@@ -1,4 +1,3 @@
-
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -15,6 +14,7 @@ import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
+import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -70,7 +70,7 @@ export const tabsConfig = {
     { value: "general", label: "General", content: <div>Execution Overview</div> },
   ],
   "confirmation": [
-    { value: "general", label: "General", content: <div>Confirmation Overview</div> },
+    { value: "executed", label: "Executed", content: <ExecutedTradesTab /> },
   ],
   "hedge-accounting": [
     { value: "general", label: "General", content: <div>Hedge Accounting Overview</div> },

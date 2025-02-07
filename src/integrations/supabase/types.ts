@@ -1178,6 +1178,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rates_forward: {
+        Row: {
+          all_in_ask: number
+          all_in_bid: number
+          ask: number
+          bid: number
+          currency_pair: string
+          rate_date: string
+          spot_rate: number
+          tenor: string
+          time: string
+        }
+        Insert: {
+          all_in_ask: number
+          all_in_bid: number
+          ask: number
+          bid: number
+          currency_pair: string
+          rate_date: string
+          spot_rate: number
+          tenor: string
+          time: string
+        }
+        Update: {
+          all_in_ask?: number
+          all_in_bid?: number
+          ask?: number
+          bid?: number
+          currency_pair?: string
+          rate_date?: string
+          spot_rate?: number
+          tenor?: string
+          time?: string
+        }
+        Relationships: []
+      }
       schedule_configs: {
         Row: {
           created_at: string | null
@@ -1473,6 +1509,7 @@ export type Database = {
           ccy_1_amount: number | null
           ccy_2: string | null
           ccy_2_amount: number | null
+          ccy_pair: string | null
           contract_rate: number | null
           counterparty: string | null
           created_at: string | null
@@ -1493,6 +1530,7 @@ export type Database = {
           ccy_1_amount?: number | null
           ccy_2?: string | null
           ccy_2_amount?: number | null
+          ccy_pair?: string | null
           contract_rate?: number | null
           counterparty?: string | null
           created_at?: string | null
@@ -1513,6 +1551,7 @@ export type Database = {
           ccy_1_amount?: number | null
           ccy_2?: string | null
           ccy_2_amount?: number | null
+          ccy_pair?: string | null
           contract_rate?: number | null
           counterparty?: string | null
           created_at?: string | null
@@ -1537,6 +1576,7 @@ export type Database = {
           ccy_2: string | null
           ccy_2_amount: number | null
           ccy_pair: string | null
+          column16: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -1554,6 +1594,7 @@ export type Database = {
           ccy_2?: string | null
           ccy_2_amount?: number | null
           ccy_pair?: string | null
+          column16?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -1571,6 +1612,7 @@ export type Database = {
           ccy_2?: string | null
           ccy_2_amount?: number | null
           ccy_pair?: string | null
+          column16?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
