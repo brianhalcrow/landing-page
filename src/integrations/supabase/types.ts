@@ -95,7 +95,7 @@ export type Database = {
           id: number
           updated_at: string
           user_id: string
-          width: number | null
+          width: string | null
         }
         Insert: {
           chart_id: string
@@ -104,7 +104,7 @@ export type Database = {
           id?: number
           updated_at?: string
           user_id: string
-          width?: number | null
+          width?: string | null
         }
         Update: {
           chart_id?: string
@@ -113,7 +113,7 @@ export type Database = {
           id?: number
           updated_at?: string
           user_id?: string
-          width?: number | null
+          width?: string | null
         }
         Relationships: []
       }

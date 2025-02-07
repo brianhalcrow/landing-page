@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -12,11 +11,13 @@ import { GripVertical } from "lucide-react";
 
 const CHART_ID = 'hedge-requests-by-entity';
 const MIN_CHART_HEIGHT = 200;
+const MIN_CONTAINER_WIDTH = 300;
+const DEFAULT_CONTAINER_WIDTH = '100%';
 
 const Dashboard = () => {
   const [chartHeight, setChartHeight] = useState(400);
   const [chartWidth, setChartWidth] = useState('100%');
-  const [containerWidth, setContainerWidth] = useState('100%');
+  const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -35,7 +36,7 @@ const Dashboard = () => {
       console.log('Fetching chart preferences...');
       const { data, error } = await supabase
         .from('chart_preferences')
-        .select('height')
+        .select('height, width')
         .eq('chart_id', CHART_ID)
         .eq('user_id', user.id)
         .maybeSingle();
@@ -49,15 +50,18 @@ const Dashboard = () => {
     }
   });
 
-  // Set initial height from preferences
+  // Set initial height and width from preferences
   useEffect(() => {
     if (chartPreferences?.height) {
       setChartHeight(chartPreferences.height);
     }
+    if (chartPreferences?.width) {
+      setContainerWidth(chartPreferences.width);
+    }
   }, [chartPreferences]);
 
-  // Save chart preferences when height changes
-  const saveChartPreferences = async (height: number) => {
+  // Save chart preferences when dimensions change
+  const saveChartPreferences = async (height: number, width: string) => {
     if (!user?.id) return;
 
     const { error } = await supabase
@@ -65,7 +69,8 @@ const Dashboard = () => {
       .upsert({
         user_id: user.id,
         chart_id: CHART_ID,
-        height
+        height,
+        width
       }, {
         onConflict: 'user_id,chart_id'
       });
@@ -127,13 +132,21 @@ const Dashboard = () => {
 
   const handleResize = (element: HTMLDivElement) => {
     if (!element) return;
+    
     const newHeight = element.offsetHeight;
+    const newWidth = element.style.width;
+    
     if (newHeight >= MIN_CHART_HEIGHT) {
       setChartHeight(newHeight);
-      saveChartPreferences(newHeight);
     }
-    setChartWidth(element.style.width);
-    setContainerWidth(element.style.width);
+    
+    if (element.offsetWidth >= MIN_CONTAINER_WIDTH) {
+      setChartWidth(newWidth);
+      setContainerWidth(newWidth);
+      
+      // Save both height and width
+      saveChartPreferences(newHeight, newWidth);
+    }
   };
 
   return (
