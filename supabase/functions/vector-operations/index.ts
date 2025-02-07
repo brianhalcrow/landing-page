@@ -1,6 +1,6 @@
 
-import "https://deno.land/x/xhr@0.3.1/mod.ts"; // Updated XHR polyfill
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts"; // Updated serve
+import "https://deno.land/x/xhr@0.3.1/mod.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
 import { corsHeaders } from './cors-headers.ts';
@@ -14,17 +14,28 @@ serve(async (req) => {
   }
 
   try {
-    const reqClone = req.clone();
-    const bodyText = await reqClone.text();
-    console.log('Received request:', req.method);
-    console.log('Request body:', bodyText);
-    
+    // Log the incoming request details
+    console.log('Received request:', {
+      method: req.method,
+      headers: Object.fromEntries(req.headers.entries()),
+    });
+
     let body;
     try {
-      body = JSON.parse(bodyText);
+      body = await req.json();
+      console.log('Request body:', JSON.stringify(body, null, 2));
     } catch (e) {
       console.error('Error parsing request body:', e);
-      throw new Error('Invalid JSON in request body');
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { 
+          status: 400,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json'
+          }
+        }
+      );
     }
 
     const { action } = body;
