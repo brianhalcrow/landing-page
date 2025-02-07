@@ -1,3 +1,4 @@
+
 import { MessageCircle, X, Minimize2, Maximize2, Send } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -19,6 +20,23 @@ const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const logApiCall = async (endpoint: string, requestBody: any, response: any, status: string, startTime: number) => {
+    const duration = Date.now() - startTime;
+    try {
+      await supabase
+        .from('api_logs')
+        .insert({
+          endpoint,
+          request_body: requestBody,
+          response,
+          status,
+          duration_ms: duration
+        });
+    } catch (error) {
+      console.error('Error logging API call:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -30,18 +48,30 @@ const ChatBot = () => {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     
     setIsLoading(true);
+    const startTime = Date.now();
+
     try {
       // First, search for relevant documents
+      const vectorSearchRequestBody = {
+        action: 'search',
+        query: userMessage,
+        match_threshold: 0.7,
+        match_count: 3
+      };
+
       const { data: vectorSearchData, error: searchError } = await supabase.functions.invoke('vector-operations', {
-        body: {
-          action: 'search',
-          query: userMessage,
-          match_threshold: 0.7,
-          match_count: 3
-        }
+        body: vectorSearchRequestBody
       });
 
       if (searchError) throw searchError;
+
+      await logApiCall(
+        'vector-operations',
+        vectorSearchRequestBody,
+        vectorSearchData,
+        'success',
+        startTime
+      );
 
       // Extract relevant context from search results
       const context = vectorSearchData
@@ -49,20 +79,40 @@ const ChatBot = () => {
         .join('\n\n');
 
       // Use chat endpoint with context
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: { 
-          message: userMessage,
-          context: context || '',
-          previousMessages: messages.slice(-4) // Include last 4 messages for context
-        },
+      const chatRequestBody = { 
+        message: userMessage,
+        context: context || '',
+        previousMessages: messages.slice(-4) // Include last 4 messages for context
+      };
+
+      const { data: chatData, error: chatError } = await supabase.functions.invoke('chat', {
+        body: chatRequestBody,
       });
 
-      if (error) throw error;
+      if (chatError) throw chatError;
+
+      await logApiCall(
+        'chat',
+        chatRequestBody,
+        chatData,
+        'success',
+        startTime
+      );
 
       // Add assistant's response to chat
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: chatData.reply }]);
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Log the error
+      await logApiCall(
+        'chat',
+        { message: userMessage },
+        { error: error.message },
+        'error',
+        startTime
+      );
+
       toast({
         title: "Error",
         description: "Failed to send message. Please try again.",
