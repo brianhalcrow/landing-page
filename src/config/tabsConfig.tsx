@@ -13,6 +13,7 @@ import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
+import ChatFXTab from "@/components/data-sources/ChatFXTab";
 import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 
@@ -30,7 +31,7 @@ export const tabsConfig = {
   ],
   "data-sources": [
     { value: "connections", label: "Connections", content: <ConnectionsTab /> },
-    { value: "history", label: "History", content: <HistoryTab /> },
+    { value: "chatfx", label: "ChatFX", content: <ChatFXTab /> },
     { value: "documents", label: "Documents", content: <DocumentsTab /> },
   ],
   "configuration": [

@@ -1,4 +1,3 @@
-
 import { DocumentUpload } from "../DocumentUpload";
 import { VectorSearch } from "../VectorSearch";
 import { useState } from "react";
