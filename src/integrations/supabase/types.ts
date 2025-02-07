@@ -93,6 +93,8 @@ export type Database = {
           created_at: string
           height: number | null
           id: number
+          position_x: number | null
+          position_y: number | null
           updated_at: string
           user_id: string
           width: string | null
@@ -102,6 +104,8 @@ export type Database = {
           created_at?: string
           height?: number | null
           id?: number
+          position_x?: number | null
+          position_y?: number | null
           updated_at?: string
           user_id: string
           width?: string | null
@@ -111,6 +115,8 @@ export type Database = {
           created_at?: string
           height?: number | null
           id?: number
+          position_x?: number | null
+          position_y?: number | null
           updated_at?: string
           user_id?: string
           width?: string | null
