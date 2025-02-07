@@ -27,7 +27,9 @@ const Dashboard = () => {
         </div>
         <TabsContent value="overview" className="mt-6">
           <StatsGrid />
-          <ResizableChart />
+          <div className="relative min-h-[600px] mt-6">
+            <ResizableChart />
+          </div>
         </TabsContent>
         <TabsContent value="analytics">Analytics content</TabsContent>
       </Tabs>

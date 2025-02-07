@@ -19,7 +19,7 @@ type InteractionState = 'IDLE' | 'DRAGGING' | 'RESIZING';
 const ResizableChart = () => {
   const [chartHeight, setChartHeight] = useState(400);
   const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 20, y: 20 }); // Set initial position away from corner
   const [interactionState, setInteractionState] = useState<InteractionState>('IDLE');
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -90,8 +90,8 @@ const ResizableChart = () => {
       }
       if (chartPreferences.position_x !== null && chartPreferences.position_y !== null) {
         setPosition({ 
-          x: chartPreferences.position_x, 
-          y: chartPreferences.position_y 
+          x: chartPreferences.position_x || 20, // Fallback to 20 if null
+          y: chartPreferences.position_y || 20 
         });
       }
     }
@@ -166,18 +166,34 @@ const ResizableChart = () => {
       x: e.clientX - position.x,
       y: e.clientY - position.y
     });
+
+    // Add event listeners to handle drag outside the component
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleInteractionEnd);
   };
 
   // Handle drag
-  const handleDrag = (e: React.MouseEvent) => {
+  const handleDragMove = useCallback((e: MouseEvent) => {
     if (interactionState !== 'DRAGGING') return;
 
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
+    const parentRect = document.querySelector('.relative.min-h-[600px]')?.getBoundingClientRect();
+    if (!parentRect) return;
+
+    // Calculate new position
+    let newX = e.clientX - dragStart.x;
+    let newY = e.clientY - dragStart.y;
+
+    // Calculate container dimensions
+    const containerRect = document.querySelector('.resize.overflow-hidden')?.getBoundingClientRect();
+    if (!containerRect) return;
+
+    // Constrain to parent boundaries
+    newX = Math.max(0, Math.min(newX, parentRect.width - containerRect.width));
+    newY = Math.max(0, Math.min(newY, parentRect.height - containerRect.height));
     
     setPosition({ x: newX, y: newY });
     saveChartPreferences(chartHeight, containerWidth, newX, newY);
-  };
+  }, [interactionState, dragStart, chartHeight, containerWidth, saveChartPreferences]);
 
   // Handle resize start
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -185,28 +201,46 @@ const ResizableChart = () => {
     
     e.stopPropagation(); // Prevent drag when resizing
     setInteractionState('RESIZING');
+
+    // Add event listeners to handle resize outside the component
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleInteractionEnd);
   };
 
   // Handle resize
-  const handleResize = (e: React.MouseEvent) => {
+  const handleResizeMove = useCallback((e: MouseEvent) => {
     if (interactionState !== 'RESIZING') return;
 
-    const element = e.currentTarget as HTMLDivElement;
-    const rect = element.getBoundingClientRect();
-    const newHeight = Math.max(MIN_CHART_HEIGHT, rect.height);
-    const newWidth = Math.max(MIN_CONTAINER_WIDTH, rect.width);
+    const container = document.querySelector('.resize.overflow-hidden');
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const newWidth = Math.max(MIN_CONTAINER_WIDTH, e.clientX - rect.left);
+    const newHeight = Math.max(MIN_CHART_HEIGHT, e.clientY - rect.top);
     
     setChartHeight(newHeight);
     const widthString = `${newWidth}px`;
     setContainerWidth(widthString);
     
     saveChartPreferences(newHeight, widthString, position.x, position.y);
-  };
+  }, [interactionState, position.x, position.y, saveChartPreferences]);
 
   // Handle all mouse up events
-  const handleInteractionEnd = () => {
+  const handleInteractionEnd = useCallback(() => {
     setInteractionState('IDLE');
-  };
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleInteractionEnd);
+  }, [handleDragMove, handleResizeMove]);
+
+  // Clean up event listeners
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleInteractionEnd);
+    };
+  }, [handleDragMove, handleResizeMove, handleInteractionEnd]);
 
   return (
     <div 
@@ -218,23 +252,19 @@ const ResizableChart = () => {
         userSelect: 'none'
       }}
       onMouseDown={handleDragStart}
-      onMouseMove={handleDrag}
-      onMouseUp={handleInteractionEnd}
-      onMouseLeave={handleInteractionEnd}
     >
       <div 
-        className="mt-6 relative resize overflow-hidden inline-block min-w-[300px]"
+        className="resize overflow-hidden inline-block min-w-[300px]"
         style={{ 
           width: containerWidth,
           cursor: interactionState === 'RESIZING' ? 'se-resize' : undefined
         }}
-        onMouseDown={handleResizeStart}
-        onMouseMove={handleResize}
-        onMouseUp={handleInteractionEnd}
-        onMouseLeave={handleInteractionEnd}
       >
         <Card>
-          <CardHeader>
+          <CardHeader 
+            className="cursor-grab active:cursor-grabbing"
+            onMouseDown={handleDragStart}
+          >
             <CardTitle>Draft Hedge Requests by Entity</CardTitle>
           </CardHeader>
           <CardContent>
@@ -246,7 +276,10 @@ const ResizableChart = () => {
                 style={{ height: chartHeight }}
               >
                 <AgChartsReact options={chartOptions} />
-                <div className="absolute bottom-2 right-2 text-gray-400">
+                <div 
+                  className="absolute bottom-2 right-2 text-gray-400 cursor-se-resize p-2"
+                  onMouseDown={handleResizeStart}
+                >
                   <GripVertical className="h-4 w-4" />
                 </div>
               </div>
