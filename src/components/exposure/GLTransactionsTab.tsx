@@ -183,8 +183,8 @@ const GLTransactionsTab = () => {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious 
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page <= 1}
+              onClick={() => page > 1 && setPage(p => p - 1)}
+              className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
             />
           </PaginationItem>
           
@@ -235,8 +235,8 @@ const GLTransactionsTab = () => {
 
           <PaginationItem>
             <PaginationNext 
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
+              onClick={() => page < totalPages && setPage(p => p + 1)}
+              className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
             />
           </PaginationItem>
         </PaginationContent>
@@ -246,3 +246,4 @@ const GLTransactionsTab = () => {
 };
 
 export default GLTransactionsTab;
+
