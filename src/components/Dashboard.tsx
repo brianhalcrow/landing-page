@@ -27,7 +27,7 @@ const Dashboard = () => {
         </div>
         <TabsContent value="overview" className="mt-6">
           <StatsGrid />
-          <div className="relative min-h-[600px] mt-6">
+          <div className="relative w-full min-h-[600px] mt-6 bg-white dark:bg-gray-800">
             <ResizableChart />
           </div>
         </TabsContent>

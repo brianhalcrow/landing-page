@@ -4,22 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgChartsReact } from 'ag-charts-react';
 import { AgChartOptions } from 'ag-charts-community';
-import { GripVertical } from "lucide-react";
+import { GripHorizontal } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { debounce } from "lodash";
 
 const CHART_ID = 'hedge-requests-by-entity';
-const MIN_CHART_HEIGHT = 200;
-const MIN_CONTAINER_WIDTH = 300;
-const DEFAULT_CONTAINER_WIDTH = '100%';
+const MIN_CHART_WIDTH = 300;
+const DEFAULT_CHART_HEIGHT = 400;
 
 type InteractionState = 'IDLE' | 'DRAGGING' | 'RESIZING';
 
 const ResizableChart = () => {
-  const [chartHeight, setChartHeight] = useState(400);
-  const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
-  const [position, setPosition] = useState({ x: 20, y: 20 }); // Set initial position away from corner
+  const [containerWidth, setContainerWidth] = useState(MIN_CHART_WIDTH);
+  const [position, setPosition] = useState({ x: 20, y: 20 });
   const [interactionState, setInteractionState] = useState<InteractionState>('IDLE');
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -39,7 +37,7 @@ const ResizableChart = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('chart_preferences')
-        .select('height, width, position_x, position_y')
+        .select('width, position_x, position_y')
         .eq('chart_id', CHART_ID)
         .eq('user_id', user.id)
         .maybeSingle();
@@ -82,15 +80,12 @@ const ResizableChart = () => {
   // Set initial preferences
   useEffect(() => {
     if (chartPreferences) {
-      if (chartPreferences.height) {
-        setChartHeight(chartPreferences.height);
-      }
       if (chartPreferences.width) {
-        setContainerWidth(chartPreferences.width);
+        setContainerWidth(parseInt(chartPreferences.width));
       }
       if (chartPreferences.position_x !== null && chartPreferences.position_y !== null) {
         setPosition({ 
-          x: chartPreferences.position_x || 20, // Fallback to 20 if null
+          x: chartPreferences.position_x || 20,
           y: chartPreferences.position_y || 20 
         });
       }
@@ -100,8 +95,7 @@ const ResizableChart = () => {
   // Debounced save preferences function
   const saveChartPreferences = useCallback(
     debounce(async (
-      height: number, 
-      width: string, 
+      width: number,
       position_x: number, 
       position_y: number
     ) => {
@@ -112,8 +106,7 @@ const ResizableChart = () => {
         .upsert({
           user_id: user.id,
           chart_id: CHART_ID,
-          height,
-          width,
+          width: width.toString(),
           position_x,
           position_y
         }, {
@@ -167,24 +160,23 @@ const ResizableChart = () => {
       y: e.clientY - position.y
     });
 
-    // Add event listeners to handle drag outside the component
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleInteractionEnd);
   };
 
-  // Handle drag
+  // Handle drag move
   const handleDragMove = useCallback((e: MouseEvent) => {
     if (interactionState !== 'DRAGGING') return;
 
-    const parentRect = document.querySelector('.relative.min-h-[600px]')?.getBoundingClientRect();
+    const parentRect = document.querySelector('.relative.w-full.min-h-\\[600px\\]')?.getBoundingClientRect();
     if (!parentRect) return;
 
     // Calculate new position
     let newX = e.clientX - dragStart.x;
     let newY = e.clientY - dragStart.y;
 
-    // Calculate container dimensions
-    const containerRect = document.querySelector('.resize.overflow-hidden')?.getBoundingClientRect();
+    // Get the container width for boundary checking
+    const containerRect = document.querySelector('.resize-container')?.getBoundingClientRect();
     if (!containerRect) return;
 
     // Constrain to parent boundaries
@@ -192,37 +184,36 @@ const ResizableChart = () => {
     newY = Math.max(0, Math.min(newY, parentRect.height - containerRect.height));
     
     setPosition({ x: newX, y: newY });
-    saveChartPreferences(chartHeight, containerWidth, newX, newY);
-  }, [interactionState, dragStart, chartHeight, containerWidth, saveChartPreferences]);
+    saveChartPreferences(containerWidth, newX, newY);
+  }, [interactionState, dragStart, containerWidth, saveChartPreferences]);
 
   // Handle resize start
   const handleResizeStart = (e: React.MouseEvent) => {
     if (interactionState !== 'IDLE') return;
     
-    e.stopPropagation(); // Prevent drag when resizing
+    e.stopPropagation();
     setInteractionState('RESIZING');
 
-    // Add event listeners to handle resize outside the component
     document.addEventListener('mousemove', handleResizeMove);
     document.addEventListener('mouseup', handleInteractionEnd);
   };
 
-  // Handle resize
+  // Handle resize move
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (interactionState !== 'RESIZING') return;
 
-    const container = document.querySelector('.resize.overflow-hidden');
+    const container = document.querySelector('.resize-container');
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    const newWidth = Math.max(MIN_CONTAINER_WIDTH, e.clientX - rect.left);
-    const newHeight = Math.max(MIN_CHART_HEIGHT, e.clientY - rect.top);
+    const parentRect = document.querySelector('.relative.w-full.min-h-\\[600px\\]')?.getBoundingClientRect();
+    if (!parentRect) return;
+
+    const maxWidth = parentRect.width - position.x;
+    const newWidth = Math.max(MIN_CHART_WIDTH, Math.min(maxWidth, e.clientX - rect.left));
     
-    setChartHeight(newHeight);
-    const widthString = `${newWidth}px`;
-    setContainerWidth(widthString);
-    
-    saveChartPreferences(newHeight, widthString, position.x, position.y);
+    setContainerWidth(newWidth);
+    saveChartPreferences(newWidth, position.x, position.y);
   }, [interactionState, position.x, position.y, saveChartPreferences]);
 
   // Handle all mouse up events
@@ -254,10 +245,10 @@ const ResizableChart = () => {
       onMouseDown={handleDragStart}
     >
       <div 
-        className="resize overflow-hidden inline-block min-w-[300px]"
+        className="resize-container"
         style={{ 
           width: containerWidth,
-          cursor: interactionState === 'RESIZING' ? 'se-resize' : undefined
+          cursor: interactionState === 'RESIZING' ? 'ew-resize' : undefined
         }}
       >
         <Card>
@@ -272,15 +263,15 @@ const ResizableChart = () => {
               <Skeleton className="h-[400px] w-full" />
             ) : (
               <div 
-                className="relative w-full min-h-[200px] overflow-hidden"
-                style={{ height: chartHeight }}
+                className="relative w-full overflow-hidden"
+                style={{ height: DEFAULT_CHART_HEIGHT }}
               >
                 <AgChartsReact options={chartOptions} />
                 <div 
-                  className="absolute bottom-2 right-2 text-gray-400 cursor-se-resize p-2"
+                  className="absolute top-1/2 -translate-y-1/2 right-0 text-gray-400 cursor-ew-resize p-2"
                   onMouseDown={handleResizeStart}
                 >
-                  <GripVertical className="h-4 w-4" />
+                  <GripHorizontal className="h-4 w-4" />
                 </div>
               </div>
             )}
