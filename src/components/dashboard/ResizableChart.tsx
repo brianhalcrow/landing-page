@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgChartsReact } from 'ag-charts-react';
@@ -7,19 +7,21 @@ import { AgChartOptions } from 'ag-charts-community';
 import { GripVertical } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { debounce } from "lodash";
 
 const CHART_ID = 'hedge-requests-by-entity';
 const MIN_CHART_HEIGHT = 200;
 const MIN_CONTAINER_WIDTH = 300;
 const DEFAULT_CONTAINER_WIDTH = '100%';
 
+type InteractionState = 'IDLE' | 'DRAGGING' | 'RESIZING';
+
 const ResizableChart = () => {
   const [chartHeight, setChartHeight] = useState(400);
-  const [chartWidth, setChartWidth] = useState('100%');
   const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
+  const [interactionState, setInteractionState] = useState<InteractionState>('IDLE');
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // First query to get the user
   const { data: user } = useQuery({
@@ -30,12 +32,11 @@ const ResizableChart = () => {
     }
   });
 
-  // Fetch saved chart preferences only when we have the user
+  // Fetch saved chart preferences
   const { data: chartPreferences } = useQuery({
     queryKey: ['chart-preferences', CHART_ID, user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      console.log('Fetching chart preferences...');
       const { data, error } = await supabase
         .from('chart_preferences')
         .select('height, width, position_x, position_y')
@@ -52,10 +53,10 @@ const ResizableChart = () => {
     }
   });
 
+  // Fetch hedge requests data
   const { data: hedgeRequests, isLoading: isLoadingHedgeRequests } = useQuery({
     queryKey: ['hedge-request-drafts-by-entity'],
     queryFn: async () => {
-      console.log('Fetching hedge requests by entity...');
       const { data, error } = await supabase
         .from('hedge_request_draft')
         .select('entity_name');
@@ -78,7 +79,7 @@ const ResizableChart = () => {
     }
   });
 
-  // Set initial height, width and position from preferences
+  // Set initial preferences
   useEffect(() => {
     if (chartPreferences) {
       if (chartPreferences.height) {
@@ -96,32 +97,35 @@ const ResizableChart = () => {
     }
   }, [chartPreferences]);
 
-  // Save chart preferences when dimensions or position change
-  const saveChartPreferences = async (
-    height: number, 
-    width: string, 
-    position_x: number, 
-    position_y: number
-  ) => {
-    if (!user?.id) return;
+  // Debounced save preferences function
+  const saveChartPreferences = useCallback(
+    debounce(async (
+      height: number, 
+      width: string, 
+      position_x: number, 
+      position_y: number
+    ) => {
+      if (!user?.id) return;
 
-    const { error } = await supabase
-      .from('chart_preferences')
-      .upsert({
-        user_id: user.id,
-        chart_id: CHART_ID,
-        height,
-        width,
-        position_x,
-        position_y
-      }, {
-        onConflict: 'user_id,chart_id'
-      });
+      const { error } = await supabase
+        .from('chart_preferences')
+        .upsert({
+          user_id: user.id,
+          chart_id: CHART_ID,
+          height,
+          width,
+          position_x,
+          position_y
+        }, {
+          onConflict: 'user_id,chart_id'
+        });
 
-    if (error) {
-      console.error('Error saving chart preferences:', error);
-    }
-  };
+      if (error) {
+        console.error('Error saving chart preferences:', error);
+      }
+    }, 300),
+    [user?.id]
+  );
 
   const chartOptions: AgChartOptions = {
     title: {
@@ -152,54 +156,56 @@ const ResizableChart = () => {
     },
   };
 
-  const handleResizeStart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent dragging when resizing
-    setIsResizing(true);
-  };
-
-  const handleResizeEnd = () => {
-    setIsResizing(false);
-  };
-
-  const handleResize = (e: React.MouseEvent) => {
-    if (!isResizing) return;
-
-    const element = e.currentTarget as HTMLDivElement;
-    const newHeight = element.offsetHeight;
-    const newWidth = element.offsetWidth;
-    
-    if (newHeight >= MIN_CHART_HEIGHT) {
-      setChartHeight(newHeight);
-    }
-    
-    if (newWidth >= MIN_CONTAINER_WIDTH) {
-      const widthString = `${newWidth}px`;
-      setChartWidth(widthString);
-      setContainerWidth(widthString);
-      
-      // Save dimensions and current position
-      saveChartPreferences(newHeight, widthString, position.x, position.y);
-    }
-  };
-
+  // Handle drag start
   const handleDragStart = (e: React.MouseEvent) => {
-    if (isResizing) return; // Don't start dragging if we're resizing
+    if (interactionState !== 'IDLE') return;
+    
     e.preventDefault();
-    setIsDragging(true);
+    setInteractionState('DRAGGING');
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
+  // Handle drag
   const handleDrag = (e: React.MouseEvent) => {
-    if (!isDragging || isResizing) return;
+    if (interactionState !== 'DRAGGING') return;
 
-    const newX = position.x + e.movementX;
-    const newY = position.y + e.movementY;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
     
     setPosition({ x: newX, y: newY });
     saveChartPreferences(chartHeight, containerWidth, newX, newY);
+  };
+
+  // Handle resize start
+  const handleResizeStart = (e: React.MouseEvent) => {
+    if (interactionState !== 'IDLE') return;
+    
+    e.stopPropagation(); // Prevent drag when resizing
+    setInteractionState('RESIZING');
+  };
+
+  // Handle resize
+  const handleResize = (e: React.MouseEvent) => {
+    if (interactionState !== 'RESIZING') return;
+
+    const element = e.currentTarget as HTMLDivElement;
+    const rect = element.getBoundingClientRect();
+    const newHeight = Math.max(MIN_CHART_HEIGHT, rect.height);
+    const newWidth = Math.max(MIN_CONTAINER_WIDTH, rect.width);
+    
+    setChartHeight(newHeight);
+    const widthString = `${newWidth}px`;
+    setContainerWidth(widthString);
+    
+    saveChartPreferences(newHeight, widthString, position.x, position.y);
+  };
+
+  // Handle all mouse up events
+  const handleInteractionEnd = () => {
+    setInteractionState('IDLE');
   };
 
   return (
@@ -208,22 +214,24 @@ const ResizableChart = () => {
       style={{ 
         left: position.x,
         top: position.y,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        cursor: interactionState === 'DRAGGING' ? 'grabbing' : 'grab',
+        userSelect: 'none'
       }}
       onMouseDown={handleDragStart}
-      onMouseUp={handleDragEnd}
       onMouseMove={handleDrag}
-      onMouseLeave={() => {
-        handleDragEnd();
-        handleResizeEnd();
-      }}
+      onMouseUp={handleInteractionEnd}
+      onMouseLeave={handleInteractionEnd}
     >
       <div 
-        className="mt-6 relative resize overflow-hidden cursor-se-resize inline-block min-w-[300px]"
-        style={{ width: containerWidth }}
+        className="mt-6 relative resize overflow-hidden inline-block min-w-[300px]"
+        style={{ 
+          width: containerWidth,
+          cursor: interactionState === 'RESIZING' ? 'se-resize' : undefined
+        }}
         onMouseDown={handleResizeStart}
-        onMouseUp={handleResizeEnd}
         onMouseMove={handleResize}
+        onMouseUp={handleInteractionEnd}
+        onMouseLeave={handleInteractionEnd}
       >
         <Card>
           <CardHeader>
@@ -251,4 +259,3 @@ const ResizableChart = () => {
 };
 
 export default ResizableChart;
-
