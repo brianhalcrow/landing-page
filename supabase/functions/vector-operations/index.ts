@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -9,9 +8,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const CHUNK_SIZE = 400;  // Keep smaller chunk size
-const CHUNK_OVERLAP = 50;  // Keep reduced overlap
-const MIN_CHUNK_LENGTH = 50; // Minimum characters for a meaningful chunk
+const CHUNK_SIZE = 400;
+const CHUNK_OVERLAP = 50;
+const MIN_CHUNK_LENGTH = 50;
 
 async function processFileContent(base64Content: string, fileType: string): Promise<string> {
   try {
@@ -20,42 +19,75 @@ async function processFileContent(base64Content: string, fileType: string): Prom
     if (fileType === 'text/plain') {
       text = atob(base64Content);
     } else if (fileType === 'application/pdf') {
-      // Improved PDF text extraction
+      // More robust PDF text extraction
       const decoded = atob(base64Content);
       
-      // Clean up PDF text content
-      text = decoded
-        .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters but keep newlines
-        .replace(/[\uFFFD\uFFFE\uFFFF]/g, '') // Remove Unicode replacement characters
-        .replace(/\s+/g, ' ') // Normalize whitespace
-        .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n') // Add newlines after sentence endings
+      // First pass: Remove binary data and control characters
+      let cleanedText = decoded
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Remove most control characters but keep \n
+        .replace(/[\x7F-\x9F\uFFFD-\uFFFF]/g, '') // Remove high ASCII and Unicode replacement chars
+        .replace(/[^\x20-\x7E\n\r]/g, ' '); // Replace any remaining non-printable chars with space
+      
+      // Second pass: Clean up the text structure
+      cleanedText = cleanedText
+        .replace(/\\[rn]/g, '\n') // Convert escaped newlines
+        .replace(/\r\n|\r/g, '\n') // Normalize line endings
+        .replace(/[^\S\n]+/g, ' ') // Replace multiple spaces with single space
+        .replace(/\n\s*\n\s*\n+/g, '\n\n') // Max 2 consecutive newlines
+        .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n') // Add newlines after sentences
         .trim();
 
-      // Basic validation of extracted text
-      if (!text || text.length < 10 || !/[a-zA-Z]/.test(text)) {
+      // Validate text structure
+      const lines = cleanedText.split('\n');
+      const validLines = lines.filter(line => {
+        // Line should have some alphanumeric content and reasonable length
+        return line.trim().length > 0 && 
+               line.trim().length < 1000 && // Avoid extremely long lines
+               /[a-zA-Z0-9]/.test(line) && // Must contain alphanumeric chars
+               !/^\s*[^a-zA-Z0-9\s]{2,}\s*$/.test(line); // Avoid lines with just symbols
+      });
+
+      text = validLines.join('\n');
+
+      // Final validation
+      if (!text || text.length < 20) { // Increased minimum length
+        console.error('Extracted text is too short or empty');
         throw new Error('No valid text content could be extracted from the PDF');
       }
 
-      // Remove any remaining non-printable characters
-      text = text.replace(/[^\x20-\x7E\n]/g, '');
+      // Check for text quality
+      const wordCount = text.split(/\s+/).length;
+      const avgWordLength = text.length / wordCount;
+      const hasValidWordLengths = avgWordLength >= 3 && avgWordLength <= 15;
+      
+      console.log('Text quality metrics:', {
+        totalLength: text.length,
+        wordCount,
+        averageWordLength: avgWordLength,
+        lineCount: validLines.length
+      });
+
+      if (!hasValidWordLengths || wordCount < 10) {
+        console.error('Text quality check failed:', {
+          wordCount,
+          averageWordLength: avgWordLength
+        });
+        throw new Error('Extracted text appears to be corrupted or invalid');
+      }
+
+      // Sample the text at different positions to verify consistency
+      const samples = [
+        text.substring(0, 100),
+        text.substring(Math.floor(text.length / 2), Math.floor(text.length / 2) + 100),
+        text.substring(text.length - 100)
+      ];
+
+      console.log('Text samples from different positions:');
+      samples.forEach((sample, i) => {
+        console.log(`Sample ${i + 1}:`, sample);
+      });
     } else {
       throw new Error('Unsupported file type');
-    }
-
-    // Validate the extracted text
-    if (!text || text.trim().length === 0) {
-      throw new Error('No text could be extracted from the file');
-    }
-
-    console.log('Extracted text sample:', text.substring(0, 200));
-    console.log('Total text length:', text.length);
-    
-    // Check for text quality
-    const wordCount = text.split(/\s+/).length;
-    console.log('Word count:', wordCount);
-    
-    if (wordCount < 5) {
-      throw new Error('Extracted text appears to be invalid or corrupted');
     }
 
     return text;
