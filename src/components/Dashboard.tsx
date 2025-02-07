@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -170,28 +169,17 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <Card className="mt-6">
+          <Card className="mt-6 inline-block">
             <CardHeader>
               <CardTitle>Draft Hedge Requests by Entity</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoadingHedgeRequests ? (
-                <Skeleton className="h-[400px] w-full" />
+                <Skeleton className="h-[10cm] w-[10cm]" />
               ) : (
-                <ResizablePanelGroup direction="vertical" className="min-h-[400px] max-h-[600px]">
-                  <ResizablePanel
-                    defaultSize={50}
-                    onResize={(size) => {
-                      const newHeight = Math.round((size / 100) * 600);
-                      setChartHeight(newHeight);
-                      saveChartPreferences(newHeight);
-                    }}
-                  >
-                    <div className="h-full w-full">
-                      <AgChartsReact options={chartOptions} />
-                    </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+                <div className="w-[10cm] h-[10cm]">
+                  <AgChartsReact options={chartOptions} />
+                </div>
               )}
             </CardContent>
           </Card>
