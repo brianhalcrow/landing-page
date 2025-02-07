@@ -39,8 +39,8 @@ const LLMLoggingTab = () => {
     { 
       field: 'created_at', 
       headerName: 'Timestamp',
-      flex: 1,
-      minWidth: 180,
+      flex: 0.8,
+      minWidth: 160,
       headerClass: 'ag-header-center',
       valueFormatter: (params) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy HH:mm:ss') : ''
@@ -48,15 +48,15 @@ const LLMLoggingTab = () => {
     { 
       field: 'endpoint', 
       headerName: 'Endpoint',
-      flex: 1,
-      minWidth: 150,
+      flex: 0.7,
+      minWidth: 130,
       headerClass: 'ag-header-center'
     },
     { 
       field: 'status', 
       headerName: 'Status',
-      flex: 0.5,
-      minWidth: 100,
+      flex: 0.4,
+      minWidth: 90,
       headerClass: 'ag-header-center',
       cellStyle: (params) => {
         if (params.value === 'success') return { color: '#16a34a' };
@@ -67,15 +67,15 @@ const LLMLoggingTab = () => {
     { 
       field: 'duration_ms', 
       headerName: 'Duration (ms)',
-      flex: 0.7,
-      minWidth: 120,
+      flex: 0.5,
+      minWidth: 110,
       headerClass: 'ag-header-center',
       type: 'numericColumn'
     },
     { 
       field: 'request_body', 
       headerName: 'Request',
-      flex: 2,
+      flex: 1.5,
       minWidth: 300,
       headerClass: 'ag-header-center',
       wrapText: true,
@@ -88,7 +88,7 @@ const LLMLoggingTab = () => {
       field: 'response', 
       headerName: 'Response',
       flex: 2,
-      minWidth: 400,
+      minWidth: 500,
       headerClass: 'ag-header-center',
       wrapText: true,
       autoHeight: true,
