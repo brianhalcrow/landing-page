@@ -1,6 +1,6 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.3.1/mod.ts"; // Updated XHR polyfill
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts"; // Updated serve
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
 import { corsHeaders } from './cors-headers.ts';
@@ -8,8 +8,9 @@ import { processFileContent } from './text-processor.ts';
 import { chunkText } from './text-chunker.ts';
 
 serve(async (req) => {
+  // Ensure we handle preflight requests properly
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -161,7 +162,12 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        } 
+      }
     );
 
   } catch (error) {
@@ -170,7 +176,10 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        }
       }
     );
   }
