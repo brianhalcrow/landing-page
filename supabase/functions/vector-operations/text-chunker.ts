@@ -1,4 +1,4 @@
-import { CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH } from './text-processor.ts';
+imports { CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH } from './text-processor.ts';
 
 interface ChunkMetadata {
   sectionTitle?: string;
