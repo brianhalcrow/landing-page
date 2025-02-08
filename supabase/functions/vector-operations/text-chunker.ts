@@ -18,20 +18,46 @@ export function chunkText(text: string): string[] {
       continue;
     }
 
-    let currentChunk = '';
+    // Split into sentences, ensuring we capture the full sentence
     const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
-    
-    for (const sentence of sentences) {
-      if ((currentChunk + sentence).length > CHUNK_SIZE) {
+    let currentChunk = '';
+    let nextChunk = '';
+
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
+      
+      // Check if adding this sentence would exceed chunk size
+      if ((currentChunk + ' ' + sentence).length > CHUNK_SIZE) {
+        // Store current chunk if it meets minimum length
         if (currentChunk.length >= MIN_CHUNK_LENGTH) {
           chunks.push(currentChunk.trim());
         }
+        
+        // Start new chunk with current sentence
         currentChunk = sentence;
+        
+        // Add overlap from previous chunk if exists and within size limit
+        if (nextChunk && (sentence + ' ' + nextChunk).length <= CHUNK_SIZE) {
+          currentChunk = nextChunk + ' ' + sentence;
+          nextChunk = '';
+        }
       } else {
+        // Add sentence to current chunk
         currentChunk += (currentChunk ? ' ' : '') + sentence;
+      }
+      
+      // Prepare next chunk overlap
+      if (i < sentences.length - 1) {
+        const nextSentence = sentences[i + 1].trim();
+        if ((sentence + ' ' + nextSentence).length <= CHUNK_OVERLAP) {
+          nextChunk = sentence + ' ' + nextSentence;
+        } else {
+          nextChunk = sentence;
+        }
       }
     }
     
+    // Add final chunk if it meets minimum length
     if (currentChunk.length >= MIN_CHUNK_LENGTH) {
       chunks.push(currentChunk.trim());
     }
