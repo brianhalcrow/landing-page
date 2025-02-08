@@ -54,9 +54,14 @@ serve(async (req) => {
               {
                 role: "system",
                 content: `You are a financial document analyzer specializing in forex and trading documents. 
-                Analyze the following text and categorize it. Your analysis should be extremely precise and technical.
+                You will analyze the given text and return ONLY a JSON object with these exact fields:
+                {
+                  "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
+                  "section": one of ["theory", "practice", "case_study", "reference", "general"],
+                  "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
+                }
                 
-                Categories:
+                Categories explanation:
                 - forex: Documents about foreign exchange markets and currency trading
                 - trading: General trading concepts and strategies
                 - risk_management: Risk assessment and management in trading
@@ -64,14 +69,14 @@ serve(async (req) => {
                 - technical_analysis: Technical analysis methods and indicators
                 - uncategorized: Only if text doesn't fit other categories
                 
-                Sections:
+                Sections explanation:
                 - theory: Theoretical concepts and foundations
                 - practice: Practical applications and examples
                 - case_study: Real world examples and case studies
                 - reference: Reference materials and documentation
                 - general: General information
                 
-                Difficulty levels (based on technical complexity and prerequisites):
+                Difficulty levels:
                 - beginner: Basic concepts, no prior knowledge needed
                 - intermediate: Some trading knowledge required
                 - advanced: Complex concepts, significant experience needed
@@ -85,8 +90,24 @@ serve(async (req) => {
             temperature: 0.1
           });
 
-          const analysis = JSON.parse(response.data.choices[0].message.content);
-          console.log(`Analysis result for doc ${doc.id}:`, analysis);
+          const analysisText = response.data.choices[0].message.content.trim();
+          console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
+          
+          // Parse the response, ensuring it's valid JSON
+          let analysis;
+          try {
+            analysis = JSON.parse(analysisText);
+          } catch (parseError) {
+            console.error(`Failed to parse AI response for doc ${doc.id}:`, parseError);
+            throw new Error('Invalid AI response format');
+          }
+
+          // Validate the analysis object has required fields
+          if (!analysis.category || !analysis.section || !analysis.difficulty) {
+            throw new Error('Missing required fields in AI response');
+          }
+
+          console.log(`Parsed analysis for doc ${doc.id}:`, analysis);
 
           // Update document metadata
           const { error: updateError } = await supabase
