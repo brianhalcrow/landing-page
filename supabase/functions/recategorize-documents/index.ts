@@ -28,7 +28,7 @@ serve(async (req) => {
     const { data: documents, error } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .eq('metadata->category', 'uncategorized');
+      .is('metadata->category', null);
 
     if (error) throw error;
     if (!documents?.length) {
@@ -107,23 +107,32 @@ serve(async (req) => {
             throw new Error('Missing required fields in AI response');
           }
 
-          console.log(`Parsed analysis for doc ${doc.id}:`, analysis);
+          // Ensure the current metadata is a valid object
+          const currentMetadata = doc.metadata || {};
+          
+          // Create the new metadata object
+          const newMetadata = {
+            ...currentMetadata,
+            category: analysis.category,
+            section: analysis.section,
+            difficulty: analysis.difficulty,
+            recategorized_at: new Date().toISOString()
+          };
+
+          console.log(`Updating document ${doc.id} with metadata:`, newMetadata);
 
           // Update document metadata
           const { error: updateError } = await supabase
             .from('documents')
             .update({
-              metadata: {
-                ...doc.metadata,
-                category: analysis.category,
-                section: analysis.section,
-                difficulty: analysis.difficulty,
-                recategorized_at: new Date().toISOString()
-              }
+              metadata: newMetadata
             })
             .eq('id', doc.id);
 
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error(`Error updating document ${doc.id}:`, updateError);
+            throw updateError;
+          }
 
           return {
             id: doc.id,
