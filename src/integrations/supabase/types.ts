@@ -1863,6 +1863,12 @@ export type Database = {
             }
             Returns: unknown
           }
+      escape_special_chars: {
+        Args: {
+          input_text: string
+        }
+        Returns: string
+      }
       execute_sql_query: {
         Args: {
           query_text: string

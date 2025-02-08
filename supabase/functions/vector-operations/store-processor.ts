@@ -72,38 +72,49 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
         
         const embeddingResponse = await openai.createEmbedding({
           model: "text-embedding-ada-002",
-          input: chunk.slice(0, 8000),
+          input: chunk.slice(0, 8000), // Limit input to 8000 chars for OpenAI API
         });
 
         const [{ embedding }] = embeddingResponse.data.data;
+
+        // Escape special characters in content using database function
+        const { data, error } = await supabaseClient.rpc('escape_special_chars', {
+          input_text: chunk
+        });
+
+        if (error) {
+          throw new Error(`Error escaping text: ${error.message}`);
+        }
+
+        const escapedContent = data;
 
         // Generate consistent tags using enhanced metadata
         const generatedTags = [
           enhancedMetadata.category,
           `chunk_${index + 1}`,
           enhancedMetadata.difficulty
-        ];
+        ].filter(Boolean); // Remove any null/undefined values
 
-        // Insert with explicit JSONB casting and enhanced metadata
-        const { data, error } = await supabaseClient
+        // Insert with explicit metadata fields and escaped content
+        const { data: insertData, error: insertError } = await supabaseClient
           .from('documents')
           .insert({
-            content: chunk,
+            content: escapedContent,
             embedding,
             metadata: enhancedMetadata,
             metadata_tags: generatedTags,
             metadata_source_reference: file.name,
-            metadata_category: enhancedMetadata.category,
-            metadata_section: enhancedMetadata.section,
-            metadata_difficulty: enhancedMetadata.difficulty
+            metadata_category: null, // Let recategorize-documents set this
+            metadata_section: null,  // Let recategorize-documents set this
+            metadata_difficulty: null // Let recategorize-documents set this
           })
           .select();
 
-        if (error) {
-          throw error;
+        if (insertError) {
+          throw insertError;
         }
 
-        return data?.[0];
+        return insertData?.[0];
       } catch (error) {
         console.error(`Error processing chunk ${index + 1}:`, error);
         throw error;
