@@ -119,20 +119,27 @@ serve(async (req) => {
               // Extract content type and generate tags
               const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
               const contentType = fileExtension === 'txt' ? 'text' : fileExtension;
-              const generatedTags = [contentType, `chunk_${index + 1}`];
-              
-              // Enhanced metadata
+              const generatedTags = [contentType, `chunk_${index + 1}`, metadata?.category || 'uncategorized'];
+
+              if (metadata?.difficulty) {
+                generatedTags.push(metadata.difficulty);
+              }
+
+              // Enhanced metadata structure
               const enhancedMetadata = {
                 ...metadata,
-                chunk: index + 1,
-                totalChunks: chunks.length,
-                chunkSize: chunk.length,
                 fileName: file.name,
                 fileType: file.type,
                 processingDate: new Date().toISOString(),
+                chunkIndex: index + 1,
+                totalChunks: chunks.length,
+                contentType: contentType,
                 status: 'completed'
               };
-              
+
+              console.log('Generated tags:', generatedTags);
+              console.log('Enhanced metadata:', enhancedMetadata);
+
               return supabaseClient
                 .from('documents')
                 .insert({
@@ -145,8 +152,7 @@ serve(async (req) => {
                   metadata_section: metadata?.section || 'general',
                   metadata_difficulty: metadata?.difficulty || 'beginner'
                 })
-                .select()
-                .single();
+                .select();
             } catch (error) {
               console.error(`Error processing chunk ${index + 1}:`, error);
               throw error;
@@ -154,7 +160,7 @@ serve(async (req) => {
           });
 
           const batchResults = await Promise.all(batchPromises);
-          processedChunks.push(...batchResults.map(result => result.data));
+          processedChunks.push(...batchResults.map(result => result.data?.[0]));
           
           if (i + BATCH_SIZE < chunks.length) {
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -243,4 +249,3 @@ serve(async (req) => {
     );
   }
 });
-
