@@ -27,10 +27,17 @@ export const validateRequestBody = async (req: Request) => {
     // First try the direct JSON parsing approach
     try {
       const body = await req.json();
-      console.log('Parsed request body:', JSON.stringify(body, null, 2));
+      console.log('Received request body:', JSON.stringify(body, null, 2));
       
       if (!body.action) {
         throw new Error('Action is required');
+      }
+
+      // Validate file object for store action
+      if (body.action === 'store') {
+        if (!body.file || !body.file.content || !body.file.name) {
+          throw new Error('File content and name are required for store action');
+        }
       }
 
       // Validate metadata if present
@@ -39,17 +46,22 @@ export const validateRequestBody = async (req: Request) => {
           throw new Error('Metadata must be an object');
         }
         
-        // Ensure metadata is properly formatted
-        body.metadata = {
-          ...body.metadata,
+        // Ensure metadata has required fields and proper types
+        const validatedMetadata = {
+          filename: body.metadata.filename || body.file?.name || 'unknown',
+          fileType: body.metadata.fileType || 'text/plain',
+          size: body.metadata.size || body.file?.size || 0,
           status: body.metadata.status || 'processing',
           uploadedAt: body.metadata.uploadedAt || new Date().toISOString()
         };
+        
+        body.metadata = validatedMetadata;
       }
 
+      console.log('Validated request body:', JSON.stringify(body, null, 2));
       return body;
     } catch (parseError) {
-      console.error('Initial JSON parse error:', parseError);
+      console.error('JSON parse error:', parseError);
       throw new Error('Invalid JSON in request body');
     }
   } catch (e) {
@@ -57,4 +69,3 @@ export const validateRequestBody = async (req: Request) => {
     throw e;
   }
 };
-

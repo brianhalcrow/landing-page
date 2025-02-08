@@ -16,6 +16,8 @@ export const processTextFile = async (content: string, filename: string) => {
     uploadedAt: new Date().toISOString(),
     status: 'processing'
   };
+
+  console.log('[TextProcessor] Sending request with metadata:', JSON.stringify(metadata, null, 2));
   
   const { data, error } = await supabase.functions.invoke('vector-operations', {
     body: {
@@ -26,7 +28,7 @@ export const processTextFile = async (content: string, filename: string) => {
         size: content.length,
         content: base64Content
       },
-      metadata: metadata
+      metadata
     }
   });
 
@@ -38,4 +40,3 @@ export const processTextFile = async (content: string, filename: string) => {
   console.log(`[TextProcessor] Successfully processed ${filename}`);
   return data;
 };
-
