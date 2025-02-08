@@ -1,4 +1,6 @@
 
+import { RequestBody, FileMetadata } from './types.ts';
+
 export const BATCH_SIZE = 5;
 
 export const corsHeaders = {
@@ -22,9 +24,8 @@ export const createErrorResponse = (error: Error, status = 500) => {
   );
 };
 
-export const validateRequestBody = async (req: Request) => {
+export const validateRequestBody = async (req: Request): Promise<RequestBody> => {
   try {
-    // Parse the request body
     const body = await req.json();
     console.log('Raw request body:', JSON.stringify(body, null, 2));
     
@@ -34,38 +35,44 @@ export const validateRequestBody = async (req: Request) => {
 
     // Validate file object for store action
     if (body.action === 'store') {
-      if (!body.file || !body.file.content || !body.file.name) {
+      if (!body.file?.content || !body.file?.name) {
         throw new Error('File content and name are required for store action');
       }
 
-      // Ensure metadata is a valid JSON object
-      if (body.metadata) {
-        if (typeof body.metadata !== 'object' || Array.isArray(body.metadata)) {
-          throw new Error('Metadata must be a valid JSON object');
-        }
-        
-        // Create a sanitized metadata object with required fields
-        body.metadata = {
-          fileName: body.metadata.fileName || body.file.name,
-          fileType: body.metadata.fileType || 'text/plain',
-          size: body.metadata.size || body.file.size || 0,
-          status: body.metadata.status || 'processing',
-          uploadedAt: body.metadata.uploadedAt || new Date().toISOString()
-        };
-      } else {
-        // If no metadata provided, create default metadata
-        body.metadata = {
-          fileName: body.file.name,
-          fileType: 'text/plain',
-          size: body.file.size || 0,
-          status: 'processing',
-          uploadedAt: new Date().toISOString()
-        };
-      }
+      // Create a sanitized metadata object with required fields
+      const metadata: FileMetadata = {
+        fileName: body.file.name,
+        fileType: body.file.type || 'text/plain',
+        size: body.file.size || body.file.content.length,
+        uploadedAt: new Date().toISOString(),
+        status: 'processing',
+        category: body.metadata?.category || 'uncategorized',
+        section: body.metadata?.section || 'general',
+        difficulty: body.metadata?.difficulty || 'beginner'
+      };
+
+      // Return properly typed request body
+      return {
+        action: 'store',
+        file: {
+          name: body.file.name,
+          type: body.file.type || 'text/plain',
+          size: body.file.size || body.file.content.length,
+          content: body.file.content
+        },
+        metadata
+      };
     }
 
-    console.log('Validated request body:', JSON.stringify(body, null, 2));
-    return body;
+    // Validate search request
+    if (body.action === 'search') {
+      if (!body.query) {
+        throw new Error('Search query is required');
+      }
+      return body as SearchRequestBody;
+    }
+
+    throw new Error('Invalid action type');
   } catch (e) {
     console.error('Error validating request body:', e);
     throw e;

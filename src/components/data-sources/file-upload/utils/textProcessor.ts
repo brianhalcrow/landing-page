@@ -14,7 +14,10 @@ export const processTextFile = async (content: string, filename: string) => {
     fileType: 'text/plain',
     size: content.length,
     uploadedAt: new Date().toISOString(),
-    status: 'processing'
+    status: 'processing' as const,
+    category: 'uncategorized',
+    section: 'general',
+    difficulty: 'beginner'
   };
 
   console.log('[TextProcessor] Sending request with metadata:', JSON.stringify(metadata, null, 2));
