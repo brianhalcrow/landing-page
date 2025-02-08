@@ -474,10 +474,14 @@ export type Database = {
       }
       erp_gl_transactions: {
         Row: {
-          account_category_l1: string | null
-          account_category_l2: string | null
-          account_category_l3: string | null
-          account_category_l4: string | null
+          account_category_level_1: string | null
+          account_category_level_1_id: number | null
+          account_category_level_2: string | null
+          account_category_level_2_id: number | null
+          account_category_level_3: string | null
+          account_category_level_3_id: number | null
+          account_category_level_4: string | null
+          account_category_level_4_id: number | null
           account_name: string | null
           account_number: string | null
           ap_invoice_id: string | null
@@ -515,10 +519,14 @@ export type Database = {
           year_period: string | null
         }
         Insert: {
-          account_category_l1?: string | null
-          account_category_l2?: string | null
-          account_category_l3?: string | null
-          account_category_l4?: string | null
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
           account_name?: string | null
           account_number?: string | null
           ap_invoice_id?: string | null
@@ -556,10 +564,14 @@ export type Database = {
           year_period?: string | null
         }
         Update: {
-          account_category_l1?: string | null
-          account_category_l2?: string | null
-          account_category_l3?: string | null
-          account_category_l4?: string | null
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
           account_name?: string | null
           account_number?: string | null
           ap_invoice_id?: string | null
