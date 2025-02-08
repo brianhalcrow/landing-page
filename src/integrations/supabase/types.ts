@@ -130,6 +130,11 @@ export type Database = {
           embedding: string | null
           id: number
           metadata: Json | null
+          metadata_category: string | null
+          metadata_difficulty: string | null
+          metadata_section: string | null
+          metadata_source_reference: string | null
+          metadata_tags: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -138,6 +143,11 @@ export type Database = {
           embedding?: string | null
           id?: never
           metadata?: Json | null
+          metadata_category?: string | null
+          metadata_difficulty?: string | null
+          metadata_section?: string | null
+          metadata_source_reference?: string | null
+          metadata_tags?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -146,6 +156,11 @@ export type Database = {
           embedding?: string | null
           id?: never
           metadata?: Json | null
+          metadata_category?: string | null
+          metadata_difficulty?: string | null
+          metadata_section?: string | null
+          metadata_source_reference?: string | null
+          metadata_tags?: string[] | null
           updated_at?: string | null
         }
         Relationships: []
