@@ -18,7 +18,8 @@ export class FileProcessor {
   }
 
   static async processTextFile(content: string, filename: string) {
-    console.log(`Processing text file: ${filename}, length: ${content.length}`);
+    console.log(`[FileProcessor] Starting processing of: ${filename}`);
+    console.log(`[FileProcessor] Content length: ${content.length} characters`);
     
     // Convert the text content to base64
     const base64Content = btoa(unescape(encodeURIComponent(content)));
@@ -43,6 +44,7 @@ export class FileProcessor {
     });
 
     if (error) throw error;
+    console.log(`[FileProcessor] Successfully processed ${filename}`);
     return data;
   }
 
@@ -57,6 +59,7 @@ export class FileProcessor {
       throw new Error('No text files found in the zip archive');
     }
 
+    console.log(`[FileProcessor] Processing ${textFiles.length} files from zip archive`);
     let processedFiles = 0;
     for (const zipEntry of textFiles) {
       const content = await zipEntry.async('string');

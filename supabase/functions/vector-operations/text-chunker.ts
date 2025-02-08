@@ -1,3 +1,4 @@
+
 import { CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH } from './text-processor.ts';
 
 function isCompleteSection(text: string): boolean {
@@ -15,12 +16,17 @@ function isCompleteSection(text: string): boolean {
 }
 
 export function chunkText(text: string): string[] {
+  console.log('[TextChunker] Starting text chunking process');
+  console.log(`[TextChunker] Input text length: ${text.length} characters`);
+
   // Split on double newlines to preserve logical sections
   const sections = text
     .split(/\n\s*\n/)
     .filter(Boolean)
     .map(section => section.trim())
     .filter(section => section.length >= MIN_CHUNK_LENGTH);
+
+  console.log(`[TextChunker] Initial sections count: ${sections.length}`);
 
   const chunks: string[] = [];
   let currentChunk = '';
@@ -66,7 +72,7 @@ export function chunkText(text: string): string[] {
   }
 
   // Post-process chunks to ensure they start with complete words
-  return chunks
+  const finalChunks = chunks
     .map(chunk => {
       // If chunk starts with a partial word, remove it
       const firstSpaceIndex = chunk.indexOf(' ');
@@ -76,4 +82,11 @@ export function chunkText(text: string): string[] {
       return chunk;
     })
     .filter(chunk => chunk.length >= MIN_CHUNK_LENGTH);
+
+  console.log(`[TextChunker] Chunking completed:
+    - Total chunks: ${finalChunks.length}
+    - Average chunk size: ${Math.round(finalChunks.reduce((acc, chunk) => acc + chunk.length, 0) / finalChunks.length)} characters
+  `);
+
+  return finalChunks;
 }
