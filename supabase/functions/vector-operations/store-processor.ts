@@ -8,18 +8,31 @@ import { StoreRequestBody, FileMetadata } from './types.ts';
 export async function processStore(body: StoreRequestBody, openai: OpenAIApi, supabaseClient: any) {
   const { file, metadata } = body;
   console.log('Processing store action for file:', file?.name);
-  console.log('Metadata:', JSON.stringify(metadata, null, 2));
+  console.log('Initial metadata:', JSON.stringify(metadata, null, 2));
   
   if (!file?.content) {
     throw new Error('File content is required');
   }
 
   console.log('Processing file content');
-  const extractedText = await processFileContent(file.content, file.type);
+  const { text: extractedText, metadata: analyzedMetadata } = await processFileContent(file.content, file.type);
   
   if (!extractedText || extractedText.trim().length === 0) {
     throw new Error('No text could be extracted from the file');
   }
+
+  // Merge analyzed metadata with existing metadata, preferring analyzed values
+  const enhancedMetadata: FileMetadata = {
+    ...metadata,
+    ...analyzedMetadata,
+    fileName: file.name,
+    fileType: file.type,
+    size: file.size || file.content.length,
+    uploadedAt: new Date().toISOString(),
+    status: 'completed'
+  };
+
+  console.log('Enhanced metadata:', JSON.stringify(enhancedMetadata, null, 2));
 
   // Use parameterized query for duplicate check
   const { data: existingDocs, error: searchError } = await supabaseClient
@@ -64,31 +77,25 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
 
         const [{ embedding }] = embeddingResponse.data.data;
 
-        // Generate consistent tags
+        // Generate consistent tags using enhanced metadata
         const generatedTags = [
-          metadata.category || 'uncategorized',
+          enhancedMetadata.category,
           `chunk_${index + 1}`,
-          metadata.difficulty || 'beginner'
+          enhancedMetadata.difficulty
         ];
 
-        // Enhanced metadata for this chunk
-        const chunkMetadata: FileMetadata = {
-          ...metadata,
-          status: 'completed'
-        };
-
-        // Insert with explicit JSONB casting
+        // Insert with explicit JSONB casting and enhanced metadata
         const { data, error } = await supabaseClient
           .from('documents')
           .insert({
             content: chunk,
             embedding,
-            metadata: chunkMetadata,
+            metadata: enhancedMetadata,
             metadata_tags: generatedTags,
             metadata_source_reference: file.name,
-            metadata_category: metadata.category || 'uncategorized',
-            metadata_section: metadata.section || 'general',
-            metadata_difficulty: metadata.difficulty || 'beginner'
+            metadata_category: enhancedMetadata.category,
+            metadata_section: enhancedMetadata.section,
+            metadata_difficulty: enhancedMetadata.difficulty
           })
           .select();
 

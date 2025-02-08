@@ -1,7 +1,47 @@
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
+import { FileMetadata } from './types.ts';
 
 export const CHUNK_SIZE = 400;
 export const CHUNK_OVERLAP = 50;
 export const MIN_CHUNK_LENGTH = 50;
+
+async function analyzeContent(text: string): Promise<Partial<FileMetadata>> {
+  const openai = new OpenAIApi(new Configuration({
+    apiKey: Deno.env.get('OPENAI_API_KEY')
+  }));
+
+  try {
+    const response = await openai.createChatCompletion({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `Analyze the following text and categorize it. Respond only in JSON format with these fields:
+            - category: One of [forex, trading, risk_management, market_analysis, technical_analysis, uncategorized]
+            - section: One of [theory, practice, case_study, reference, general]
+            - difficulty: One of [beginner, intermediate, advanced, expert]
+            Base this on the technical complexity and prerequisites needed to understand the content.`
+        },
+        {
+          role: "user",
+          content: text.slice(0, 1000) // Analyze first 1000 chars for efficiency
+        }
+      ],
+      temperature: 0.1 // Low temperature for more consistent results
+    });
+
+    const result = JSON.parse(response.data.choices[0].message.content);
+    console.log('[TextProcessor] Content analysis result:', result);
+    return result;
+  } catch (error) {
+    console.error('[TextProcessor] Error analyzing content:', error);
+    return {
+      category: 'uncategorized',
+      section: 'general',
+      difficulty: 'beginner'
+    };
+  }
+}
 
 // Format financial text content with consistent spacing and structure
 function formatFinancialText(text: string): string {
@@ -38,7 +78,7 @@ function formatFinancialText(text: string): string {
   return formattedText;
 }
 
-export async function processFileContent(base64Content: string, fileType: string): Promise<string> {
+export async function processFileContent(base64Content: string, fileType: string): Promise<{ text: string; metadata: Partial<FileMetadata> }> {
   try {
     console.log('[TextProcessor] Processing file content');
     
@@ -48,9 +88,15 @@ export async function processFileContent(base64Content: string, fileType: string
 
     const text = atob(base64Content);
     const formattedText = formatFinancialText(text);
-    console.log('[TextProcessor] File content processed successfully');
-    return formattedText;
     
+    // Analyze the content to determine metadata
+    const metadata = await analyzeContent(formattedText);
+    console.log('[TextProcessor] File content processed successfully with metadata:', metadata);
+    
+    return {
+      text: formattedText,
+      metadata
+    };
   } catch (error) {
     console.error('[TextProcessor] Error processing file content:', error);
     throw error;
