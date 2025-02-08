@@ -31,11 +31,13 @@ serve(async (req) => {
 
     console.log('Fetching documents that need recategorization...');
 
-    // Get all documents that need recategorization
+    // Updated query to check the direct columns instead of jsonb metadata
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .is('metadata->category', null);
+      .is('metadata_category', null)
+      .is('metadata_section', null)
+      .is('metadata_difficulty', null);
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
@@ -113,7 +115,6 @@ serve(async (req) => {
           const analysisText = response.data.choices[0].message.content.trim();
           console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
           
-          // Parse the response, ensuring it's valid JSON
           let analysis;
           try {
             analysis = JSON.parse(analysisText);
@@ -122,30 +123,24 @@ serve(async (req) => {
             throw new Error('Invalid AI response format');
           }
 
-          // Validate the analysis object has required fields
           if (!analysis.category || !analysis.section || !analysis.difficulty) {
             throw new Error('Missing required fields in AI response');
           }
 
-          // Ensure the current metadata is a valid object
-          const currentMetadata = doc.metadata || {};
-          
-          // Create the new metadata object
-          const newMetadata = {
-            ...currentMetadata,
-            category: analysis.category,
-            section: analysis.section,
-            difficulty: analysis.difficulty,
-            recategorized_at: new Date().toISOString()
-          };
-
-          console.log(`Updating document ${doc.id} with metadata:`, newMetadata);
-
-          // Update document metadata
+          // Update both the metadata JSON and the specific columns
           const { error: updateError } = await supabase
             .from('documents')
             .update({
-              metadata: newMetadata
+              metadata: {
+                ...doc.metadata,
+                category: analysis.category,
+                section: analysis.section,
+                difficulty: analysis.difficulty,
+                recategorized_at: new Date().toISOString()
+              },
+              metadata_category: analysis.category,
+              metadata_section: analysis.section,
+              metadata_difficulty: analysis.difficulty
             })
             .eq('id', doc.id);
 
@@ -172,7 +167,6 @@ serve(async (req) => {
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
       
-      // Add delay between batches to avoid rate limits
       if (i + BATCH_SIZE < documents.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -193,3 +187,4 @@ serve(async (req) => {
     });
   }
 });
+
