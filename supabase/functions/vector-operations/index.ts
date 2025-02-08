@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.3.1/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -7,8 +6,9 @@ import { corsHeaders } from './cors-headers.ts';
 import { processFileContent } from './text-processor.ts';
 import { chunkText } from './text-chunker.ts';
 
+const BATCH_SIZE = 5; // Process chunks in smaller batches
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -25,20 +25,13 @@ serve(async (req) => {
       console.error('Error parsing request body:', e);
       return new Response(
         JSON.stringify({ error: 'Invalid JSON in request body' }),
-        { 
-          status: 400,
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json'
-          }
-        }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }}
       );
     }
 
     const { action } = body;
     console.log('Action:', action);
 
-    // Initialize OpenAI with timeout
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiApiKey) {
       throw new Error('OpenAI API key not configured');
@@ -47,7 +40,6 @@ serve(async (req) => {
     const configuration = new Configuration({ apiKey: openaiApiKey });
     const openai = new OpenAIApi(configuration);
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
@@ -78,48 +70,56 @@ serve(async (req) => {
         }
 
         console.log('Text extracted, length:', extractedText.length);
-        console.log('Sample of extracted text:', extractedText.substring(0, 200));
         
         const chunks = chunkText(extractedText);
         console.log(`Split content into ${chunks.length} chunks`);
 
         const processedChunks = [];
-        for (const [index, chunk] of chunks.entries()) {
-          console.log(`Processing chunk ${index + 1}/${chunks.length}, size: ${chunk.length}`);
-          console.log('Chunk sample:', chunk.substring(0, 100));
+        
+        // Process chunks in batches
+        for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+          const batch = chunks.slice(i, i + BATCH_SIZE);
+          console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(chunks.length/BATCH_SIZE)}`);
           
-          try {
-            const embeddingResponse = await openai.createEmbedding({
-              model: "text-embedding-ada-002",
-              input: chunk,
-            });
+          const batchPromises = batch.map(async (chunk, batchIndex) => {
+            const index = i + batchIndex;
+            try {
+              const embeddingResponse = await openai.createEmbedding({
+                model: "text-embedding-ada-002",
+                input: chunk.slice(0, 8000), // Limit input size
+              });
 
-            const [{ embedding }] = embeddingResponse.data.data;
-            
-            const { data: documentChunk, error: insertError } = await supabaseClient
-              .from('documents')
-              .insert({
-                content: chunk,
-                embedding,
-                metadata: {
-                  ...metadata,
-                  chunk: index + 1,
-                  totalChunks: chunks.length,
-                  chunkSize: chunk.length,
-                  fileName: file.name,
-                  fileType: file.type,
-                  status: 'completed'
-                }
-              })
-              .select()
-              .single();
+              const [{ embedding }] = embeddingResponse.data.data;
+              
+              return supabaseClient
+                .from('documents')
+                .insert({
+                  content: chunk,
+                  embedding,
+                  metadata: {
+                    ...metadata,
+                    chunk: index + 1,
+                    totalChunks: chunks.length,
+                    chunkSize: chunk.length,
+                    fileName: file.name,
+                    fileType: file.type,
+                    status: 'completed'
+                  }
+                })
+                .select()
+                .single();
+            } catch (error) {
+              console.error(`Error processing chunk ${index + 1}:`, error);
+              throw error;
+            }
+          });
 
-            if (insertError) throw insertError;
-            processedChunks.push(documentChunk);
-            
-          } catch (error) {
-            console.error(`Error processing chunk ${index + 1}:`, error);
-            throw error;
+          const batchResults = await Promise.all(batchPromises);
+          processedChunks.push(...batchResults.map(result => result.data));
+          
+          // Add a small delay between batches to prevent rate limiting
+          if (i + BATCH_SIZE < chunks.length) {
+            await new Promise(resolve => setTimeout(resolve, 500));
           }
         }
 
@@ -185,12 +185,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify(result),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json'
-        } 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
@@ -198,14 +193,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'If this error persists, try reducing the complexity of your query.'
+        details: 'If this error persists, try reducing the size of your document or processing it in smaller parts.'
       }),
       { 
         status: error.status || 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json'
-        }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
