@@ -7,13 +7,28 @@ export const processZipFile = async (file: File, onProgress: (progress: number) 
   
   const zip = new JSZip();
   const zipContent = await zip.loadAsync(file);
-  const textFiles = Object.values(zipContent.files).filter(
-    zipEntry => !zipEntry.dir && zipEntry.name.toLowerCase().endsWith('.txt')
-  );
+  
+  // Log all files in the zip for debugging
+  console.log('[ZipProcessor] Files in zip:', Object.keys(zipContent.files));
+  
+  const textFiles = Object.values(zipContent.files).filter(zipEntry => {
+    // Ignore directories
+    if (zipEntry.dir) {
+      return false;
+    }
+    
+    const fileName = zipEntry.name.toLowerCase();
+    // Check for .txt extension and handle potential path separators
+    const isTxtFile = fileName.split('/').pop()?.endsWith('.txt') || false;
+    
+    console.log(`[ZipProcessor] Checking file: ${zipEntry.name}, isTxtFile: ${isTxtFile}`);
+    return isTxtFile;
+  });
 
   if (textFiles.length === 0) {
     console.error('[ZipProcessor] No text files found in zip archive');
-    throw new Error('No text files found in the zip archive');
+    const filesFound = Object.keys(zipContent.files).join(', ');
+    throw new Error(`No text files found in the zip archive. Files found: ${filesFound}`);
   }
 
   console.log(`[ZipProcessor] Found ${textFiles.length} text files in zip archive`);
