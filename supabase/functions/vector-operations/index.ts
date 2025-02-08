@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.3.1/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -6,7 +7,7 @@ import { corsHeaders } from './cors-headers.ts';
 import { processFileContent } from './text-processor.ts';
 import { chunkText } from './text-chunker.ts';
 
-const BATCH_SIZE = 5; // Process chunks in smaller batches
+const BATCH_SIZE = 5;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -69,6 +70,28 @@ serve(async (req) => {
           throw new Error('No text could be extracted from the file');
         }
 
+        // Check for duplicate content
+        const { data: existingDocs, error: searchError } = await supabaseClient
+          .from('documents')
+          .select('id, content')
+          .eq('metadata->fileName', file.name);
+
+        if (searchError) {
+          console.error('Error checking for duplicates:', searchError);
+          throw searchError;
+        }
+
+        if (existingDocs && existingDocs.length > 0) {
+          console.log(`Document ${file.name} already exists. Skipping processing.`);
+          return new Response(
+            JSON.stringify({ 
+              message: 'Document already exists', 
+              existingDocuments: existingDocs 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
         console.log('Text extracted, length:', extractedText.length);
         
         const chunks = chunkText(extractedText);
@@ -84,9 +107,11 @@ serve(async (req) => {
           const batchPromises = batch.map(async (chunk, batchIndex) => {
             const index = i + batchIndex;
             try {
+              console.log(`Processing chunk ${index + 1}/${chunks.length}:`, chunk.slice(0, 100) + '...');
+              
               const embeddingResponse = await openai.createEmbedding({
                 model: "text-embedding-ada-002",
-                input: chunk.slice(0, 8000), // Limit input size
+                input: chunk.slice(0, 8000),
               });
 
               const [{ embedding }] = embeddingResponse.data.data;
@@ -117,11 +142,13 @@ serve(async (req) => {
           const batchResults = await Promise.all(batchPromises);
           processedChunks.push(...batchResults.map(result => result.data));
           
-          // Add a small delay between batches to prevent rate limiting
           if (i + BATCH_SIZE < chunks.length) {
             await new Promise(resolve => setTimeout(resolve, 500));
           }
         }
+
+        const executionTime = Date.now() - startTime;
+        console.log(`Processing completed in ${executionTime}ms`);
 
         result = {
           message: `Successfully processed ${processedChunks.length} chunks`,
