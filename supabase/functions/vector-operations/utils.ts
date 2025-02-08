@@ -24,17 +24,9 @@ export const createErrorResponse = (error: Error, status = 500) => {
 
 export const validateRequestBody = async (req: Request) => {
   try {
-    if (!req.body) {
-      throw new Error('Request body is empty');
-    }
-
-    const text = await req.text();
-    if (!text) {
-      throw new Error('Request body is empty');
-    }
-
+    // First try the direct JSON parsing approach
     try {
-      const body = JSON.parse(text);
+      const body = await req.json();
       console.log('Parsed request body:', JSON.stringify(body, null, 2));
       
       if (!body.action) {
@@ -57,7 +49,7 @@ export const validateRequestBody = async (req: Request) => {
 
       return body;
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('Initial JSON parse error:', parseError);
       throw new Error('Invalid JSON in request body');
     }
   } catch (e) {
