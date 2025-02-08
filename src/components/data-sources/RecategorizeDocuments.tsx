@@ -16,15 +16,23 @@ export function RecategorizeDocuments() {
       
       const { data, error } = await supabase.functions.invoke('recategorize-documents');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        throw new Error('No response data received');
+      }
       
       console.log('Recategorization results:', data);
       
+      const resultsCount = data.results?.length ?? 0;
       toast({
         title: "Success",
-        description: `Successfully processed ${data.results.length} documents`,
+        description: `Successfully processed ${resultsCount} documents`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recategorizing documents:', error);
       toast({
         variant: "destructive",
