@@ -46,7 +46,6 @@ async function analyzeContent(text: string): Promise<Partial<FileMetadata>> {
   }
 }
 
-// Format financial text content with consistent spacing and structure
 function formatFinancialText(text: string): string {
   console.log('[TextProcessor] Starting text formatting');
   const startLength = text.length;
@@ -92,8 +91,8 @@ export async function processFileContent(base64Content: string, fileType: string
     const text = atob(base64Content);
     const formattedText = formatFinancialText(text);
     
-    // Let documents start with null categories so they can be processed by recategorize
-    const metadata = {
+    // Explicitly set metadata fields to null
+    const metadata: Partial<FileMetadata> = {
       category: null,
       section: null,
       difficulty: null
