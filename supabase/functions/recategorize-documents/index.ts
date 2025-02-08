@@ -49,7 +49,7 @@ serve(async (req) => {
         try {
           console.log(`Analyzing document ${doc.id}`);
           const response = await openai.createChatCompletion({
-            model: "gpt-4o",
+            model: "gpt-4o-mini",
             messages: [
               {
                 role: "system",
