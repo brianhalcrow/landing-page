@@ -34,6 +34,34 @@ export function VectorSearch() {
     }
   };
 
+  const getCategoryBadge = (params: any) => {
+    const category = params.data.metadata_category;
+    switch (category) {
+      case 'fx_training':
+        return <Badge className="bg-blue-500">FX Training</Badge>;
+      case 'fx_code':
+        return <Badge className="bg-purple-500">FX Global Code</Badge>;
+      case 'hedge_accounting':
+        return <Badge className="bg-green-500">Hedge Accounting</Badge>;
+      default:
+        return <Badge className="bg-gray-500">Uncategorized</Badge>;
+    }
+  };
+
+  const getDifficultyBadge = (params: any) => {
+    const difficulty = params.data.metadata_difficulty;
+    switch (difficulty) {
+      case 'beginner':
+        return <Badge className="bg-green-400">Beginner</Badge>;
+      case 'intermediate':
+        return <Badge className="bg-yellow-400">Intermediate</Badge>;
+      case 'advanced':
+        return <Badge className="bg-red-400">Advanced</Badge>;
+      default:
+        return null;
+    }
+  };
+
   const viewContent = (content: string) => {
     const truncatedContent = content?.substring(0, 200) + (content?.length > 200 ? '...' : '');
     return truncatedContent || 'No content available';
@@ -47,11 +75,17 @@ export function VectorSearch() {
       flex: 1,
       valueGetter: (params) => params.data.metadata?.filename || 'N/A'
     },
-    { 
-      field: 'metadata.fileType', 
-      headerName: 'File Type',
-      width: 120,
-      valueGetter: (params) => params.data.metadata?.fileType || 'N/A'
+    {
+      field: 'metadata_category',
+      headerName: 'Category',
+      width: 150,
+      cellRenderer: getCategoryBadge
+    },
+    {
+      field: 'metadata_difficulty',
+      headerName: 'Difficulty',
+      width: 130,
+      cellRenderer: getDifficultyBadge
     },
     {
       field: 'content',
@@ -137,6 +171,31 @@ export function VectorSearch() {
     }
   };
 
+  const renderSearchResult = (result: any) => (
+    <Card key={result.id} className="p-4 space-y-2">
+      <div className="flex gap-2 items-center">
+        {result.metadata_category && getCategoryBadge({ data: result })}
+        {result.metadata_difficulty && getDifficultyBadge({ data: result })}
+      </div>
+      <p className="font-medium">{result.content}</p>
+      <div className="flex justify-between items-center text-sm text-gray-500">
+        <span>Similarity: {(result.similarity * 100).toFixed(2)}%</span>
+        {result.metadata_source_reference && (
+          <span>Source: {result.metadata_source_reference.title}</span>
+        )}
+      </div>
+      {result.metadata_tags && (
+        <div className="flex gap-2 flex-wrap">
+          {result.metadata_tags.map((tag: string) => (
+            <Badge key={tag} variant="secondary" className="text-xs">
+              {tag.replace('_', ' ')}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+
   return (
     <Card className="p-4">
       <div className="space-y-4">
@@ -156,14 +215,7 @@ export function VectorSearch() {
 
         {/* Results section */}
         <div className="space-y-2">
-          {results.map((result) => (
-            <Card key={result.id} className="p-4">
-              <p className="font-medium">{result.content}</p>
-              <p className="text-sm text-gray-500">
-                Similarity: {(result.similarity * 100).toFixed(2)}%
-              </p>
-            </Card>
-          ))}
+          {results.map(renderSearchResult)}
         </div>
 
         {/* Documents Grid */}
