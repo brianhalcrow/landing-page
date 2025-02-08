@@ -115,21 +115,35 @@ serve(async (req) => {
               });
 
               const [{ embedding }] = embeddingResponse.data.data;
+
+              // Extract content type and generate tags
+              const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+              const contentType = fileExtension === 'txt' ? 'text' : fileExtension;
+              const generatedTags = [contentType, `chunk_${index + 1}`];
+              
+              // Enhanced metadata
+              const enhancedMetadata = {
+                ...metadata,
+                chunk: index + 1,
+                totalChunks: chunks.length,
+                chunkSize: chunk.length,
+                fileName: file.name,
+                fileType: file.type,
+                processingDate: new Date().toISOString(),
+                status: 'completed'
+              };
               
               return supabaseClient
                 .from('documents')
                 .insert({
                   content: chunk,
                   embedding,
-                  metadata: {
-                    ...metadata,
-                    chunk: index + 1,
-                    totalChunks: chunks.length,
-                    chunkSize: chunk.length,
-                    fileName: file.name,
-                    fileType: file.type,
-                    status: 'completed'
-                  }
+                  metadata: enhancedMetadata,
+                  metadata_tags: generatedTags,
+                  metadata_source_reference: file.name,
+                  metadata_category: metadata?.category || 'uncategorized',
+                  metadata_section: metadata?.section || 'general',
+                  metadata_difficulty: metadata?.difficulty || 'beginner'
                 })
                 .select()
                 .single();
@@ -229,3 +243,4 @@ serve(async (req) => {
     );
   }
 });
+
