@@ -1670,6 +1670,50 @@ export type Database = {
       }
     }
     Views: {
+      forward_points_summary: {
+        Row: {
+          ccy_1: string | null
+          ccy_1_amount: number | null
+          ccy_2: string | null
+          ccy_2_amount: number | null
+          contract_rate: number | null
+          counterparty: string | null
+          currency_pair: string | null
+          deal_no: number | null
+          entity_id: string | null
+          entity_name: string | null
+          instrument: string | null
+          number_of_months: number | null
+          settlement_date: string | null
+          spot_rate: number | null
+          strategy: string | null
+          total_forward_points_ccy1: number | null
+          total_forward_points_ccy2: number | null
+          trade_date: string | null
+        }
+        Relationships: []
+      }
+      transaction_summary: {
+        Row: {
+          account_category_l1: string | null
+          account_category_l2: string | null
+          account_category_l3: string | null
+          account_category_l4: string | null
+          cost_centre: string | null
+          country: string | null
+          entity: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          period: string | null
+          total_base_amount: number | null
+          total_transaction_amount: number | null
+          transaction_currency: string | null
+          year: number | null
+          year_period: string | null
+        }
+        Relationships: []
+      }
       v_entity_config: {
         Row: {
           accounting_rate_method: string | null
@@ -1709,6 +1753,35 @@ export type Database = {
           entity_name: string | null
           functional_currency: string | null
           is_active: boolean | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      v_fx_forward_points_detailed: {
+        Row: {
+          ccy_1: string | null
+          ccy_1_amount: number | null
+          ccy_2: string | null
+          ccy_2_amount: number | null
+          ccy_pair: string | null
+          contract_rate: number | null
+          counterparty: string | null
+          created_at: string | null
+          created_by: string | null
+          currency_pair: string | null
+          days_in_period: number | null
+          deal_no: number | null
+          entity_id: string | null
+          entity_name: string | null
+          instrument: string | null
+          month_year: string | null
+          pl_ccy1: number | null
+          pl_ccy2: number | null
+          settlement_date: string | null
+          spot_rate: number | null
+          strategy: string | null
+          total_days: number | null
+          trade_date: string | null
           updated_at: string | null
         }
         Relationships: []
