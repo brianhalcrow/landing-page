@@ -24,46 +24,48 @@ export const createErrorResponse = (error: Error, status = 500) => {
 
 export const validateRequestBody = async (req: Request) => {
   try {
-    // First try the direct JSON parsing approach
-    try {
-      const body = await req.json();
-      console.log('Received request body:', JSON.stringify(body, null, 2));
-      
-      if (!body.action) {
-        throw new Error('Action is required');
+    // Parse the request body
+    const body = await req.json();
+    console.log('Raw request body:', JSON.stringify(body, null, 2));
+    
+    if (!body.action) {
+      throw new Error('Action is required');
+    }
+
+    // Validate file object for store action
+    if (body.action === 'store') {
+      if (!body.file || !body.file.content || !body.file.name) {
+        throw new Error('File content and name are required for store action');
       }
 
-      // Validate file object for store action
-      if (body.action === 'store') {
-        if (!body.file || !body.file.content || !body.file.name) {
-          throw new Error('File content and name are required for store action');
-        }
-      }
-
-      // Validate metadata if present
+      // Ensure metadata is a valid JSON object
       if (body.metadata) {
-        if (typeof body.metadata !== 'object') {
-          throw new Error('Metadata must be an object');
+        if (typeof body.metadata !== 'object' || Array.isArray(body.metadata)) {
+          throw new Error('Metadata must be a valid JSON object');
         }
         
-        // Ensure metadata has required fields and proper types
-        const validatedMetadata = {
-          filename: body.metadata.filename || body.file?.name || 'unknown',
+        // Create a sanitized metadata object with required fields
+        body.metadata = {
+          fileName: body.metadata.fileName || body.file.name,
           fileType: body.metadata.fileType || 'text/plain',
-          size: body.metadata.size || body.file?.size || 0,
+          size: body.metadata.size || body.file.size || 0,
           status: body.metadata.status || 'processing',
           uploadedAt: body.metadata.uploadedAt || new Date().toISOString()
         };
-        
-        body.metadata = validatedMetadata;
+      } else {
+        // If no metadata provided, create default metadata
+        body.metadata = {
+          fileName: body.file.name,
+          fileType: 'text/plain',
+          size: body.file.size || 0,
+          status: 'processing',
+          uploadedAt: new Date().toISOString()
+        };
       }
-
-      console.log('Validated request body:', JSON.stringify(body, null, 2));
-      return body;
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      throw new Error('Invalid JSON in request body');
     }
+
+    console.log('Validated request body:', JSON.stringify(body, null, 2));
+    return body;
   } catch (e) {
     console.error('Error validating request body:', e);
     throw e;
