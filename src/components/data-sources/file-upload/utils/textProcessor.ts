@@ -8,6 +8,15 @@ export const processTextFile = async (content: string, filename: string) => {
   // Convert the text content to base64
   const base64Content = btoa(unescape(encodeURIComponent(content)));
   
+  // Structure the metadata as a proper JSON object
+  const metadata = {
+    filename: filename,
+    fileType: 'text/plain',
+    size: content.length,
+    uploadedAt: new Date().toISOString(),
+    status: 'processing'
+  };
+  
   const { data, error } = await supabase.functions.invoke('vector-operations', {
     body: {
       action: 'store',
@@ -17,17 +26,16 @@ export const processTextFile = async (content: string, filename: string) => {
         size: content.length,
         content: base64Content
       },
-      metadata: { 
-        filename: filename,
-        fileType: 'text/plain',
-        size: content.length,
-        uploadedAt: new Date().toISOString(),
-        status: 'processing'
-      }
+      metadata: metadata
     }
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error('[TextProcessor] Error:', error);
+    throw error;
+  }
+  
   console.log(`[TextProcessor] Successfully processed ${filename}`);
   return data;
 };
+
