@@ -27,6 +27,15 @@ export function RecategorizeDocuments() {
       
       console.log('Recategorization results:', data);
       
+      // Check if data indicates no documents need recategorization
+      if (data.message === 'No documents to recategorize') {
+        toast({
+          title: "Information",
+          description: "No uncategorized documents found. All documents are already categorized.",
+        });
+        return;
+      }
+      
       const resultsCount = data.results?.length ?? 0;
       toast({
         title: "Success",
