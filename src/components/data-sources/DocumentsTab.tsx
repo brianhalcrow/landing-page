@@ -1,5 +1,7 @@
+
 import { DocumentUpload } from "../DocumentUpload";
 import { VectorSearch } from "../VectorSearch";
+import { RecategorizeDocuments } from "./RecategorizeDocuments";
 import { useState } from "react";
 
 const DocumentsTab = () => {
@@ -12,6 +14,7 @@ const DocumentsTab = () => {
   return (
     <div className="space-y-6">
       <DocumentUpload onUploadSuccess={handleUploadSuccess} />
+      <RecategorizeDocuments />
       <VectorSearch key={refreshTrigger} />
     </div>
   );
