@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import JSZip from 'jszip';
 
@@ -9,9 +10,10 @@ export class FileProcessor {
       throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
     }
     
+    // Only allow .txt files and zip archives containing .txt files
     const allowedTypes = ['application/zip', 'text/plain', 'application/x-zip-compressed'];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error('Only zip archives and text files (.txt) are supported');
+      throw new Error('Only .txt files and zip archives containing .txt files are supported');
     }
   }
 
