@@ -1,3 +1,4 @@
+
 import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
 import { FileMetadata } from './types.ts';
 
@@ -6,11 +7,12 @@ export const CHUNK_OVERLAP = 50;
 export const MIN_CHUNK_LENGTH = 50;
 
 async function analyzeContent(text: string): Promise<Partial<FileMetadata>> {
-  const openai = new OpenAIApi(new Configuration({
-    apiKey: Deno.env.get('OPENAI_API_KEY')
-  }));
-
+  // Initial attempt to analyze with AI, but return null values if it fails
   try {
+    const openai = new OpenAIApi(new Configuration({
+      apiKey: Deno.env.get('OPENAI_API_KEY')
+    }));
+
     const response = await openai.createChatCompletion({
       model: "gpt-4o-mini",
       messages: [
@@ -35,10 +37,11 @@ async function analyzeContent(text: string): Promise<Partial<FileMetadata>> {
     return result;
   } catch (error) {
     console.error('[TextProcessor] Error analyzing content:', error);
+    // Return null values to allow recategorization later
     return {
-      category: 'uncategorized',
-      section: 'general',
-      difficulty: 'beginner'
+      category: null,
+      section: null,
+      difficulty: null
     };
   }
 }
@@ -89,8 +92,13 @@ export async function processFileContent(base64Content: string, fileType: string
     const text = atob(base64Content);
     const formattedText = formatFinancialText(text);
     
-    // Analyze the content to determine metadata
-    const metadata = await analyzeContent(formattedText);
+    // Let documents start with null categories so they can be processed by recategorize
+    const metadata = {
+      category: null,
+      section: null,
+      difficulty: null
+    };
+
     console.log('[TextProcessor] File content processed successfully with metadata:', metadata);
     
     return {
