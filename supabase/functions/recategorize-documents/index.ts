@@ -15,8 +15,13 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+
     const openai = new OpenAIApi(new Configuration({
       apiKey: Deno.env.get('OPENAI_API_KEY')
     }));
@@ -24,20 +29,31 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
 
+    console.log('Fetching documents that need recategorization...');
+
     // Get all documents that need recategorization
-    const { data: documents, error } = await supabase
+    const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
       .is('metadata->category', null);
 
-    if (error) throw error;
-    if (!documents?.length) {
+    if (fetchError) {
+      console.error('Error fetching documents:', fetchError);
+      throw fetchError;
+    }
+
+    if (!documents) {
+      throw new Error('No documents data returned from query');
+    }
+
+    console.log(`Found ${documents.length} documents to recategorize`);
+
+    if (documents.length === 0) {
       return new Response(JSON.stringify({ message: 'No documents to recategorize' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    console.log(`Found ${documents.length} documents to recategorize`);
     const results = [];
 
     // Process in batches
@@ -84,11 +100,15 @@ serve(async (req) => {
               },
               {
                 role: "user",
-                content: doc.content.slice(0, 2000) // Analyze first 2000 chars for efficiency
+                content: doc.content?.slice(0, 2000) || '' // Handle potentially undefined content
               }
             ],
             temperature: 0.1
           });
+
+          if (!response.data?.choices?.[0]?.message?.content) {
+            throw new Error('Invalid AI response structure');
+          }
 
           const analysisText = response.data.choices[0].message.content.trim();
           console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
