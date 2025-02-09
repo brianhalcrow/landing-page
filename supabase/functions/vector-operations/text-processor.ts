@@ -50,17 +50,20 @@ function formatFinancialText(text: string): string {
   console.log('[TextProcessor] Starting text formatting');
   const startLength = text.length;
   
+  // Log a sample of the input text for debugging
+  console.log('[TextProcessor] Input text sample:', text.slice(0, 200));
+  
   const formattedText = text
-    // Remove common headers and footers
-    .replace(/Confidential Treatment Requested By Lehman Brothers Holdings, Inc\./g, '')
-    .replace(/LBEX-LL \d+/g, '')
-    // Remove any line that's just page numbers
-    .replace(/^\s*\d+\s*$/gm, '')
-    // Remove lines that are just dates or timestamps
-    .replace(/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}\s*$/gm, '')
-    // Remove lines with just reference numbers
-    .replace(/^\s*Ref:\s*\d+\s*$/gm, '')
-    // Remove multiple consecutive empty lines created by header/footer removal
+    // Remove common headers and footers with more flexible patterns
+    .replace(/(?:Confidential\s+Treatment\s+Requested\s+(?:By\s+)?Lehman\s+Brothers\s+Holdings,?\s+Inc\.?)/gi, '')
+    .replace(/(?:LBEX[-\s]*LL\s*\d+)/gi, '')
+    // Remove any line that's just page numbers (more flexible pattern)
+    .replace(/^\s*(?:\d+|\(\d+\)|\[\d+\])\s*$/gm, '')
+    // Remove lines that are just dates (more flexible pattern)
+    .replace(/^\s*(?:\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2})\s*$/gm, '')
+    // Remove lines with just reference numbers (more flexible pattern)
+    .replace(/^\s*(?:Ref(?:erence)?:?\s*\d+|#\d+)\s*$/gim, '')
+    // Remove multiple consecutive empty lines
     .replace(/\n{3,}/g, '\n\n')
     // Standardize newlines
     .replace(/\r\n/g, '\n')
@@ -82,12 +85,16 @@ function formatFinancialText(text: string): string {
     .replace(/Result:/g, '\n\nResult:\n')
     .trim();
 
+  // Log a sample of the output text for verification
+  console.log('[TextProcessor] Output text sample:', formattedText.slice(0, 200));
+  
   console.log(`[TextProcessor] Text formatting completed:
     - Original length: ${startLength}
     - Final length: ${formattedText.length}
     - Characters processed: ${startLength - formattedText.length}
-    - Headers/footers removed: ${(text.match(/Confidential Treatment Requested/g) || []).length}
-    - Reference numbers removed: ${(text.match(/LBEX-LL \d+/g) || []).length}`
+    - Headers/footers removed: ${(text.match(/Confidential Treatment Requested/gi) || []).length}
+    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}
+    - Empty lines normalized: ${(text.match(/\n{3,}/g) || []).length}`
   );
   
   return formattedText;
@@ -101,10 +108,32 @@ export async function processFileContent(base64Content: string, fileType: string
       throw new Error('Only text/plain files are currently supported');
     }
 
-    const text = atob(base64Content);
+    // Decode base64 content
+    let text: string;
+    try {
+      text = decodeURIComponent(escape(atob(base64Content)));
+      console.log('[TextProcessor] Successfully decoded base64 content');
+    } catch (error) {
+      console.error('[TextProcessor] Error decoding base64 content:', error);
+      throw new Error('Failed to decode file content');
+    }
+
+    // Validate decoded text
+    if (!text || text.trim().length === 0) {
+      throw new Error('Decoded content is empty');
+    }
+
+    console.log(`[TextProcessor] Decoded text length: ${text.length}`);
+    
     const formattedText = formatFinancialText(text);
     
-    // Explicitly set metadata fields to null
+    // Validate formatted text
+    if (!formattedText || formattedText.trim().length === 0) {
+      console.error('[TextProcessor] Formatting resulted in empty content');
+      throw new Error('Formatting resulted in empty content');
+    }
+    
+    // Explicitly set metadata fields
     const metadata: Partial<FileMetadata> = {
       category: null,
       section: null,

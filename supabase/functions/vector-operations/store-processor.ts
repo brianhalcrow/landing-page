@@ -21,7 +21,14 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
     throw new Error('No text could be extracted from the file');
   }
 
-  // Merge analyzed metadata with existing metadata, preferring analyzed values
+  // Validate extracted text for expected patterns
+  console.log('Validating extracted text...');
+  const containsCommonHeaders = /Confidential Treatment Requested|LBEX-LL \d+/i.test(extractedText);
+  if (containsCommonHeaders) {
+    console.warn('Warning: Text still contains headers that should have been removed');
+  }
+
+  // Merge analyzed metadata with existing metadata
   const enhancedMetadata: FileMetadata = {
     ...metadata,
     ...analyzedMetadata,
@@ -34,7 +41,7 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
 
   console.log('Enhanced metadata:', JSON.stringify(enhancedMetadata, null, 2));
 
-  // Use parameterized query for duplicate check
+  // Check for duplicates
   const { data: existingDocs, error: searchError } = await supabaseClient
     .from('documents')
     .select('id, content')
@@ -53,14 +60,22 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
     };
   }
 
-  console.log('Text extracted, length:', extractedText.length);
+  console.log('Text extracted and validated, length:', extractedText.length);
   
   const chunks = chunkText(extractedText);
   console.log(`Split content into ${chunks.length} chunks`);
 
+  // Validate chunks
+  chunks.forEach((chunk, index) => {
+    if (chunk.length < 50) {
+      console.warn(`Warning: Chunk ${index + 1} is unusually short (${chunk.length} chars)`);
+    }
+    console.log(`Chunk ${index + 1} preview:`, chunk.slice(0, 100));
+  });
+
   const processedChunks = [];
   
-  // Process chunks in batches with enhanced error handling
+  // Process chunks in batches
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const batch = chunks.slice(i, i + BATCH_SIZE);
     console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(chunks.length/BATCH_SIZE)}`);
@@ -72,12 +87,12 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
         
         const embeddingResponse = await openai.createEmbedding({
           model: "text-embedding-ada-002",
-          input: chunk.slice(0, 8000), // Limit input to 8000 chars for OpenAI API
+          input: chunk.slice(0, 8000),
         });
 
         const [{ embedding }] = embeddingResponse.data.data;
 
-        // Escape special characters in content using database function
+        // Escape special characters in content
         const { data, error } = await supabaseClient.rpc('escape_special_chars', {
           input_text: chunk
         });
@@ -88,14 +103,14 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
 
         const escapedContent = data;
 
-        // Generate consistent tags using enhanced metadata
+        // Generate tags
         const generatedTags = [
           enhancedMetadata.category,
           `chunk_${index + 1}`,
           enhancedMetadata.difficulty
-        ].filter(Boolean); // Remove any null/undefined values
+        ].filter(Boolean);
 
-        // Insert with explicit metadata fields and escaped content
+        // Insert document
         const { data: insertData, error: insertError } = await supabaseClient
           .from('documents')
           .insert({
@@ -104,9 +119,9 @@ export async function processStore(body: StoreRequestBody, openai: OpenAIApi, su
             metadata: enhancedMetadata,
             metadata_tags: generatedTags,
             metadata_source_reference: file.name,
-            metadata_category: null, // Let recategorize-documents set this
-            metadata_section: null,  // Let recategorize-documents set this
-            metadata_difficulty: null // Let recategorize-documents set this
+            metadata_category: null,
+            metadata_section: null,
+            metadata_difficulty: null
           })
           .select();
 
