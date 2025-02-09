@@ -39,6 +39,39 @@ export type Database = {
         }
         Relationships: []
       }
+      calculation_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          formula_template: Json
+          id: number
+          name: string
+          output_format: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          formula_template: Json
+          id?: number
+          name: string
+          output_format: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          formula_template?: Json
+          id?: number
+          name?: string
+          output_format?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chart_of_accounts: {
         Row: {
           account_category_level_1: string | null
