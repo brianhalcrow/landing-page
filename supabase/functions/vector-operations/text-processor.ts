@@ -58,6 +58,9 @@ function formatFinancialText(text: string): string {
     .replace(/(?:LBEX[-\s]*LL\s*\d+)/gi, '')
     .replace(/(?:Page\s+\d+\s+of\s+\d+)/gi, '')
     .replace(/(?:Document\s+ID:\s*[A-Z0-9-]+)/gi, '')
+    // Remove "Source: Lehman Live" and similar headers (including right-aligned)
+    .replace(/^.*(?:Source:\s*(?:Lehman\s+Live|LehmanLive)).*$/gim, '')
+    .replace(/^.*(?:Lehman\s+Live\s*:\s*Source).*$/gim, '')
     // Remove header/footer separator lines
     .replace(/^[_\-=]{3,}$/gm, '')
     .replace(/^[\s_\-=]*Confidential[\s_\-=]*$/gm, '')
@@ -69,6 +72,10 @@ function formatFinancialText(text: string): string {
     .replace(/^\s*(?:\d+|\(\d+\)|\[\d+\])\s*$/gm, '')
     // Remove reference numbers
     .replace(/^\s*(?:Ref(?:erence)?:?\s*\d+|#\d+)\s*$/gim, '')
+    // Remove any line that consists primarily of special characters (headers/footers often do)
+    .replace(/^[\s\-_=\*]{3,}[\s\-_=\*]*$/gm, '')
+    // Remove lines that are just single words commonly used in headers/footers
+    .replace(/^\s*(?:confidential|draft|private|internal)\s*$/gim, '')
     // Remove multiple consecutive empty lines
     .replace(/\n{3,}/g, '\n\n')
     // Standardize newlines
@@ -91,7 +98,8 @@ function formatFinancialText(text: string): string {
     - Final length: ${formattedText.length}
     - Characters processed: ${startLength - formattedText.length}
     - Headers/footers removed: ${(text.match(/Confidential Treatment Requested/gi) || []).length}
-    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}`
+    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}
+    - Source headers removed: ${(text.match(/Source:\s*(?:Lehman\s+Live|LehmanLive)/gi) || []).length}`
   );
   
   return formattedText;
