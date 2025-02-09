@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ColDef } from 'ag-grid-community';
 import { Badge } from "@/components/ui/badge";
@@ -109,14 +108,8 @@ export function useDocumentGrid() {
     }
   ];
 
-  const onGridReady = (params: any) => {
-    setGridApi(params.api);
-    setGridColumnApi(params.columnApi);
-  };
-
   return {
     columnDefs,
-    onGridReady,
     gridApi,
     setGridApi,
     gridColumnApi,

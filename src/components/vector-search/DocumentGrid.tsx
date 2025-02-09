@@ -5,15 +5,27 @@ import { useDocumentGrid } from './hooks/useDocumentGrid';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-export function DocumentGrid({ documents }: { documents: any[] }) {
+interface DocumentGridProps {
+  documents: any[];
+  onGridReady?: (api: any) => void;
+}
+
+export function DocumentGrid({ documents, onGridReady }: DocumentGridProps) {
   const { 
     columnDefs, 
-    onGridReady, 
     gridApi, 
     setGridApi, 
     gridColumnApi, 
     setGridColumnApi 
   } = useDocumentGrid();
+
+  const handleGridReady = (params: any) => {
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+    if (onGridReady) {
+      onGridReady(params.api);
+    }
+  };
 
   return (
     <div className="h-[600px] w-full ag-theme-alpine">
@@ -26,7 +38,7 @@ export function DocumentGrid({ documents }: { documents: any[] }) {
           resizable: true
         }}
         animateRows={true}
-        onGridReady={onGridReady}
+        onGridReady={handleGridReady}
         onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
         getRowHeight={() => 100}
       />
