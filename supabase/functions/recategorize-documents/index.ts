@@ -31,7 +31,6 @@ serve(async (req) => {
 
     console.log('Fetching documents that need recategorization...');
 
-    // Updated query to check the direct columns instead of jsonb metadata
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
@@ -67,7 +66,7 @@ serve(async (req) => {
         try {
           console.log(`Analyzing document ${doc.id}`);
           const response = await openai.createChatCompletion({
-            model: "gpt-4o-mini",
+            model: "gpt-3.5-turbo",
             messages: [
               {
                 role: "system",
@@ -167,6 +166,7 @@ serve(async (req) => {
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
       
+      // Add a small delay between batches to prevent rate limiting
       if (i + BATCH_SIZE < documents.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -187,4 +187,3 @@ serve(async (req) => {
     });
   }
 });
-
