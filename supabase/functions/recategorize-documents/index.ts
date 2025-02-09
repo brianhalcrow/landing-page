@@ -76,6 +76,16 @@ serve(async (req) => {
         try {
           console.log(`Processing document ${doc.id}`);
           
+          if (!doc.content) {
+            console.log(`Document ${doc.id} has no content, skipping`);
+            return {
+              id: doc.id,
+              success: false,
+              error: 'No content available',
+              progressMessage: `Skipped document ${doc.id} - No content`
+            };
+          }
+
           const response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
             messages: [
@@ -91,7 +101,7 @@ serve(async (req) => {
               },
               {
                 role: "user",
-                content: doc.content?.slice(0, 2000) || ''
+                content: doc.content.slice(0, 2000)
               }
             ],
             temperature: 0.1
@@ -103,22 +113,30 @@ serve(async (req) => {
           let analysis;
           try {
             analysis = JSON.parse(analysisText);
+            
+            // Validate the analysis object has all required fields
+            if (!analysis.category || !analysis.section || !analysis.difficulty) {
+              throw new Error('Missing required fields in analysis');
+            }
+
           } catch (parseError) {
             console.error(`Error parsing analysis for doc ${doc.id}:`, parseError);
             throw new Error('Failed to parse OpenAI response');
           }
           
+          const metadata = {
+            ...(doc.metadata || {}),
+            category: analysis.category,
+            section: analysis.section,
+            difficulty: analysis.difficulty,
+            recategorized_at: new Date().toISOString()
+          };
+
           // Update document with new metadata
           const { error: updateError } = await supabase
             .from('documents')
             .update({
-              metadata: {
-                ...doc.metadata,
-                category: analysis.category,
-                section: analysis.section,
-                difficulty: analysis.difficulty,
-                recategorized_at: new Date().toISOString()
-              },
+              metadata,
               metadata_category: analysis.category,
               metadata_section: analysis.section,
               metadata_difficulty: analysis.difficulty
@@ -126,6 +144,7 @@ serve(async (req) => {
             .eq('id', doc.id);
 
           if (updateError) {
+            console.error(`Error updating document ${doc.id}:`, updateError);
             throw updateError;
           }
 
