@@ -32,15 +32,15 @@ serve(async (req) => {
 
     console.log('Fetching documents that need recategorization...');
 
-    // Only fetch documents that:
-    // 1. Have no metadata category, section, or difficulty OR
-    // 2. Have never been categorized (recategorized_at is null) OR
-    // 3. Had failed previous attempts (retry_count < MAX_RETRIES)
+    // Improved query to handle both null metadata fields and retry counts
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
-      .or(`metadata->>recategorized_at.is.null,and(metadata->>'retry_count.lt.${MAX_RETRIES}')`);
+      .or(
+        'metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null,' + 
+        'metadata->recategorized_at.is.null,' +
+        `metadata->>retry_count.lt.${MAX_RETRIES}`
+      );
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
