@@ -72,6 +72,68 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_management: {
+        Row: {
+          account_id: string
+          account_name: string
+          created_at: string
+          currency: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          account_name: string
+          created_at?: string
+          currency: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          account_name?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cash_management_balances: {
+        Row: {
+          balance: number
+          balance_date: string
+          cash_management_id: string | null
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          balance: number
+          balance_date: string
+          cash_management_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          balance_date?: string
+          cash_management_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_management_balances_cash_management_id_fkey"
+            columns: ["cash_management_id"]
+            isOneToOne: false
+            referencedRelation: "cash_management"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chart_of_accounts: {
         Row: {
           account_category_level_1: string | null
