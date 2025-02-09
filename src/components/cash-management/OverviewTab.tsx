@@ -42,9 +42,7 @@ const OverviewTab = () => {
         },
         headerClass: 'ag-header-left',
         cellClass: 'cell-left',
-        // Group by month
-        columnGroupShow: 'closed',
-        children: undefined
+        columnGroupShow: 'closed'
       });
     }
 
@@ -79,11 +77,17 @@ const OverviewTab = () => {
       }
     ];
 
+    // Add month groups
     Object.entries(groupedColumns).forEach(([monthKey, cols]) => {
-      finalColumns.push({
+      const groupColumn: ColDef = {
         headerName: monthKey,
-        children: cols,
         marryChildren: true
+      };
+      
+      // Create the group and add all child columns
+      finalColumns.push({
+        ...groupColumn,
+        columnGroupChild: cols
       });
     });
 
@@ -151,3 +155,4 @@ const OverviewTab = () => {
 };
 
 export default OverviewTab;
+
