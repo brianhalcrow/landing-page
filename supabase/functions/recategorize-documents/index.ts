@@ -40,7 +40,7 @@ serve(async (req) => {
 
     console.log('Fetching documents that need recategorization...');
 
-    // Improved query to catch all cases of missing metadata
+    // Modified query to be more inclusive
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
@@ -52,7 +52,8 @@ serve(async (req) => {
         "metadata->>section.is.null," +
         "metadata->>difficulty.is.null"
       )
-      .eq('metadata->>retry_count', null)
+      .or('metadata->>retry_count.is.null,metadata->>retry_count.lt.3')
+      .not('content', 'is', null)
       .order('id')
       .limit(50);
 
@@ -98,7 +99,7 @@ serve(async (req) => {
               retry_count: (doc.metadata?.retry_count || 0) + 1
             };
 
-            await supabase
+            const { error: updateError } = await supabase
               .from('documents')
               .update({
                 metadata,
@@ -107,6 +108,10 @@ serve(async (req) => {
                 metadata_difficulty: 'beginner'
               })
               .eq('id', doc.id);
+
+            if (updateError) {
+              throw updateError;
+            }
 
             return {
               id: doc.id,
@@ -221,7 +226,7 @@ serve(async (req) => {
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
 
-      // Add a small delay between batches to avoid rate limiting
+      // Add a delay between batches to avoid rate limiting
       if (i + BATCH_SIZE < documents.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
