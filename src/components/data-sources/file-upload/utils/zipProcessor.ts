@@ -11,19 +11,31 @@ export const processZipFile = async (file: File, onProgress: (progress: number) 
   // Log all files in the zip for debugging
   console.log('[ZipProcessor] Files in zip:', Object.keys(zipContent.files));
   
-  const textFiles = Object.values(zipContent.files).filter(zipEntry => {
-    // Ignore directories
-    if (zipEntry.dir) {
-      return false;
-    }
-    
-    const fileName = zipEntry.name.toLowerCase();
-    // Check for .txt extension and handle potential path separators
-    const isTxtFile = fileName.split('/').pop()?.endsWith('.txt') || false;
-    
-    console.log(`[ZipProcessor] Checking file: ${zipEntry.name}, isTxtFile: ${isTxtFile}`);
-    return isTxtFile;
-  });
+  const textFiles = Object.values(zipContent.files)
+    .filter(zipEntry => {
+      // Ignore directories
+      if (zipEntry.dir) {
+        return false;
+      }
+      
+      const fileName = zipEntry.name.toLowerCase();
+      // Check for .txt extension and handle potential path separators
+      const isTxtFile = fileName.split('/').pop()?.endsWith('.txt') || false;
+      
+      console.log(`[ZipProcessor] Checking file: ${zipEntry.name}, isTxtFile: ${isTxtFile}`);
+      return isTxtFile;
+    })
+    .sort((a, b) => {
+      // Extract numerical part from filenames for proper sorting
+      const getFileNumber = (filename: string) => {
+        const match = filename.match(/part(\d+)/i);
+        return match ? parseInt(match[1]) : 0;
+      };
+      
+      const numA = getFileNumber(a.name);
+      const numB = getFileNumber(b.name);
+      return numA - numB;
+    });
 
   if (textFiles.length === 0) {
     console.error('[ZipProcessor] No text files found in zip archive');
