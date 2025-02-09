@@ -11,7 +11,8 @@ import {
   FileCheck,
   FileSpreadsheet,
   Wallet,
-  Cog
+  Cog,
+  Coins
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ const Sidebar = () => {
       type: "section",
       items: [
         { icon: LineChart, label: "Monitor", href: "/monitor" },
+        { icon: Coins, label: "Cash Management", href: "/cash-management" },
         { icon: BarChart3, label: "Exposure", href: "/exposure" },
         { icon: FileText, label: "Forecast", href: "/forecast" },
         { icon: Shield, label: "Hedge Request", href: "/hedge-request" },

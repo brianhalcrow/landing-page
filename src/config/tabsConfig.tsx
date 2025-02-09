@@ -18,6 +18,7 @@ import LLMLoggingTab from "@/components/data-sources/LLMLoggingTab";
 import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 import AnalyticsTab from "@/components/analytics/AnalyticsTab";
+import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
 
 export const tabsConfig = {
   "monitor": [
@@ -25,6 +26,9 @@ export const tabsConfig = {
     { value: "history", label: "History", content: <HistoryTab /> },
     { value: "pending", label: "Pending", content: <PendingTab /> },
     { value: "rejected", label: "Rejected", content: <RejectedTab /> },
+  ],
+  "cash-management": [
+    { value: "overview", label: "Overview", content: <CashManagementOverviewTab /> },
   ],
   "settlement": [
     { value: "completed", label: "Completed", content: <div>Completed Settlements</div> },
