@@ -41,6 +41,10 @@ export function RecategorizeDocuments() {
         title: "Success",
         description: `Successfully processed ${resultsCount} documents`,
       });
+
+      // Refresh the page after successful recategorization
+      window.location.reload();
+      
     } catch (error: any) {
       console.error('Error recategorizing documents:', error);
       toast({
