@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "@/pages/Auth";
 import Layout from "@/components/Layout";
@@ -18,6 +19,7 @@ import Exposure from "@/pages/Exposure";
 import Confirmation from "@/pages/Confirmation";
 import Control from "@/pages/Control";
 import HedgeAccounting from "@/pages/HedgeAccounting";
+import CashManagement from "@/pages/CashManagement";
 
 const App = () => {
   return (
@@ -39,6 +41,7 @@ const App = () => {
               <Route path="/confirmation" element={<Confirmation />} />
               <Route path="/control" element={<Control />} />
               <Route path="/hedge-accounting" element={<HedgeAccounting />} />
+              <Route path="/cash-management" element={<CashManagement />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
