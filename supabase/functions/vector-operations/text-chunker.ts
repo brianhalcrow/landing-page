@@ -14,11 +14,17 @@ function isCompleteSection(text: string): boolean {
   );
 }
 
+// Helper function to check if a string ends with a sentence boundary
+function endsWithSentenceBoundary(text: string): boolean {
+  return /[.!?]\s*$/.test(text);
+}
+
 export function chunkText(text: string): string[] {
   console.log('[TextChunker] Starting text chunking process');
   console.log(`[TextChunker] Input text length: ${text.length} characters`);
   console.log(`[TextChunker] Configuration: CHUNK_SIZE=${CHUNK_SIZE}, OVERLAP=${CHUNK_OVERLAP}, MIN_LENGTH=${MIN_CHUNK_LENGTH}`);
 
+  // First split by double newlines to get logical sections
   const sections = text
     .split(/\n\s*\n/)
     .filter(Boolean)
@@ -30,8 +36,10 @@ export function chunkText(text: string): string[] {
 
   const chunks: string[] = [];
   let currentChunk = '';
+  let overlapText = '';
 
   for (const section of sections) {
+    // If the section is a complete, self-contained unit and fits in a chunk, keep it whole
     if (section.length <= CHUNK_SIZE && isCompleteSection(section)) {
       if (currentChunk) {
         chunks.push(currentChunk.trim());
@@ -41,40 +49,47 @@ export function chunkText(text: string): string[] {
       continue;
     }
 
-    if ((currentChunk + '\n\n' + section).length > CHUNK_SIZE) {
-      if (currentChunk) {
-        chunks.push(currentChunk.trim());
-        currentChunk = section;
-      } else {
-        const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
-        for (const sentence of sentences) {
-          if ((currentChunk + '\n' + sentence).length > CHUNK_SIZE) {
-            if (currentChunk.length >= MIN_CHUNK_LENGTH) {
-              chunks.push(currentChunk.trim());
-            }
-            currentChunk = sentence.trim();
-          } else {
-            currentChunk += (currentChunk ? '\n' : '') + sentence.trim();
+    // Split section into sentences
+    const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
+    
+    for (let sentence of sentences) {
+      sentence = sentence.trim();
+      
+      // Skip empty sentences
+      if (!sentence) continue;
+
+      // If adding this sentence would exceed chunk size
+      if ((currentChunk + ' ' + sentence).length > CHUNK_SIZE) {
+        if (currentChunk) {
+          // Store the current chunk if it's not empty
+          chunks.push(currentChunk.trim());
+          
+          // Keep the last sentence for overlap if it's a complete sentence
+          if (endsWithSentenceBoundary(currentChunk)) {
+            overlapText = currentChunk.split(/[.!?]\s*/).slice(-1)[0].trim();
           }
+          
+          // Start new chunk with overlap text if available
+          currentChunk = overlapText ? overlapText + ' ' + sentence : sentence;
+          overlapText = '';
+        } else {
+          // If the sentence itself is too long, split it at word boundaries
+          currentChunk = sentence;
         }
+      } else {
+        // Add sentence to current chunk
+        currentChunk = currentChunk ? currentChunk + ' ' + sentence : sentence;
       }
-    } else {
-      currentChunk += (currentChunk ? '\n\n' : '') + section;
     }
   }
 
+  // Add the last chunk if there is one
   if (currentChunk && currentChunk.length >= MIN_CHUNK_LENGTH) {
     chunks.push(currentChunk.trim());
   }
 
   const finalChunks = chunks
-    .map(chunk => {
-      const firstSpaceIndex = chunk.indexOf(' ');
-      if (firstSpaceIndex > 0 && !/^\w+/.test(chunk)) {
-        return chunk.substring(firstSpaceIndex + 1);
-      }
-      return chunk;
-    })
+    .map(chunk => chunk.trim())
     .filter(chunk => chunk.length >= MIN_CHUNK_LENGTH);
 
   console.log(`[TextChunker] Chunking completed:
