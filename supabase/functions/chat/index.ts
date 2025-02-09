@@ -32,6 +32,37 @@ serve(async (req) => {
     })
     const openai = new OpenAIApi(configuration)
 
+    // Extract entity information if present
+    const entityExtraction = await openai.createChatCompletion({
+      model: "gpt-4",
+      messages: [{
+        role: 'system',
+        content: 'Extract any entity names or IDs mentioned in the message. Return as JSON with entity_name field.'
+      }, {
+        role: 'user',
+        content: message
+      }]
+    })
+
+    let entityInfo = null
+    try {
+      const extractedEntity = JSON.parse(entityExtraction.data.choices[0].message.content)
+      if (extractedEntity.entity_name) {
+        // Get entity details including functional currency
+        const { data: entityData, error: entityError } = await supabase
+          .from('entities')
+          .select('*')
+          .eq('entity_name', extractedEntity.entity_name)
+          .single()
+
+        if (!entityError && entityData) {
+          entityInfo = entityData
+        }
+      }
+    } catch (error) {
+      console.error('Entity extraction failed:', error)
+    }
+
     // Check if the message contains rate-related keywords
     const rateKeywords = ['exchange rate', 'spot rate', 'forward rate', 'currency rate', 'fx rate']
     const needsRateInfo = rateKeywords.some(keyword => 
@@ -136,13 +167,25 @@ serve(async (req) => {
       messages: [
         {
           role: 'system',
-          content: `You are a financial expert. Keep responses concise and practical. ${
+          content: `You are a financial expert specializing in currency risk management. Core understanding:
+          1. Functional Currency: Primary currency for entity operations and reporting
+          2. Transaction Currency: Currency used in individual transactions
+          3. Risk Exposure: Arises from mismatches between functional and transaction currencies
+          4. Rate Types: Spot (current market), Forward (future settlement), Cross rates (derived)
+          
+          Keep responses concise and practical. ${
+            entityInfo ? `Consider that the entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''
+          } ${
             rateInfo ? 'Use the provided rate information in your response.' : ''
           } ${
             calculationResult ? 'Include the calculation results in your response.' : ''
           }`
         },
         { role: 'user', content: message },
+        entityInfo ? {
+          role: 'system',
+          content: `Entity information: ${JSON.stringify(entityInfo)}`
+        } : null,
         rateInfo ? {
           role: 'system',
           content: `Latest rate information: ${JSON.stringify(rateInfo)}`
