@@ -36,13 +36,24 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
+    const MAX_RETRIES = 3;
 
     console.log('Fetching documents that need recategorization...');
 
+    // Improved query to catch all cases of missing metadata
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
+      .or(
+        'metadata_category.is.null,' +
+        'metadata_section.is.null,' +
+        'metadata_difficulty.is.null,' +
+        "metadata->>category.is.null," +
+        "metadata->>section.is.null," +
+        "metadata->>difficulty.is.null"
+      )
+      .eq('metadata->>retry_count', null)
+      .order('id')
       .limit(50);
 
     if (fetchError) {
@@ -76,13 +87,32 @@ serve(async (req) => {
         try {
           console.log(`Processing document ${doc.id}`);
           
-          if (!doc.content) {
-            console.log(`Document ${doc.id} has no content, skipping`);
+          if (!doc.content || doc.content.trim().length === 0) {
+            console.log(`Document ${doc.id} has no content, marking as uncategorized`);
+            const metadata = {
+              ...(doc.metadata || {}),
+              category: 'uncategorized',
+              section: 'general',
+              difficulty: 'beginner',
+              recategorized_at: new Date().toISOString(),
+              retry_count: (doc.metadata?.retry_count || 0) + 1
+            };
+
+            await supabase
+              .from('documents')
+              .update({
+                metadata,
+                metadata_category: 'uncategorized',
+                metadata_section: 'general',
+                metadata_difficulty: 'beginner'
+              })
+              .eq('id', doc.id);
+
             return {
               id: doc.id,
-              success: false,
-              error: 'No content available',
-              progressMessage: `Skipped document ${doc.id} - No content`
+              success: true,
+              analysis: { category: 'uncategorized', section: 'general', difficulty: 'beginner' },
+              progressMessage: `Marked empty document ${doc.id} as uncategorized`
             };
           }
 
@@ -114,14 +144,32 @@ serve(async (req) => {
           try {
             analysis = JSON.parse(analysisText);
             
-            // Validate the analysis object has all required fields
-            if (!analysis.category || !analysis.section || !analysis.difficulty) {
-              throw new Error('Missing required fields in analysis');
+            // Strict validation of the analysis object
+            const validCategories = ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"];
+            const validSections = ["theory", "practice", "case_study", "reference", "general"];
+            const validDifficulties = ["beginner", "intermediate", "advanced", "expert"];
+
+            if (!analysis.category || !validCategories.includes(analysis.category) ||
+                !analysis.section || !validSections.includes(analysis.section) ||
+                !analysis.difficulty || !validDifficulties.includes(analysis.difficulty)) {
+              throw new Error('Invalid fields in analysis');
             }
 
           } catch (parseError) {
-            console.error(`Error parsing analysis for doc ${doc.id}:`, parseError);
-            throw new Error('Failed to parse OpenAI response');
+            console.error(`Error parsing/validating analysis for doc ${doc.id}:`, parseError);
+            
+            // Update retry count even on error
+            const metadata = {
+              ...(doc.metadata || {}),
+              retry_count: (doc.metadata?.retry_count || 0) + 1
+            };
+
+            await supabase
+              .from('documents')
+              .update({ metadata })
+              .eq('id', doc.id);
+
+            throw parseError;
           }
           
           const metadata = {
@@ -129,7 +177,8 @@ serve(async (req) => {
             category: analysis.category,
             section: analysis.section,
             difficulty: analysis.difficulty,
-            recategorized_at: new Date().toISOString()
+            recategorized_at: new Date().toISOString(),
+            retry_count: (doc.metadata?.retry_count || 0) + 1
           };
 
           // Update document with new metadata
@@ -171,6 +220,11 @@ serve(async (req) => {
 
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
+
+      // Add a small delay between batches to avoid rate limiting
+      if (i + BATCH_SIZE < documents.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
 
     const successful = results.filter(r => r.success).length;
