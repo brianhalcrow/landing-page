@@ -1,13 +1,9 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { DocumentProcessor } from './document-processor.ts';
+import { BATCH_SIZE, corsHeaders } from './config.ts';
+import type { ProcessingResult } from './types.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,34 +23,10 @@ serve(async (req) => {
       throw new Error('Missing OpenAI API key');
     }
 
-    console.log('Initializing OpenAI and Supabase clients...');
+    console.log('Initializing document processor...');
+    const processor = new DocumentProcessor(supabaseUrl, supabaseKey, openaiKey);
 
-    const openai = new OpenAIApi(new Configuration({
-      apiKey: openaiKey
-    }));
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const BATCH_SIZE = 5;
-
-    console.log('Fetching documents that need recategorization...');
-
-    // Simplified query to get uncategorized documents
-    const { data: documents, error: fetchError } = await supabase
-      .from('documents')
-      .select('id, content, metadata')
-      .or(
-        'metadata_category.is.null,' +
-        'metadata_section.is.null,' +
-        'metadata_difficulty.is.null'
-      )
-      .is('metadata->retry_count', null)
-      .order('id')
-      .limit(200);  // Increased from 50 to 200
-
-    if (fetchError) {
-      console.error('Error fetching documents:', fetchError);
-      throw fetchError;
-    }
+    const documents = await processor.fetchDocuments();
 
     if (!documents || documents.length === 0) {
       console.log('No documents found that need categorization');
@@ -68,7 +40,7 @@ serve(async (req) => {
     }
 
     console.log(`Found ${documents.length} documents to process`);
-    const results = [];
+    const results: ProcessingResult[] = [];
 
     // Process in batches
     for (let i = 0; i < documents.length; i += BATCH_SIZE) {
@@ -78,141 +50,9 @@ serve(async (req) => {
       
       console.log(`Processing batch ${batchNumber}/${totalBatches}`);
       
-      const batchPromises = batch.map(async (doc) => {
-        try {
-          console.log(`Processing document ${doc.id}`);
-          
-          if (!doc.content || doc.content.trim().length === 0) {
-            console.log(`Document ${doc.id} has no content, marking as uncategorized`);
-            const metadata = {
-              ...(doc.metadata || {}),
-              category: 'uncategorized',
-              section: 'general',
-              difficulty: 'beginner',
-              recategorized_at: new Date().toISOString(),
-              retry_count: 1
-            };
-
-            const { error: updateError } = await supabase
-              .from('documents')
-              .update({
-                metadata,
-                metadata_category: 'uncategorized',
-                metadata_section: 'general',
-                metadata_difficulty: 'beginner'
-              })
-              .eq('id', doc.id);
-
-            if (updateError) {
-              throw updateError;
-            }
-
-            return {
-              id: doc.id,
-              success: true,
-              analysis: { category: 'uncategorized', section: 'general', difficulty: 'beginner' },
-              progressMessage: `Marked empty document ${doc.id} as uncategorized`
-            };
-          }
-
-          const response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: `You are a financial document analyzer specializing in forex and trading documents. 
-                Analyze the given text and return ONLY a JSON object with these exact fields:
-                {
-                  "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
-                  "section": one of ["theory", "practice", "case_study", "reference", "general"],
-                  "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
-                }`
-              },
-              {
-                role: "user",
-                content: doc.content.slice(0, 2000)
-              }
-            ],
-            temperature: 0.1
-          });
-
-          const analysisText = response.data?.choices?.[0]?.message?.content.trim();
-          console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
-          
-          let analysis;
-          try {
-            analysis = JSON.parse(analysisText);
-            
-            const validCategories = ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"];
-            const validSections = ["theory", "practice", "case_study", "reference", "general"];
-            const validDifficulties = ["beginner", "intermediate", "advanced", "expert"];
-
-            if (!analysis.category || !validCategories.includes(analysis.category) ||
-                !analysis.section || !validSections.includes(analysis.section) ||
-                !analysis.difficulty || !validDifficulties.includes(analysis.difficulty)) {
-              throw new Error('Invalid fields in analysis');
-            }
-
-          } catch (parseError) {
-            console.error(`Error parsing/validating analysis for doc ${doc.id}:`, parseError);
-            
-            const metadata = {
-              ...(doc.metadata || {}),
-              retry_count: 1
-            };
-
-            await supabase
-              .from('documents')
-              .update({ metadata })
-              .eq('id', doc.id);
-
-            throw parseError;
-          }
-          
-          const metadata = {
-            ...(doc.metadata || {}),
-            category: analysis.category,
-            section: analysis.section,
-            difficulty: analysis.difficulty,
-            recategorized_at: new Date().toISOString(),
-            retry_count: 1
-          };
-
-          const { error: updateError } = await supabase
-            .from('documents')
-            .update({
-              metadata,
-              metadata_category: analysis.category,
-              metadata_section: analysis.section,
-              metadata_difficulty: analysis.difficulty
-            })
-            .eq('id', doc.id);
-
-          if (updateError) {
-            console.error(`Error updating document ${doc.id}:`, updateError);
-            throw updateError;
-          }
-
-          const progressMessage = `Processed document ${doc.id} (Batch ${batchNumber}/${totalBatches})`;
-          console.log(progressMessage);
-          
-          return {
-            id: doc.id,
-            success: true,
-            analysis,
-            progressMessage
-          };
-
-        } catch (error) {
-          console.error(`Error processing document ${doc.id}:`, error);
-          return {
-            id: doc.id,
-            success: false,
-            error: error.message,
-            progressMessage: `Failed to process document ${doc.id}`
-          };
-        }
-      });
+      const batchPromises = batch.map(doc => 
+        processor.processDocument(doc, batchNumber, totalBatches)
+      );
 
       // Wait for all documents in the batch to complete
       const batchResults = await Promise.all(batchPromises);
