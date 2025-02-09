@@ -161,40 +161,58 @@ serve(async (req) => {
       }
     }
 
+    // Prepare messages array for the final completion
+    const messages = []
+
+    // Add system message
+    messages.push({
+      role: 'system',
+      content: `You are a financial expert specializing in currency risk management. Core understanding:
+      1. Functional Currency: Primary currency for entity operations and reporting
+      2. Transaction Currency: Currency used in individual transactions
+      3. Risk Exposure: Arises from mismatches between functional and transaction currencies
+      4. Rate Types: Spot (current market), Forward (future settlement), Cross rates (derived)
+      
+      Keep responses concise and practical. ${
+        entityInfo ? `Consider that the entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''
+      } ${
+        rateInfo ? 'Use the provided rate information in your response.' : ''
+      } ${
+        calculationResult ? 'Include the calculation results in your response.' : ''
+      }`
+    })
+
+    // Add user message
+    messages.push({ role: 'user', content: message })
+
+    // Add entity info if available
+    if (entityInfo) {
+      messages.push({
+        role: 'system',
+        content: `Entity information: ${JSON.stringify(entityInfo)}`
+      })
+    }
+
+    // Add rate info if available
+    if (rateInfo) {
+      messages.push({
+        role: 'system',
+        content: `Latest rate information: ${JSON.stringify(rateInfo)}`
+      })
+    }
+
+    // Add calculation results if available
+    if (calculationResult) {
+      messages.push({
+        role: 'system',
+        content: `Calculation results: ${JSON.stringify(calculationResult)}`
+      })
+    }
+
     // Generate response using OpenAI
     const completion = await openai.createChatCompletion({
       model: "gpt-4",
-      messages: [
-        {
-          role: 'system',
-          content: `You are a financial expert specializing in currency risk management. Core understanding:
-          1. Functional Currency: Primary currency for entity operations and reporting
-          2. Transaction Currency: Currency used in individual transactions
-          3. Risk Exposure: Arises from mismatches between functional and transaction currencies
-          4. Rate Types: Spot (current market), Forward (future settlement), Cross rates (derived)
-          
-          Keep responses concise and practical. ${
-            entityInfo ? `Consider that the entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''
-          } ${
-            rateInfo ? 'Use the provided rate information in your response.' : ''
-          } ${
-            calculationResult ? 'Include the calculation results in your response.' : ''
-          }`
-        },
-        { role: 'user', content: message },
-        entityInfo ? {
-          role: 'system',
-          content: `Entity information: ${JSON.stringify(entityInfo)}`
-        } : null,
-        rateInfo ? {
-          role: 'system',
-          content: `Latest rate information: ${JSON.stringify(rateInfo)}`
-        } : null,
-        calculationResult ? {
-          role: 'system',
-          content: `Calculation results: ${JSON.stringify(calculationResult)}`
-        } : null
-      ].filter(Boolean)
+      messages: messages
     })
 
     const reply = completion.data.choices[0]?.message?.content || "I apologize, but I couldn't generate a response."
@@ -215,3 +233,4 @@ serve(async (req) => {
     )
   }
 })
+
