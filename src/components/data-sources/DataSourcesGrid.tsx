@@ -52,30 +52,32 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       headerName: 'Pipeline Name',
       flex: 1.5,
       minWidth: 200,
-      headerClass: 'ag-header-center',
-      cellClass: 'text-left pl-4'
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left'
     },
     { 
       field: 'source_system', 
       headerName: 'Source',
       flex: 1,
       minWidth: 150,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left'
     },
     { 
       field: 'target_table', 
       headerName: 'Target Table',
       flex: 1,
       minWidth: 150,
-      headerClass: 'ag-header-center'
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left'
     },
     { 
       field: 'status', 
       headerName: 'Status',
       flex: 1,
       minWidth: 120,
-      headerClass: 'ag-header-center',
-      cellClass: getStatusColor,
+      headerClass: 'ag-header-left',
+      cellClass: params => `cell-left ${getStatusColor(params)}`,
       valueFormatter: getStatusText
     },
     { 
@@ -83,7 +85,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       headerName: 'Records',
       flex: 1,
       minWidth: 120,
-      headerClass: 'ag-header-center',
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left',
       valueFormatter: (params) => 
         params.value ? params.value.toLocaleString() : '-'
     },
@@ -92,7 +95,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       headerName: 'Start Time',
       flex: 1.2,
       minWidth: 180,
-      headerClass: 'ag-header-center',
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left',
       valueFormatter: (params) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy HH:mm:ss') : '-'
     },
@@ -101,7 +105,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       headerName: 'End Time',
       flex: 1.2,
       minWidth: 180,
-      headerClass: 'ag-header-center',
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left',
       valueFormatter: (params) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy HH:mm:ss') : '-'
     },
@@ -110,8 +115,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
       headerName: 'Error Message',
       flex: 2,
       minWidth: 200,
-      headerClass: 'ag-header-center',
-      cellClass: 'text-red-500',
+      headerClass: 'ag-header-left',
+      cellClass: 'cell-left text-red-500',
       wrapText: true,
       autoHeight: true,
       cellStyle: { wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.5' }
