@@ -49,7 +49,7 @@ serve(async (req) => {
       )
       .is('metadata->retry_count', null)
       .order('id')
-      .limit(50);
+      .limit(200);  // Increased from 50 to 200
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
