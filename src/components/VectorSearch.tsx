@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { AgGridReact } from 'ag-grid-react';
@@ -11,9 +10,6 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Badge } from "@/components/ui/badge";
 
 export function VectorSearch() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
   const [gridColumnApi, setGridColumnApi] = useState<any>(null);
@@ -158,99 +154,32 @@ export function VectorSearch() {
     };
   }, []);
 
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('vector-operations', {
-        body: {
-          action: 'search',
-          query: searchQuery,
-          match_threshold: 0.8,
-          match_count: 5
-        }
-      });
-
-      if (error) throw error;
-      setResults(data || []);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onGridReady = (params: any) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
   };
 
-  const handleFrontendSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchText = e.target.value;
     if (gridApi) {
+      // Configure quick filter to search across all columns
       gridApi.setQuickFilter(searchText);
     }
   };
 
-  const renderSearchResult = (result: any) => (
-    <Card key={result.id} className="p-4 space-y-2">
-      <div className="flex gap-2 items-center">
-        {result.metadata_category && getCategoryBadge({ data: result })}
-        {result.metadata_difficulty && getDifficultyBadge({ data: result })}
-      </div>
-      <p className="font-medium">{result.content}</p>
-      <div className="flex justify-between items-center text-sm text-gray-500">
-        <span>Similarity: {(result.similarity * 100).toFixed(2)}%</span>
-        {result.metadata_source_reference && (
-          <span>Source: {result.metadata_source_reference.title}</span>
-        )}
-      </div>
-      {result.metadata_tags && (
-        <div className="flex gap-2 flex-wrap">
-          {result.metadata_tags.map((tag: string) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
-              {tag.replace('_', ' ')}
-            </Badge>
-          ))}
-        </div>
-      )}
-    </Card>
-  );
-
   return (
     <Card className="p-4">
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Search Documents</h2>
+        <h2 className="text-lg font-semibold">Document Search</h2>
         
-        {/* Semantic Search */}
-        <div className="flex gap-2">
-          <Input
-            type="text"
-            placeholder="Enter your semantic search query"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
-          />
-          <Button onClick={handleSearch} disabled={loading}>
-            {loading ? 'Searching...' : 'Semantic Search'}
-          </Button>
-        </div>
-
-        {/* Results section */}
-        <div className="space-y-2">
-          {results.map(renderSearchResult)}
-        </div>
-
-        {/* Documents Grid with Frontend Search */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Uploaded Documents</h3>
           <Input
             type="text"
-            placeholder="Filter documents..."
-            onChange={handleFrontendSearch}
-            className="mb-4"
+            placeholder="Search documents by content, filename, category..."
+            onChange={handleSearch}
+            className="w-full"
           />
-          <div className="h-[400px] w-full ag-theme-alpine">
+          <div className="h-[600px] w-full ag-theme-alpine">
             <AgGridReact
               rowData={documents}
               columnDefs={columnDefs}
