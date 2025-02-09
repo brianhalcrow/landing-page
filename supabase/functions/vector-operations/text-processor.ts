@@ -1,4 +1,3 @@
-
 import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
 import { FileMetadata } from './types.ts';
 
@@ -54,14 +53,21 @@ function formatFinancialText(text: string): string {
   console.log('[TextProcessor] Input text sample:', text.slice(0, 200));
   
   const formattedText = text
-    // Remove common headers and footers with more flexible patterns
-    .replace(/(?:Confidential\s+Treatment\s+Requested\s+(?:By\s+)?Lehman\s+Brothers\s+Holdings,?\s+Inc\.?)/gi, '')
+    // Remove document headers with more comprehensive patterns
+    .replace(/(?:Confidential\s+Treatment\s+Requested\s+(?:By\s+)?(?:Lehman\s+Brothers\s+Holdings,?\s+Inc\.?)?)/gi, '')
     .replace(/(?:LBEX[-\s]*LL\s*\d+)/gi, '')
-    // Remove any line that's just page numbers (more flexible pattern)
+    .replace(/(?:Page\s+\d+\s+of\s+\d+)/gi, '')
+    .replace(/(?:Document\s+ID:\s*[A-Z0-9-]+)/gi, '')
+    // Remove header/footer separator lines
+    .replace(/^[_\-=]{3,}$/gm, '')
+    .replace(/^[\s_\-=]*Confidential[\s_\-=]*$/gm, '')
+    // Remove timestamp patterns
+    .replace(/\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?/gi, '')
+    // Remove date patterns (various formats)
+    .replace(/(?:\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/g, '')
+    // Remove page numbers
     .replace(/^\s*(?:\d+|\(\d+\)|\[\d+\])\s*$/gm, '')
-    // Remove lines that are just dates (more flexible pattern)
-    .replace(/^\s*(?:\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2})\s*$/gm, '')
-    // Remove lines with just reference numbers (more flexible pattern)
+    // Remove reference numbers
     .replace(/^\s*(?:Ref(?:erence)?:?\s*\d+|#\d+)\s*$/gim, '')
     // Remove multiple consecutive empty lines
     .replace(/\n{3,}/g, '\n\n')
@@ -69,20 +75,12 @@ function formatFinancialText(text: string): string {
     .replace(/\r\n/g, '\n')
     // Remove multiple spaces
     .replace(/[ ]{2,}/g, ' ')
-    // Fix common OCR/formatting issues with numbers and symbols
-    .replace(/(\d)\s+\./g, '$1.')
-    .replace(/(\d)\s+%/g, '$1%')
-    .replace(/\$\s+(\d)/g, '$$$1')
-    // Ensure mathematical operations have consistent spacing
-    .replace(/(\d)\s*([+\-=@])\s*(\d)/g, '$1 $2 $3')
-    // Ensure currency codes have proper spacing
-    .replace(/(USD|GBP|EUR|CHF|JPY)\s*(\d)/g, '$1 $2')
-    // Separate sections with double newlines
-    .replace(/\n{3,}/g, '\n\n')
-    // Ensure examples and their explanations stay together
-    .replace(/Example(\s+\d+)?:/g, '\n\nExample$1:\n')
-    .replace(/Analysis:/g, '\n\nAnalysis:\n')
-    .replace(/Result:/g, '\n\nResult:\n')
+    // Clean up any remaining headers that might appear at the start of lines
+    .replace(/^.*(?:Confidential\s+Treatment|LBEX[-\s]*LL).*$\n?/gim, '')
+    // Remove any leftover page indicators
+    .replace(/^\s*Page\s+\d+\s*$/gim, '')
+    // Final cleanup of whitespace
+    .replace(/^\s+|\s+$/gm, '')
     .trim();
 
   // Log a sample of the output text for verification
@@ -93,8 +91,7 @@ function formatFinancialText(text: string): string {
     - Final length: ${formattedText.length}
     - Characters processed: ${startLength - formattedText.length}
     - Headers/footers removed: ${(text.match(/Confidential Treatment Requested/gi) || []).length}
-    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}
-    - Empty lines normalized: ${(text.match(/\n{3,}/g) || []).length}`
+    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}`
   );
   
   return formattedText;

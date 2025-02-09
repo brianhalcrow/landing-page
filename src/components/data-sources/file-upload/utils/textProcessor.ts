@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const sanitizeText = (text: string): string => {
@@ -6,27 +5,42 @@ const sanitizeText = (text: string): string => {
   const startLength = text.length;
   
   const sanitizedText = text
-    // Remove common headers and footers
-    .replace(/Confidential Treatment Requested By Lehman Brothers Holdings, Inc\./g, '')
-    .replace(/LBEX-LL \d+/g, '')
-    // Remove any line that's just page numbers
-    .replace(/^\s*\d+\s*$/gm, '')
-    // Remove lines that are just dates or timestamps
-    .replace(/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}\s*$/gm, '')
-    // Remove lines with just reference numbers
-    .replace(/^\s*Ref:\s*\d+\s*$/gm, '')
+    // Remove document headers with more comprehensive patterns
+    .replace(/(?:Confidential\s+Treatment\s+Requested\s+(?:By\s+)?(?:Lehman\s+Brothers\s+Holdings,?\s+Inc\.?)?)/gi, '')
+    .replace(/(?:LBEX[-\s]*LL\s*\d+)/gi, '')
+    .replace(/(?:Page\s+\d+\s+of\s+\d+)/gi, '')
+    .replace(/(?:Document\s+ID:\s*[A-Z0-9-]+)/gi, '')
+    // Remove header/footer separator lines
+    .replace(/^[_\-=]{3,}$/gm, '')
+    .replace(/^[\s_\-=]*Confidential[\s_\-=]*$/gm, '')
+    // Remove timestamp patterns
+    .replace(/\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?/gi, '')
+    // Remove date patterns (various formats)
+    .replace(/(?:\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/g, '')
+    // Remove page numbers
+    .replace(/^\s*(?:\d+|\(\d+\)|\[\d+\])\s*$/gm, '')
+    // Remove reference numbers
+    .replace(/^\s*(?:Ref(?:erence)?:?\s*\d+|#\d+)\s*$/gim, '')
     // Remove multiple consecutive empty lines
     .replace(/\n{3,}/g, '\n\n')
     // Standardize newlines
     .replace(/\r\n/g, '\n')
+    // Remove multiple spaces
+    .replace(/[ ]{2,}/g, ' ')
+    // Clean up any remaining headers that might appear at the start of lines
+    .replace(/^.*(?:Confidential\s+Treatment|LBEX[-\s]*LL).*$\n?/gim, '')
+    // Remove any leftover page indicators
+    .replace(/^\s*Page\s+\d+\s*$/gim, '')
+    // Final cleanup of whitespace
+    .replace(/^\s+|\s+$/gm, '')
     .trim();
 
   console.log(`[TextProcessor] Text sanitization completed:
     - Original length: ${startLength}
     - Final length: ${sanitizedText.length}
     - Characters removed: ${startLength - sanitizedText.length}
-    - Headers removed: ${(text.match(/Confidential Treatment Requested/g) || []).length}
-    - Reference numbers removed: ${(text.match(/LBEX-LL \d+/g) || []).length}`
+    - Headers removed: ${(text.match(/Confidential Treatment Requested/gi) || []).length}
+    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}`
   );
   
   return sanitizedText;
