@@ -505,6 +505,54 @@ export type Database = {
         }
         Relationships: []
       }
+      erp_bank_statement: {
+        Row: {
+          account_number_bank: string | null
+          bank_name: string | null
+          counterparty_name: string | null
+          counterparty_reference: string | null
+          currency_code: string | null
+          description: string | null
+          entity_id: string | null
+          entity_name: string | null
+          posting_date: string | null
+          transaction_amount: number | null
+          transaction_id: number
+          transaction_type: string | null
+          value_date: string | null
+        }
+        Insert: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          transaction_amount?: number | null
+          transaction_id: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Update: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          transaction_amount?: number | null
+          transaction_id?: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Relationships: []
+      }
       erp_gl_transactions: {
         Row: {
           account_category_level_1: string | null
