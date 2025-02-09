@@ -28,15 +28,15 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
+    const MAX_RETRIES = 2; // Number of retries for failed documents
 
     console.log('Fetching documents that need recategorization...');
 
+    // First, get documents with null metadata or failed previous attempts
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .is('metadata_category', null)
-      .is('metadata_section', null)
-      .is('metadata_difficulty', null);
+      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null');
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
@@ -63,102 +63,138 @@ serve(async (req) => {
       console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(documents.length/BATCH_SIZE)}`);
       
       const batchPromises = batch.map(async (doc) => {
-        try {
-          console.log(`Analyzing document ${doc.id}`);
-          const response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: `You are a financial document analyzer specializing in forex and trading documents. 
-                You will analyze the given text and return ONLY a JSON object with these exact fields:
-                {
-                  "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
-                  "section": one of ["theory", "practice", "case_study", "reference", "general"],
-                  "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
-                }
-                
-                Categories explanation:
-                - forex: Documents about foreign exchange markets and currency trading
-                - trading: General trading concepts and strategies
-                - risk_management: Risk assessment and management in trading
-                - market_analysis: Market analysis techniques and tools
-                - technical_analysis: Technical analysis methods and indicators
-                - uncategorized: Only if text doesn't fit other categories
-                
-                Sections explanation:
-                - theory: Theoretical concepts and foundations
-                - practice: Practical applications and examples
-                - case_study: Real world examples and case studies
-                - reference: Reference materials and documentation
-                - general: General information
-                
-                Difficulty levels:
-                - beginner: Basic concepts, no prior knowledge needed
-                - intermediate: Some trading knowledge required
-                - advanced: Complex concepts, significant experience needed
-                - expert: Very technical, requires deep domain expertise`
-              },
-              {
-                role: "user",
-                content: doc.content?.slice(0, 2000) || '' // Handle potentially undefined content
-              }
-            ],
-            temperature: 0.1
-          });
+        let retries = 0;
+        let success = false;
+        let error = null;
+        let analysis = null;
 
-          if (!response.data?.choices?.[0]?.message?.content) {
-            throw new Error('Invalid AI response structure');
-          }
-
-          const analysisText = response.data.choices[0].message.content.trim();
-          console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
-          
-          let analysis;
+        while (retries < MAX_RETRIES && !success) {
           try {
-            analysis = JSON.parse(analysisText);
-          } catch (parseError) {
-            console.error(`Failed to parse AI response for doc ${doc.id}:`, parseError);
-            throw new Error('Invalid AI response format');
+            console.log(`Analyzing document ${doc.id} (attempt ${retries + 1})`);
+            const response = await openai.createChatCompletion({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a financial document analyzer specializing in forex and trading documents. 
+                  You will analyze the given text and return ONLY a JSON object with these exact fields:
+                  {
+                    "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
+                    "section": one of ["theory", "practice", "case_study", "reference", "general"],
+                    "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
+                  }
+                  
+                  Categories explanation:
+                  - forex: Documents about foreign exchange markets and currency trading
+                  - trading: General trading concepts and strategies
+                  - risk_management: Risk assessment and management in trading
+                  - market_analysis: Market analysis techniques and tools
+                  - technical_analysis: Technical analysis methods and indicators
+                  - uncategorized: Only if text doesn't fit other categories
+                  
+                  Sections explanation:
+                  - theory: Theoretical concepts and foundations
+                  - practice: Practical applications and examples
+                  - case_study: Real world examples and case studies
+                  - reference: Reference materials and documentation
+                  - general: General information
+                  
+                  Difficulty levels:
+                  - beginner: Basic concepts, no prior knowledge needed
+                  - intermediate: Some trading knowledge required
+                  - advanced: Complex concepts, significant experience needed
+                  - expert: Very technical, requires deep domain expertise
+                  
+                  If you cannot determine a category with high confidence, use "uncategorized".
+                  Always return valid JSON, even if uncertain about classification.`
+                },
+                {
+                  role: "user",
+                  content: doc.content?.slice(0, 2000) || '' // Handle potentially undefined content
+                }
+              ],
+              temperature: 0.1
+            });
+
+            if (!response.data?.choices?.[0]?.message?.content) {
+              throw new Error('Invalid AI response structure');
+            }
+
+            const analysisText = response.data.choices[0].message.content.trim();
+            console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
+            
+            try {
+              analysis = JSON.parse(analysisText);
+            } catch (parseError) {
+              console.error(`Failed to parse AI response for doc ${doc.id}:`, parseError);
+              throw new Error('Invalid AI response format');
+            }
+
+            // Validate the analysis object
+            if (!analysis.category || !analysis.section || !analysis.difficulty) {
+              throw new Error('Missing required fields in AI response');
+            }
+
+            // Validate against allowed values
+            const validCategories = ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"];
+            const validSections = ["theory", "practice", "case_study", "reference", "general"];
+            const validDifficulties = ["beginner", "intermediate", "advanced", "expert"];
+
+            if (!validCategories.includes(analysis.category)) {
+              analysis.category = "uncategorized";
+            }
+            if (!validSections.includes(analysis.section)) {
+              analysis.section = "general";
+            }
+            if (!validDifficulties.includes(analysis.difficulty)) {
+              analysis.difficulty = "beginner";
+            }
+
+            // Update both the metadata JSON and the specific columns
+            const { error: updateError } = await supabase
+              .from('documents')
+              .update({
+                metadata: {
+                  ...doc.metadata,
+                  category: analysis.category,
+                  section: analysis.section,
+                  difficulty: analysis.difficulty,
+                  recategorized_at: new Date().toISOString(),
+                  retry_count: retries
+                },
+                metadata_category: analysis.category,
+                metadata_section: analysis.section,
+                metadata_difficulty: analysis.difficulty
+              })
+              .eq('id', doc.id);
+
+            if (updateError) {
+              console.error(`Error updating document ${doc.id}:`, updateError);
+              throw updateError;
+            }
+
+            success = true;
+            return {
+              id: doc.id,
+              success: true,
+              analysis,
+              retries
+            };
+          } catch (err) {
+            error = err;
+            retries++;
+            console.error(`Error processing document ${doc.id} (attempt ${retries}):`, err);
+            // Wait briefly before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000));
           }
+        }
 
-          if (!analysis.category || !analysis.section || !analysis.difficulty) {
-            throw new Error('Missing required fields in AI response');
-          }
-
-          // Update both the metadata JSON and the specific columns
-          const { error: updateError } = await supabase
-            .from('documents')
-            .update({
-              metadata: {
-                ...doc.metadata,
-                category: analysis.category,
-                section: analysis.section,
-                difficulty: analysis.difficulty,
-                recategorized_at: new Date().toISOString()
-              },
-              metadata_category: analysis.category,
-              metadata_section: analysis.section,
-              metadata_difficulty: analysis.difficulty
-            })
-            .eq('id', doc.id);
-
-          if (updateError) {
-            console.error(`Error updating document ${doc.id}:`, updateError);
-            throw updateError;
-          }
-
-          return {
-            id: doc.id,
-            success: true,
-            analysis
-          };
-        } catch (error) {
-          console.error(`Error processing document ${doc.id}:`, error);
+        if (!success) {
           return {
             id: doc.id,
             success: false,
-            error: error.message
+            error: error?.message || 'Max retries exceeded',
+            retries
           };
         }
       });
@@ -172,8 +208,12 @@ serve(async (req) => {
       }
     }
 
+    // Count successful and failed categorizations
+    const successful = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+
     return new Response(JSON.stringify({
-      message: `Processed ${results.length} documents`,
+      message: `Processed ${results.length} documents (${successful} successful, ${failed} failed)`,
       results
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
