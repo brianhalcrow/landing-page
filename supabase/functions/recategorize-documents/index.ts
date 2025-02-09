@@ -36,11 +36,8 @@ serve(async (req) => {
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .or(
-        'metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null,' + 
-        'metadata->recategorized_at.is.null,' +
-        `metadata->>retry_count.lt.${MAX_RETRIES}`
-      );
+      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null,metadata->recategorized_at.is.null')
+      .or(`metadata->>retry_count.lt.${MAX_RETRIES},metadata->>retry_count.is.null`);
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
@@ -157,7 +154,7 @@ serve(async (req) => {
               analysis.difficulty = "beginner";
             }
 
-            // Update both the metadata JSON and the specific columns
+            // Update document with new metadata
             const { error: updateError } = await supabase
               .from('documents')
               .update({

@@ -16,13 +16,7 @@ export function RecategorizeDocuments() {
       setProcessingStatus('Starting document recategorization...');
       console.log('Starting document recategorization');
       
-      const { data, error } = await supabase.functions.invoke('recategorize-documents', {
-        onProgress: (progress) => {
-          if (progress.statusText) {
-            setProcessingStatus(progress.statusText);
-          }
-        }
-      });
+      const { data, error } = await supabase.functions.invoke('recategorize-documents');
       
       if (error) {
         console.error('Function invocation error:', error);
@@ -35,6 +29,11 @@ export function RecategorizeDocuments() {
       
       console.log('Recategorization results:', data);
       
+      // Show progress from the last processed document
+      if (data.lastProgressMessage) {
+        setProcessingStatus(data.lastProgressMessage);
+      }
+      
       // Check if data indicates no documents need recategorization
       if (data.message === 'No documents to recategorize') {
         toast({
@@ -45,9 +44,10 @@ export function RecategorizeDocuments() {
       }
       
       const resultsCount = data.results?.length ?? 0;
+      const successful = data.results?.filter(r => r.success).length ?? 0;
       toast({
         title: "Success",
-        description: `Successfully processed ${resultsCount} documents`,
+        description: `Successfully processed ${successful} out of ${resultsCount} documents`,
       });
 
       // Refresh the page after successful recategorization
