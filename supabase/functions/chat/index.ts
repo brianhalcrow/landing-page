@@ -32,7 +32,66 @@ serve(async (req) => {
     })
     const openai = new OpenAIApi(configuration)
 
-    // Check if the message contains calculation-related keywords
+    // Check if the message contains rate-related keywords
+    const rateKeywords = ['exchange rate', 'spot rate', 'forward rate', 'currency rate', 'fx rate']
+    const needsRateInfo = rateKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword)
+    )
+
+    let rateInfo = null
+    if (needsRateInfo) {
+      try {
+        // Extract currency pair information using OpenAI
+        const rateExtraction = await openai.createChatCompletion({
+          model: "gpt-4",
+          messages: [{
+            role: 'system',
+            content: 'Extract currency pair information from the message. Return a JSON object with base_currency and quote_currency.'
+          }, {
+            role: 'user',
+            content: message
+          }]
+        })
+
+        const params = JSON.parse(rateExtraction.data.choices[0].message.content)
+        
+        // Query the rates table
+        const { data: ratesData, error: ratesError } = await supabase
+          .from('rates')
+          .select('*')
+          .eq('base_currency', params.base_currency)
+          .eq('quote_currency', params.quote_currency)
+          .order('rate_date', { ascending: false })
+          .limit(1)
+
+        if (ratesError) throw ratesError
+        
+        if (ratesData && ratesData.length > 0) {
+          rateInfo = ratesData[0]
+        }
+
+        // Also check rates_forward for forward rates
+        const { data: forwardRatesData, error: forwardRatesError } = await supabase
+          .from('rates_forward')
+          .select('*')
+          .eq('currency_pair', `${params.base_currency}${params.quote_currency}`)
+          .order('rate_date', { ascending: false })
+          .limit(1)
+
+        if (forwardRatesError) throw forwardRatesError
+
+        if (forwardRatesData && forwardRatesData.length > 0) {
+          rateInfo = {
+            ...rateInfo,
+            forward_rates: forwardRatesData[0]
+          }
+        }
+      } catch (error) {
+        console.error('Rate lookup failed:', error)
+      }
+    }
+
+    // Check for calculation needs
     const calculationKeywords = ['calculate', 'forward rate', 'cash flow', 'forward points']
     const needsCalculation = calculationKeywords.some(keyword => 
       message.toLowerCase().includes(keyword)
@@ -78,10 +137,16 @@ serve(async (req) => {
         {
           role: 'system',
           content: `You are a financial expert. Keep responses concise and practical. ${
+            rateInfo ? 'Use the provided rate information in your response.' : ''
+          } ${
             calculationResult ? 'Include the calculation results in your response.' : ''
           }`
         },
         { role: 'user', content: message },
+        rateInfo ? {
+          role: 'system',
+          content: `Latest rate information: ${JSON.stringify(rateInfo)}`
+        } : null,
         calculationResult ? {
           role: 'system',
           content: `Calculation results: ${JSON.stringify(calculationResult)}`
