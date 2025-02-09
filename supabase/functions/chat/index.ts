@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0'
+import { OpenAI } from "https://esm.sh/openai@4.24.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,16 +33,15 @@ serve(async (req) => {
       throw new Error('OpenAI API key missing')
     }
 
-    const configuration = new Configuration({
-      apiKey: openaiApiKey
+    const openai = new OpenAI({
+      apiKey: openaiApiKey,
     })
-    const openai = new OpenAIApi(configuration)
 
     // Extract entity information if present
     let entityInfo = null
     try {
-      const entityExtraction = await openai.createChatCompletion({
-        model: "gpt-4",
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
         messages: [{
           role: 'system',
           content: 'Extract any entity names or IDs mentioned in the message. Return as JSON with entity_name field.'
@@ -52,8 +51,8 @@ serve(async (req) => {
         }]
       })
 
-      if (entityExtraction.data.choices[0]?.message?.content) {
-        const extractedEntity = JSON.parse(entityExtraction.data.choices[0].message.content)
+      if (completion.choices[0]?.message?.content) {
+        const extractedEntity = JSON.parse(completion.choices[0].message.content)
         if (extractedEntity.entity_name) {
           // Get entity details including functional currency
           const { data: entityData, error: entityError } = await supabase
@@ -82,8 +81,8 @@ serve(async (req) => {
     if (needsRateInfo) {
       try {
         // Extract currency pair information using OpenAI
-        const rateExtraction = await openai.createChatCompletion({
-          model: "gpt-4",
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
           messages: [{
             role: 'system',
             content: 'Extract currency pair information from the message. Return a JSON object with base_currency and quote_currency.'
@@ -93,8 +92,8 @@ serve(async (req) => {
           }]
         })
 
-        if (rateExtraction.data.choices[0]?.message?.content) {
-          const params = JSON.parse(rateExtraction.data.choices[0].message.content)
+        if (completion.choices[0]?.message?.content) {
+          const params = JSON.parse(completion.choices[0].message.content)
           
           // Query the rates table
           const { data: ratesData, error: ratesError } = await supabase
@@ -141,8 +140,8 @@ serve(async (req) => {
     if (needsCalculation) {
       try {
         // Extract calculation parameters using OpenAI
-        const paramExtraction = await openai.createChatCompletion({
-          model: "gpt-4",
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
           messages: [{
             role: 'system',
             content: 'Extract calculation parameters from the user message. Return a JSON object with: category (fx_forward), amount, base_currency, quote_currency, forward_rate, and days_to_settlement.'
@@ -152,8 +151,8 @@ serve(async (req) => {
           }]
         })
 
-        if (paramExtraction.data.choices[0]?.message?.content) {
-          const params = JSON.parse(paramExtraction.data.choices[0].message.content)
+        if (completion.choices[0]?.message?.content) {
+          const params = JSON.parse(completion.choices[0].message.content)
           
           // Call calculation function
           const calcResponse = await fetch(`${supabaseUrl}/functions/v1/calculate`, {
@@ -174,30 +173,26 @@ serve(async (req) => {
     }
 
     // Prepare messages array for the final completion
-    const messages = []
+    const messages = [
+      {
+        role: 'system',
+        content: `You are a financial expert specializing in currency risk management. Core understanding:
+        1. Functional Currency: Primary currency for entity operations and reporting
+        2. Transaction Currency: Currency used in individual transactions
+        3. Risk Exposure: Arises from mismatches between functional and transaction currencies
+        4. Rate Types: Spot (current market), Forward (future settlement), Cross rates (derived)
+        
+        Keep responses concise and practical. ${
+          entityInfo ? `Consider that the entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''
+        } ${
+          rateInfo ? 'Use the provided rate information in your response.' : ''
+        } ${
+          calculationResult ? 'Include the calculation results in your response.' : ''
+        }`
+      },
+      { role: 'user', content: message }
+    ]
 
-    // Add system message
-    messages.push({
-      role: 'system',
-      content: `You are a financial expert specializing in currency risk management. Core understanding:
-      1. Functional Currency: Primary currency for entity operations and reporting
-      2. Transaction Currency: Currency used in individual transactions
-      3. Risk Exposure: Arises from mismatches between functional and transaction currencies
-      4. Rate Types: Spot (current market), Forward (future settlement), Cross rates (derived)
-      
-      Keep responses concise and practical. ${
-        entityInfo ? `Consider that the entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''
-      } ${
-        rateInfo ? 'Use the provided rate information in your response.' : ''
-      } ${
-        calculationResult ? 'Include the calculation results in your response.' : ''
-      }`
-    })
-
-    // Add user message
-    messages.push({ role: 'user', content: message })
-
-    // Add entity info if available
     if (entityInfo) {
       messages.push({
         role: 'system',
@@ -205,7 +200,6 @@ serve(async (req) => {
       })
     }
 
-    // Add rate info if available
     if (rateInfo) {
       messages.push({
         role: 'system',
@@ -213,7 +207,6 @@ serve(async (req) => {
       })
     }
 
-    // Add calculation results if available
     if (calculationResult) {
       messages.push({
         role: 'system',
@@ -224,16 +217,16 @@ serve(async (req) => {
     console.log('Sending messages to OpenAI:', messages)
 
     // Generate response using OpenAI
-    const completion = await openai.createChatCompletion({
-      model: "gpt-4",
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
       messages: messages
     })
 
-    if (!completion.data.choices[0]?.message?.content) {
+    if (!completion.choices[0]?.message?.content) {
       throw new Error('No response received from OpenAI')
     }
 
-    const reply = completion.data.choices[0].message.content
+    const reply = completion.choices[0].message.content
 
     console.log('Generated reply:', reply)
 
