@@ -42,7 +42,7 @@ serve(async (req) => {
       model: "gpt-4o-mini",
       messages: [{
         role: 'system',
-        content: 'Extract currency pair and tenor (in days) information from the message. Return a JSON object with base_currency, quote_currency, and tenor fields. For example: {"base_currency": "GBP", "quote_currency": "USD", "tenor": 90}. Only return the JSON object, no markdown formatting.'
+        content: 'Extract currency pair and tenor (in days) information from the message. Return only a JSON object with base_currency, quote_currency, and tenor fields, for example: {"base_currency": "GBP", "quote_currency": "USD", "tenor": 90}. No other text, no markdown.'
       }, {
         role: 'user',
         content: message
@@ -53,8 +53,11 @@ serve(async (req) => {
     let forwardRateInfo = null
     
     if (currencyExtraction.choices[0]?.message?.content) {
-      // Clean the response before parsing
-      const cleanedContent = currencyExtraction.choices[0].message.content.replace(/```[a-z]*\n|\n```/g, '').trim()
+      const cleanedContent = currencyExtraction.choices[0].message.content
+        .replace(/```json[\s\n]*/, '') // Remove opening ```json
+        .replace(/[\s\n]*```[\s\n]*$/, '') // Remove closing ```
+        .trim()
+      
       console.log('Cleaned currency extraction response:', cleanedContent)
       
       try {
@@ -98,7 +101,7 @@ serve(async (req) => {
       model: "gpt-4o-mini",
       messages: [{
         role: 'system',
-        content: 'Extract any entity names mentioned in the message. Return a JSON object with entity_name field. For example: {"entity_name": "Sense Inc"}. Only return the JSON object, no markdown formatting.'
+        content: 'Extract any entity names mentioned in the message. Return only a JSON object with entity_name field, for example: {"entity_name": "Sense Inc"}. No other text, no markdown.'
       }, {
         role: 'user',
         content: message
@@ -107,8 +110,11 @@ serve(async (req) => {
 
     let entityInfo = null
     if (entityExtraction.choices[0]?.message?.content) {
-      // Clean the response before parsing
-      const cleanedContent = entityExtraction.choices[0].message.content.replace(/```[a-z]*\n|\n```/g, '').trim()
+      const cleanedContent = entityExtraction.choices[0].message.content
+        .replace(/```json[\s\n]*/, '')
+        .replace(/[\s\n]*```[\s\n]*$/, '')
+        .trim()
+      
       console.log('Cleaned entity extraction response:', cleanedContent)
       
       try {
@@ -194,3 +200,4 @@ serve(async (req) => {
     )
   }
 })
+
