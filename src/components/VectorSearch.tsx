@@ -15,6 +15,8 @@ export function VectorSearch() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
+  const [gridApi, setGridApi] = useState<any>(null);
+  const [gridColumnApi, setGridColumnApi] = useState<any>(null);
 
   const getStatusBadge = (params: any) => {
     const status = params.data.metadata?.status || 'unknown';
@@ -178,6 +180,18 @@ export function VectorSearch() {
     }
   };
 
+  const onGridReady = (params: any) => {
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+  };
+
+  const handleFrontendSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchText = e.target.value;
+    if (gridApi) {
+      gridApi.setQuickFilter(searchText);
+    }
+  };
+
   const renderSearchResult = (result: any) => (
     <Card key={result.id} className="p-4 space-y-2">
       <div className="flex gap-2 items-center">
@@ -207,16 +221,18 @@ export function VectorSearch() {
     <Card className="p-4">
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Search Documents</h2>
+        
+        {/* Semantic Search */}
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="Enter your search query"
+            placeholder="Enter your semantic search query"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1"
           />
           <Button onClick={handleSearch} disabled={loading}>
-            {loading ? 'Searching...' : 'Search'}
+            {loading ? 'Searching...' : 'Semantic Search'}
           </Button>
         </div>
 
@@ -225,21 +241,30 @@ export function VectorSearch() {
           {results.map(renderSearchResult)}
         </div>
 
-        {/* Documents Grid */}
-        <div className="h-[400px] w-full ag-theme-alpine mt-6">
-          <h3 className="text-lg font-semibold mb-2">Uploaded Documents</h3>
-          <AgGridReact
-            rowData={documents}
-            columnDefs={columnDefs}
-            defaultColDef={{
-              sortable: true,
-              filter: true,
-              resizable: true
-            }}
-            animateRows={true}
-            onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
-            getRowHeight={() => 100} // Set a fixed height for rows to accommodate wrapped content
+        {/* Documents Grid with Frontend Search */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Uploaded Documents</h3>
+          <Input
+            type="text"
+            placeholder="Filter documents..."
+            onChange={handleFrontendSearch}
+            className="mb-4"
           />
+          <div className="h-[400px] w-full ag-theme-alpine">
+            <AgGridReact
+              rowData={documents}
+              columnDefs={columnDefs}
+              defaultColDef={{
+                sortable: true,
+                filter: true,
+                resizable: true
+              }}
+              animateRows={true}
+              onGridReady={onGridReady}
+              onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
+              getRowHeight={() => 100}
+            />
+          </div>
         </div>
       </div>
     </Card>
