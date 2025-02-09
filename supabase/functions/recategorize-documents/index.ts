@@ -40,7 +40,7 @@ serve(async (req) => {
       .from('documents')
       .select('id, content, metadata')
       .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
-      .or('metadata->recategorized_at.is.null,and(metadata->retry_count.lt.${MAX_RETRIES})');
+      .or(`metadata->>recategorized_at.is.null,and(metadata->>'retry_count.lt.${MAX_RETRIES}')`);
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
