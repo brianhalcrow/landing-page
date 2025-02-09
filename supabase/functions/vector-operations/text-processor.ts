@@ -51,6 +51,17 @@ function formatFinancialText(text: string): string {
   const startLength = text.length;
   
   const formattedText = text
+    // Remove common headers and footers
+    .replace(/Confidential Treatment Requested By Lehman Brothers Holdings, Inc\./g, '')
+    .replace(/LBEX-LL \d+/g, '')
+    // Remove any line that's just page numbers
+    .replace(/^\s*\d+\s*$/gm, '')
+    // Remove lines that are just dates or timestamps
+    .replace(/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}\s*$/gm, '')
+    // Remove lines with just reference numbers
+    .replace(/^\s*Ref:\s*\d+\s*$/gm, '')
+    // Remove multiple consecutive empty lines created by header/footer removal
+    .replace(/\n{3,}/g, '\n\n')
     // Standardize newlines
     .replace(/\r\n/g, '\n')
     // Remove multiple spaces
@@ -74,7 +85,9 @@ function formatFinancialText(text: string): string {
   console.log(`[TextProcessor] Text formatting completed:
     - Original length: ${startLength}
     - Final length: ${formattedText.length}
-    - Characters processed: ${startLength - formattedText.length}`
+    - Characters processed: ${startLength - formattedText.length}
+    - Headers/footers removed: ${(text.match(/Confidential Treatment Requested/g) || []).length}
+    - Reference numbers removed: ${(text.match(/LBEX-LL \d+/g) || []).length}`
   );
   
   return formattedText;
