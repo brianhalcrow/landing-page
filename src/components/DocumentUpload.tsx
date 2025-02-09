@@ -27,13 +27,12 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       
       if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
         const processedFiles = await FileProcessor.processZipFile(file, setProgress);
-        
         toast({
           title: "Success",
-          description: `Processed ${processedFiles} text files from zip archive`,
+          description: `Processed ${processedFiles} files from zip archive`,
         });
-      } else {
-        // Handle single text file
+      } else if (file.type === 'text/plain') {
+        // Process single text file
         const text = await file.text();
         setProgress(50);
         await FileProcessor.processTextFile(text, file.name);
@@ -41,11 +40,12 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         
         toast({
           title: "Success",
-          description: "Document uploaded and processed successfully",
+          description: "Document processed successfully",
         });
+      } else {
+        throw new Error('Unsupported file type. Please upload a .txt file or a .zip archive containing .txt files.');
       }
       
-      // Call the success callback if provided
       if (onUploadSuccess) {
         onUploadSuccess();
       }
@@ -61,7 +61,6 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       setLoading(false);
       setProgress(0);
       setCurrentFileName('');
-      // Reset the file input
       event.target.value = '';
     }
   };
@@ -78,3 +77,4 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
     </Card>
   );
 }
+

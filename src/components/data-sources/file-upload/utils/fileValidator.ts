@@ -6,9 +6,15 @@ export const validateFile = (file: File) => {
     throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
   }
   
-  // Allow .txt files and zip archives containing .txt files
   const allowedTypes = ['application/zip', 'text/plain', 'application/x-zip-compressed'];
   if (!allowedTypes.includes(file.type)) {
     throw new Error('Only .txt files and zip archives containing .txt files are supported');
   }
+
+  // Additional validation for file names
+  const fileName = file.name.toLowerCase();
+  if (!fileName.endsWith('.txt') && !fileName.endsWith('.zip')) {
+    throw new Error('File must have a .txt or .zip extension');
+  }
 };
+
