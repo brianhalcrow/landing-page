@@ -36,16 +36,14 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
-    const MAX_RETRIES = 2;
 
     console.log('Fetching documents that need recategorization...');
 
-    // Query for documents needing categorization
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
       .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
-      .limit(50); // Add a reasonable limit
+      .limit(50);
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
@@ -102,7 +100,13 @@ serve(async (req) => {
           const analysisText = response.data?.choices?.[0]?.message?.content.trim();
           console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
           
-          const analysis = JSON.parse(analysisText);
+          let analysis;
+          try {
+            analysis = JSON.parse(analysisText);
+          } catch (parseError) {
+            console.error(`Error parsing analysis for doc ${doc.id}:`, parseError);
+            throw new Error('Failed to parse OpenAI response');
+          }
           
           // Update document with new metadata
           const { error: updateError } = await supabase
