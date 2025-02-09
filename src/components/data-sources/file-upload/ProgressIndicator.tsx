@@ -1,12 +1,14 @@
+
 import { Progress } from "@/components/ui/progress";
 
 interface ProgressIndicatorProps {
   progress: number;
+  fileName?: string;
 }
 
-export const ProgressIndicator = ({ progress }: ProgressIndicatorProps) => {
+export const ProgressIndicator = ({ progress, fileName }: ProgressIndicatorProps) => {
   const getProgressMessage = (progress: number) => {
-    if (progress < 50) return "Processing file...";
+    if (progress < 50) return `Processing file${fileName ? `: ${fileName}` : '...'}`;
     if (progress < 75) return "Generating embedding...";
     return "Saving document...";
   };

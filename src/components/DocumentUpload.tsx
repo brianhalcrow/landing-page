@@ -9,6 +9,7 @@ import { FileProcessor } from "./data-sources/file-upload/FileProcessor";
 export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [currentFileName, setCurrentFileName] = useState<string>('');
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,6 +19,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
     try {
       setLoading(true);
       setProgress(0);
+      setCurrentFileName(file.name);
       console.log('Starting file upload process:', file.name);
       
       // Validate file
@@ -58,6 +60,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
     } finally {
       setLoading(false);
       setProgress(0);
+      setCurrentFileName('');
       // Reset the file input
       event.target.value = '';
     }
@@ -69,7 +72,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         <h2 className="text-lg font-semibold">Upload Documents</h2>
         <div className="flex flex-col gap-4">
           <FileInput onFileSelect={handleFileUpload} loading={loading} />
-          {loading && <ProgressIndicator progress={progress} />}
+          {loading && <ProgressIndicator progress={progress} fileName={currentFileName} />}
         </div>
       </div>
     </Card>
