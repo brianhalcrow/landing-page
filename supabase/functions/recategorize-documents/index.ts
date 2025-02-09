@@ -10,7 +10,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -36,23 +35,19 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
-    const MAX_RETRIES = 3;
 
     console.log('Fetching documents that need recategorization...');
 
-    // Query documents with missing metadata or need retry
+    // Simplified query to get uncategorized documents
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
       .or(
         'metadata_category.is.null,' +
         'metadata_section.is.null,' +
-        'metadata_difficulty.is.null,' +
-        "metadata->>'category'.is.null," +
-        "metadata->>'section'.is.null," +
-        "metadata->>'difficulty'.is.null"
+        'metadata_difficulty.is.null'
       )
-      .or('metadata->retry_count.is.null,metadata->retry_count.lt.3')
+      .is('metadata->retry_count', null)
       .order('id')
       .limit(50);
 
@@ -95,7 +90,7 @@ serve(async (req) => {
               section: 'general',
               difficulty: 'beginner',
               recategorized_at: new Date().toISOString(),
-              retry_count: (doc.metadata?.retry_count || 0) + 1
+              retry_count: 1
             };
 
             const { error: updateError } = await supabase
@@ -148,7 +143,6 @@ serve(async (req) => {
           try {
             analysis = JSON.parse(analysisText);
             
-            // Strict validation of the analysis object
             const validCategories = ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"];
             const validSections = ["theory", "practice", "case_study", "reference", "general"];
             const validDifficulties = ["beginner", "intermediate", "advanced", "expert"];
@@ -162,10 +156,9 @@ serve(async (req) => {
           } catch (parseError) {
             console.error(`Error parsing/validating analysis for doc ${doc.id}:`, parseError);
             
-            // Update retry count even on error
             const metadata = {
               ...(doc.metadata || {}),
-              retry_count: (doc.metadata?.retry_count || 0) + 1
+              retry_count: 1
             };
 
             await supabase
@@ -182,10 +175,9 @@ serve(async (req) => {
             section: analysis.section,
             difficulty: analysis.difficulty,
             recategorized_at: new Date().toISOString(),
-            retry_count: (doc.metadata?.retry_count || 0) + 1
+            retry_count: 1
           };
 
-          // Update document with new metadata
           const { error: updateError } = await supabase
             .from('documents')
             .update({
@@ -222,12 +214,13 @@ serve(async (req) => {
         }
       });
 
+      // Wait for all documents in the batch to complete
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
 
-      // Add a longer delay between batches to avoid rate limiting
+      // Add a small delay between batches
       if (i + BATCH_SIZE < documents.length) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
