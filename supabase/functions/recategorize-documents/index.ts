@@ -64,7 +64,9 @@ serve(async (req) => {
     // Process in batches
     for (let i = 0; i < documents.length; i += BATCH_SIZE) {
       const batch = documents.slice(i, i + BATCH_SIZE);
-      console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(documents.length/BATCH_SIZE)}`);
+      const batchNumber = Math.floor(i/BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(documents.length/BATCH_SIZE);
+      console.log(`Processing batch ${batchNumber}/${totalBatches}`);
       
       const batchPromises = batch.map(async (doc) => {
         let retries = doc.metadata?.retry_count || 0;
@@ -74,7 +76,8 @@ serve(async (req) => {
 
         while (retries < MAX_RETRIES && !success) {
           try {
-            console.log(`Analyzing document ${doc.id} (attempt ${retries + 1})`);
+            const docName = doc.metadata?.fileName || `Document ${doc.id}`;
+            console.log(`Analyzing ${docName} (attempt ${retries + 1})`);
             const response = await openai.createChatCompletion({
               model: "gpt-3.5-turbo",
               messages: [
@@ -178,11 +181,14 @@ serve(async (req) => {
             }
 
             success = true;
+            // Send progress update
+            const docName = doc.metadata?.fileName || `Document ${doc.id}`;
             return {
               id: doc.id,
               success: true,
               analysis,
-              retries
+              retries,
+              progressMessage: `Processing batch ${batchNumber}/${totalBatches}: ${docName}`
             };
           } catch (err) {
             error = err;
@@ -197,7 +203,8 @@ serve(async (req) => {
             id: doc.id,
             success: false,
             error: error?.message || 'Max retries exceeded',
-            retries
+            retries,
+            progressMessage: `Failed to process document ${doc.id}`
           };
         }
       });
@@ -215,7 +222,8 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       message: `Processed ${results.length} documents (${successful} successful, ${failed} failed)`,
-      results
+      results,
+      lastProgressMessage: results[results.length - 1]?.progressMessage || ''
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

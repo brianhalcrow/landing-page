@@ -7,14 +7,22 @@ import { useState } from "react";
 
 export function RecategorizeDocuments() {
   const [loading, setLoading] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<string>('');
   const { toast } = useToast();
 
   const handleRecategorize = async () => {
     try {
       setLoading(true);
+      setProcessingStatus('Starting document recategorization...');
       console.log('Starting document recategorization');
       
-      const { data, error } = await supabase.functions.invoke('recategorize-documents');
+      const { data, error } = await supabase.functions.invoke('recategorize-documents', {
+        onProgress: (progress) => {
+          if (progress.statusText) {
+            setProcessingStatus(progress.statusText);
+          }
+        }
+      });
       
       if (error) {
         console.error('Function invocation error:', error);
@@ -54,6 +62,7 @@ export function RecategorizeDocuments() {
       });
     } finally {
       setLoading(false);
+      setProcessingStatus('');
     }
   };
 
@@ -65,13 +74,20 @@ export function RecategorizeDocuments() {
           <p className="text-sm text-gray-600">
             Improve document categorization using AI analysis. This will analyze uncategorized documents and assign appropriate categories, sections, and difficulty levels.
           </p>
-          <Button 
-            onClick={handleRecategorize} 
-            disabled={loading}
-            className="w-fit"
-          >
-            {loading ? "Processing..." : "Recategorize Documents"}
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={handleRecategorize} 
+              disabled={loading}
+              className="w-fit"
+            >
+              {loading ? "Processing..." : "Recategorize Documents"}
+            </Button>
+            {loading && processingStatus && (
+              <span className="text-sm text-muted-foreground">
+                {processingStatus}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </Card>
