@@ -28,15 +28,19 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const BATCH_SIZE = 5;
-    const MAX_RETRIES = 2; // Number of retries for failed documents
+    const MAX_RETRIES = 2;
 
     console.log('Fetching documents that need recategorization...');
 
-    // First, get documents with null metadata or failed previous attempts
+    // Only fetch documents that:
+    // 1. Have no metadata category, section, or difficulty OR
+    // 2. Have never been categorized (recategorized_at is null) OR
+    // 3. Had failed previous attempts (retry_count < MAX_RETRIES)
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null');
+      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
+      .or('metadata->recategorized_at.is.null,and(metadata->retry_count.lt.${MAX_RETRIES})');
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
@@ -63,7 +67,7 @@ serve(async (req) => {
       console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(documents.length/BATCH_SIZE)}`);
       
       const batchPromises = batch.map(async (doc) => {
-        let retries = 0;
+        let retries = doc.metadata?.retry_count || 0;
         let success = false;
         let error = null;
         let analysis = null;
@@ -110,7 +114,7 @@ serve(async (req) => {
                 },
                 {
                   role: "user",
-                  content: doc.content?.slice(0, 2000) || '' // Handle potentially undefined content
+                  content: doc.content?.slice(0, 2000) || ''
                 }
               ],
               temperature: 0.1
@@ -184,7 +188,6 @@ serve(async (req) => {
             error = err;
             retries++;
             console.error(`Error processing document ${doc.id} (attempt ${retries}):`, err);
-            // Wait briefly before retrying
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
         }
@@ -202,13 +205,11 @@ serve(async (req) => {
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
       
-      // Add a small delay between batches to prevent rate limiting
       if (i + BATCH_SIZE < documents.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
-    // Count successful and failed categorizations
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
