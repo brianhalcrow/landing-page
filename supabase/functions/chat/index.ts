@@ -15,6 +15,7 @@ serve(async (req) => {
 
   try {
     const { message, context } = await req.json()
+    console.log('Received message:', message)
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -27,36 +28,44 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Initialize OpenAI
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key missing')
+    }
+
     const configuration = new Configuration({
-      apiKey: Deno.env.get('OPENAI_API_KEY'),
+      apiKey: openaiApiKey
     })
     const openai = new OpenAIApi(configuration)
 
     // Extract entity information if present
-    const entityExtraction = await openai.createChatCompletion({
-      model: "gpt-4",
-      messages: [{
-        role: 'system',
-        content: 'Extract any entity names or IDs mentioned in the message. Return as JSON with entity_name field.'
-      }, {
-        role: 'user',
-        content: message
-      }]
-    })
-
     let entityInfo = null
     try {
-      const extractedEntity = JSON.parse(entityExtraction.data.choices[0].message.content)
-      if (extractedEntity.entity_name) {
-        // Get entity details including functional currency
-        const { data: entityData, error: entityError } = await supabase
-          .from('entities')
-          .select('*')
-          .eq('entity_name', extractedEntity.entity_name)
-          .single()
+      const entityExtraction = await openai.createChatCompletion({
+        model: "gpt-4",
+        messages: [{
+          role: 'system',
+          content: 'Extract any entity names or IDs mentioned in the message. Return as JSON with entity_name field.'
+        }, {
+          role: 'user',
+          content: message
+        }]
+      })
 
-        if (!entityError && entityData) {
-          entityInfo = entityData
+      if (entityExtraction.data.choices[0]?.message?.content) {
+        const extractedEntity = JSON.parse(entityExtraction.data.choices[0].message.content)
+        if (extractedEntity.entity_name) {
+          // Get entity details including functional currency
+          const { data: entityData, error: entityError } = await supabase
+            .from('entities')
+            .select('*')
+            .eq('entity_name', extractedEntity.entity_name)
+            .single()
+
+          if (!entityError && entityData) {
+            entityInfo = entityData
+            console.log('Found entity:', entityData)
+          }
         }
       }
     } catch (error) {
@@ -84,37 +93,37 @@ serve(async (req) => {
           }]
         })
 
-        const params = JSON.parse(rateExtraction.data.choices[0].message.content)
-        
-        // Query the rates table
-        const { data: ratesData, error: ratesError } = await supabase
-          .from('rates')
-          .select('*')
-          .eq('base_currency', params.base_currency)
-          .eq('quote_currency', params.quote_currency)
-          .order('rate_date', { ascending: false })
-          .limit(1)
+        if (rateExtraction.data.choices[0]?.message?.content) {
+          const params = JSON.parse(rateExtraction.data.choices[0].message.content)
+          
+          // Query the rates table
+          const { data: ratesData, error: ratesError } = await supabase
+            .from('rates')
+            .select('*')
+            .eq('base_currency', params.base_currency)
+            .eq('quote_currency', params.quote_currency)
+            .order('rate_date', { ascending: false })
+            .limit(1)
 
-        if (ratesError) throw ratesError
-        
-        if (ratesData && ratesData.length > 0) {
-          rateInfo = ratesData[0]
-        }
+          if (!ratesError && ratesData && ratesData.length > 0) {
+            rateInfo = ratesData[0]
+            console.log('Found rate info:', rateInfo)
+          }
 
-        // Also check rates_forward for forward rates
-        const { data: forwardRatesData, error: forwardRatesError } = await supabase
-          .from('rates_forward')
-          .select('*')
-          .eq('currency_pair', `${params.base_currency}${params.quote_currency}`)
-          .order('rate_date', { ascending: false })
-          .limit(1)
+          // Also check rates_forward for forward rates
+          const { data: forwardRatesData, error: forwardRatesError } = await supabase
+            .from('rates_forward')
+            .select('*')
+            .eq('currency_pair', `${params.base_currency}${params.quote_currency}`)
+            .order('rate_date', { ascending: false })
+            .limit(1)
 
-        if (forwardRatesError) throw forwardRatesError
-
-        if (forwardRatesData && forwardRatesData.length > 0) {
-          rateInfo = {
-            ...rateInfo,
-            forward_rates: forwardRatesData[0]
+          if (!forwardRatesError && forwardRatesData && forwardRatesData.length > 0) {
+            rateInfo = {
+              ...rateInfo,
+              forward_rates: forwardRatesData[0]
+            }
+            console.log('Found forward rate info:', forwardRatesData[0])
           }
         }
       } catch (error) {
@@ -143,19 +152,22 @@ serve(async (req) => {
           }]
         })
 
-        const params = JSON.parse(paramExtraction.data.choices[0].message.content)
-        
-        // Call calculation function
-        const calcResponse = await fetch(`${supabaseUrl}/functions/v1/calculate`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(params)
-        })
+        if (paramExtraction.data.choices[0]?.message?.content) {
+          const params = JSON.parse(paramExtraction.data.choices[0].message.content)
+          
+          // Call calculation function
+          const calcResponse = await fetch(`${supabaseUrl}/functions/v1/calculate`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(params)
+          })
 
-        calculationResult = await calcResponse.json()
+          calculationResult = await calcResponse.json()
+          console.log('Calculation result:', calculationResult)
+        }
       } catch (error) {
         console.error('Calculation failed:', error)
       }
@@ -209,13 +221,21 @@ serve(async (req) => {
       })
     }
 
+    console.log('Sending messages to OpenAI:', messages)
+
     // Generate response using OpenAI
     const completion = await openai.createChatCompletion({
       model: "gpt-4",
       messages: messages
     })
 
-    const reply = completion.data.choices[0]?.message?.content || "I apologize, but I couldn't generate a response."
+    if (!completion.data.choices[0]?.message?.content) {
+      throw new Error('No response received from OpenAI')
+    }
+
+    const reply = completion.data.choices[0].message.content
+
+    console.log('Generated reply:', reply)
 
     return new Response(
       JSON.stringify({ reply }),
@@ -233,4 +253,3 @@ serve(async (req) => {
     )
   }
 })
-
