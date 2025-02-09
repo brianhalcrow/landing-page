@@ -10,6 +10,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -17,13 +18,20 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const openaiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase configuration');
     }
 
+    if (!openaiKey) {
+      throw new Error('Missing OpenAI API key');
+    }
+
+    console.log('Initializing OpenAI and Supabase clients...');
+
     const openai = new OpenAIApi(new Configuration({
-      apiKey: Deno.env.get('OPENAI_API_KEY')
+      apiKey: openaiKey
     }));
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -32,30 +40,30 @@ serve(async (req) => {
 
     console.log('Fetching documents that need recategorization...');
 
-    // Improved query to handle both null metadata fields and retry counts
+    // Query for documents needing categorization
     const { data: documents, error: fetchError } = await supabase
       .from('documents')
       .select('id, content, metadata')
-      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null,metadata->recategorized_at.is.null')
-      .or(`metadata->>retry_count.lt.${MAX_RETRIES},metadata->>retry_count.is.null`);
+      .or('metadata_category.is.null,metadata_section.is.null,metadata_difficulty.is.null')
+      .limit(50); // Add a reasonable limit
 
     if (fetchError) {
       console.error('Error fetching documents:', fetchError);
       throw fetchError;
     }
 
-    if (!documents) {
-      throw new Error('No documents data returned from query');
+    if (!documents || documents.length === 0) {
+      console.log('No documents found that need categorization');
+      return new Response(
+        JSON.stringify({ 
+          message: 'No documents to recategorize',
+          results: [] 
+        }), 
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log(`Found ${documents.length} documents to recategorize`);
-
-    if (documents.length === 0) {
-      return new Response(JSON.stringify({ message: 'No documents to recategorize' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
+    console.log(`Found ${documents.length} documents to process`);
     const results = [];
 
     // Process in batches
@@ -63,144 +71,76 @@ serve(async (req) => {
       const batch = documents.slice(i, i + BATCH_SIZE);
       const batchNumber = Math.floor(i/BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(documents.length/BATCH_SIZE);
+      
       console.log(`Processing batch ${batchNumber}/${totalBatches}`);
       
       const batchPromises = batch.map(async (doc) => {
-        let retries = doc.metadata?.retry_count || 0;
-        let success = false;
-        let error = null;
-        let analysis = null;
-
-        while (retries < MAX_RETRIES && !success) {
-          try {
-            const docName = doc.metadata?.fileName || `Document ${doc.id}`;
-            console.log(`Analyzing ${docName} (attempt ${retries + 1})`);
-            const response = await openai.createChatCompletion({
-              model: "gpt-3.5-turbo",
-              messages: [
+        try {
+          console.log(`Processing document ${doc.id}`);
+          
+          const response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content: `You are a financial document analyzer specializing in forex and trading documents. 
+                Analyze the given text and return ONLY a JSON object with these exact fields:
                 {
-                  role: "system",
-                  content: `You are a financial document analyzer specializing in forex and trading documents. 
-                  You will analyze the given text and return ONLY a JSON object with these exact fields:
-                  {
-                    "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
-                    "section": one of ["theory", "practice", "case_study", "reference", "general"],
-                    "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
-                  }
-                  
-                  Categories explanation:
-                  - forex: Documents about foreign exchange markets and currency trading
-                  - trading: General trading concepts and strategies
-                  - risk_management: Risk assessment and management in trading
-                  - market_analysis: Market analysis techniques and tools
-                  - technical_analysis: Technical analysis methods and indicators
-                  - uncategorized: Only if text doesn't fit other categories
-                  
-                  Sections explanation:
-                  - theory: Theoretical concepts and foundations
-                  - practice: Practical applications and examples
-                  - case_study: Real world examples and case studies
-                  - reference: Reference materials and documentation
-                  - general: General information
-                  
-                  Difficulty levels:
-                  - beginner: Basic concepts, no prior knowledge needed
-                  - intermediate: Some trading knowledge required
-                  - advanced: Complex concepts, significant experience needed
-                  - expert: Very technical, requires deep domain expertise
-                  
-                  If you cannot determine a category with high confidence, use "uncategorized".
-                  Always return valid JSON, even if uncertain about classification.`
-                },
-                {
-                  role: "user",
-                  content: doc.content?.slice(0, 2000) || ''
-                }
-              ],
-              temperature: 0.1
-            });
+                  "category": one of ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"],
+                  "section": one of ["theory", "practice", "case_study", "reference", "general"],
+                  "difficulty": one of ["beginner", "intermediate", "advanced", "expert"]
+                }`
+              },
+              {
+                role: "user",
+                content: doc.content?.slice(0, 2000) || ''
+              }
+            ],
+            temperature: 0.1
+          });
 
-            if (!response.data?.choices?.[0]?.message?.content) {
-              throw new Error('Invalid AI response structure');
-            }
+          const analysisText = response.data?.choices?.[0]?.message?.content.trim();
+          console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
+          
+          const analysis = JSON.parse(analysisText);
+          
+          // Update document with new metadata
+          const { error: updateError } = await supabase
+            .from('documents')
+            .update({
+              metadata: {
+                ...doc.metadata,
+                category: analysis.category,
+                section: analysis.section,
+                difficulty: analysis.difficulty,
+                recategorized_at: new Date().toISOString()
+              },
+              metadata_category: analysis.category,
+              metadata_section: analysis.section,
+              metadata_difficulty: analysis.difficulty
+            })
+            .eq('id', doc.id);
 
-            const analysisText = response.data.choices[0].message.content.trim();
-            console.log(`Raw analysis for doc ${doc.id}:`, analysisText);
-            
-            try {
-              analysis = JSON.parse(analysisText);
-            } catch (parseError) {
-              console.error(`Failed to parse AI response for doc ${doc.id}:`, parseError);
-              throw new Error('Invalid AI response format');
-            }
-
-            // Validate the analysis object
-            if (!analysis.category || !analysis.section || !analysis.difficulty) {
-              throw new Error('Missing required fields in AI response');
-            }
-
-            // Validate against allowed values
-            const validCategories = ["forex", "trading", "risk_management", "market_analysis", "technical_analysis", "uncategorized"];
-            const validSections = ["theory", "practice", "case_study", "reference", "general"];
-            const validDifficulties = ["beginner", "intermediate", "advanced", "expert"];
-
-            if (!validCategories.includes(analysis.category)) {
-              analysis.category = "uncategorized";
-            }
-            if (!validSections.includes(analysis.section)) {
-              analysis.section = "general";
-            }
-            if (!validDifficulties.includes(analysis.difficulty)) {
-              analysis.difficulty = "beginner";
-            }
-
-            // Update document with new metadata
-            const { error: updateError } = await supabase
-              .from('documents')
-              .update({
-                metadata: {
-                  ...doc.metadata,
-                  category: analysis.category,
-                  section: analysis.section,
-                  difficulty: analysis.difficulty,
-                  recategorized_at: new Date().toISOString(),
-                  retry_count: retries
-                },
-                metadata_category: analysis.category,
-                metadata_section: analysis.section,
-                metadata_difficulty: analysis.difficulty
-              })
-              .eq('id', doc.id);
-
-            if (updateError) {
-              console.error(`Error updating document ${doc.id}:`, updateError);
-              throw updateError;
-            }
-
-            success = true;
-            // Send progress update
-            const docName = doc.metadata?.fileName || `Document ${doc.id}`;
-            return {
-              id: doc.id,
-              success: true,
-              analysis,
-              retries,
-              progressMessage: `Processing batch ${batchNumber}/${totalBatches}: ${docName}`
-            };
-          } catch (err) {
-            error = err;
-            retries++;
-            console.error(`Error processing document ${doc.id} (attempt ${retries}):`, err);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+          if (updateError) {
+            throw updateError;
           }
-        }
 
-        if (!success) {
+          const progressMessage = `Processed document ${doc.id} (Batch ${batchNumber}/${totalBatches})`;
+          console.log(progressMessage);
+          
+          return {
+            id: doc.id,
+            success: true,
+            analysis,
+            progressMessage
+          };
+
+        } catch (error) {
+          console.error(`Error processing document ${doc.id}:`, error);
           return {
             id: doc.id,
             success: false,
-            error: error?.message || 'Max retries exceeded',
-            retries,
+            error: error.message,
             progressMessage: `Failed to process document ${doc.id}`
           };
         }
@@ -208,28 +148,33 @@ serve(async (req) => {
 
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
-      
-      if (i + BATCH_SIZE < documents.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
     }
 
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
-    return new Response(JSON.stringify({
-      message: `Processed ${results.length} documents (${successful} successful, ${failed} failed)`,
-      results,
-      lastProgressMessage: results[results.length - 1]?.progressMessage || ''
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.log(`Processing complete. ${successful} successful, ${failed} failed`);
+
+    return new Response(
+      JSON.stringify({
+        message: `Processed ${results.length} documents (${successful} successful, ${failed} failed)`,
+        results,
+        lastProgressMessage: results[results.length - 1]?.progressMessage || ''
+      }), 
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error('Error in recategorize-documents function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }), 
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });

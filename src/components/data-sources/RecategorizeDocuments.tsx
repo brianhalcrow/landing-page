@@ -14,27 +14,32 @@ export function RecategorizeDocuments() {
     try {
       setLoading(true);
       setProcessingStatus('Starting document recategorization...');
-      console.log('Starting document recategorization');
       
-      const { data, error } = await supabase.functions.invoke('recategorize-documents');
+      const { data, error } = await supabase.functions.invoke('recategorize-documents', {
+        method: 'POST',
+      });
       
       if (error) {
         console.error('Function invocation error:', error);
         throw error;
       }
+
+      console.log('Recategorization response:', data);
       
       if (!data) {
         throw new Error('No response data received');
       }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
       
-      console.log('Recategorization results:', data);
-      
-      // Show progress from the last processed document
+      // Show the last progress message
       if (data.lastProgressMessage) {
         setProcessingStatus(data.lastProgressMessage);
       }
       
-      // Check if data indicates no documents need recategorization
+      // Check if no documents needed processing
       if (data.message === 'No documents to recategorize') {
         toast({
           title: "Information",
@@ -44,7 +49,8 @@ export function RecategorizeDocuments() {
       }
       
       const resultsCount = data.results?.length ?? 0;
-      const successful = data.results?.filter(r => r.success).length ?? 0;
+      const successful = data.results?.filter((r: any) => r.success).length ?? 0;
+      
       toast({
         title: "Success",
         description: `Successfully processed ${successful} out of ${resultsCount} documents`,
@@ -72,7 +78,8 @@ export function RecategorizeDocuments() {
         <h2 className="text-lg font-semibold">Document Categories</h2>
         <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-600">
-            Improve document categorization using AI analysis. This will analyze uncategorized documents and assign appropriate categories, sections, and difficulty levels.
+            Improve document categorization using AI analysis. This will analyze uncategorized documents 
+            and assign appropriate categories, sections, and difficulty levels.
           </p>
           <div className="flex items-center gap-4">
             <Button 
