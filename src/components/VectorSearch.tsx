@@ -70,10 +70,10 @@ export function VectorSearch() {
   const columnDefs: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { 
-      field: 'metadata.filename', 
+      field: 'metadata.fileName', 
       headerName: 'File Name',
       flex: 1,
-      valueGetter: (params) => params.data.metadata?.filename || 'N/A'
+      valueGetter: (params) => params.data.metadata?.fileName || 'N/A'
     },
     {
       field: 'metadata_category',
@@ -91,7 +91,14 @@ export function VectorSearch() {
       field: 'content',
       headerName: 'Content Preview',
       flex: 2,
-      valueFormatter: (params) => viewContent(params.value)
+      valueFormatter: (params) => viewContent(params.value),
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'white-space': 'normal',
+        'line-height': '1.5',
+        'padding': '10px'
+      }
     },
     {
       field: 'metadata.uploadedAt',
@@ -231,6 +238,7 @@ export function VectorSearch() {
             }}
             animateRows={true}
             onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
+            getRowHeight={() => 100} // Set a fixed height for rows to accommodate wrapped content
           />
         </div>
       </div>
