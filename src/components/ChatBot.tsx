@@ -17,6 +17,7 @@ const ChatBot = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -58,6 +59,7 @@ const ChatBot = () => {
     
     // Add user message to chat
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setSuggestedQuestions([]); // Clear previous suggestions
     
     setIsLoading(true);
     const startTime = Date.now();
@@ -115,10 +117,15 @@ const ChatBot = () => {
 
       // Add assistant's response to chat
       setMessages(prev => [...prev, { role: 'assistant', content: chatData.reply }]);
+      
+      // Set suggested questions if available
+      if (chatData.suggestedQuestions && Array.isArray(chatData.suggestedQuestions)) {
+        setSuggestedQuestions(chatData.suggestedQuestions);
+      }
+
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Log the error
       await logApiCall(
         'chat',
         { message: userMessage },
@@ -135,6 +142,11 @@ const ChatBot = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSuggestedQuestionClick = (question: string) => {
+    setMessage(question);
+    handleSubmit(new Event('submit') as any);
   };
 
   return (
@@ -188,19 +200,35 @@ const ChatBot = () => {
                     How can I assist you with your hedging needs today? I can help you understand your documents and answer questions about hedging strategies.
                   </div>
                 ) : (
-                  messages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "p-3 rounded-lg max-w-[80%]",
-                        msg.role === 'user' 
-                          ? "bg-blue-500 text-white ml-auto" 
-                          : "bg-white border border-gray-200"
-                      )}
-                    >
-                      {msg.content}
-                    </div>
-                  ))
+                  <>
+                    {messages.map((msg, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          "p-3 rounded-lg max-w-[80%]",
+                          msg.role === 'user' 
+                            ? "bg-blue-500 text-white ml-auto" 
+                            : "bg-white border border-gray-200"
+                        )}
+                      >
+                        {msg.content}
+                      </div>
+                    ))}
+                    {suggestedQuestions.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-500">Suggested questions:</p>
+                        {suggestedQuestions.map((question, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestedQuestionClick(question)}
+                            className="block w-full text-left text-sm text-blue-600 hover:text-blue-700 hover:underline p-1"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
                 {isLoading && (
                   <div className="text-gray-600 animate-pulse">
@@ -237,4 +265,3 @@ const ChatBot = () => {
 };
 
 export default ChatBot;
-
