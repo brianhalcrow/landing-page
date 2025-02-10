@@ -19,6 +19,7 @@ import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 import AnalyticsTab from "@/components/analytics/AnalyticsTab";
 import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
+import TradeControlGrid from "@/components/control/TradeControlGrid";
 
 export const tabsConfig = {
   "monitor": [
@@ -73,7 +74,7 @@ export const tabsConfig = {
     { value: "reports", label: "Reports", content: <div>Review Reports</div> },
   ],
   "control": [
-    { value: "general", label: "General", content: <div>Control Overview</div> },
+    { value: "general", label: "General", content: <TradeControlGrid /> },
   ],
   "execution": [
     { value: "general", label: "General", content: <div>Execution Overview</div> },
