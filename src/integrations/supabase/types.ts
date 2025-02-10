@@ -39,6 +39,87 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_account_balance: {
+        Row: {
+          account_number_bank: string
+          bank_name: string
+          currency_code: string
+          current_balance: number | null
+          earliest_date: string | null
+          entity_name: string
+          last_updated: string | null
+          latest_date: string | null
+        }
+        Insert: {
+          account_number_bank: string
+          bank_name: string
+          currency_code: string
+          current_balance?: number | null
+          earliest_date?: string | null
+          entity_name: string
+          last_updated?: string | null
+          latest_date?: string | null
+        }
+        Update: {
+          account_number_bank?: string
+          bank_name?: string
+          currency_code?: string
+          current_balance?: number | null
+          earliest_date?: string | null
+          entity_name?: string
+          last_updated?: string | null
+          latest_date?: string | null
+        }
+        Relationships: []
+      }
+      bank_account_statement: {
+        Row: {
+          account_number_bank: string | null
+          bank_name: string | null
+          counterparty_name: string | null
+          counterparty_reference: string | null
+          currency_code: string | null
+          description: string | null
+          entity_id: string | null
+          entity_name: string | null
+          posting_date: string | null
+          transaction_amount: number | null
+          transaction_id: number
+          transaction_type: string | null
+          value_date: string | null
+        }
+        Insert: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          transaction_amount?: number | null
+          transaction_id: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Update: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          transaction_amount?: number | null
+          transaction_id?: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Relationships: []
+      }
       calculation_templates: {
         Row: {
           category: string
@@ -71,68 +152,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      cash_management: {
-        Row: {
-          account_id: string
-          account_name: string
-          created_at: string
-          currency: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          account_id: string
-          account_name: string
-          created_at?: string
-          currency: string
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          account_id?: string
-          account_name?: string
-          created_at?: string
-          currency?: string
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      cash_management_balances: {
-        Row: {
-          balance: number
-          balance_date: string
-          cash_management_id: string | null
-          created_at: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          balance: number
-          balance_date: string
-          cash_management_id?: string | null
-          created_at?: string
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          balance?: number
-          balance_date?: string
-          cash_management_id?: string | null
-          created_at?: string
-          id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cash_management_balances_cash_management_id_fkey"
-            columns: ["cash_management_id"]
-            isOneToOne: false
-            referencedRelation: "cash_management"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       chart_of_accounts: {
         Row: {
@@ -564,54 +583,6 @@ export type Database = {
           tax?: number | null
           total?: number | null
           transaction_currency?: string | null
-        }
-        Relationships: []
-      }
-      erp_bank_statement: {
-        Row: {
-          account_number_bank: string | null
-          bank_name: string | null
-          counterparty_name: string | null
-          counterparty_reference: string | null
-          currency_code: string | null
-          description: string | null
-          entity_id: string | null
-          entity_name: string | null
-          posting_date: string | null
-          transaction_amount: number | null
-          transaction_id: number
-          transaction_type: string | null
-          value_date: string | null
-        }
-        Insert: {
-          account_number_bank?: string | null
-          bank_name?: string | null
-          counterparty_name?: string | null
-          counterparty_reference?: string | null
-          currency_code?: string | null
-          description?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          posting_date?: string | null
-          transaction_amount?: number | null
-          transaction_id: number
-          transaction_type?: string | null
-          value_date?: string | null
-        }
-        Update: {
-          account_number_bank?: string | null
-          bank_name?: string | null
-          counterparty_name?: string | null
-          counterparty_reference?: string | null
-          currency_code?: string | null
-          description?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          posting_date?: string | null
-          transaction_amount?: number | null
-          transaction_id?: number
-          transaction_type?: string | null
-          value_date?: string | null
         }
         Relationships: []
       }
