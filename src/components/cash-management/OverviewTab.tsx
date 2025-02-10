@@ -15,6 +15,7 @@ interface BalanceData {
 
 const OverviewTab = () => {
   const [rowData, setRowData] = useState<BalanceData[]>([]);
+  const [gridApi, setGridApi] = useState<any>(null);
   
   // Generate date columns from 01/12/2024 to 31/12/2025
   const columnDefs = useMemo(() => {
@@ -122,9 +123,29 @@ const OverviewTab = () => {
     fetchData();
   }, []);
 
+  // Handle grid ready event to properly size columns
+  const onGridReady = (params: any) => {
+    setGridApi(params.api);
+    params.api.sizeColumnsToFit();
+  };
+
+  // Handle window resize events
+  useEffect(() => {
+    const handleResize = () => {
+      if (gridApi) {
+        setTimeout(() => {
+          gridApi.sizeColumnsToFit();
+        }, 100);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [gridApi]);
+
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex-grow h-[calc(100vh-12rem)] min-h-[500px] ag-theme-alpine">
+    <div className="flex flex-col w-full h-full overflow-hidden">
+      <div className="flex-grow h-[calc(100vh-12rem)] min-h-[500px] w-full ag-theme-alpine relative">
         <GridStyles />
         <AgGridReact
           rowData={rowData}
@@ -135,6 +156,7 @@ const OverviewTab = () => {
             resizable: true,
             suppressSizeToFit: false
           }}
+          onGridReady={onGridReady}
           domLayout="normal"
           animateRows={true}
           suppressColumnVirtualisation={true}
