@@ -123,21 +123,24 @@ const OverviewTab = () => {
   }, []);
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
-      <GridStyles />
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={{
-          sortable: true,
-          filter: true,
-          resizable: true,
-          suppressSizeToFit: false
-        }}
-        animateRows={true}
-        suppressColumnVirtualisation={true}
-        enableCellTextSelection={true}
-      />
+    <div className="flex flex-col w-full h-full">
+      <div className="flex-grow h-[calc(100vh-12rem)] min-h-[500px] ag-theme-alpine">
+        <GridStyles />
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={{
+            sortable: true,
+            filter: true,
+            resizable: true,
+            suppressSizeToFit: false
+          }}
+          domLayout="normal"
+          animateRows={true}
+          suppressColumnVirtualisation={true}
+          enableCellTextSelection={true}
+        />
+      </div>
     </div>
   );
 };
