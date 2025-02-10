@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
@@ -11,7 +10,7 @@ interface BalanceData {
   bank_name: string;
   account_number_bank: string;
   currency_code: string;
-  [key: string]: any; // For dynamic date columns
+  [key: string]: any;
 }
 
 const OverviewTab = () => {
@@ -19,13 +18,11 @@ const OverviewTab = () => {
   const [gridApi, setGridApi] = useState<any>(null);
   const [gridReady, setGridReady] = useState(false);
   
-  // Generate date columns from 01/12/2024 to 31/12/2025
   const columnDefs = useMemo(() => {
     const columns: ColDef[] = [];
-    const startDate = new Date(2024, 11, 1); // December is 11 (0-based)
+    const startDate = new Date(2024, 11, 1);
     const endDate = new Date(2025, 11, 31);
     
-    // Fixed columns
     const fixedColumns: ColDef[] = [
       { 
         field: 'entity_name',
@@ -39,7 +36,7 @@ const OverviewTab = () => {
         field: 'bank_name',
         headerName: 'Bank',
         pinned: 'left',
-        width: 150,
+        width: 140,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
@@ -47,7 +44,7 @@ const OverviewTab = () => {
         field: 'account_number_bank',
         headerName: 'Account',
         pinned: 'left',
-        width: 150,
+        width: 140,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
@@ -61,10 +58,8 @@ const OverviewTab = () => {
       }
     ];
 
-    // Create month groups
     const monthGroups: { [key: string]: ColDef[] } = {};
     
-    // Generate date columns and organize them by month
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dateStr = format(d, 'yyyy-MM-dd');
       const monthKey = format(d, 'MMMM yyyy');
@@ -72,13 +67,13 @@ const OverviewTab = () => {
       const dateColumn: ColDef = {
         field: dateStr,
         headerName: format(d, 'dd/MM'),
-        width: 100,
+        width: 120,
         type: 'numericColumn',
         valueFormatter: (params: ValueFormatterParams) => {
           if (params.value) {
             return new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD'
+              minimumFractionDigits: 3,
+              maximumFractionDigits: 3
             }).format(params.value);
           }
           return '';
@@ -93,7 +88,6 @@ const OverviewTab = () => {
       monthGroups[monthKey].push(dateColumn);
     }
 
-    // Convert month groups to column definitions
     const monthColumns = Object.entries(monthGroups).map(([monthKey, dateColumns]) => ({
       headerName: monthKey,
       children: dateColumns
@@ -113,7 +107,6 @@ const OverviewTab = () => {
         return;
       }
 
-      // Transform the data for the grid
       const transformedData = data?.map(account => {
         const rowData: BalanceData = {
           entity_name: account.entity_name,
@@ -122,7 +115,6 @@ const OverviewTab = () => {
           currency_code: account.currency_code,
         };
 
-        // Add current balance to the latest date
         if (account.current_balance) {
           const latestDate = account.latest_date;
           if (latestDate) {
@@ -139,18 +131,15 @@ const OverviewTab = () => {
     fetchData();
   }, []);
 
-  // Handle grid ready event to properly size columns
   const onGridReady = (params: any) => {
     setGridApi(params.api);
     setGridReady(true);
     
-    // Delay the initial column sizing to ensure container is stable
     setTimeout(() => {
       params.api.sizeColumnsToFit();
     }, 200);
   };
 
-  // Handle window resize events with debouncing
   useEffect(() => {
     if (!gridApi || !gridReady) return;
 
