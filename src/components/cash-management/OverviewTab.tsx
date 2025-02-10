@@ -16,6 +16,7 @@ interface BalanceData {
 const OverviewTab = () => {
   const [rowData, setRowData] = useState<BalanceData[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
+  const [gridReady, setGridReady] = useState(false);
   
   // Generate date columns from 01/12/2024 to 31/12/2025
   const columnDefs = useMemo(() => {
@@ -126,26 +127,44 @@ const OverviewTab = () => {
   // Handle grid ready event to properly size columns
   const onGridReady = (params: any) => {
     setGridApi(params.api);
-    params.api.sizeColumnsToFit();
+    setGridReady(true);
+    
+    // Delay the initial column sizing to ensure container is stable
+    setTimeout(() => {
+      params.api.sizeColumnsToFit();
+    }, 200);
   };
 
-  // Handle window resize events
+  // Handle window resize events with debouncing
   useEffect(() => {
+    if (!gridApi || !gridReady) return;
+
+    let resizeTimeout: NodeJS.Timeout;
+    
     const handleResize = () => {
-      if (gridApi) {
-        setTimeout(() => {
-          gridApi.sizeColumnsToFit();
-        }, 100);
-      }
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        gridApi.sizeColumnsToFit();
+      }, 200);
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [gridApi]);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [gridApi, gridReady]);
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden">
-      <div className="flex-grow h-[calc(100vh-12rem)] min-h-[500px] w-full ag-theme-alpine relative">
+    <div className="h-full w-full flex flex-col overflow-hidden">
+      <div 
+        className="flex-grow ag-theme-alpine relative"
+        style={{ 
+          height: 'calc(100vh - 12rem)',
+          minHeight: '500px',
+          width: '100%'
+        }}
+      >
         <GridStyles />
         <AgGridReact
           rowData={rowData}
