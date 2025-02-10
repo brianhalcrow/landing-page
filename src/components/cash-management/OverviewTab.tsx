@@ -7,9 +7,10 @@ import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 
 interface BalanceData {
-  account_id: string;
-  account_name: string;
-  currency: string;
+  entity_name: string;
+  bank_name: string;
+  account_number_bank: string;
+  currency_code: string;
   [key: string]: any; // For dynamic date columns
 }
 
@@ -27,15 +28,31 @@ const OverviewTab = () => {
     // Fixed columns
     const fixedColumns: ColDef[] = [
       { 
-        field: 'account_name',
-        headerName: 'Account',
+        field: 'entity_name',
+        headerName: 'Entity',
         pinned: 'left',
-        width: 200,
+        width: 180,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
       { 
-        field: 'currency',
+        field: 'bank_name',
+        headerName: 'Bank',
+        pinned: 'left',
+        width: 150,
+        headerClass: 'ag-header-left',
+        cellClass: 'cell-left'
+      },
+      { 
+        field: 'account_number_bank',
+        headerName: 'Account',
+        pinned: 'left',
+        width: 150,
+        headerClass: 'ag-header-left',
+        cellClass: 'cell-left'
+      },
+      { 
+        field: 'currency_code',
         headerName: 'Currency',
         pinned: 'left',
         width: 100,
@@ -54,8 +71,8 @@ const OverviewTab = () => {
       
       const dateColumn: ColDef = {
         field: dateStr,
-        headerName: format(d, 'dd/MM/yyyy'),
-        width: 120,
+        headerName: format(d, 'dd/MM'),
+        width: 100,
         type: 'numericColumn',
         valueFormatter: (params: ValueFormatterParams) => {
           if (params.value) {
@@ -66,8 +83,8 @@ const OverviewTab = () => {
           }
           return '';
         },
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left'
+        headerClass: 'ag-header-center',
+        cellClass: 'cell-right'
       };
 
       if (!monthGroups[monthKey]) {
@@ -88,14 +105,8 @@ const OverviewTab = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabase
-        .from('cash_management')
-        .select(`
-          *,
-          cash_management_balances (
-            balance_date,
-            balance
-          )
-        `);
+        .from('bank_account_balance')
+        .select('*');
 
       if (error) {
         console.error('Error fetching data:', error);
@@ -105,15 +116,19 @@ const OverviewTab = () => {
       // Transform the data for the grid
       const transformedData = data?.map(account => {
         const rowData: BalanceData = {
-          account_id: account.account_id,
-          account_name: account.account_name,
-          currency: account.currency
+          entity_name: account.entity_name,
+          bank_name: account.bank_name,
+          account_number_bank: account.account_number_bank,
+          currency_code: account.currency_code,
         };
 
-        // Add balance values to corresponding date columns
-        account.cash_management_balances?.forEach((balance: any) => {
-          rowData[balance.balance_date] = balance.balance;
-        });
+        // Add current balance to the latest date
+        if (account.current_balance) {
+          const latestDate = account.latest_date;
+          if (latestDate) {
+            rowData[format(new Date(latestDate), 'yyyy-MM-dd')] = account.current_balance;
+          }
+        }
 
         return rowData;
       }) || [];
@@ -158,7 +173,7 @@ const OverviewTab = () => {
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       <div 
-        className="flex-grow ag-theme-alpine relative"
+        className="flex-grow ag-theme-alpine"
         style={{ 
           height: 'calc(100vh - 12rem)',
           minHeight: '500px',
