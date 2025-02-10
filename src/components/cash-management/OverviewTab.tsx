@@ -1,7 +1,7 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,7 +29,6 @@ const OverviewTab = () => {
         headerName: 'Entity',
         pinned: 'left',
         width: 180,
-        filter: true,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
@@ -38,7 +37,6 @@ const OverviewTab = () => {
         headerName: 'Bank',
         pinned: 'left',
         width: 140,
-        filter: true,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
@@ -47,7 +45,6 @@ const OverviewTab = () => {
         headerName: 'Account',
         pinned: 'left',
         width: 140,
-        filter: true,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       },
@@ -56,7 +53,6 @@ const OverviewTab = () => {
         headerName: 'Currency',
         pinned: 'left',
         width: 100,
-        filter: true,
         headerClass: 'ag-header-left',
         cellClass: 'cell-left'
       }
@@ -73,7 +69,6 @@ const OverviewTab = () => {
         headerName: format(d, 'dd/MM'),
         width: 120,
         type: 'numericColumn',
-        filter: true,
         valueFormatter: (params: ValueFormatterParams) => {
           if (params.value) {
             return new Intl.NumberFormat('en-US', {
@@ -165,10 +160,16 @@ const OverviewTab = () => {
   }, [gridApi, gridReady]);
 
   return (
-    <div className="p-4">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       <div 
-        className="w-full h-[calc(100vh-200px)] ag-theme-alpine"
+        className="flex-grow ag-theme-alpine"
+        style={{ 
+          height: 'calc(100vh - 12rem)',
+          minHeight: '500px',
+          width: '100%'
+        }}
       >
+        <GridStyles />
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
@@ -176,11 +177,10 @@ const OverviewTab = () => {
             sortable: true,
             filter: true,
             resizable: true,
-            floatingFilter: true
+            suppressSizeToFit: false
           }}
           onGridReady={onGridReady}
-          pagination={true}
-          paginationPageSize={100}
+          domLayout="normal"
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
