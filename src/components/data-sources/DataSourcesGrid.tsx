@@ -50,8 +50,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
     { 
       field: 'pipeline_name', 
       headerName: 'Pipeline Name',
-      flex: 2.25, // Increased by 50% from 1.5 to 2.25
-      minWidth: 300, // Increased by 50% from 200 to 300
+      flex: 2.7, // Increased by 20% from 2.25 to 2.7
+      minWidth: 360, // Increased by 20% from 300 to 360
       headerClass: 'ag-header-left',
       cellClass: 'cell-left'
     },
@@ -66,8 +66,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
     { 
       field: 'target_table', 
       headerName: 'Target Table',
-      flex: 1,
-      minWidth: 150,
+      flex: 1.4, // Increased by 40% from 1 to 1.4
+      minWidth: 210, // Increased by 40% from 150 to 210
       headerClass: 'ag-header-left',
       cellClass: 'cell-left'
     },

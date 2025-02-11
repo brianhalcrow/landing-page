@@ -108,45 +108,6 @@ export type Database = {
         }
         Relationships: []
       }
-      client_accounting_rates_monthly: {
-        Row: {
-          base_currency: string | null
-          bs_month: string | null
-          closing_rate: number | null
-          currency_pair: string | null
-          id: number
-          pl_month: string | null
-          quote_currency: string | null
-          rate_date: string | null
-          timestamp: string | null
-          transaction_month: string | null
-        }
-        Insert: {
-          base_currency?: string | null
-          bs_month?: string | null
-          closing_rate?: number | null
-          currency_pair?: string | null
-          id?: number
-          pl_month?: string | null
-          quote_currency?: string | null
-          rate_date?: string | null
-          timestamp?: string | null
-          transaction_month?: string | null
-        }
-        Update: {
-          base_currency?: string | null
-          bs_month?: string | null
-          closing_rate?: number | null
-          currency_pair?: string | null
-          id?: number
-          pl_month?: string | null
-          quote_currency?: string | null
-          rate_date?: string | null
-          timestamp?: string | null
-          transaction_month?: string | null
-        }
-        Relationships: []
-      }
       client_ap_module: {
         Row: {
           cost_centre: string | null
@@ -295,7 +256,7 @@ export type Database = {
         Row: {
           account_name_bank: string | null
           account_number_bank: string | null
-          account_number_coa: string | null
+          account_number_coa: string
           account_type: string | null
           active: boolean | null
           bank_name: string | null
@@ -306,7 +267,7 @@ export type Database = {
         Insert: {
           account_name_bank?: string | null
           account_number_bank?: string | null
-          account_number_coa?: string | null
+          account_number_coa: string
           account_type?: string | null
           active?: boolean | null
           bank_name?: string | null
@@ -317,7 +278,7 @@ export type Database = {
         Update: {
           account_name_bank?: string | null
           account_number_bank?: string | null
-          account_number_coa?: string | null
+          account_number_coa?: string
           account_type?: string | null
           active?: boolean | null
           bank_name?: string | null
@@ -594,6 +555,45 @@ export type Database = {
           transaction_currency?: string | null
           vendor_id?: string | null
           vendor_name?: string | null
+        }
+        Relationships: []
+      }
+      client_rates_accounting_monthly: {
+        Row: {
+          base_currency: string | null
+          bs_month: string | null
+          closing_rate: number | null
+          currency_pair: string | null
+          id: number
+          pl_month: string | null
+          quote_currency: string | null
+          rate_date: string | null
+          timestamp: string | null
+          transaction_month: string | null
+        }
+        Insert: {
+          base_currency?: string | null
+          bs_month?: string | null
+          closing_rate?: number | null
+          currency_pair?: string | null
+          id?: number
+          pl_month?: string | null
+          quote_currency?: string | null
+          rate_date?: string | null
+          timestamp?: string | null
+          transaction_month?: string | null
+        }
+        Update: {
+          base_currency?: string | null
+          bs_month?: string | null
+          closing_rate?: number | null
+          currency_pair?: string | null
+          id?: number
+          pl_month?: string | null
+          quote_currency?: string | null
+          rate_date?: string | null
+          timestamp?: string | null
+          transaction_month?: string | null
         }
         Relationships: []
       }
