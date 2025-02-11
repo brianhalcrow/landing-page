@@ -50,8 +50,8 @@ const DataSourcesGrid = ({ executions }: DataSourcesGridProps) => {
     { 
       field: 'pipeline_name', 
       headerName: 'Pipeline Name',
-      flex: 1.5,
-      minWidth: 200,
+      flex: 2.25, // Increased by 50% from 1.5 to 2.25
+      minWidth: 300, // Increased by 50% from 200 to 300
       headerClass: 'ag-header-left',
       cellClass: 'cell-left'
     },
