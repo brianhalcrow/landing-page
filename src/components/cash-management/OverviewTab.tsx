@@ -1,20 +1,28 @@
+
 import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
-// Update the imports to use ag-grid-enterprise
-import { ModuleRegistry, AllEnterpriseModule } from 'ag-grid-enterprise';
+import type { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import 'ag-grid-enterprise';
+
+interface BankAccount {
+  entity_id: string;
+  entity: string;
+  account_type: string;
+  currency_code: string;
+  bank_name: string;
+  account_number_bank: string;
+  account_name_bank: string;
+  active: boolean;
+}
 
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
-  const [bankAccounts, setBankAccounts] = useState([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
 
-  // Update modules to use AllEnterpriseModule
-  const modules = [AllEnterpriseModule];
-
-  // Rest of your component remains the same
-  const columnDefs = [
+  const columnDefs: ColDef[] = [
     {
       field: 'entity_id',
       headerName: 'Entity ID',
@@ -53,11 +61,11 @@ const OverviewTab = () => {
     {
       field: 'active',
       headerName: 'Active',
-      cellRenderer: (params) => params.value ? '✓' : '✗'
+      cellRenderer: (params: any) => params.value ? '✓' : '✗'
     }
   ];
 
-  const defaultColDef = {
+  const defaultColDef: ColDef = {
     sortable: true,
     filter: true,
     resizable: true,
@@ -95,7 +103,6 @@ const OverviewTab = () => {
   return (
     <div className="h-[calc(100vh-12rem)] w-full ag-theme-alpine">
       <AgGridReact
-        modules={modules}
         rowData={bankAccounts}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
