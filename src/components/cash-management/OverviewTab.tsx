@@ -4,6 +4,11 @@ import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
 import type { BankAccountData } from './types';
 import type { ColDef } from 'ag-grid-community';
+import { 
+  ClientSideRowModelModule,
+  RowGroupingModule,
+  EnterpriseCoreModule
+} from '@ag-grid-enterprise/all-modules';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-enterprise';
@@ -11,6 +16,12 @@ import 'ag-grid-enterprise';
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
   const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
+
+  const modules = [
+    ClientSideRowModelModule,
+    RowGroupingModule,
+    EnterpriseCoreModule
+  ];
 
   const columnDefs: ColDef[] = [
     { 
@@ -93,6 +104,7 @@ const OverviewTab = () => {
   return (
     <div className="h-[calc(100vh-12rem)] w-full ag-theme-alpine">
       <AgGridReact
+        modules={modules}
         rowData={bankAccounts}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
