@@ -1,10 +1,13 @@
 
-import TradeRequestsGrid from "@/components/control/TradeRequestsGrid";
+import TabsContainer from "@/components/TabsContainer";
+import { tabsConfig } from "@/config/tabsConfig";
 
 const Control = () => {
   return (
     <div className="container-fluid px-6 py-6">
-      <TradeRequestsGrid />
+      <TabsContainer 
+        tabs={tabsConfig["control"]} 
+      />
     </div>
   );
 };
