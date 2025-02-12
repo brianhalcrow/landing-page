@@ -1945,6 +1945,144 @@ export type Database = {
         }
         Relationships: []
       }
+      erp_gl_transactions: {
+        Row: {
+          account_category_level_1: string | null
+          account_category_level_1_id: number | null
+          account_category_level_2: string | null
+          account_category_level_2_id: number | null
+          account_category_level_3: string | null
+          account_category_level_3_id: number | null
+          account_category_level_4: string | null
+          account_category_level_4_id: number | null
+          account_name: string | null
+          account_number: string | null
+          ap_invoice_id: string | null
+          ar_invoice_id: string | null
+          base_amount: number | null
+          cost_centre: string | null
+          country: string | null
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          daily_exchange_rate: number | null
+          delivery_date: string | null
+          description: string | null
+          doc_header_desc: string | null
+          document_date: string | null
+          document_type: string | null
+          entity: string | null
+          entity_id: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: number | null
+          je_id: string | null
+          je_line_id: string | null
+          monthly_exchange_rate: number | null
+          period: string | null
+          po_id: string | null
+          revalue_flag: boolean | null
+          subsystem_code: string | null
+          transaction_amount: number | null
+          transaction_currency: string | null
+          vendor_id: string | null
+          vendor_name: string | null
+          year: number | null
+          year_period: string | null
+        }
+        Insert: {
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
+          account_name?: string | null
+          account_number?: string | null
+          ap_invoice_id?: string | null
+          ar_invoice_id?: string | null
+          base_amount?: number | null
+          cost_centre?: string | null
+          country?: string | null
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          daily_exchange_rate?: number | null
+          delivery_date?: string | null
+          description?: string | null
+          doc_header_desc?: string | null
+          document_date?: string | null
+          document_type?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number | null
+          je_id?: string | null
+          je_line_id?: string | null
+          monthly_exchange_rate?: number | null
+          period?: string | null
+          po_id?: string | null
+          revalue_flag?: boolean | null
+          subsystem_code?: string | null
+          transaction_amount?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+          year?: number | null
+          year_period?: string | null
+        }
+        Update: {
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
+          account_name?: string | null
+          account_number?: string | null
+          ap_invoice_id?: string | null
+          ar_invoice_id?: string | null
+          base_amount?: number | null
+          cost_centre?: string | null
+          country?: string | null
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          daily_exchange_rate?: number | null
+          delivery_date?: string | null
+          description?: string | null
+          doc_header_desc?: string | null
+          document_date?: string | null
+          document_type?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number | null
+          je_id?: string | null
+          je_line_id?: string | null
+          monthly_exchange_rate?: number | null
+          period?: string | null
+          po_id?: string | null
+          revalue_flag?: boolean | null
+          subsystem_code?: string | null
+          transaction_amount?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+          year?: number | null
+          year_period?: string | null
+        }
+        Relationships: []
+      }
       forward_points_summary: {
         Row: {
           ccy_1: string | null
@@ -1965,6 +2103,13 @@ export type Database = {
           total_forward_points_ccy1: number | null
           total_forward_points_ccy2: number | null
           trade_date: string | null
+        }
+        Relationships: []
+      }
+      rates: {
+        Row: {
+          base_currency: string | null
+          quote_currency: string | null
         }
         Relationships: []
       }
