@@ -52,12 +52,12 @@ const OverviewTab = () => {
         }}
       >
         <GridStyles />
-  <AgGridReact
+<AgGridReact
   rowData={bankAccounts}
   columnDefs={columnDefs}
   defaultColDef={defaultColDef}
   autoGroupColumnDef={autoGroupColumnDef}
-  groupDefaultExpanded={1}
+  groupDefaultExpanded={0}  // Changed to 0 to show only entities initially
   suppressAggFuncInHeader={true}
   onGridReady={onGridReady}
   animateRows={true}
