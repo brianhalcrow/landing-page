@@ -42,11 +42,19 @@ const ExecutedTradesGrid = () => {
   };
 
   const columnDefs: ColDef<TradeRegister>[] = [
-    { field: 'deal_no', headerName: 'Deal No', filter: true },
+    { 
+      field: 'deal_no', 
+      headerName: 'Deal No', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
     { 
       field: 'trade_date', 
       headerName: 'Trade Date', 
       filter: true,
+      width: 130,
+      suppressSizeToFit: true,
       valueFormatter: (params: any) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
@@ -54,14 +62,24 @@ const ExecutedTradesGrid = () => {
       field: 'settlement_date', 
       headerName: 'Settlement Date',
       filter: true,
+      width: 130,
+      suppressSizeToFit: true,
       valueFormatter: (params: any) => 
         params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
-    { field: 'spot_rate', headerName: 'Spot Rate', filter: true },
+    { 
+      field: 'spot_rate', 
+      headerName: 'Spot Rate', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
     { 
       field: 'ccy_2_amount', 
       headerName: 'Quote Amount', 
       filter: true,
+      width: 140,
+      suppressSizeToFit: true,
       valueFormatter: formatAmount,
       cellStyle: amountCellStyle
     },
@@ -69,19 +87,81 @@ const ExecutedTradesGrid = () => {
       field: 'ccy_1_amount', 
       headerName: 'Base Amount', 
       filter: true,
+      width: 140,
+      suppressSizeToFit: true,
       valueFormatter: formatAmount,
       cellStyle: amountCellStyle
     },
-    { field: 'ccy_1', headerName: 'Base CCY', filter: true },
-    { field: 'currency_pair', headerName: 'Currency Pair', filter: true },
-    { field: 'ccy_2', headerName: 'Quote CCY', filter: true },
-    { field: 'created_by', headerName: 'Created By', filter: true },
-    { field: 'counterparty', headerName: 'Counterparty', filter: true },
-    { field: 'entity_id', headerName: 'Entity ID', filter: true },
-    { field: 'entity_name', headerName: 'Entity', filter: true },
-    { field: 'strategy', headerName: 'Strategy', filter: true },
-    { field: 'instrument', headerName: 'Instrument', filter: true },
-    { field: 'contract_rate', headerName: 'Contract Rate', filter: true }
+    { 
+      field: 'ccy_1', 
+      headerName: 'Base CCY', 
+      filter: true,
+      width: 100,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'currency_pair', 
+      headerName: 'Currency Pair', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'ccy_2', 
+      headerName: 'Quote CCY', 
+      filter: true,
+      width: 100,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'created_by', 
+      headerName: 'Created By', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'counterparty', 
+      headerName: 'Counterparty', 
+      filter: true,
+      width: 150,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'entity_id', 
+      headerName: 'Entity ID', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'entity_name', 
+      headerName: 'Entity', 
+      filter: true,
+      width: 200,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'strategy', 
+      headerName: 'Strategy', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'instrument', 
+      headerName: 'Instrument', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'contract_rate', 
+      headerName: 'Contract Rate', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    }
   ];
 
   const onGridReady = (params: any) => {
@@ -95,7 +175,6 @@ const ExecutedTradesGrid = () => {
     }
   };
 
-  // Save column state when it changes
   const onColumnMoved = () => {
     if (api) {
       const columnState = api.getColumnState();
