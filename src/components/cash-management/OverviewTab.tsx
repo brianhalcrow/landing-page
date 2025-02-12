@@ -1,7 +1,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ interface CashManagementData {
   month: string;
   category: string;
   actual_amount: number;
-  transaction_amount: number;
+  forecast_amount: number | null;
   source: string;
 }
 
@@ -25,111 +25,126 @@ const OverviewTab = () => {
   const { data: rowData, isLoading } = useQuery({
     queryKey: ['cash-management-data'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get actual data
+      const { data: actualData, error: actualError } = await supabase
         .from('v_cash_management')
         .select('*')
         .order('month', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching data:', error);
-        throw error;
+      if (actualError) {
+        console.error('Error fetching actual data:', actualError);
+        throw actualError;
       }
 
-      // Add opening balance rows
-      const processedData = [];
-      const entityCurrencyGroups = new Set(data.map(row => 
-        `${row.entity_name}-${row.transaction_currency}`
-      ));
+      // Then get forecast data
+      const { data: forecastData, error: forecastError } = await supabase
+        .from('cash_management_forecast')
+        .select('*')
+        .order('month', { ascending: true });
 
-      entityCurrencyGroups.forEach(group => {
-        const [entityName, currency] = group.split('-');
-        processedData.push({
-          entity_name: entityName,
-          transaction_currency: currency,
-          category: 'Opening Balance',
-          month: data[0].month, // Use the earliest month
-          actual_amount: 0, // You might want to calculate this from your data
-          transaction_amount: 0,
-          source: 'Opening Balance'
-        });
-      });
+      if (forecastError) {
+        console.error('Error fetching forecast data:', forecastError);
+        throw forecastError;
+      }
 
-      return [...processedData, ...data];
+      // Process actual data
+      const actual = actualData.map(row => ({
+        entity_id: row.entity_id,
+        entity_name: row.entity_name,
+        transaction_currency: row.transaction_currency,
+        month: row.month,
+        category: row.category,
+        actual_amount: row.actual_amount || 0,
+        forecast_amount: null,
+        source: 'Actual'
+      }));
+
+      // Process forecast data
+      const forecast = forecastData.map(row => ({
+        entity_id: row.entity_id,
+        entity_name: row.entity_name,
+        transaction_currency: row.transaction_currency,
+        month: row.month,
+        category: row.category,
+        actual_amount: 0,
+        forecast_amount: row.forecast_amount,
+        source: 'Forecast'
+      }));
+
+      return [...actual, ...forecast];
     }
   });
 
   const columnDefs = useMemo(() => {
-    const fixedColumns: ColDef[] = [
+    const baseColumns: ColDef[] = [
       { 
         field: 'entity_name',
         headerName: 'Entity',
         pinned: 'left',
         width: 180,
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left',
-        rowGroup: true
+        rowGroup: true,
+        hide: true
       },
       { 
         field: 'transaction_currency',
         headerName: 'Currency',
-        pinned: 'left',
-        width: 100,
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left',
-        rowGroup: true
+        width: 100
       },
       {
         field: 'category',
         headerName: 'Category',
-        pinned: 'left',
+        width: 120
+      },
+      {
+        field: 'month',
+        headerName: 'Month',
         width: 120,
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left'
+        valueFormatter: (params) => {
+          return params.value ? format(new Date(params.value), 'MMM yyyy') : '';
+        }
+      },
+      {
+        field: 'actual_amount',
+        headerName: 'Actual',
+        width: 120,
+        type: 'numericColumn',
+        valueFormatter: (params) => {
+          if (params.value != null) {
+            return new Intl.NumberFormat('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(params.value);
+          }
+          return '';
+        }
+      },
+      {
+        field: 'forecast_amount',
+        headerName: 'Forecast',
+        width: 120,
+        editable: true,
+        cellClass: 'editable-cell',
+        type: 'numericColumn',
+        valueFormatter: (params) => {
+          if (params.value != null) {
+            return new Intl.NumberFormat('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(params.value);
+          }
+          return '';
+        }
       }
     ];
 
-    // Get unique months from the data
-    const months = rowData ? [...new Set(rowData.map(row => 
-      format(new Date(row.month), 'yyyy-MM')
-    ))].sort() : [];
-
-    const monthColumns = months.map(month => ({
-      field: `amount_${month}`,
-      headerName: month,
-      width: 120,
-      valueGetter: (params: any) => {
-        const rowMonth = params.data.month ? format(new Date(params.data.month), 'yyyy-MM') : '';
-        return rowMonth === month ? params.data.transaction_amount : null;
-      },
-      valueFormatter: (params: ValueFormatterParams) => {
-        if (params.value != null) {
-          return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }).format(params.value);
-        }
-        return '';
-      },
-      headerClass: 'ag-header-center',
-      cellClass: 'cell-right'
-    }));
-
-    return [...fixedColumns, ...monthColumns];
-  }, [rowData]);
+    return baseColumns;
+  }, []);
 
   const defaultColDef = useMemo(() => ({
     sortable: true,
     filter: true,
     resizable: true,
     suppressSizeToFit: false
-  }), []);
-
-  const autoGroupColumnDef = useMemo(() => ({
-    headerName: 'Entity/Currency',
-    minWidth: 300,
-    cellRendererParams: {
-      suppressCount: true
-    }
   }), []);
 
   const onGridReady = (params: any) => {
@@ -140,6 +155,14 @@ const OverviewTab = () => {
       params.api.sizeColumnsToFit();
     }, 200);
   };
+
+  const autoGroupColumnDef = useMemo(() => ({
+    headerName: 'Entity',
+    minWidth: 300,
+    cellRendererParams: {
+      suppressCount: true
+    }
+  }), []);
 
   useEffect(() => {
     if (!gridApi || !gridReady) return;
@@ -187,6 +210,12 @@ const OverviewTab = () => {
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
+          onCellValueChanged={(event) => {
+            if (event.colDef.field === 'forecast_amount') {
+              // Here we would add logic to save the forecast amount
+              console.log('Forecast amount changed:', event.data);
+            }
+          }}
         />
       </div>
     </div>

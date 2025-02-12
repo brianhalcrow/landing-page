@@ -108,6 +108,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_management_forecast: {
+        Row: {
+          category: string
+          created_at: string | null
+          entity_id: string
+          entity_name: string
+          forecast_amount: number | null
+          id: number
+          month: string
+          transaction_currency: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          entity_id: string
+          entity_name: string
+          forecast_amount?: number | null
+          id?: never
+          month: string
+          transaction_currency: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          entity_id?: string
+          entity_name?: string
+          forecast_amount?: number | null
+          id?: never
+          month?: string
+          transaction_currency?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       chart_preferences: {
         Row: {
           chart_id: string
