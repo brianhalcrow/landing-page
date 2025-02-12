@@ -5,7 +5,7 @@ export const createColumnDefs = (): ColDef[] => {
     { 
       field: 'entity_id',
       headerName: 'Entity ID',
-      hide: false,
+      width: 120,
       sort: 'asc',
     },
     {
@@ -53,6 +53,5 @@ export const defaultColDef = {
   sortable: true,
   filter: true,
   resizable: true,
-  suppressSizeToFit: false,
   floatingFilter: true,
 };
