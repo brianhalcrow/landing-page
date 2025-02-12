@@ -4,12 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TradeRegister } from './types';
 import { format } from 'date-fns';
-import { ColDef, ColumnApi } from 'ag-grid-community';
+import { ColDef, GridApi } from 'ag-grid-community';
 import { useEffect, useRef, useState } from 'react';
 
 const ExecutedTradesGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
-  const [columnApi, setColumnApi] = useState<ColumnApi | null>(null);
+  const [api, setApi] = useState<GridApi | null>(null);
 
   const { data: trades, isLoading } = useQuery({
     queryKey: ['executed-trades'],
@@ -84,23 +84,22 @@ const ExecutedTradesGrid = () => {
     { field: 'contract_rate', headerName: 'Contract Rate', filter: true }
   ];
 
-  // Save column state when it changes
-  const onColumnMoved = () => {
-    if (columnApi) {
-      const columnState = columnApi.getColumnState();
-      localStorage.setItem('executedTradesColumnState', JSON.stringify(columnState));
-    }
-  };
-
-  // Apply saved column state on grid ready
   const onGridReady = (params: any) => {
-    setColumnApi(params.columnApi);
+    setApi(params.api);
     const savedState = localStorage.getItem('executedTradesColumnState');
     if (savedState) {
-      params.columnApi.applyColumnState({
+      params.api.applyColumnState({
         state: JSON.parse(savedState),
         applyOrder: true
       });
+    }
+  };
+
+  // Save column state when it changes
+  const onColumnMoved = () => {
+    if (api) {
+      const columnState = api.getColumnState();
+      localStorage.setItem('executedTradesColumnState', JSON.stringify(columnState));
     }
   };
 
