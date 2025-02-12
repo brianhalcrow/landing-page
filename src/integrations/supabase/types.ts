@@ -335,6 +335,7 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           posting_date: string | null
+          starting_balance: number | null
           transaction_amount: number | null
           transaction_id: number
           transaction_type: string | null
@@ -350,6 +351,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           posting_date?: string | null
+          starting_balance?: number | null
           transaction_amount?: number | null
           transaction_id?: number
           transaction_type?: string | null
@@ -365,6 +367,7 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           posting_date?: string | null
+          starting_balance?: number | null
           transaction_amount?: number | null
           transaction_id?: number
           transaction_type?: string | null
@@ -531,6 +534,39 @@ export type Database = {
           entity_name?: string | null
           functional_currency?: string | null
           local_currency?: string | null
+        }
+        Relationships: []
+      }
+      client_mgmt_structure: {
+        Row: {
+          cost_centre: string | null
+          country: string | null
+          entity_id: string | null
+          entity_name: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: number
+        }
+        Insert: {
+          cost_centre?: string | null
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number
+        }
+        Update: {
+          cost_centre?: string | null
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number
         }
         Relationships: []
       }
@@ -1802,6 +1838,7 @@ export type Database = {
           ccy_2_amount: number | null
           ccy_pair: string | null
           contract_rate: number | null
+          cost_centre: string | null
           counterparty: string | null
           created_at: string | null
           created_by: string | null
@@ -1823,6 +1860,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           contract_rate?: number | null
+          cost_centre?: string | null
           counterparty?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1844,6 +1882,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           contract_rate?: number | null
+          cost_centre?: string | null
           counterparty?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1919,6 +1958,21 @@ export type Database = {
       }
     }
     Views: {
+      client_bank_statement_with_balance: {
+        Row: {
+          account_number_bank: string | null
+          bank_name: string | null
+          currency_code: string | null
+          description: string | null
+          entity_name: string | null
+          posting_date: string | null
+          running_balance: number | null
+          transaction_amount: number | null
+          transaction_id: number | null
+          value_date: string | null
+        }
+        Relationships: []
+      }
       forward_points_summary: {
         Row: {
           ccy_1: string | null

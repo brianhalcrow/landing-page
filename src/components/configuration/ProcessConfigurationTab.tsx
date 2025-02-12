@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -24,46 +25,60 @@ interface DbProcessType {
   process_options: DbProcessOption[];
 }
 
-interface DbEntityProcessSetting {
+interface DbScheduleParameter {
+  parameter_name: string;
+  parameter_value: string;
+  schedule_id: number;
   created_at: string | null;
-  entity_id: string;
-  is_active: boolean | null;
-  process_setting_id: number;
-  setting_value: string;
   updated_at: string | null;
+  is_active: boolean | null;
 }
 
 interface DbScheduleDetail {
-  schedule_detail_id: number;
+  day_of_month: number[] | null;
+  day_of_week: number[] | null;
+  execution_time: string[];
+  frequency: "daily" | "weekly" | "monthly" | "on_demand";
+  is_active: boolean | null;
+  schedule_id: number;
+  timezone: string;
   created_at: string | null;
   updated_at: string | null;
-  // Add other fields as needed
-}
-
-interface DbScheduleParameter {
-  parameter_id: number;
-  created_at: string | null;
-  updated_at: string | null;
-  // Add other fields as needed
 }
 
 interface DbScheduleDefinition {
   schedule_id: number;
   entity_id: string;
+  schedule_name: string;
+  description: string | null;
+  schedule_type: "on_demand" | "scheduled";
+  process_option_id: number | null;
+  process_setting_id: number;
+  is_active: boolean | null;
   created_at: string | null;
   updated_at: string | null;
-  description: string;
-  schedule_details: DbScheduleDetail[];
+  schedule_details: DbScheduleDetail;
   schedule_parameters: DbScheduleParameter[];
+}
+
+interface DbEntityProcessSetting {
+  process_setting_id: number;
+  entity_id: string;
+  setting_value: string;
+  is_active: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 interface DbEntity {
   entity_id: string;
-  entity_name: string;
-  created_at: string | null;
-  updated_at: string | null;
-  is_active: boolean;
+  entity_name: string | null;
   local_currency: string | null;
+  functional_currency: string | null;
+  accounting_rate_method: string | null;
+  is_active?: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 // Application types (for component usage)
@@ -83,7 +98,7 @@ interface Entity {
 }
 
 const ProcessConfigurationTab = () => {
-  const { data: processTypes, isLoading: isLoadingTypes } = useQuery<DbProcessType[], Error>({
+  const { data: processTypes, isLoading: isLoadingTypes } = useQuery<DbProcessType[]>({
     queryKey: ['process-types'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -109,7 +124,7 @@ const ProcessConfigurationTab = () => {
     }
   });
 
-  const { data: entities, isLoading: isLoadingEntities } = useQuery<Entity[], Error>({
+  const { data: entities, isLoading: isLoadingEntities } = useQuery<Entity[]>({
     queryKey: ['entities'],
     queryFn: async () => {
       // Fetch entities
@@ -123,7 +138,7 @@ const ProcessConfigurationTab = () => {
       const { data: processSettingsData, error: settingsError } = await supabase
         .from('entity_process_settings')
         .select('*')
-        .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
+        .in('entity_id', (entitiesData || []).map(entity => entity.entity_id));
       if (settingsError) throw settingsError;
 
       // Fetch schedule definitions
@@ -134,13 +149,13 @@ const ProcessConfigurationTab = () => {
           schedule_details (*),
           schedule_parameters (*)
         `)
-        .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
+        .in('entity_id', (entitiesData || []).map(entity => entity.entity_id));
       if (scheduleError) throw scheduleError;
 
       // Transform the data to match our Entity interface
-      return (entitiesData as DbEntity[])?.map(entity => ({
+      return (entitiesData as DbEntity[]).map(entity => ({
         entity_id: entity.entity_id,
-        entity_name: entity.entity_name,
+        entity_name: entity.entity_name || '',
         settings: (processSettingsData as DbEntityProcessSetting[])
           ?.filter(setting => setting.entity_id === entity.entity_id)
           .map(setting => ({
@@ -154,8 +169,7 @@ const ProcessConfigurationTab = () => {
         ) || [],
         isEditing: false
       }));
-    },
-    enabled: true
+    }
   });
 
   if (isLoadingTypes || isLoadingEntities) {
@@ -166,7 +180,7 @@ const ProcessConfigurationTab = () => {
     );
   }
 
-  if (!entities?.length) {
+  if (!entities || entities.length === 0) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
         No entities found.
@@ -174,7 +188,7 @@ const ProcessConfigurationTab = () => {
     );
   }
 
-  if (!processTypes?.length) {
+  if (!processTypes || processTypes.length === 0) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
         No process types configured.
