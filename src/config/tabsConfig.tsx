@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -5,12 +6,8 @@ import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
-import EntityConfigurationTab from "@/components/configuration/EntityConfigurationTab";
-import EntitiesTab from "@/components/configuration/EntitiesTab";
-import ProcessGrid from "@/components/process/ProcessGrid";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
-import SummaryTab from "@/components/configuration/SummaryTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 import ChatFXTab from "@/components/data-sources/ChatFXTab";
@@ -43,10 +40,10 @@ export const tabsConfig = {
     { value: "analytics", label: "Analytics", content: <AnalyticsTab /> }
   ],
   "configuration": [
-    { value: "summary", label: "Summary", content: <SummaryTab /> },
-    { value: "general", label: "Entity Configuration", content: <EntityConfigurationTab /> },
-    { value: "entities", label: "Entities", content: <EntitiesTab /> },
-    { value: "process", label: "Process", content: <ProcessGrid /> },
+    { value: "summary", label: "Summary", content: <div>Configuration Summary</div> },
+    { value: "general", label: "General", content: <div>General Configuration</div> },
+    { value: "entities", label: "Entities", content: <div>Entities Configuration</div> },
+    { value: "process", label: "Process", content: <div>Process Configuration</div> }
   ],
   "exposure": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },
