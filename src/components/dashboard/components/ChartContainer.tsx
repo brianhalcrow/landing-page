@@ -5,15 +5,13 @@ import { AgCharts } from 'ag-charts-community';
 import type { AgChartOptions } from 'ag-charts-community';
 import { useEffect, useRef } from 'react';
 
-// ... rest of your component code with AgCharts.create() instead of AgChartsReact
-
 interface ChartContainerProps {
   isLoading: boolean;
   chartOptions: AgChartOptions;
   onDragStart: (e: React.MouseEvent) => void;
   onResizeStart: (e: React.MouseEvent) => void;
   containerWidth: number;
-  interactionState: 'IDLE' | 'DRAGGING' | 'RESIZING';
+  interactionState: "IDLE" | "DRAGGING" | "RESIZING";
 }
 
 const ChartContainer = ({
@@ -22,18 +20,35 @@ const ChartContainer = ({
   onDragStart,
   onResizeStart,
   containerWidth,
-  interactionState
+  interactionState,
 }: ChartContainerProps) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let chart: any;
+    if (chartRef.current && !isLoading) {
+      chart = AgCharts.create({
+        ...chartOptions,
+        container: chartRef.current,
+      });
+    }
+    return () => {
+      if (chart) {
+        chart.destroy();
+      }
+    };
+  }, [chartOptions, isLoading]);
+
   return (
-    <div 
+    <div
       className="resize-container"
-      style={{ 
+      style={{
         width: containerWidth,
-        cursor: interactionState === 'RESIZING' ? 'ew-resize' : undefined
+        cursor: interactionState === "RESIZING" ? "ew-resize" : undefined,
       }}
     >
       <Card>
-        <CardHeader 
+        <CardHeader
           className="cursor-grab active:cursor-grabbing"
           onMouseDown={onDragStart}
         >
@@ -43,12 +58,12 @@ const ChartContainer = ({
           {isLoading ? (
             <Skeleton className="h-[400px] w-full" />
           ) : (
-            <div 
+            <div
               className="relative w-full overflow-hidden"
               style={{ height: 400 }}
             >
-              <AgChartsReact options={chartOptions} />
-              <div 
+              <div ref={chartRef} className="w-full h-full" />
+              <div
                 className="absolute top-1/2 -translate-y-1/2 right-0 text-gray-400 cursor-ew-resize p-2"
                 onMouseDown={onResizeStart}
               >
