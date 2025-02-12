@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { AgChartsReact } from 'ag-charts-enterprise';
-import { AgChartOptions } from 'ag-charts-enterprise';
+import { AgChartsReact } from 'ag-charts-react';
+import type { AgChartOptions } from 'ag-charts-enterprise';
 
 const TestAgChart = () => {
   const chartOptions: AgChartOptions = {
