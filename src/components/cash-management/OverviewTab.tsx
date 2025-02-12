@@ -1,20 +1,17 @@
-
 import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
-import type { BankAccountData } from './types';
-import type { ColDef } from 'ag-grid-community';
 import { 
   ClientSideRowModelModule, 
   RowGroupingModule, 
   EnterpriseCoreModule 
-} from 'ag-grid-enterprise';  // Changed this line
+} from 'ag-grid-enterprise';  // Changed this import
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
-  const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
+  const [bankAccounts, setBankAccounts] = useState([]);
 
   const modules = [
     ClientSideRowModelModule,
@@ -22,8 +19,8 @@ const OverviewTab = () => {
     EnterpriseCoreModule
   ];
 
-  const columnDefs: ColDef[] = [
-    { 
+  const columnDefs = [
+    {
       field: 'entity_id',
       headerName: 'Entity ID',
       enableRowGroup: true,
@@ -61,11 +58,11 @@ const OverviewTab = () => {
     {
       field: 'active',
       headerName: 'Active',
-      cellRenderer: (params: any) => params.value ? '✓' : '✗'
+      cellRenderer: (params) => params.value ? '✓' : '✗'
     }
   ];
 
-  const defaultColDef: ColDef = {
+  const defaultColDef = {
     sortable: true,
     filter: true,
     resizable: true,
@@ -79,7 +76,7 @@ const OverviewTab = () => {
           .from('client_bank_account')
           .select('*')
           .order('entity_id', { ascending: true });
-        
+
         if (error) throw error;
         setBankAccounts(data || []);
       } catch (error) {
