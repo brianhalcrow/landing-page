@@ -52,21 +52,22 @@ const OverviewTab = () => {
         }}
       >
         <GridStyles />
-     <AgGridReact
-  rowData={bankAccounts}
-  columnDefs={columnDefs}
-  defaultColDef={defaultColDef}
-  autoGroupColumnDef={autoGroupColumnDef}
-  groupDefaultExpanded={1}
-  suppressAggFuncInHeader={true}
-  onGridReady={onGridReady}
-  animateRows={true}
-  suppressColumnVirtualisation={true}
-  enableCellTextSelection={true}
-  rowGroupPanelShow="never"
-  groupDisplayType="groupRows"
-  groupMaintainOrder={true}
-/>
+  <AgGridReact
+    rowData={bankAccounts}
+    columnDefs={columnDefs}
+    defaultColDef={defaultColDef}
+    autoGroupColumnDef={autoGroupColumnDef}
+    groupDefaultExpanded={1}
+    suppressAggFuncInHeader={true}
+    onGridReady={onGridReady}
+    animateRows={true}
+    suppressColumnVirtualisation={true}
+    enableCellTextSelection={true}
+    rowGroupPanelShow="never"
+    groupDisplayType="groupRows"
+    groupMaintainOrder={true}
+    showOpenedGroup={true}  // Add this
+  />
       </div>
     </div>
   );
