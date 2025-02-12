@@ -13,7 +13,7 @@ interface CashManagementData {
   transaction_currency: string;
   month: string;
   category: string;
-  actual_amount: number;
+  "Transaction Amount": number; // Changed to match the view column name
   forecast_amount: number | null;
   source: string;
 }
@@ -54,7 +54,7 @@ const OverviewTab = () => {
         transaction_currency: row.transaction_currency,
         month: row.month,
         category: row.category,
-        actual_amount: row.actual_amount || 0,
+        "Transaction Amount": row["Transaction Amount"] || 0,
         forecast_amount: null,
         source: 'Actual'
       }));
@@ -66,7 +66,7 @@ const OverviewTab = () => {
         transaction_currency: row.transaction_currency,
         month: row.month,
         category: row.category,
-        actual_amount: 0,
+        "Transaction Amount": 0,
         forecast_amount: row.forecast_amount,
         source: 'Forecast'
       }));
@@ -104,7 +104,7 @@ const OverviewTab = () => {
         }
       },
       {
-        field: 'actual_amount',
+        field: 'Transaction Amount',
         headerName: 'Actual',
         width: 120,
         type: 'numericColumn',
