@@ -1,35 +1,63 @@
-
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProcessConfigurationGrid from "./grid/ProcessConfigurationGrid";
 
+// Break down the types into smaller interfaces
+interface ProcessSetting {
+  process_setting_id: number;
+  setting_name: string;
+  setting_type: string;
+  parent_setting_id: number | null;
+}
+
+interface ProcessOption {
+  process_option_id: number;
+  option_name: string;
+  process_settings: ProcessSetting[];
+}
+
 interface ProcessType {
   process_type_id: number;
   process_name: string;
-  process_options: {
-    process_option_id: number;
-    option_name: string;
-    process_settings: {
-      process_setting_id: number;
-      setting_name: string;
-      setting_type: string;
-      parent_setting_id: number | null;
-    }[];
-  }[];
+  process_options: ProcessOption[];
+}
+
+interface ScheduleDetail {
+  schedule_detail_id: number;
+  // Add other necessary fields
+}
+
+interface ScheduleParameter {
+  parameter_id: number;
+  // Add other necessary fields
+}
+
+interface ScheduleDefinition {
+  schedule_id: number;
+  entity_id: string;
+  schedule_details: ScheduleDetail[];
+  schedule_parameters: ScheduleParameter[];
+  // Add other necessary fields
+}
+
+interface EntityProcessSetting {
+  setting_id: number;
+  entity_id: string;
+  // Add other necessary fields
 }
 
 interface Entity {
   entity_id: string;
   entity_name: string;
-  settings: any[];
-  schedules: any[];
+  settings: EntityProcessSetting[];
+  schedules: ScheduleDefinition[];
   isEditing: boolean;
 }
 
 const ProcessConfigurationTab = () => {
-  const { data: processTypes, isLoading: isLoadingTypes } = useQuery({
+  const { data: processTypes, isLoading: isLoadingTypes } = useQuery<ProcessType[], Error>({
     queryKey: ['process-types'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,23 +83,24 @@ const ProcessConfigurationTab = () => {
     }
   });
 
-  const { data: entities, isLoading: isLoadingEntities } = useQuery({
+  const { data: entities, isLoading: isLoadingEntities } = useQuery<Entity[], Error>({
     queryKey: ['entities'],
     queryFn: async () => {
+      // Fetch entities
       const { data: entitiesData, error: entitiesError } = await supabase
         .from('client_legal_entity')
         .select('*')
         .eq('is_active', true);
-
       if (entitiesError) throw entitiesError;
 
+      // Fetch settings
       const { data: processSettingsData, error: settingsError } = await supabase
         .from('entity_process_settings')
         .select('*')
         .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
-
       if (settingsError) throw settingsError;
 
+      // Fetch schedule definitions
       const { data: scheduleDefinitionsData, error: scheduleError } = await supabase
         .from('schedule_definitions')
         .select(`
@@ -80,10 +109,10 @@ const ProcessConfigurationTab = () => {
           schedule_parameters (*)
         `)
         .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
-
       if (scheduleError) throw scheduleError;
 
-      return entitiesData?.map(entity => ({
+      // Map and return entities with their related data
+      return (entitiesData?.map(entity => ({
         ...entity,
         settings: processSettingsData?.filter(setting => 
           setting.entity_id === entity.entity_id
@@ -92,7 +121,7 @@ const ProcessConfigurationTab = () => {
           schedule.entity_id === entity.entity_id
         ) || [],
         isEditing: false
-      })) as Entity[];
+      })) || []) as Entity[];
     },
     enabled: true
   });
