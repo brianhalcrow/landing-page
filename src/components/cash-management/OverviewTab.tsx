@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  DataGrid, 
+  DataGridPro, 
   GridColDef,
   GridRenderCellParams,
-} from '@mui/x-data-grid';
+  GridToolbar,
+  GridValueGetterParams,
+} from '@mui/x-data-grid-pro';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider, createTheme } from '@mui/material';
 import { BankAccountData } from './types';
@@ -20,33 +22,33 @@ const OverviewTab = () => {
       field: 'entity_id', 
       headerName: 'Entity ID', 
       width: 120,
-      sortable: true
+      groupable: true
     },
     {
       field: 'entity',
       headerName: 'Entity',
       width: 200,
-      sortable: true
+      groupable: true
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
       width: 150,
       editable: true,
-      sortable: true
+      groupable: true
     },
     {
       field: 'currency_code',
       headerName: 'Currency',
       width: 100,
-      sortable: true
+      groupable: true
     },
     {
       field: 'bank_name',
       headerName: 'Bank',
       width: 150,
       editable: true,
-      sortable: true
+      groupable: true
     },
     {
       field: 'account_number_bank',
@@ -67,7 +69,10 @@ const OverviewTab = () => {
       type: 'boolean',
       editable: true,
       renderCell: (params: GridRenderCellParams) => 
-        params.value ? '✓' : '✗'
+        params.value ? '✓' : '✗',
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value === true;
+      }
     }
   ];
 
@@ -100,7 +105,7 @@ const OverviewTab = () => {
   return (
     <ThemeProvider theme={theme}>
       <div style={{ height: 'calc(100vh - 12rem)', width: '100%' }}>
-        <DataGrid
+        <DataGridPro
           rows={bankAccounts}
           columns={columns}
           loading={loading}
@@ -111,10 +116,17 @@ const OverviewTab = () => {
             sorting: {
               sortModel: [{ field: 'entity_id', sort: 'asc' }],
             },
+            rowGrouping: {
+              model: ['entity']
+            }
           }}
+          slots={{ toolbar: GridToolbar }}
           pageSizeOptions={[25, 50, 100]}
           checkboxSelection
-          disableRowSelectionOnClick
+          disableRowSelectionOnClick={false}
+          groupingColDef={{
+            headerName: 'Entity Groups'
+          }}
         />
       </div>
     </ThemeProvider>
