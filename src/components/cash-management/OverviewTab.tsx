@@ -5,13 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { BankAccountData } from './types';
 import type { ColDef } from 'ag-grid-community';
 import { 
-  ModuleRegistry,
-  ClientSideRowModelModule,
-  RowGroupingModule,
-  EnterpriseCoreModule
-} from 'ag-grid-enterprise';
-
-// CSS imports
+  ClientSideRowModelModule, 
+  RowGroupingModule, 
+  EnterpriseCoreModule 
+} from 'ag-grid-enterprise';  // Changed this line
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
