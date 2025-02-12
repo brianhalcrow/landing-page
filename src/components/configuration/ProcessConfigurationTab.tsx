@@ -5,11 +5,34 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProcessConfigurationGrid from "./grid/ProcessConfigurationGrid";
 
+interface ProcessType {
+  process_type_id: number;
+  process_name: string;
+  process_options: {
+    process_option_id: number;
+    option_name: string;
+    process_settings: {
+      process_setting_id: number;
+      setting_name: string;
+      setting_type: string;
+      parent_setting_id: number | null;
+    }[];
+  }[];
+}
+
+interface Entity {
+  entity_id: string;
+  entity_name: string;
+  settings: any[];
+  schedules: any[];
+  isEditing: boolean;
+}
+
 const ProcessConfigurationTab = () => {
   const { data: processTypes, isLoading: isLoadingTypes } = useQuery({
     queryKey: ['process-types'],
     queryFn: async () => {
-      const { data: processTypesData, error: processTypesError } = await supabase
+      const { data, error } = await supabase
         .from('process_types')
         .select(`
           process_type_id,
@@ -27,8 +50,8 @@ const ProcessConfigurationTab = () => {
         `)
         .eq('is_active', true);
       
-      if (processTypesError) throw processTypesError;
-      return processTypesData;
+      if (error) throw error;
+      return data as ProcessType[];
     }
   });
 
@@ -36,7 +59,7 @@ const ProcessConfigurationTab = () => {
     queryKey: ['entities'],
     queryFn: async () => {
       const { data: entitiesData, error: entitiesError } = await supabase
-        .from('entities')
+        .from('client_legal_entity')
         .select('*')
         .eq('is_active', true);
 
@@ -45,7 +68,7 @@ const ProcessConfigurationTab = () => {
       const { data: processSettingsData, error: settingsError } = await supabase
         .from('entity_process_settings')
         .select('*')
-        .in('entity_id', entitiesData.map(entity => entity.entity_id));
+        .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
 
       if (settingsError) throw settingsError;
 
@@ -56,28 +79,20 @@ const ProcessConfigurationTab = () => {
           schedule_details (*),
           schedule_parameters (*)
         `)
-        .in('entity_id', entitiesData.map(entity => entity.entity_id));
+        .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
 
       if (scheduleError) throw scheduleError;
 
-      const mappedEntities = entitiesData.map(entity => {
-        const entitySettings = processSettingsData?.filter(setting => 
+      return entitiesData?.map(entity => ({
+        ...entity,
+        settings: processSettingsData?.filter(setting => 
           setting.entity_id === entity.entity_id
-        ) || [];
-
-        const entitySchedules = scheduleDefinitionsData?.filter(schedule => 
+        ) || [],
+        schedules: scheduleDefinitionsData?.filter(schedule => 
           schedule.entity_id === entity.entity_id
-        ) || [];
-
-        return {
-          ...entity,
-          settings: entitySettings,
-          schedules: entitySchedules,
-          isEditing: false
-        };
-      });
-
-      return mappedEntities;
+        ) || [],
+        isEditing: false
+      })) as Entity[];
     },
     enabled: true
   });
