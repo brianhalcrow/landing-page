@@ -42,7 +42,7 @@ export const useGridPreferences = (gridRef: React.RefObject<AgGridReact>, gridId
         .from('grid_preferences')
         .select('column_state')
         .eq('grid_id', gridId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -69,6 +69,10 @@ export const useGridPreferences = (gridRef: React.RefObject<AgGridReact>, gridId
       }
     } catch (error) {
       console.error('Error loading column state:', error);
+      // Don't show error toast for missing preferences as this is expected for first-time use
+      if (error instanceof Error && !error.message.includes('JSON object requested')) {
+        toast.error('Failed to load grid preferences');
+      }
     }
   }, [gridRef, gridId]);
 
