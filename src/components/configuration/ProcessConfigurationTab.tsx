@@ -4,60 +4,86 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProcessConfigurationGrid from "./grid/ProcessConfigurationGrid";
 
-// Break down the types into smaller interfaces
-interface ProcessSetting {
+// Database response types (matching Supabase schema)
+interface DbProcessSetting {
   process_setting_id: number;
   setting_name: string;
   setting_type: string;
   parent_setting_id: number | null;
 }
 
-interface ProcessOption {
+interface DbProcessOption {
   process_option_id: number;
   option_name: string;
-  process_settings: ProcessSetting[];
+  process_settings: DbProcessSetting[];
 }
 
-interface ProcessType {
+interface DbProcessType {
   process_type_id: number;
   process_name: string;
-  process_options: ProcessOption[];
+  process_options: DbProcessOption[];
 }
 
-interface ScheduleDetail {
+interface DbEntityProcessSetting {
+  created_at: string | null;
+  entity_id: string;
+  is_active: boolean | null;
+  process_setting_id: number;
+  setting_value: string;
+  updated_at: string | null;
+}
+
+interface DbScheduleDetail {
   schedule_detail_id: number;
-  // Add other necessary fields
+  created_at: string | null;
+  updated_at: string | null;
+  // Add other fields as needed
 }
 
-interface ScheduleParameter {
+interface DbScheduleParameter {
   parameter_id: number;
-  // Add other necessary fields
+  created_at: string | null;
+  updated_at: string | null;
+  // Add other fields as needed
 }
 
-interface ScheduleDefinition {
+interface DbScheduleDefinition {
   schedule_id: number;
   entity_id: string;
-  schedule_details: ScheduleDetail[];
-  schedule_parameters: ScheduleParameter[];
-  // Add other necessary fields
+  created_at: string | null;
+  updated_at: string | null;
+  description: string;
+  schedule_details: DbScheduleDetail[];
+  schedule_parameters: DbScheduleParameter[];
 }
 
+interface DbEntity {
+  entity_id: string;
+  entity_name: string;
+  created_at: string | null;
+  updated_at: string | null;
+  is_active: boolean;
+  local_currency: string | null;
+}
+
+// Application types (for component usage)
 interface EntityProcessSetting {
   setting_id: number;
   entity_id: string;
-  // Add other necessary fields
+  setting_value: string;
+  is_active: boolean;
 }
 
 interface Entity {
   entity_id: string;
   entity_name: string;
   settings: EntityProcessSetting[];
-  schedules: ScheduleDefinition[];
+  schedules: DbScheduleDefinition[];
   isEditing: boolean;
 }
 
 const ProcessConfigurationTab = () => {
-  const { data: processTypes, isLoading: isLoadingTypes } = useQuery<ProcessType[], Error>({
+  const { data: processTypes, isLoading: isLoadingTypes } = useQuery<DbProcessType[], Error>({
     queryKey: ['process-types'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -79,7 +105,7 @@ const ProcessConfigurationTab = () => {
         .eq('is_active', true);
       
       if (error) throw error;
-      return data as ProcessType[];
+      return data;
     }
   });
 
@@ -111,17 +137,23 @@ const ProcessConfigurationTab = () => {
         .in('entity_id', entitiesData?.map(entity => entity.entity_id) || []);
       if (scheduleError) throw scheduleError;
 
-      // Map and return entities with their related data
-      return (entitiesData?.map(entity => ({
-        ...entity,
-        settings: processSettingsData?.filter(setting => 
-          setting.entity_id === entity.entity_id
-        ) || [],
+      // Transform the data to match our Entity interface
+      return (entitiesData as DbEntity[])?.map(entity => ({
+        entity_id: entity.entity_id,
+        entity_name: entity.entity_name,
+        settings: (processSettingsData as DbEntityProcessSetting[])
+          ?.filter(setting => setting.entity_id === entity.entity_id)
+          .map(setting => ({
+            setting_id: setting.process_setting_id,
+            entity_id: setting.entity_id,
+            setting_value: setting.setting_value,
+            is_active: setting.is_active ?? false
+          })) || [],
         schedules: scheduleDefinitionsData?.filter(schedule => 
           schedule.entity_id === entity.entity_id
         ) || [],
         isEditing: false
-      })) || []) as Entity[];
+      }));
     },
     enabled: true
   });
