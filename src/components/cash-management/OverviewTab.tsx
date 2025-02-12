@@ -1,16 +1,11 @@
-
-import { useEffect, useMemo, useState } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import { GridStyles } from "../hedge-request/grid/components/GridStyles";
-import { createColumnDefs, defaultColDef, autoGroupColumnDef } from './gridConfig';
-import { useGridConfig } from './hooks/useGridConfig';
-import { supabase } from "@/integrations/supabase/client";
-import { BankAccountData } from './types';
-import { Skeleton } from "@/components/ui/skeleton";
-
 const OverviewTab = () => {
   const { onGridReady } = useGridConfig();
-  const columnDefs = useMemo(() => createColumnDefs(), []);
+  const columnDefs = useMemo(() => {
+    const cols = createColumnDefs();
+    console.log('Column definitions:', cols); // Debug log
+    return cols;
+  }, []);
+
   const [loading, setLoading] = useState(true);
   const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
 
@@ -20,12 +15,11 @@ const OverviewTab = () => {
         const { data, error } = await supabase
           .from('client_bank_account')
           .select('*')
-          .order('entity', { ascending: true });
-
+          .order('entity_id', { ascending: true });
         if (error) {
           throw error;
         }
-
+        console.log('Fetched data:', data); // Debug log
         setBankAccounts(data || []);
       } catch (error) {
         console.error('Error fetching bank accounts:', error);
@@ -33,13 +27,12 @@ const OverviewTab = () => {
         setLoading(false);
       }
     };
-
     fetchBankAccounts();
   }, []);
 
-  if (loading) {
-    return <Skeleton className="h-[calc(100vh-12rem)] w-full" />;
-  }
+  const onFirstDataRendered = (params: any) => {
+    console.log('Grid data rendered:', params.api.getDisplayedRowCount()); // Debug log
+  };
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
@@ -52,25 +45,27 @@ const OverviewTab = () => {
         }}
       >
         <GridStyles />
-<AgGridReact
-  rowData={bankAccounts}
-  columnDefs={columnDefs}
-  defaultColDef={defaultColDef}
-  autoGroupColumnDef={autoGroupColumnDef}
-  groupDefaultExpanded={0}  // Changed to 0 to show only entities initially
-  suppressAggFuncInHeader={true}
-  onGridReady={onGridReady}
-  animateRows={true}
-  suppressColumnVirtualisation={true}
-  enableCellTextSelection={true}
-  groupDisplayType="groupRows"
-  groupMaintainOrder={true}
-  suppressRowClickSelection={true}
-  rowSelection="multiple"
-/>
+        <AgGridReact
+          rowData={bankAccounts}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          autoGroupColumnDef={autoGroupColumnDef}
+          groupDefaultExpanded={0}
+          suppressAggFuncInHeader={true}
+          onGridReady={onGridReady}
+          onFirstDataRendered={onFirstDataRendered}
+          animateRows={true}
+          suppressColumnVirtualisation={true}
+          enableCellTextSelection={true}
+          groupDisplayType="groupRows"
+          groupMaintainOrder={true}
+          suppressRowClickSelection={true}
+          rowSelection="multiple"
+          // Add these debug properties
+          debug={true}
+          rowGroupPanelShow="always"
+        />
       </div>
     </div>
   );
 };
-
-export default OverviewTab;
