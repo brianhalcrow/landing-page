@@ -1,12 +1,13 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
-import type { ColDef, GridOptions } from 'ag-grid-community';
+import type { ColDef, GridOptions, ColumnState } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-enterprise';
 import { gridStyles } from '../configuration/grid/styles/gridStyles';
+import { toast } from 'sonner';
 
 interface BankAccount {
   entity_id: string;
@@ -19,9 +20,12 @@ interface BankAccount {
   active: boolean;
 }
 
+const GRID_ID = 'cash-management-overview';
+
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const gridRef = useRef<AgGridReact>(null);
 
   const columnDefs: ColDef[] = [
     {
@@ -97,6 +101,58 @@ const OverviewTab = () => {
     }
   };
 
+  const saveColumnState = useCallback(async () => {
+    if (!gridRef.current?.columnApi) return;
+
+    const columnState = gridRef.current.columnApi.getColumnState();
+    
+    try {
+      const { error } = await supabase
+        .from('grid_preferences')
+        .upsert({
+          grid_id: GRID_ID,
+          column_state: columnState
+        }, {
+          onConflict: 'grid_id'
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error saving column state:', error);
+      toast.error('Failed to save grid preferences');
+    }
+  }, []);
+
+  const loadColumnState = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('grid_preferences')
+        .select('column_state')
+        .eq('grid_id', GRID_ID)
+        .single();
+
+      if (error) throw error;
+
+      if (data?.column_state && gridRef.current?.columnApi) {
+        gridRef.current.columnApi.applyColumnState({
+          state: data.column_state as ColumnState[],
+          applyOrder: true
+        });
+      }
+    } catch (error) {
+      console.error('Error loading column state:', error);
+      // Don't show error toast here as it's not critical for user experience
+    }
+  }, []);
+
+  const onFirstDataRendered = useCallback(() => {
+    loadColumnState();
+  }, [loadColumnState]);
+
+  const onColumnResized = useCallback(() => {
+    saveColumnState();
+  }, [saveColumnState]);
+
   const gridOptions: GridOptions = {
     suppressRowHoverHighlight: false,
     columnHoverHighlight: true,
@@ -119,6 +175,7 @@ const OverviewTab = () => {
         setBankAccounts(data || []);
       } catch (error) {
         console.error('Error fetching bank accounts:', error);
+        toast.error('Failed to load bank accounts');
       } finally {
         setLoading(false);
       }
@@ -160,6 +217,7 @@ const OverviewTab = () => {
         {gridStyles}
       </style>
       <AgGridReact
+        ref={gridRef}
         rowData={bankAccounts}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
@@ -170,6 +228,8 @@ const OverviewTab = () => {
         enableRangeSelection={true}
         suppressAggFuncInHeader={true}
         domLayout="normal"
+        onFirstDataRendered={onFirstDataRendered}
+        onColumnResized={onColumnResized}
       />
     </div>
   );

@@ -1120,6 +1120,30 @@ export type Database = {
         }
         Relationships: []
       }
+      grid_preferences: {
+        Row: {
+          column_state: Json
+          created_at: string | null
+          grid_id: string
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          column_state: Json
+          created_at?: string | null
+          grid_id: string
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          column_state?: Json
+          created_at?: string | null
+          grid_id?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hedge_request_draft: {
         Row: {
           cost_centre: string | null
