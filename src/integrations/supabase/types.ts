@@ -558,6 +558,36 @@ export type Database = {
         }
         Relationships: []
       }
+      client_rates_accounting_daily: {
+        Row: {
+          base_currency: string
+          currency_pair: string
+          id: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Insert: {
+          base_currency: string
+          currency_pair: string
+          id?: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Update: {
+          base_currency?: string
+          currency_pair?: string
+          id?: number
+          quote_currency?: string
+          rate_date?: string
+          spot_rate?: number
+          timestamp?: string
+        }
+        Relationships: []
+      }
       client_rates_accounting_monthly: {
         Row: {
           base_currency: string | null
