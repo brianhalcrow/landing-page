@@ -1,28 +1,47 @@
+
 import { useEffect, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, ValueFormatterParams } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
 
-interface BalanceData {
+interface CashManagementData {
+  entity_id: string;
   entity_name: string;
-  bank_name: string;
-  account_number_bank: string;
-  currency_code: string;
-  [key: string]: any;
+  currency: string;
+  month: string;
+  actual_amount: number;
+  ap_forecast_amount: number;
+  ar_forecast_amount: number;
+  trade_forecast_amount: number;
+  total_amount: number;
+  sources: string;
 }
 
 const OverviewTab = () => {
-  const [rowData, setRowData] = useState<BalanceData[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
   const [gridReady, setGridReady] = useState(false);
   
+  const { data: rowData, isLoading } = useQuery({
+    queryKey: ['cash-management-data'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('v_cash_management')
+        .select('*')
+        .order('month', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+      }
+
+      return data as CashManagementData[];
+    }
+  });
+
   const columnDefs = useMemo(() => {
-    const columns: ColDef[] = [];
-    const startDate = new Date(2024, 11, 1);
-    const endDate = new Date(2025, 11, 31);
-    
     const fixedColumns: ColDef[] = [
       { 
         field: 'entity_name',
@@ -33,23 +52,7 @@ const OverviewTab = () => {
         cellClass: 'cell-left'
       },
       { 
-        field: 'bank_name',
-        headerName: 'Bank',
-        pinned: 'left',
-        width: 140,
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left'
-      },
-      { 
-        field: 'account_number_bank',
-        headerName: 'Account',
-        pinned: 'left',
-        width: 140,
-        headerClass: 'ag-header-left',
-        cellClass: 'cell-left'
-      },
-      { 
-        field: 'currency_code',
+        field: 'currency',
         headerName: 'Currency',
         pinned: 'left',
         width: 100,
@@ -58,78 +61,82 @@ const OverviewTab = () => {
       }
     ];
 
-    const monthGroups: { [key: string]: ColDef[] } = {};
-    
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = format(d, 'yyyy-MM-dd');
-      const monthKey = format(d, 'MMMM yyyy');
-      
-      const dateColumn: ColDef = {
-        field: dateStr,
-        headerName: format(d, 'dd/MM'),
-        width: 120,
-        type: 'numericColumn',
-        valueFormatter: (params: ValueFormatterParams) => {
-          if (params.value) {
-            return new Intl.NumberFormat('en-US', {
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3
-            }).format(params.value);
-          }
-          return '';
+    // Get unique months from the data
+    const months = rowData ? [...new Set(rowData.map(row => format(new Date(row.month), 'yyyy-MM')))] : [];
+    months.sort(); // Sort months chronologically
+
+    const monthColumns = months.map(month => ({
+      headerName: month,
+      children: [
+        {
+          field: `actual_${month}`,
+          headerName: 'Actual',
+          width: 120,
+          valueGetter: (params: any) => {
+            const rowMonth = params.data.month ? format(new Date(params.data.month), 'yyyy-MM') : '';
+            return rowMonth === month ? params.data.actual_amount : null;
+          },
+          valueFormatter: (params: ValueFormatterParams) => {
+            if (params.value != null) {
+              return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+              }).format(params.value);
+            }
+            return '';
+          },
+          headerClass: 'ag-header-center',
+          cellClass: 'cell-right'
         },
-        headerClass: 'ag-header-center',
-        cellClass: 'cell-right'
-      };
-
-      if (!monthGroups[monthKey]) {
-        monthGroups[monthKey] = [];
-      }
-      monthGroups[monthKey].push(dateColumn);
-    }
-
-    const monthColumns = Object.entries(monthGroups).map(([monthKey, dateColumns]) => ({
-      headerName: monthKey,
-      children: dateColumns
+        {
+          field: `forecast_${month}`,
+          headerName: 'Forecast',
+          width: 120,
+          valueGetter: (params: any) => {
+            const rowMonth = params.data.month ? format(new Date(params.data.month), 'yyyy-MM') : '';
+            return rowMonth === month ? (
+              params.data.ap_forecast_amount +
+              params.data.ar_forecast_amount +
+              params.data.trade_forecast_amount
+            ) : null;
+          },
+          valueFormatter: (params: ValueFormatterParams) => {
+            if (params.value != null) {
+              return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+              }).format(params.value);
+            }
+            return '';
+          },
+          headerClass: 'ag-header-center',
+          cellClass: 'cell-right'
+        },
+        {
+          field: `total_${month}`,
+          headerName: 'Total',
+          width: 120,
+          valueGetter: (params: any) => {
+            const rowMonth = params.data.month ? format(new Date(params.data.month), 'yyyy-MM') : '';
+            return rowMonth === month ? params.data.total_amount : null;
+          },
+          valueFormatter: (params: ValueFormatterParams) => {
+            if (params.value != null) {
+              return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+              }).format(params.value);
+            }
+            return '';
+          },
+          headerClass: 'ag-header-center',
+          cellClass: 'cell-right'
+        }
+      ]
     }));
 
     return [...fixedColumns, ...monthColumns];
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from('bank_account_balance')
-        .select('*');
-
-      if (error) {
-        console.error('Error fetching data:', error);
-        return;
-      }
-
-      const transformedData = data?.map(account => {
-        const rowData: BalanceData = {
-          entity_name: account.entity_name,
-          bank_name: account.bank_name,
-          account_number_bank: account.account_number_bank,
-          currency_code: account.currency_code,
-        };
-
-        if (account.current_balance) {
-          const latestDate = account.latest_date;
-          if (latestDate) {
-            rowData[format(new Date(latestDate), 'yyyy-MM-dd')] = account.current_balance;
-          }
-        }
-
-        return rowData;
-      }) || [];
-
-      setRowData(transformedData);
-    };
-
-    fetchData();
-  }, []);
+  }, [rowData]);
 
   const onGridReady = (params: any) => {
     setGridApi(params.api);
@@ -158,6 +165,10 @@ const OverviewTab = () => {
       clearTimeout(resizeTimeout);
     };
   }, [gridApi, gridReady]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">

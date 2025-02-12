@@ -513,21 +513,21 @@ export type Database = {
       client_legal_entity: {
         Row: {
           accounting_rate_method: string | null
-          entity_id: string | null
+          entity_id: string
           entity_name: string | null
           functional_currency: string | null
           local_currency: string | null
         }
         Insert: {
           accounting_rate_method?: string | null
-          entity_id?: string | null
+          entity_id: string
           entity_name?: string | null
           functional_currency?: string | null
           local_currency?: string | null
         }
         Update: {
           accounting_rate_method?: string | null
-          entity_id?: string | null
+          entity_id?: string
           entity_name?: string | null
           functional_currency?: string | null
           local_currency?: string | null
@@ -1939,6 +1939,21 @@ export type Database = {
           total_forward_points_ccy1: number | null
           total_forward_points_ccy2: number | null
           trade_date: string | null
+        }
+        Relationships: []
+      }
+      v_cash_management: {
+        Row: {
+          actual_amount: number | null
+          ap_forecast_amount: number | null
+          ar_forecast_amount: number | null
+          currency: string | null
+          entity_id: string | null
+          entity_name: string | null
+          month: string | null
+          sources: string | null
+          total_amount: number | null
+          trade_forecast_amount: number | null
         }
         Relationships: []
       }
