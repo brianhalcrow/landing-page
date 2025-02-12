@@ -1,29 +1,26 @@
-
-import React from 'react';
-import { AgChartsReact } from 'ag-charts-react';
-import type { AgChartOptions } from 'ag-charts-enterprise';
+import React, { useEffect, useRef } from 'react';
+import { AgCharts } from 'ag-charts-community';
+import type { AgChartOptions } from 'ag-charts-community';
 
 const TestAgChart = () => {
+  const chartRef = useRef<HTMLDivElement>(null);
+
   const chartOptions: AgChartOptions = {
-    title: {
-      text: 'AG Charts Test',
-    },
-    data: [
-      { quarter: 'Q1', revenue: 3000 },
-      { quarter: 'Q2', revenue: 4500 },
-      { quarter: 'Q3', revenue: 3200 },
-      { quarter: 'Q4', revenue: 5100 },
-    ],
-    series: [{
-      type: 'bar',
-      xKey: 'quarter',
-      yKey: 'revenue',
-    }],
+    // ... your chart options
   };
+
+  useEffect(() => {
+    if (chartRef.current) {
+      AgCharts.create({
+        ...chartOptions,
+        container: chartRef.current,
+      });
+    }
+  }, []);
 
   return (
     <div className="w-[10cm] h-[10cm] mx-auto">
-      <AgChartsReact options={chartOptions} />
+      <div ref={chartRef} className="w-full h-full" />
     </div>
   );
 };
