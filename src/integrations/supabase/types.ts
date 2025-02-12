@@ -39,6 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_account_balance: {
+        Row: {
+          account_number_bank: string
+          bank_name: string
+          currency_code: string
+          current_balance: number | null
+          earliest_date: string | null
+          entity_name: string
+          id: number
+          last_updated: string | null
+          latest_date: string | null
+        }
+        Insert: {
+          account_number_bank: string
+          bank_name: string
+          currency_code: string
+          current_balance?: number | null
+          earliest_date?: string | null
+          entity_name: string
+          id?: number
+          last_updated?: string | null
+          latest_date?: string | null
+        }
+        Update: {
+          account_number_bank?: string
+          bank_name?: string
+          currency_code?: string
+          current_balance?: number | null
+          earliest_date?: string | null
+          entity_name?: string
+          id?: number
+          last_updated?: string | null
+          latest_date?: string | null
+        }
+        Relationships: []
+      }
       calculation_templates: {
         Row: {
           category: string
@@ -669,6 +705,30 @@ export type Database = {
         }
         Relationships: []
       }
+      entities: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_name: string
+          functional_currency: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_name: string
+          functional_currency: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_name?: string
+          functional_currency?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       entity_exposure_config: {
         Row: {
           created_at: string | null
@@ -780,6 +840,57 @@ export type Database = {
             referencedColumns: ["process_setting_id"]
           },
         ]
+      }
+      erp_gl_transactions: {
+        Row: {
+          account_name: string | null
+          account_number: string
+          base_amount: number | null
+          cost_centre: string | null
+          created_at: string | null
+          document_date: string | null
+          entity: string
+          entity_id: string
+          id: number
+          period: string | null
+          transaction_amount: number | null
+          transaction_currency: string
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number: string
+          base_amount?: number | null
+          cost_centre?: string | null
+          created_at?: string | null
+          document_date?: string | null
+          entity: string
+          entity_id: string
+          id?: number
+          period?: string | null
+          transaction_amount?: number | null
+          transaction_currency: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string
+          base_amount?: number | null
+          cost_centre?: string | null
+          created_at?: string | null
+          document_date?: string | null
+          entity?: string
+          entity_id?: string
+          id?: number
+          period?: string | null
+          transaction_amount?: number | null
+          transaction_currency?: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
       }
       exposure_types: {
         Row: {
@@ -1090,6 +1201,45 @@ export type Database = {
         }
         Relationships: []
       }
+      management_structure: {
+        Row: {
+          cost_centre: string
+          created_at: string | null
+          entity_id: string
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          cost_centre: string
+          created_at?: string | null
+          entity_id: string
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          cost_centre?: string
+          created_at?: string | null
+          entity_id?: string
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "management_structure_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "management_structure_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_entity_configurations"
+            referencedColumns: ["entity_id"]
+          },
+        ]
+      }
       pipeline_executions: {
         Row: {
           created_at: string | null
@@ -1288,6 +1438,36 @@ export type Database = {
             referencedColumns: ["exposure_type_id"]
           },
         ]
+      }
+      rates: {
+        Row: {
+          base_currency: string
+          created_at: string | null
+          effective_date: string
+          id: number
+          quote_currency: string
+          rate: number
+          updated_at: string | null
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string | null
+          effective_date: string
+          id?: number
+          quote_currency: string
+          rate: number
+          updated_at?: string | null
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string | null
+          effective_date?: string
+          id?: number
+          quote_currency?: string
+          rate?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       rates_forward: {
         Row: {
@@ -1759,6 +1939,16 @@ export type Database = {
           total_forward_points_ccy1: number | null
           total_forward_points_ccy2: number | null
           trade_date: string | null
+        }
+        Relationships: []
+      }
+      v_entity_configurations: {
+        Row: {
+          cost_centre_count: number | null
+          currency_count: number | null
+          entity_id: string | null
+          entity_name: string | null
+          functional_currency: string | null
         }
         Relationships: []
       }
