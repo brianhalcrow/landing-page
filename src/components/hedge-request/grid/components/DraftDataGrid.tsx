@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { GridProps } from '../types/gridTypes';
 import { useRef } from 'react';
@@ -15,16 +16,12 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
       console.log('Fetching valid entities...');
       
       const { data: configuredEntities, error: configError } = await supabase
-        .from('entity_exposure_config')
+        .from('client_legal_entity')
         .select(`
           entity_id,
-          entities!inner (
-            entity_id,
-            entity_name,
-            functional_currency
-          )
-        `)
-        .eq('is_active', true);
+          entity_name,
+          functional_currency
+        `);
 
       if (configError) {
         console.error('Error fetching configured entities:', configError);
@@ -36,21 +33,8 @@ const DraftDataGrid = ({ rowData, onRowDataChange }: GridProps) => {
         return [];
       }
 
-      const uniqueEntities = Array.from(
-        new Map(
-          configuredEntities.map(item => [
-            item.entities.entity_id,
-            {
-              entity_id: item.entities.entity_id,
-              entity_name: item.entities.entity_name,
-              functional_currency: item.entities.functional_currency
-            }
-          ])
-        ).values()
-      );
-
-      console.log('Fetched valid entities:', uniqueEntities);
-      return uniqueEntities;
+      console.log('Fetched valid entities:', configuredEntities);
+      return configuredEntities;
     }
   });
 
