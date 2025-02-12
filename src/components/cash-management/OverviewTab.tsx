@@ -31,7 +31,7 @@ const OverviewTab = () => {
     const fetchBankAccounts = async () => {
       try {
         const { data, error } = await supabase
-          .from('client_bank_account')
+          .from('erp_bank_account')  // Updated table name here
           .select('*')
           .order('entity_id', { ascending: true });
 
