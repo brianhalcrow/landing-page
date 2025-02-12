@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
-import type { ColDef } from 'ag-grid-community';
+import type { ColDef, GridOptions } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-enterprise';
+import { gridStyles } from '../configuration/grid/styles/gridStyles';
 
 interface BankAccount {
   entity_id: string;
@@ -33,35 +34,54 @@ const OverviewTab = () => {
     {
       field: 'entity',
       headerName: 'Entity',
-      enableRowGroup: true
+      enableRowGroup: true,
+      flex: 1,
+      minWidth: 150
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
-      enableRowGroup: true
+      enableRowGroup: true,
+      flex: 1,
+      minWidth: 150
     },
     {
       field: 'currency_code',
       headerName: 'Currency',
-      enableRowGroup: true
+      enableRowGroup: true,
+      width: 120
     },
     {
       field: 'bank_name',
       headerName: 'Bank',
-      enableRowGroup: true
+      enableRowGroup: true,
+      flex: 1,
+      minWidth: 150
     },
     {
       field: 'account_number_bank',
-      headerName: 'Account Number'
+      headerName: 'Account Number',
+      flex: 1,
+      minWidth: 150
     },
     {
       field: 'account_name_bank',
-      headerName: 'Account Name'
+      headerName: 'Account Name',
+      flex: 1,
+      minWidth: 200
     },
     {
       field: 'active',
       headerName: 'Active',
-      cellRenderer: (params: any) => params.value ? '✓' : '✗'
+      width: 100,
+      cellRenderer: (params: any) => {
+        const isActive = params.value;
+        return (
+          <div className={`flex items-center justify-center w-full h-full ${isActive ? 'text-green-600' : 'text-red-600'}`}>
+            {isActive ? '✓' : '✗'}
+          </div>
+        );
+      }
     }
   ];
 
@@ -69,7 +89,23 @@ const OverviewTab = () => {
     sortable: true,
     filter: true,
     resizable: true,
-    floatingFilter: true
+    floatingFilter: true,
+    suppressMenu: false,
+    filterParams: {
+      buttons: ['reset', 'apply'],
+      closeOnApply: true
+    }
+  };
+
+  const gridOptions: GridOptions = {
+    suppressRowHoverHighlight: false,
+    columnHoverHighlight: true,
+    suppressCellSelection: true,
+    rowHeight: 48,
+    headerHeight: 48,
+    rowClass: 'grid-row',
+    groupDefaultExpanded: 1,
+    animateRows: true
   };
 
   useEffect(() => {
@@ -101,16 +137,40 @@ const OverviewTab = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-12rem)] w-full ag-theme-alpine">
+    <div 
+      className="h-[calc(100vh-12rem)] w-full ag-theme-alpine"
+      style={{ 
+        '--ag-header-background-color': '#f8fafc',
+        '--ag-header-foreground-color': '#1e293b',
+        '--ag-header-cell-hover-background-color': '#f1f5f9',
+        '--ag-row-hover-color': '#f8fafc',
+        '--ag-selected-row-background-color': '#e2e8f0',
+        '--ag-odd-row-background-color': '#ffffff',
+        '--ag-row-border-color': '#e2e8f0',
+        '--ag-cell-horizontal-padding': '1rem',
+        '--ag-borders': 'none',
+        '--ag-row-height': '48px',
+        '--ag-header-height': '48px',
+        '--ag-header-column-separator-display': 'block',
+        '--ag-header-column-separator-height': '50%',
+        '--ag-header-column-separator-width': '1px',
+        '--ag-header-column-separator-color': '#e2e8f0'
+      } as any}
+    >
+      <style>
+        {gridStyles}
+      </style>
       <AgGridReact
         rowData={bankAccounts}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
+        gridOptions={gridOptions}
         groupDisplayType="groupRows"
         animateRows={true}
         rowGroupPanelShow="always"
         enableRangeSelection={true}
         suppressAggFuncInHeader={true}
+        domLayout="normal"
       />
     </div>
   );
