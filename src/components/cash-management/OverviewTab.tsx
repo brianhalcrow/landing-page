@@ -102,9 +102,9 @@ const OverviewTab = () => {
   };
 
   const saveColumnState = useCallback(async () => {
-    if (!gridRef.current?.columnApi) return;
+    if (!gridRef.current?.api) return;
 
-    const columnState = gridRef.current.columnApi.getColumnState();
+    const columnState = gridRef.current.api.getColumnState();
     
     try {
       const { error } = await supabase
@@ -124,6 +124,8 @@ const OverviewTab = () => {
   }, []);
 
   const loadColumnState = useCallback(async () => {
+    if (!gridRef.current?.api) return;
+
     try {
       const { data, error } = await supabase
         .from('grid_preferences')
@@ -133,9 +135,10 @@ const OverviewTab = () => {
 
       if (error) throw error;
 
-      if (data?.column_state && gridRef.current?.columnApi) {
-        gridRef.current.columnApi.applyColumnState({
-          state: data.column_state as ColumnState[],
+      if (data?.column_state) {
+        const columnState = data.column_state as ColumnState[];
+        gridRef.current.api.applyColumnState({
+          state: columnState,
           applyOrder: true
         });
       }
