@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { 
   DataGrid, 
   GridColDef,
-  GridValueFormatterParams,
+  GridRenderCellParams,
 } from '@mui/x-data-grid';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -66,7 +66,7 @@ const OverviewTab = () => {
       width: 100,
       type: 'boolean',
       editable: true,
-      valueFormatter: (params: GridValueFormatterParams) => 
+      renderCell: (params: GridRenderCellParams) => 
         params.value ? '✓' : '✗'
     }
   ];
