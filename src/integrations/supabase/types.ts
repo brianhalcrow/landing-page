@@ -1944,16 +1944,13 @@ export type Database = {
       }
       v_cash_management: {
         Row: {
-          actual_amount: number | null
-          ap_forecast_amount: number | null
-          ar_forecast_amount: number | null
-          currency: string | null
+          category: string | null
           entity_id: string | null
           entity_name: string | null
           month: string | null
-          sources: string | null
-          total_amount: number | null
-          trade_forecast_amount: number | null
+          source: string | null
+          "Transaction Amount": number | null
+          transaction_currency: string | null
         }
         Relationships: []
       }
