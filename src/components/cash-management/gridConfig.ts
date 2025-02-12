@@ -5,44 +5,39 @@ export const createColumnDefs = (): ColDef[] => {
     { 
       field: 'entity',
       headerName: 'Entity',
-      rowGroup: true,  // Keep this as the primary grouping
+      rowGroup: true,
       hide: true,
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
-      enableRowGroup: true,  // Remove rowGroup: true from here
-      hide: false,
+      rowGroup: true,
+      hide: true,
     },
     {
       field: 'currency_code',
       headerName: 'Currency',
-      enableRowGroup: true,  // Remove rowGroup: true from here
-      hide: false,
+      width: 100,
     },
     {
       field: 'account_number_bank',
       headerName: 'Account Number',
-      enableRowGroup: true,  // Remove rowGroup: true from here
-      hide: false,
+      width: 150,
     },
     {
       field: 'bank_name',
       headerName: 'Bank',
-      width: 150,
-      enableRowGroup: false,
+      width: 120,
     },
     {
       field: 'account_name_bank',
       headerName: 'Account Name',
       width: 200,
-      enableRowGroup: false,
     },
     {
       field: 'active',
       headerName: 'Active',
       width: 100,
-      enableRowGroup: false,
       cellRenderer: (params: any) => {
         return params.value ? '✓' : '✗';
       }
@@ -59,15 +54,13 @@ export const defaultColDef = {
 };
 
 export const autoGroupColumnDef = {
-  headerName: 'Grouped By Entity',
-  minWidth: 300,
+  headerName: 'Bank Accounts',
+  minWidth: 250,
   flex: 1,
   cellRendererParams: {
     suppressCount: true,
     innerRenderer: (params: any) => {
-      if (!params.value) return '';
       return params.value;
     }
   }
-};
 };
