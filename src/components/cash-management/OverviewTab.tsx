@@ -1,12 +1,16 @@
-import { DataGrid, GridColDef, GridValueGetterParams, GridRenderCellParams, GridEventListener } from '@mui/x-data-grid';
+
 import { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeProvider, createTheme } from '@mui/material';
+
+const theme = createTheme();
 
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
   const [bankAccounts, setBankAccounts] = useState<any[]>([]);
 
-  const columns: GridColDef[] = [
+  const columns = [
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
@@ -24,7 +28,7 @@ const OverviewTab = () => {
       headerName: 'Account Type',
       width: 150,
       groupable: true,
-      editable: true // Makes this cell editable
+      editable: true
     },
     {
       field: 'currency_code',
@@ -55,84 +59,59 @@ const OverviewTab = () => {
       headerName: 'Active',
       width: 100,
       type: 'boolean',
-      editable: true,
-      renderCell: (params: GridRenderCellParams) => 
-        params.value ? '✓' : '✗'
+      editable: true
     }
   ];
 
   useEffect(() => {
+    const fetchBankAccounts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('client_bank_account')
+          .select('*')
+          .order('entity_id', { ascending: true });
+        
+        if (error) throw error;
+        
+        // MUI DataGrid requires a unique id field
+        const rowsWithId = data?.map(row => ({
+          ...row,
+          id: row.account_number_bank // using account number as unique identifier
+        })) || [];
+        
+        setBankAccounts(rowsWithId);
+      } catch (error) {
+        console.error('Error fetching bank accounts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBankAccounts();
   }, []);
 
-  const fetchBankAccounts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('client_bank_account')
-        .select('*')
-        .order('entity_id', { ascending: true });
-      if (error) throw error;
-      // MUI DataGrid requires a unique id field
-      const rowsWithId = data?.map(row => ({
-        ...row,
-        id: row.account_number_bank // or whatever unique identifier you have
-      })) || [];
-      setBankAccounts(rowsWithId);
-    } catch (error) {
-      console.error('Error fetching bank accounts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCellEdit: GridEventListener<'cellEditStop'> = async (params, event) => {
-    try {
-      const { id, field, value } = params;
-      
-      // Update the database
-      const { error } = await supabase
-        .from('client_bank_account')
-        .update({ [field]: value })
-        .eq('account_number_bank', id); // assuming account_number_bank is your unique identifier
-
-      if (error) throw error;
-
-      // Update local state
-      setBankAccounts(prev => 
-        prev.map(row => 
-          row.id === id ? { ...row, [field]: value } : row
-        )
-      );
-    } catch (error) {
-      console.error('Error updating record:', error);
-      // You might want to add error handling UI here
-    }
-  };
-
   return (
-    <div style={{ height: 'calc(100vh - 12rem)', width: '100%' }}>
-      <DataGrid
-        rows={bankAccounts}
-        columns={columns}
-        loading={loading}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 100 },
-          },
-          grouping: {
-            groupedColumns: ['entity_id'] // Initial grouping
-          }
-        }}
-        onCellEditStop={handleCellEdit}
-        groupingColDef={{
-          headerName: 'Bank Accounts By Entity'
-        }}
-        pageSizeOptions={[25, 50, 100]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        experimentalFeatures={{ groupingDisplayMode: 'tree' }}
-      />
-    </div>
+    <ThemeProvider theme={theme}>
+      <div style={{ height: 'calc(100vh - 12rem)', width: '100%' }}>
+        <DataGrid
+          rows={bankAccounts}
+          columns={columns}
+          loading={loading}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 100 },
+            },
+            grouping: {
+              groupedColumns: ['entity_id'] // Initial grouping
+            }
+          }}
+          pageSizeOptions={[25, 50, 100]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          experimentalFeatures={{ groupingDisplayMode: 'tree' }}
+        />
+      </div>
+    </ThemeProvider>
   );
 };
 
