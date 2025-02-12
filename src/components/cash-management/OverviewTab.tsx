@@ -4,8 +4,6 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
 import { format } from 'date-fns';
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from '@tanstack/react-query';
 
 interface CashManagementData {
   entity_id: string;
@@ -13,67 +11,57 @@ interface CashManagementData {
   transaction_currency: string;
   month: string;
   category: string;
-  "Transaction Amount": number; // Changed to match the view column name
+  "Transaction Amount": number;
   forecast_amount: number | null;
   source: string;
 }
 
+const mockData: CashManagementData[] = [
+  {
+    entity_id: "1",
+    entity_name: "Entity A",
+    transaction_currency: "USD",
+    month: "2024-01-01",
+    category: "Revenue",
+    "Transaction Amount": 10000,
+    forecast_amount: null,
+    source: "Actual"
+  },
+  {
+    entity_id: "1",
+    entity_name: "Entity A",
+    transaction_currency: "USD",
+    month: "2024-01-01",
+    category: "Revenue",
+    "Transaction Amount": 0,
+    forecast_amount: 12000,
+    source: "Forecast"
+  },
+  {
+    entity_id: "2",
+    entity_name: "Entity B",
+    transaction_currency: "EUR",
+    month: "2024-01-01",
+    category: "Expenses",
+    "Transaction Amount": 5000,
+    forecast_amount: null,
+    source: "Actual"
+  },
+  {
+    entity_id: "2",
+    entity_name: "Entity B",
+    transaction_currency: "EUR",
+    month: "2024-01-01",
+    category: "Expenses",
+    "Transaction Amount": 0,
+    forecast_amount: 5500,
+    source: "Forecast"
+  }
+];
+
 const OverviewTab = () => {
   const [gridApi, setGridApi] = useState<any>(null);
   const [gridReady, setGridReady] = useState(false);
-  
-  const { data: rowData, isLoading } = useQuery({
-    queryKey: ['cash-management-data'],
-    queryFn: async () => {
-      // First get actual data
-      const { data: actualData, error: actualError } = await supabase
-        .from('v_cash_management')
-        .select('*')
-        .order('month', { ascending: true });
-
-      if (actualError) {
-        console.error('Error fetching actual data:', actualError);
-        throw actualError;
-      }
-
-      // Then get forecast data
-      const { data: forecastData, error: forecastError } = await supabase
-        .from('cash_management_forecast')
-        .select('*')
-        .order('month', { ascending: true });
-
-      if (forecastError) {
-        console.error('Error fetching forecast data:', forecastError);
-        throw forecastError;
-      }
-
-      // Process actual data
-      const actual = actualData.map(row => ({
-        entity_id: row.entity_id,
-        entity_name: row.entity_name,
-        transaction_currency: row.transaction_currency,
-        month: row.month,
-        category: row.category,
-        "Transaction Amount": row["Transaction Amount"] || 0,
-        forecast_amount: null,
-        source: 'Actual'
-      }));
-
-      // Process forecast data
-      const forecast = forecastData.map(row => ({
-        entity_id: row.entity_id,
-        entity_name: row.entity_name,
-        transaction_currency: row.transaction_currency,
-        month: row.month,
-        category: row.category,
-        "Transaction Amount": 0,
-        forecast_amount: row.forecast_amount,
-        source: 'Forecast'
-      }));
-
-      return [...actual, ...forecast];
-    }
-  });
 
   const columnDefs = useMemo(() => {
     const baseColumns: ColDef[] = [
@@ -183,10 +171,6 @@ const OverviewTab = () => {
     };
   }, [gridApi, gridReady]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       <div 
@@ -199,7 +183,7 @@ const OverviewTab = () => {
       >
         <GridStyles />
         <AgGridReact
-          rowData={rowData}
+          rowData={mockData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}
@@ -212,7 +196,6 @@ const OverviewTab = () => {
           enableCellTextSelection={true}
           onCellValueChanged={(event) => {
             if (event.colDef.field === 'forecast_amount') {
-              // Here we would add logic to save the forecast amount
               console.log('Forecast amount changed:', event.data);
             }
           }}
