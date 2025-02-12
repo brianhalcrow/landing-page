@@ -9,17 +9,15 @@ export const createColumnDefs = (): ColDef[] => {
       rowGroup: true,
       hide: true
     },
-    { 
+    {
       field: 'bank_name',
       headerName: 'Bank',
-      rowGroup: true,
-      hide: true
+      width: 150
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
-      rowGroup: true,
-      hide: true
+      width: 130
     },
     {
       field: 'account_name_bank',
@@ -56,9 +54,9 @@ export const defaultColDef = {
 };
 
 export const autoGroupColumnDef = {
-  headerName: 'Group',
+  headerName: 'Entity',
   minWidth: 250,
   cellRendererParams: {
-    suppressCount: true
+    suppressCount: false
   }
 };

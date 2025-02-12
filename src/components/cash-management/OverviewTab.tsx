@@ -57,7 +57,7 @@ const OverviewTab = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}
-          groupDefaultExpanded={1}
+          groupDefaultExpanded={0}
           suppressAggFuncInHeader={true}
           onGridReady={onGridReady}
           domLayout="normal"
