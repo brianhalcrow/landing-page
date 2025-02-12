@@ -2,7 +2,7 @@
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ModuleRegistry } from 'ag-grid-community';
-import { ClientSideRowModelModule, RowGroupingModule, EnterpriseCoreModule } from 'ag-grid-enterprise';
+import { ClientSideRowModelModule, RowGroupingModule, AllEnterpriseModule } from 'ag-grid-enterprise';
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from './components/ThemeProvider'
@@ -11,7 +11,7 @@ import { ThemeProvider } from './components/ThemeProvider'
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
   RowGroupingModule,
-  EnterpriseCoreModule
+  AllEnterpriseModule
 ]);
 
 const queryClient = new QueryClient({
