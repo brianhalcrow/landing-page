@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  ClientSideRowModelModule, 
-  RowGroupingModule, 
-  EnterpriseCoreModule 
-} from 'ag-grid-enterprise';  // Changed this import
+// Update the imports to use ag-grid-enterprise
+import { ModuleRegistry, AllEnterpriseModule } from 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -13,12 +10,10 @@ const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
   const [bankAccounts, setBankAccounts] = useState([]);
 
-  const modules = [
-    ClientSideRowModelModule,
-    RowGroupingModule,
-    EnterpriseCoreModule
-  ];
+  // Update modules to use AllEnterpriseModule
+  const modules = [AllEnterpriseModule];
 
+  // Rest of your component remains the same
   const columnDefs = [
     {
       field: 'entity_id',
