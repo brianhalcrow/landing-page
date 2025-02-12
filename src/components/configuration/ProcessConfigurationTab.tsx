@@ -1,52 +1,52 @@
-
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProcessConfigurationGrid from "./grid/ProcessConfigurationGrid";
 
-// Database response types (matching Supabase schema)
-interface DbProcessSetting {
+// Base types
+type BaseRecord = {
+  is_active?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+// Simplified database types
+type DbProcessSetting = BaseRecord & {
   process_setting_id: number;
   setting_name: string;
   setting_type: string;
   parent_setting_id: number | null;
-}
+};
 
-interface DbProcessOption {
+type DbProcessOption = BaseRecord & {
   process_option_id: number;
   option_name: string;
   process_settings: DbProcessSetting[];
-}
+};
 
-interface DbProcessType {
+type DbProcessType = BaseRecord & {
   process_type_id: number;
   process_name: string;
   process_options: DbProcessOption[];
-}
+};
 
-interface DbScheduleParameter {
+type DbScheduleParameter = BaseRecord & {
   parameter_name: string;
   parameter_value: string;
   schedule_id: number;
-  created_at: string | null;
-  updated_at: string | null;
-  is_active: boolean | null;
-}
+};
 
-interface DbScheduleDetail {
+type DbScheduleDetail = BaseRecord & {
   day_of_month: number[] | null;
   day_of_week: number[] | null;
   execution_time: string[];
   frequency: "daily" | "weekly" | "monthly" | "on_demand";
-  is_active: boolean | null;
   schedule_id: number;
   timezone: string;
-  created_at: string | null;
-  updated_at: string | null;
-}
+};
 
-interface DbScheduleDefinition {
+type DbScheduleDefinition = BaseRecord & {
   schedule_id: number;
   entity_id: string;
   schedule_name: string;
@@ -54,48 +54,39 @@ interface DbScheduleDefinition {
   schedule_type: "on_demand" | "scheduled";
   process_option_id: number | null;
   process_setting_id: number;
-  is_active: boolean | null;
-  created_at: string | null;
-  updated_at: string | null;
   schedule_details: DbScheduleDetail;
   schedule_parameters: DbScheduleParameter[];
-}
+};
 
-interface DbEntityProcessSetting {
+type DbEntityProcessSetting = BaseRecord & {
   process_setting_id: number;
   entity_id: string;
   setting_value: string;
-  is_active: boolean | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
+};
 
-interface DbEntity {
+type DbEntity = BaseRecord & {
   entity_id: string;
   entity_name: string | null;
   local_currency: string | null;
   functional_currency: string | null;
   accounting_rate_method: string | null;
-  is_active?: boolean;
-  created_at?: string | null;
-  updated_at?: string | null;
-}
+};
 
-// Application types (for component usage)
-interface EntityProcessSetting {
+// Simplified application types
+type EntityProcessSetting = {
   setting_id: number;
   entity_id: string;
   setting_value: string;
   is_active: boolean;
-}
+};
 
-interface Entity {
+type Entity = {
   entity_id: string;
   entity_name: string;
   settings: EntityProcessSetting[];
   schedules: DbScheduleDefinition[];
   isEditing: boolean;
-}
+};
 
 const ProcessConfigurationTab = () => {
   const { data: processTypes, isLoading: isLoadingTypes } = useQuery<DbProcessType[]>({
@@ -175,14 +166,14 @@ const ProcessConfigurationTab = () => {
   if (isLoadingTypes || isLoadingEntities) {
     return (
       <div className="p-6">
-        <Skeleton className="h-[600px] w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!entities || entities.length === 0) {
     return (
-      <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
+      <div className="w-full h-64 flex items-center justify-center text-muted-foreground">
         No entities found.
       </div>
     );
@@ -190,7 +181,7 @@ const ProcessConfigurationTab = () => {
 
   if (!processTypes || processTypes.length === 0) {
     return (
-      <div className="w-full h-[600px] flex items-center justify-center text-muted-foreground">
+      <div className="w-full h-64 flex items-center justify-center text-muted-foreground">
         No process types configured.
       </div>
     );
@@ -199,7 +190,7 @@ const ProcessConfigurationTab = () => {
   return (
     <Suspense fallback={
       <div className="p-6">
-        <Skeleton className="h-[600px] w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     }>
       <div className="p-6">
