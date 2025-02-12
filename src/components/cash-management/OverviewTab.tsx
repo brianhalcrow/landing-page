@@ -64,6 +64,9 @@ const OverviewTab = () => {
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
+          rowGroupPanelShow="never"
+          groupIncludeFooter={false}
+          groupDisplayType="groupRows"
         />
       </div>
     </div>
