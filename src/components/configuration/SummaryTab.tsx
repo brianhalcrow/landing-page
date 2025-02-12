@@ -1,4 +1,3 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,12 +12,14 @@ interface EntityConfig {
   entity_id: string;
   entity_name: string;
   functional_currency: string;
-  accounting_rate_method: string;
-  configurations: {
+  cost_centre_count: number;
+  currency_count: number;
+  accounting_rate_method?: string;
+  configurations?: {
     process_settings?: Record<string, { value: string }>;
     exposure_config?: Record<string, boolean>;
   } & Json;
-  updated_at: string;
+  updated_at?: string;
 }
 
 const SummaryTab = () => {
@@ -41,34 +42,15 @@ const SummaryTab = () => {
         throw error;
       }
 
-      // Transform data to flatten process settings and exposure config
-      return (data as EntityConfig[]).map(config => {
-        const flattenedConfig = {
-          entity_id: config.entity_id,
-          entity_name: config.entity_name,
-          functional_currency: config.functional_currency,
-          accounting_rate_method: config.accounting_rate_method,
-          updated_at: config.updated_at,
-        };
+      // Transform the data to match the EntityConfig interface
+      const transformedData: EntityConfig[] = (data || []).map(item => ({
+        ...item,
+        accounting_rate_method: '',
+        updated_at: new Date().toISOString(),
+        configurations: {}
+      }));
 
-        // Add process settings as individual columns
-        if (config.configurations?.process_settings) {
-          Object.entries(config.configurations.process_settings).forEach(([key, value]) => {
-            flattenedConfig[`process_${key}`] = value.value === 'true';
-          });
-        }
-
-        // Add exposure configs as individual columns
-        if (config.configurations?.exposure_config) {
-          Object.entries(config.configurations.exposure_config).forEach(([key, value]) => {
-            if (key !== 'no_exposure') {
-              flattenedConfig[`exposure_${key}`] = value;
-            }
-          });
-        }
-
-        return flattenedConfig;
-      });
+      return transformedData;
     }
   });
 
@@ -98,8 +80,15 @@ const SummaryTab = () => {
         headerClass: 'ag-header-center'
       },
       {
-        field: 'accounting_rate_method',
-        headerName: 'Rate Method',
+        field: 'cost_centre_count',
+        headerName: 'Cost Centre Count',
+        minWidth: 150,
+        flex: 1,
+        headerClass: 'ag-header-center'
+      },
+      {
+        field: 'currency_count',
+        headerName: 'Currency Count',
         minWidth: 150,
         flex: 1,
         headerClass: 'ag-header-center'

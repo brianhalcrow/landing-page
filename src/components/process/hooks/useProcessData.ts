@@ -2,6 +2,31 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+interface ProcessType {
+  process_type_id: number;
+  process_name: string;
+  process_options: ProcessOption[];
+}
+
+interface ProcessOption {
+  process_option_id: number;
+  option_name: string;
+  process_settings: ProcessSetting[];
+}
+
+interface ProcessSetting {
+  process_setting_id: number;
+  setting_name: string;
+  setting_type: string;
+}
+
+interface EntitySetting {
+  entity_id: string;
+  entity_name: string;
+  settings: any[];
+  isEditing: boolean;
+}
+
 export const useProcessData = () => {
   // Fetch process types
   const { data: processTypes, isLoading: isLoadingTypes } = useQuery({
@@ -25,7 +50,7 @@ export const useProcessData = () => {
         .eq('is_active', true);
 
       if (error) throw error;
-      return data;
+      return data as ProcessType[];
     },
   });
 
@@ -34,15 +59,8 @@ export const useProcessData = () => {
     queryKey: ['entity-process-settings'],
     queryFn: async () => {
       const { data: entities, error: entitiesError } = await supabase
-        .from('entity_exposure_config')
-        .select(`
-          entity_id,
-          entities (
-            entity_name
-          )
-        `)
-        .eq('exposure_type_id', 4)
-        .eq('is_active', true);
+        .from('client_legal_entity')
+        .select('entity_id, entity_name');
 
       if (entitiesError) throw entitiesError;
 
@@ -53,27 +71,12 @@ export const useProcessData = () => {
 
       if (settingsError) throw settingsError;
 
-      return entities?.map(entity => {
-        const entitySettings = settings?.filter(s => s.entity_id === entity.entity_id) || [];
-        
-        const settingsMap = Object.fromEntries(
-          (processTypes || []).flatMap(pt => 
-            pt.process_options.flatMap(po => 
-              po.process_settings.map(ps => [
-                `setting_${ps.process_setting_id}`,
-                entitySettings.find(es => es.process_setting_id === ps.process_setting_id)?.setting_value === 'true'
-              ])
-            )
-          )
-        );
-
-        return {
-          entity_id: entity.entity_id,
-          entity_name: entity.entities?.entity_name,
-          ...settingsMap,
-          isEditing: false
-        };
-      });
+      return entities?.map(entity => ({
+        entity_id: entity.entity_id,
+        entity_name: entity.entity_name,
+        settings: settings?.filter(s => s.entity_id === entity.entity_id) || [],
+        isEditing: false
+      })) as EntitySetting[];
     },
     enabled: !!processTypes
   });

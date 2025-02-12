@@ -1,3 +1,4 @@
+
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useCallback } from 'react';
@@ -40,16 +41,8 @@ const InputDraftGrid = () => {
       console.log('Fetching valid entities...');
       
       const { data: configuredEntities, error: configError } = await supabase
-        .from('entity_exposure_config')
-        .select(`
-          entity_id,
-          entities!inner (
-            entity_id,
-            entity_name,
-            functional_currency
-          )
-        `)
-        .eq('is_active', true);
+        .from('client_legal_entity')
+        .select('entity_id, entity_name, functional_currency');
 
       if (configError) {
         console.error('Error fetching configured entities:', configError);
@@ -61,21 +54,14 @@ const InputDraftGrid = () => {
         return [];
       }
 
-      const uniqueEntities = Array.from(
-        new Map(
-          configuredEntities.map(item => [
-            item.entities.entity_id,
-            {
-              entity_id: item.entities.entity_id,
-              entity_name: item.entities.entity_name,
-              functional_currency: item.entities.functional_currency
-            }
-          ])
-        ).values()
-      );
+      const transformedEntities = configuredEntities.map(entity => ({
+        entity_id: entity.entity_id,
+        entity_name: entity.entity_name,
+        functional_currency: entity.functional_currency
+      }));
 
-      console.log('Fetched valid entities:', uniqueEntities);
-      return uniqueEntities as ValidEntity[];
+      console.log('Fetched valid entities:', transformedEntities);
+      return transformedEntities as ValidEntity[];
     }
   });
 
