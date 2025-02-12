@@ -1,9 +1,11 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GripHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AgChartsReact } from 'ag-charts-react';
-import type { AgChartOptions } from 'ag-charts-enterprise';
+import { AgCharts } from 'ag-charts-community';
+import type { AgChartOptions } from 'ag-charts-community';
+import { useEffect, useRef } from 'react';
+
+// ... rest of your component code with AgCharts.create() instead of AgChartsReact
 
 interface ChartContainerProps {
   isLoading: boolean;
