@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GripHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AgChartsReact } from 'ag-charts-enterprise';
+import { AgChartsReact } from 'ag-charts-react';
 import { AgChartOptions } from 'ag-charts-enterprise';
 
 interface ChartContainerProps {
