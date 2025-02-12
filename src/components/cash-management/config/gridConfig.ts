@@ -17,7 +17,33 @@ export const gridStyles: CSSProperties = {
   ['--ag-header-column-separator-display' as string]: 'block',
   ['--ag-header-column-separator-height' as string]: '50%',
   ['--ag-header-column-separator-width' as string]: '1px',
-  ['--ag-header-column-separator-color' as string]: '#e2e8f0'
+  ['--ag-header-column-separator-color' as string]: '#e2e8f0',
+  ['--ag-font-family' as string]: 'inherit',
+  ['--ag-font-size' as string]: '14px',
+  ['--ag-cell-horizontal-border' as string]: 'none',
+  ['--ag-borders-critical' as string]: 'none',
+  ['--ag-header-column-resize-handle-display' as string]: 'block',
+  ['--ag-header-column-resize-handle-width' as string]: '4px',
+  ['--ag-header-column-resize-handle-height' as string]: '50%',
+  ['--ag-header-column-resize-handle-color' as string]: '#9ca3af',
+  ['--ag-alpine-active-color' as string]: '#9b87f5',
+  ['--ag-range-selection-border-color' as string]: '#9b87f5',
+  ['--ag-range-selection-background-color' as string]: 'rgba(155, 135, 245, 0.1)',
+  ['--ag-header-foreground-color' as string]: '#1e293b',
+  ['--ag-secondary-foreground-color' as string]: '#64748b',
+  ['--ag-disabled-foreground-color' as string]: '#94a3b8',
+  ['--ag-background-color' as string]: '#ffffff',
+  ['--ag-header-cell-moving-background-color' as string]: '#f8fafc',
+  ['--ag-row-border-style' as string]: 'solid',
+  ['--ag-chip-background-color' as string]: '#f1f5f9',
+  ['--ag-input-focus-box-shadow' as string]: '0 0 0 2px rgba(155, 135, 245, 0.25)',
+  ['--ag-input-focus-border-color' as string]: '#9b87f5',
+  ['--ag-alpine-active-color' as string]: '#9b87f5',
+  ['--ag-material-primary-color' as string]: '#9b87f5',
+  ['--ag-checkbox-checked-color' as string]: '#9b87f5',
+  ['--ag-checkbox-unchecked-color' as string]: '#64748b',
+  ['--ag-checkbox-background-color' as string]: '#ffffff',
+  ['--ag-checkbox-border-radius' as string]: '4px',
 };
 
 export const gridOptions: GridOptions = {
@@ -27,5 +53,17 @@ export const gridOptions: GridOptions = {
   headerHeight: 48,
   rowClass: 'grid-row',
   groupDefaultExpanded: 1,
-  animateRows: true
+  animateRows: true,
+  suppressCellFocus: false,
+  enableRangeSelection: true,
+  enableCellTextSelection: true,
+  suppressDragLeaveHidesColumns: true,
+  suppressMakeColumnVisibleAfterUnGroup: true,
+  rowSelection: 'multiple',
+  suppressRowClickSelection: true,
+  pagination: true,
+  paginationPageSize: 100,
+  suppressScrollOnNewData: true,
+  domLayout: 'normal'
 };
+
