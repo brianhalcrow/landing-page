@@ -1,4 +1,3 @@
-
 import { GridOptions } from 'ag-grid-community';
 import { CSSProperties } from 'react';
 
@@ -44,6 +43,23 @@ export const gridStyles: CSSProperties = {
   ['--ag-checkbox-unchecked-color' as string]: '#64748b',
   ['--ag-checkbox-background-color' as string]: '#ffffff',
   ['--ag-checkbox-border-radius' as string]: '4px',
+  ['--ag-menu-background-color' as string]: '#ffffff',
+  ['--ag-menu-min-width' as string]: '200px',
+  ['--ag-menu-padding' as string]: '0.5rem',
+  ['--ag-popup-shadow' as string]: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  ['--ag-card-shadow' as string]: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  ['--ag-card-radius' as string]: '0.375rem',
+  ['--ag-menu-option-padding' as string]: '0.5rem 1rem',
+  ['--ag-menu-option-height' as string]: '32px',
+  ['--ag-menu-option-hover-color' as string]: '#f8fafc',
+  ['--ag-menu-separator-color' as string]: '#e2e8f0',
+  ['--ag-menu-separator-height' as string]: '1px',
+  ['--ag-selected-tab-underline-color' as string]: '#9b87f5',
+  ['--ag-selected-tab-underline-width' as string]: '2px',
+  ['--ag-selected-tab-underline-transition-speed' as string]: '0.3s',
+  ['--ag-tab-min-width' as string]: '120px',
+  ['--ag-subheader-background-color' as string]: '#f8fafc',
+  ['--ag-control-panel-background-color' as string]: '#ffffff',
 };
 
 export const gridOptions: GridOptions = {
@@ -66,4 +82,3 @@ export const gridOptions: GridOptions = {
   suppressScrollOnNewData: true,
   domLayout: 'normal'
 };
-
