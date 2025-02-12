@@ -8,4 +8,5 @@ export interface BankAccount {
   account_number_bank: string;
   account_name_bank: string;
   active: boolean;
+  account_number_coa: string;
 }

@@ -49,4 +49,3 @@ export const useGLTransactions = (page: number) => {
 };
 
 export { PAGE_SIZE };
-

@@ -2154,6 +2154,30 @@ export type Database = {
         }
         Relationships: []
       }
+      v_legal_entity: {
+        Row: {
+          accounting_rate_method: string | null
+          entity_id: string | null
+          entity_name: string | null
+          functional_currency: string | null
+          local_currency: string | null
+        }
+        Insert: {
+          accounting_rate_method?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          functional_currency?: string | null
+          local_currency?: string | null
+        }
+        Update: {
+          accounting_rate_method?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          functional_currency?: string | null
+          local_currency?: string | null
+        }
+        Relationships: []
+      }
       v_schedule_configurations: {
         Row: {
           day_of_month: number[] | null
