@@ -1,4 +1,3 @@
-
 import { ColDef } from 'ag-grid-community';
 
 export const createColumnDefs = (): ColDef[] => {
@@ -6,30 +5,26 @@ export const createColumnDefs = (): ColDef[] => {
     { 
       field: 'entity',
       headerName: 'Entity',
-      rowGroup: true,
-      enableRowGroup: true,
+      rowGroup: true,  // Keep this as the primary grouping
       hide: true,
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
-      rowGroup: true,
-      enableRowGroup: true,
-      hide: true,
+      enableRowGroup: true,  // Remove rowGroup: true from here
+      hide: false,
     },
     {
       field: 'currency_code',
       headerName: 'Currency',
-      rowGroup: true,
-      enableRowGroup: true,
-      hide: true,
+      enableRowGroup: true,  // Remove rowGroup: true from here
+      hide: false,
     },
     {
       field: 'account_number_bank',
       headerName: 'Account Number',
-      rowGroup: true,
-      enableRowGroup: true,
-      hide: true,
+      enableRowGroup: true,  // Remove rowGroup: true from here
+      hide: false,
     },
     {
       field: 'bank_name',
@@ -64,15 +59,15 @@ export const defaultColDef = {
 };
 
 export const autoGroupColumnDef = {
-  headerName: 'Bank Accounts',
+  headerName: 'Grouped By Entity',
   minWidth: 300,
   flex: 1,
   cellRendererParams: {
     suppressCount: true,
     innerRenderer: (params: any) => {
-      const field = params.node.field || '';
-      const value = params.value || '';
-      return value;
+      if (!params.value) return '';
+      return params.value;
     }
   }
+};
 };
