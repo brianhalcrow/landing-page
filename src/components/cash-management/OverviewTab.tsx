@@ -1,14 +1,45 @@
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { GridStyles } from "../hedge-request/grid/components/GridStyles";
-import { mockData } from './mockData';
 import { createColumnDefs, defaultColDef, autoGroupColumnDef } from './gridConfig';
 import { useGridConfig } from './hooks/useGridConfig';
+import { supabase } from "@/integrations/supabase/client";
+import { BankAccountData } from './types';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const OverviewTab = () => {
   const { onGridReady } = useGridConfig();
   const columnDefs = useMemo(() => createColumnDefs(), []);
+  const [loading, setLoading] = useState(true);
+  const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
+
+  useEffect(() => {
+    const fetchBankAccounts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('client_bank_account')
+          .select('*')
+          .order('entity', { ascending: true });
+
+        if (error) {
+          throw error;
+        }
+
+        setBankAccounts(data);
+      } catch (error) {
+        console.error('Error fetching bank accounts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBankAccounts();
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[calc(100vh-12rem)] w-full" />;
+  }
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
@@ -22,7 +53,7 @@ const OverviewTab = () => {
       >
         <GridStyles />
         <AgGridReact
-          rowData={mockData}
+          rowData={bankAccounts}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}
@@ -33,11 +64,6 @@ const OverviewTab = () => {
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
-          onCellValueChanged={(event) => {
-            if (event.colDef.field === 'forecast_amount') {
-              console.log('Forecast amount changed:', event.data);
-            }
-          }}
         />
       </div>
     </div>

@@ -1,65 +1,47 @@
 
 import { ColDef } from 'ag-grid-community';
-import { format } from 'date-fns';
 
 export const createColumnDefs = (): ColDef[] => {
   return [
     { 
-      field: 'entity_name',
+      field: 'entity',
       headerName: 'Entity',
-      pinned: 'left',
-      width: 180,
       rowGroup: true,
       hide: true
     },
     { 
-      field: 'transaction_currency',
+      field: 'bank_name',
+      headerName: 'Bank',
+      rowGroup: true,
+      hide: true
+    },
+    {
+      field: 'account_type',
+      headerName: 'Account Type',
+      rowGroup: true,
+      hide: true
+    },
+    {
+      field: 'account_name_bank',
+      headerName: 'Account Name',
+      width: 200
+    },
+    {
+      field: 'account_number_bank',
+      headerName: 'Account Number',
+      width: 150
+    },
+    {
+      field: 'currency_code',
       headerName: 'Currency',
       width: 100
     },
     {
-      field: 'category',
-      headerName: 'Category',
-      width: 120
-    },
-    {
-      field: 'month',
-      headerName: 'Month',
-      width: 120,
-      valueFormatter: (params) => {
-        return params.value ? format(new Date(params.value), 'MMM yyyy') : '';
-      }
-    },
-    {
-      field: 'Transaction Amount',
-      headerName: 'Actual',
-      width: 120,
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        if (params.value != null) {
-          return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }).format(params.value);
-        }
-        return '';
-      }
-    },
-    {
-      field: 'forecast_amount',
-      headerName: 'Forecast',
-      width: 120,
-      editable: true,
-      cellClass: 'editable-cell',
-      type: 'numericColumn',
-      valueFormatter: (params) => {
-        if (params.value != null) {
-          return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }).format(params.value);
-        }
-        return '';
+      field: 'active',
+      headerName: 'Active',
+      width: 100,
+      cellRenderer: (params: any) => {
+        return params.value ? '✓' : '✗';
       }
     }
   ];
@@ -69,12 +51,13 @@ export const defaultColDef = {
   sortable: true,
   filter: true,
   resizable: true,
-  suppressSizeToFit: false
+  suppressSizeToFit: false,
+  floatingFilter: true
 };
 
 export const autoGroupColumnDef = {
-  headerName: 'Entity',
-  minWidth: 300,
+  headerName: 'Group',
+  minWidth: 250,
   cellRendererParams: {
     suppressCount: true
   }
