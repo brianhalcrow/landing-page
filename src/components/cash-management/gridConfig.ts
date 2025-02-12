@@ -5,19 +5,47 @@ export const createColumnDefs = (): ColDef[] => {
     { 
       field: 'entity_id',
       headerName: 'Entity ID',
-      rowGroup: true,
-      hide: false, // Changed to false temporarily for debugging
+      hide: false,
       sort: 'asc',
-      // Add these to force grouping
-      enableRowGroup: true,
-      cellRenderer: 'agGroupCellRenderer',
     },
     {
       field: 'entity',
-      headerName: 'Entity Name',
-      hide: false,
+      headerName: 'Entity',
+      width: 200,
     },
-    // ... rest of your columns
+    {
+      field: 'account_type',
+      headerName: 'Account Type',
+      width: 120,
+    },
+    {
+      field: 'currency_code',
+      headerName: 'Currency',
+      width: 100,
+    },
+    {
+      field: 'bank_name',
+      headerName: 'Bank',
+      width: 120,
+    },
+    {
+      field: 'account_number_bank',
+      headerName: 'Account Number',
+      width: 150,
+    },
+    {
+      field: 'account_name_bank',
+      headerName: 'Account Name',
+      width: 200,
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      width: 100,
+      cellRenderer: (params: any) => {
+        return params.value ? '✓' : '✗';
+      }
+    }
   ];
 };
 
@@ -27,27 +55,4 @@ export const defaultColDef = {
   resizable: true,
   suppressSizeToFit: false,
   floatingFilter: true,
-  // Add these properties
-  enableRowGroup: false,
-  enablePivot: false,
-  enableValue: false,
-};
-
-export const autoGroupColumnDef = {
-  headerName: 'Bank Accounts By Entity',
-  minWidth: 300,
-  flex: 1,
-  sortable: true,
-  // Modified cell renderer params
-  cellRenderer: 'agGroupCellRenderer',
-  cellRendererParams: {
-    suppressCount: true,
-    innerRenderer: (params: any) => {
-      if (!params.value) return '';
-      if (params.node.group) {
-        return `${params.node.key} - ${params.node.allLeafChildren?.[0]?.data?.entity || ''}`;
-      }
-      return params.value;
-    }
-  }
 };
