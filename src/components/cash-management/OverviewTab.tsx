@@ -57,7 +57,7 @@ const OverviewTab = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}
-          groupDefaultExpanded={0}
+          groupDefaultExpanded={-1}
           suppressAggFuncInHeader={true}
           onGridReady={onGridReady}
           domLayout="normal"
@@ -65,9 +65,8 @@ const OverviewTab = () => {
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
           rowGroupPanelShow="never"
-          groupIncludeFooter={false}
-          groupDisplayType="groupRows"
-          suppressDragLeaveHidesColumns={true}
+          groupDisplayType="singleColumn"
+          suppressGroupDefaultExpand={false}
         />
       </div>
     </div>
