@@ -1,46 +1,52 @@
 
 import { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { 
+  DataGrid, 
+  GridColDef,
+  GridValueFormatterParams,
+} from '@mui/x-data-grid';
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider, createTheme } from '@mui/material';
+import { BankAccountData } from './types';
 
 const theme = createTheme();
 
 const OverviewTab = () => {
   const [loading, setLoading] = useState(true);
-  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
 
-  const columns = [
+  const columns: GridColDef[] = [
     { 
       field: 'entity_id', 
       headerName: 'Entity ID', 
       width: 120,
-      groupable: true 
+      sortable: true
     },
     {
       field: 'entity',
       headerName: 'Entity',
       width: 200,
-      groupable: true
+      sortable: true
     },
     {
       field: 'account_type',
       headerName: 'Account Type',
       width: 150,
-      groupable: true,
-      editable: true
+      editable: true,
+      sortable: true
     },
     {
       field: 'currency_code',
       headerName: 'Currency',
       width: 100,
-      groupable: true
+      sortable: true
     },
     {
       field: 'bank_name',
       headerName: 'Bank',
       width: 150,
-      editable: true
+      editable: true,
+      sortable: true
     },
     {
       field: 'account_number_bank',
@@ -59,7 +65,9 @@ const OverviewTab = () => {
       headerName: 'Active',
       width: 100,
       type: 'boolean',
-      editable: true
+      editable: true,
+      valueFormatter: (params: GridValueFormatterParams) => 
+        params.value ? '✓' : '✗'
     }
   ];
 
@@ -73,10 +81,9 @@ const OverviewTab = () => {
         
         if (error) throw error;
         
-        // MUI DataGrid requires a unique id field
         const rowsWithId = data?.map(row => ({
           ...row,
-          id: row.account_number_bank // using account number as unique identifier
+          id: row.account_number_bank
         })) || [];
         
         setBankAccounts(rowsWithId);
@@ -101,14 +108,13 @@ const OverviewTab = () => {
             pagination: {
               paginationModel: { page: 0, pageSize: 100 },
             },
-            grouping: {
-              groupedColumns: ['entity_id'] // Initial grouping
-            }
+            sorting: {
+              sortModel: [{ field: 'entity_id', sort: 'asc' }],
+            },
           }}
           pageSizeOptions={[25, 50, 100]}
           checkboxSelection
           disableRowSelectionOnClick
-          experimentalFeatures={{ groupingDisplayMode: 'tree' }}
         />
       </div>
     </ThemeProvider>
