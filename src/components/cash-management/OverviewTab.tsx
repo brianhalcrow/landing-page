@@ -65,7 +65,6 @@ const OverviewTab = () => {
           enableCellTextSelection={true}
           rowGroupPanelShow="never"
           groupDisplayType="groupRows"
-          rememberGroupStateWhenNewData={true}
           groupMaintainOrder={true}
           suppressGroupDefaultExpand={false}
         />
