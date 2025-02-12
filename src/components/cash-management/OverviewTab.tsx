@@ -1,3 +1,7 @@
+// Add these imports to your main application file or OverviewTab
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+
 const OverviewTab = () => {
   const { onGridReady } = useGridConfig();
   const columnDefs = useMemo(() => {
