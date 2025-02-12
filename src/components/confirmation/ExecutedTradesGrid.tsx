@@ -1,4 +1,3 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,10 +5,12 @@ import { TradeRegister } from './types';
 import { format } from 'date-fns';
 import { ColDef, GridApi } from 'ag-grid-community';
 import { useEffect, useRef, useState } from 'react';
+import { useGridPreferences } from '../cash-management/hooks/useGridPreferences';
 
 const ExecutedTradesGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
   const [api, setApi] = useState<GridApi | null>(null);
+  const { saveColumnState, loadColumnState } = useGridPreferences(gridRef, 'executed-trades-grid');
 
   const { data: trades, isLoading } = useQuery({
     queryKey: ['executed-trades'],
@@ -164,21 +165,20 @@ const ExecutedTradesGrid = () => {
     }
   ];
 
-  const onGridReady = (params: any) => {
+  const onGridReady = async (params: any) => {
     setApi(params.api);
-    const savedState = localStorage.getItem('executedTradesColumnState');
-    if (savedState) {
-      params.api.applyColumnState({
-        state: JSON.parse(savedState),
-        applyOrder: true
-      });
-    }
+    await loadColumnState();
   };
 
   const onColumnMoved = () => {
     if (api) {
-      const columnState = api.getColumnState();
-      localStorage.setItem('executedTradesColumnState', JSON.stringify(columnState));
+      saveColumnState();
+    }
+  };
+
+  const onColumnResized = () => {
+    if (api) {
+      saveColumnState();
     }
   };
 
@@ -202,6 +202,7 @@ const ExecutedTradesGrid = () => {
         paginationPageSize={100}
         onGridReady={onGridReady}
         onColumnMoved={onColumnMoved}
+        onColumnResized={onColumnResized}
       />
     </div>
   );
