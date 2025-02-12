@@ -8,7 +8,32 @@ export const createColumnDefs = (): ColDef[] => {
       headerName: 'Entity',
       rowGroup: true,
       hide: true,
-      enableRowGroup: true
+      enableRowGroup: true,
+      showRowGroup: true
+    },
+    {
+      field: 'account_type',
+      headerName: 'Account Type',
+      rowGroup: true,
+      hide: true,
+      enableRowGroup: true,
+      showRowGroup: true
+    },
+    {
+      field: 'currency_code',
+      headerName: 'Currency',
+      rowGroup: true,
+      hide: true,
+      enableRowGroup: true,
+      showRowGroup: true
+    },
+    {
+      field: 'account_number_bank',
+      headerName: 'Account Number',
+      rowGroup: true,
+      hide: true,
+      enableRowGroup: true,
+      showRowGroup: true
     },
     {
       field: 'bank_name',
@@ -17,27 +42,9 @@ export const createColumnDefs = (): ColDef[] => {
       enableRowGroup: false
     },
     {
-      field: 'account_type',
-      headerName: 'Account Type',
-      width: 130,
-      enableRowGroup: false
-    },
-    {
       field: 'account_name_bank',
       headerName: 'Account Name',
       width: 200,
-      enableRowGroup: false
-    },
-    {
-      field: 'account_number_bank',
-      headerName: 'Account Number',
-      width: 150,
-      enableRowGroup: false
-    },
-    {
-      field: 'currency_code',
-      headerName: 'Currency',
-      width: 100,
       enableRowGroup: false
     },
     {
@@ -61,7 +68,7 @@ export const defaultColDef = {
 };
 
 export const autoGroupColumnDef = {
-  headerName: 'Entity',
+  headerName: 'Groups',
   minWidth: 250,
   cellRendererParams: {
     suppressCount: false

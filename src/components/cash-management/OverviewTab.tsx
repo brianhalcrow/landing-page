@@ -67,6 +67,7 @@ const OverviewTab = () => {
           rowGroupPanelShow="never"
           groupIncludeFooter={false}
           groupDisplayType="groupRows"
+          suppressDragLeaveHidesColumns={true}
         />
       </div>
     </div>
