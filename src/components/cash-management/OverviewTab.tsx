@@ -90,7 +90,7 @@ const OverviewTab = () => {
     filter: true,
     resizable: true,
     floatingFilter: true,
-    suppressMenu: false,
+    menuTabs: ['filterMenuTab'], // Changed from suppressMenu
     filterParams: {
       buttons: ['reset', 'apply'],
       closeOnApply: true
@@ -100,7 +100,7 @@ const OverviewTab = () => {
   const gridOptions: GridOptions = {
     suppressRowHoverHighlight: false,
     columnHoverHighlight: true,
-    suppressCellSelection: true,
+    suppressCellClick: true, // Changed from suppressCellSelection
     rowHeight: 48,
     headerHeight: 48,
     rowClass: 'grid-row',
