@@ -8,6 +8,11 @@ const OverviewTab = () => {
   const [bankAccounts, setBankAccounts] = useState<BankAccountData[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
 
+  const onGridReady = (params: any) => {
+    setGridApi(params.api);
+    params.api.sizeColumnsToFit();
+  };
+
   useEffect(() => {
     const fetchBankAccounts = async () => {
       try {
@@ -28,37 +33,16 @@ const OverviewTab = () => {
     fetchBankAccounts();
   }, []);
 
-  const onGridReady = (params: any) => {
-    setGridApi(params.api);
-    params.api.sizeColumnsToFit();
-  };
-
-  // Add quick filter functionality
-  const onFilterTextBoxChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (gridApi) {
-      gridApi.setQuickFilter(e.target.value);
-    }
-  }, [gridApi]);
-
   if (loading) {
     return <Skeleton className="h-[calc(100vh-12rem)] w-full" />;
   }
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
-      {/* Add search box */}
-      <div className="mb-4">
-        <input
-          type="text"
-          onChange={onFilterTextBoxChanged}
-          placeholder="Search accounts..."
-          className="p-2 border rounded w-64"
-        />
-      </div>
       <div 
         className="flex-grow ag-theme-alpine"
         style={{ 
-          height: 'calc(100vh - 16rem)', // Adjusted for search box
+          height: 'calc(100vh - 12rem)',
           minHeight: '500px',
           width: '100%'
         }}
