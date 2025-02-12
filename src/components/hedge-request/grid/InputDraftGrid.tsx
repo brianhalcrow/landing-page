@@ -41,7 +41,7 @@ const InputDraftGrid = () => {
       console.log('Fetching valid entities...');
       
       const { data: configuredEntities, error: configError } = await supabase
-        .from('client_legal_entity')
+        .from('erp_legal_entity')
         .select('entity_id, entity_name, functional_currency');
 
       if (configError) {
