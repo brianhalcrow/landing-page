@@ -105,13 +105,20 @@ const OverviewTab = () => {
     if (!gridRef.current?.api) return;
 
     const columnState = gridRef.current.api.getColumnState();
+    // Convert ColumnState array to a plain object that can be stored as JSON
+    const columnStateJson = columnState.map(state => ({
+      ...state,
+      sortIndex: state.sortIndex || null,
+      width: state.width || null,
+      flex: state.flex || null
+    }));
     
     try {
       const { error } = await supabase
         .from('grid_preferences')
         .upsert({
           grid_id: GRID_ID,
-          column_state: columnState
+          column_state: columnStateJson as any // Safe to cast here as we've converted to a JSON-compatible format
         }, {
           onConflict: 'grid_id'
         });
@@ -136,7 +143,22 @@ const OverviewTab = () => {
       if (error) throw error;
 
       if (data?.column_state) {
-        const columnState = data.column_state as ColumnState[];
+        // Ensure the loaded data has the required ColumnState properties
+        const columnState = (data.column_state as any[]).map(state => ({
+          colId: state.colId,
+          hide: state.hide || false,
+          width: state.width || undefined,
+          flex: state.flex || undefined,
+          sort: state.sort || undefined,
+          sortIndex: state.sortIndex || undefined,
+          pinned: state.pinned || undefined,
+          rowGroup: state.rowGroup || false,
+          rowGroupIndex: state.rowGroupIndex || undefined,
+          pivot: state.pivot || false,
+          pivotIndex: state.pivotIndex || undefined,
+          aggFunc: state.aggFunc || undefined
+        })) as ColumnState[];
+
         gridRef.current.api.applyColumnState({
           state: columnState,
           applyOrder: true
