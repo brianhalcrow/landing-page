@@ -26,7 +26,7 @@ const OverviewTab = () => {
           throw error;
         }
 
-        setBankAccounts(data);
+        setBankAccounts(data || []);
       } catch (error) {
         console.error('Error fetching bank accounts:', error);
       } finally {
@@ -57,15 +57,16 @@ const OverviewTab = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}
-          groupDefaultExpanded={-1}
+          groupDefaultExpanded={1}
           suppressAggFuncInHeader={true}
           onGridReady={onGridReady}
-          domLayout="normal"
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
           rowGroupPanelShow="never"
-          groupDisplayType="singleColumn"
+          groupDisplayType="groupRows"
+          rememberGroupStateWhenNewData={true}
+          groupMaintainOrder={true}
           suppressGroupDefaultExpand={false}
         />
       </div>
