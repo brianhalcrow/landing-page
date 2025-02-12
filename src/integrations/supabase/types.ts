@@ -180,561 +180,6 @@ export type Database = {
         }
         Relationships: []
       }
-      client_ap_module: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number | null
-          created_date: string | null
-          currency: string | null
-          description: string | null
-          due_date: string | null
-          entity: string | null
-          entity_name: string | null
-          geo_structure_entity_id: number | null
-          id: number | null
-          invoice_date: string | null
-          invoice_id: string | null
-          legal_entity_id: string | null
-          paid_date: string | null
-          payment_terms_days: number | null
-          po_id: string | null
-          subsystem_code: string | null
-          subtotal: number | null
-          tax: number | null
-          total: number | null
-          transaction_currency: string | null
-          vendor_id: string | null
-          vendor_name: string | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          created_date?: string | null
-          currency?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number | null
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          created_date?: string | null
-          currency?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number | null
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Relationships: []
-      }
-      client_ar_module: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number | null
-          customer_id: string | null
-          customer_name: string | null
-          description: string | null
-          due_date: string | null
-          entity_name: string | null
-          geo_structure_entity_id: number | null
-          id: number | null
-          invoice_date: string | null
-          invoice_id: string | null
-          legal_entity_id: string | null
-          paid_date: string | null
-          payment_terms_days: number | null
-          subsystem_code: string | null
-          subtotal: number | null
-          tax: number | null
-          total: number | null
-          transaction_currency: string | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          customer_id?: string | null
-          customer_name?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number | null
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          transaction_currency?: string | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number | null
-          customer_id?: string | null
-          customer_name?: string | null
-          description?: string | null
-          due_date?: string | null
-          entity_name?: string | null
-          geo_structure_entity_id?: number | null
-          id?: number | null
-          invoice_date?: string | null
-          invoice_id?: string | null
-          legal_entity_id?: string | null
-          paid_date?: string | null
-          payment_terms_days?: number | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          tax?: number | null
-          total?: number | null
-          transaction_currency?: string | null
-        }
-        Relationships: []
-      }
-      client_bank_account: {
-        Row: {
-          account_name_bank: string | null
-          account_number_bank: string | null
-          account_number_coa: string
-          account_type: string | null
-          active: boolean | null
-          bank_name: string | null
-          currency_code: string | null
-          entity: string | null
-          entity_id: string | null
-        }
-        Insert: {
-          account_name_bank?: string | null
-          account_number_bank?: string | null
-          account_number_coa: string
-          account_type?: string | null
-          active?: boolean | null
-          bank_name?: string | null
-          currency_code?: string | null
-          entity?: string | null
-          entity_id?: string | null
-        }
-        Update: {
-          account_name_bank?: string | null
-          account_number_bank?: string | null
-          account_number_coa?: string
-          account_type?: string | null
-          active?: boolean | null
-          bank_name?: string | null
-          currency_code?: string | null
-          entity?: string | null
-          entity_id?: string | null
-        }
-        Relationships: []
-      }
-      client_bank_statement: {
-        Row: {
-          account_number_bank: string | null
-          bank_name: string | null
-          counterparty_name: string | null
-          counterparty_reference: string | null
-          currency_code: string | null
-          description: string | null
-          entity_id: string | null
-          entity_name: string | null
-          posting_date: string | null
-          starting_balance: number | null
-          transaction_amount: number | null
-          transaction_id: number
-          transaction_type: string | null
-          value_date: string | null
-        }
-        Insert: {
-          account_number_bank?: string | null
-          bank_name?: string | null
-          counterparty_name?: string | null
-          counterparty_reference?: string | null
-          currency_code?: string | null
-          description?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          posting_date?: string | null
-          starting_balance?: number | null
-          transaction_amount?: number | null
-          transaction_id?: number
-          transaction_type?: string | null
-          value_date?: string | null
-        }
-        Update: {
-          account_number_bank?: string | null
-          bank_name?: string | null
-          counterparty_name?: string | null
-          counterparty_reference?: string | null
-          currency_code?: string | null
-          description?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          posting_date?: string | null
-          starting_balance?: number | null
-          transaction_amount?: number | null
-          transaction_id?: number
-          transaction_type?: string | null
-          value_date?: string | null
-        }
-        Relationships: []
-      }
-      client_gl_transaction: {
-        Row: {
-          account_category_level_1: string | null
-          account_category_level_1_id: number | null
-          account_category_level_2: string | null
-          account_category_level_2_id: number | null
-          account_category_level_3: string | null
-          account_category_level_3_id: number | null
-          account_category_level_4: string | null
-          account_category_level_4_id: number | null
-          account_name: string | null
-          account_number: string | null
-          ap_invoice_id: string | null
-          ar_invoice_id: string | null
-          base_amount: number | null
-          cost_centre: string | null
-          country: string | null
-          created_by: string | null
-          customer_id: string | null
-          customer_name: string | null
-          daily_exchange_rate: number | null
-          delivery_date: string | null
-          description: string | null
-          doc_header_desc: string | null
-          document_date: string | null
-          document_type: string | null
-          entity: string | null
-          entity_id: string | null
-          geo_level_1: string | null
-          geo_level_2: string | null
-          geo_level_3: string | null
-          id: number
-          je_id: string | null
-          je_line_id: string | null
-          monthly_exchange_rate: number | null
-          period: string | null
-          po_id: string | null
-          revalue_flag: boolean | null
-          subsystem_code: string | null
-          transaction_amount: number | null
-          transaction_currency: string | null
-          vendor_id: string | null
-          vendor_name: string | null
-          year: number | null
-          year_period: string | null
-        }
-        Insert: {
-          account_category_level_1?: string | null
-          account_category_level_1_id?: number | null
-          account_category_level_2?: string | null
-          account_category_level_2_id?: number | null
-          account_category_level_3?: string | null
-          account_category_level_3_id?: number | null
-          account_category_level_4?: string | null
-          account_category_level_4_id?: number | null
-          account_name?: string | null
-          account_number?: string | null
-          ap_invoice_id?: string | null
-          ar_invoice_id?: string | null
-          base_amount?: number | null
-          cost_centre?: string | null
-          country?: string | null
-          created_by?: string | null
-          customer_id?: string | null
-          customer_name?: string | null
-          daily_exchange_rate?: number | null
-          delivery_date?: string | null
-          description?: string | null
-          doc_header_desc?: string | null
-          document_date?: string | null
-          document_type?: string | null
-          entity?: string | null
-          entity_id?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
-          id: number
-          je_id?: string | null
-          je_line_id?: string | null
-          monthly_exchange_rate?: number | null
-          period?: string | null
-          po_id?: string | null
-          revalue_flag?: boolean | null
-          subsystem_code?: string | null
-          transaction_amount?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-          year?: number | null
-          year_period?: string | null
-        }
-        Update: {
-          account_category_level_1?: string | null
-          account_category_level_1_id?: number | null
-          account_category_level_2?: string | null
-          account_category_level_2_id?: number | null
-          account_category_level_3?: string | null
-          account_category_level_3_id?: number | null
-          account_category_level_4?: string | null
-          account_category_level_4_id?: number | null
-          account_name?: string | null
-          account_number?: string | null
-          ap_invoice_id?: string | null
-          ar_invoice_id?: string | null
-          base_amount?: number | null
-          cost_centre?: string | null
-          country?: string | null
-          created_by?: string | null
-          customer_id?: string | null
-          customer_name?: string | null
-          daily_exchange_rate?: number | null
-          delivery_date?: string | null
-          description?: string | null
-          doc_header_desc?: string | null
-          document_date?: string | null
-          document_type?: string | null
-          entity?: string | null
-          entity_id?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
-          id?: number
-          je_id?: string | null
-          je_line_id?: string | null
-          monthly_exchange_rate?: number | null
-          period?: string | null
-          po_id?: string | null
-          revalue_flag?: boolean | null
-          subsystem_code?: string | null
-          transaction_amount?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-          year?: number | null
-          year_period?: string | null
-        }
-        Relationships: []
-      }
-      client_legal_entity: {
-        Row: {
-          accounting_rate_method: string | null
-          entity_id: string
-          entity_name: string | null
-          functional_currency: string | null
-          local_currency: string | null
-        }
-        Insert: {
-          accounting_rate_method?: string | null
-          entity_id: string
-          entity_name?: string | null
-          functional_currency?: string | null
-          local_currency?: string | null
-        }
-        Update: {
-          accounting_rate_method?: string | null
-          entity_id?: string
-          entity_name?: string | null
-          functional_currency?: string | null
-          local_currency?: string | null
-        }
-        Relationships: []
-      }
-      client_mgmt_structure: {
-        Row: {
-          cost_centre: string | null
-          country: string | null
-          entity_id: string | null
-          entity_name: string | null
-          geo_level_1: string | null
-          geo_level_2: string | null
-          geo_level_3: string | null
-          id: number
-        }
-        Insert: {
-          cost_centre?: string | null
-          country?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
-          id?: number
-        }
-        Update: {
-          cost_centre?: string | null
-          country?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          geo_level_1?: string | null
-          geo_level_2?: string | null
-          geo_level_3?: string | null
-          id?: number
-        }
-        Relationships: []
-      }
-      client_po_module: {
-        Row: {
-          cost_centre: string | null
-          country_currency_id: number
-          delivery_date: string | null
-          description: string | null
-          entity_name: string | null
-          expected_delivery_date: string | null
-          geo_structure_entity_id: number
-          id: number
-          legal_entity_id: string | null
-          po_date: string | null
-          po_date_time: string | null
-          po_id: string | null
-          subsystem_code: string | null
-          subtotal: number | null
-          transaction_currency: string | null
-          vendor_id: string | null
-          vendor_name: string | null
-        }
-        Insert: {
-          cost_centre?: string | null
-          country_currency_id?: number
-          delivery_date?: string | null
-          description?: string | null
-          entity_name?: string | null
-          expected_delivery_date?: string | null
-          geo_structure_entity_id?: number
-          id: number
-          legal_entity_id?: string | null
-          po_date?: string | null
-          po_date_time?: string | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Update: {
-          cost_centre?: string | null
-          country_currency_id?: number
-          delivery_date?: string | null
-          description?: string | null
-          entity_name?: string | null
-          expected_delivery_date?: string | null
-          geo_structure_entity_id?: number
-          id?: number
-          legal_entity_id?: string | null
-          po_date?: string | null
-          po_date_time?: string | null
-          po_id?: string | null
-          subsystem_code?: string | null
-          subtotal?: number | null
-          transaction_currency?: string | null
-          vendor_id?: string | null
-          vendor_name?: string | null
-        }
-        Relationships: []
-      }
-      client_rates_accounting_daily: {
-        Row: {
-          base_currency: string
-          currency_pair: string
-          id: number
-          quote_currency: string
-          rate_date: string
-          spot_rate: number
-          timestamp: string
-        }
-        Insert: {
-          base_currency: string
-          currency_pair: string
-          id?: number
-          quote_currency: string
-          rate_date: string
-          spot_rate: number
-          timestamp: string
-        }
-        Update: {
-          base_currency?: string
-          currency_pair?: string
-          id?: number
-          quote_currency?: string
-          rate_date?: string
-          spot_rate?: number
-          timestamp?: string
-        }
-        Relationships: []
-      }
-      client_rates_accounting_monthly: {
-        Row: {
-          base_currency: string | null
-          bs_month: string | null
-          closing_rate: number | null
-          currency_pair: string | null
-          id: number
-          pl_month: string | null
-          quote_currency: string | null
-          rate_date: string | null
-          timestamp: string | null
-          transaction_month: string | null
-        }
-        Insert: {
-          base_currency?: string | null
-          bs_month?: string | null
-          closing_rate?: number | null
-          currency_pair?: string | null
-          id?: number
-          pl_month?: string | null
-          quote_currency?: string | null
-          rate_date?: string | null
-          timestamp?: string | null
-          transaction_month?: string | null
-        }
-        Update: {
-          base_currency?: string | null
-          bs_month?: string | null
-          closing_rate?: number | null
-          currency_pair?: string | null
-          id?: number
-          pl_month?: string | null
-          quote_currency?: string | null
-          rate_date?: string | null
-          timestamp?: string | null
-          transaction_month?: string | null
-        }
-        Relationships: []
-      }
       documents: {
         Row: {
           content: string | null
@@ -913,54 +358,558 @@ export type Database = {
           },
         ]
       }
-      erp_gl_transactions: {
+      erp_ap_module: {
         Row: {
-          account_name: string | null
-          account_number: string
-          base_amount: number | null
           cost_centre: string | null
-          created_at: string | null
-          document_date: string | null
-          entity: string
-          entity_id: string
-          id: number
-          period: string | null
-          transaction_amount: number | null
-          transaction_currency: string
-          updated_at: string | null
-          year: number | null
+          country_currency_id: number | null
+          created_date: string | null
+          currency: string | null
+          description: string | null
+          due_date: string | null
+          entity: string | null
+          entity_name: string | null
+          geo_structure_entity_id: number | null
+          id: number | null
+          invoice_date: string | null
+          invoice_id: string | null
+          legal_entity_id: string | null
+          paid_date: string | null
+          payment_terms_days: number | null
+          po_id: string | null
+          subsystem_code: string | null
+          subtotal: number | null
+          tax: number | null
+          total: number | null
+          transaction_currency: string | null
+          vendor_id: string | null
+          vendor_name: string | null
         }
         Insert: {
-          account_name?: string | null
-          account_number: string
-          base_amount?: number | null
           cost_centre?: string | null
-          created_at?: string | null
-          document_date?: string | null
-          entity: string
-          entity_id: string
-          id?: number
-          period?: string | null
-          transaction_amount?: number | null
-          transaction_currency: string
-          updated_at?: string | null
-          year?: number | null
+          country_currency_id?: number | null
+          created_date?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
         }
         Update: {
+          cost_centre?: string | null
+          country_currency_id?: number | null
+          created_date?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Relationships: []
+      }
+      erp_ar_module: {
+        Row: {
+          cost_centre: string | null
+          country_currency_id: number | null
+          customer_id: string | null
+          customer_name: string | null
+          description: string | null
+          due_date: string | null
+          entity_name: string | null
+          geo_structure_entity_id: number | null
+          id: number | null
+          invoice_date: string | null
+          invoice_id: string | null
+          legal_entity_id: string | null
+          paid_date: string | null
+          payment_terms_days: number | null
+          subsystem_code: string | null
+          subtotal: number | null
+          tax: number | null
+          total: number | null
+          transaction_currency: string | null
+        }
+        Insert: {
+          cost_centre?: string | null
+          country_currency_id?: number | null
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency?: string | null
+        }
+        Update: {
+          cost_centre?: string | null
+          country_currency_id?: number | null
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          due_date?: string | null
+          entity_name?: string | null
+          geo_structure_entity_id?: number | null
+          id?: number | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          legal_entity_id?: string | null
+          paid_date?: string | null
+          payment_terms_days?: number | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          transaction_currency?: string | null
+        }
+        Relationships: []
+      }
+      erp_bank_account: {
+        Row: {
+          account_name_bank: string | null
+          account_number_bank: string | null
+          account_number_coa: string
+          account_type: string | null
+          active: boolean | null
+          bank_name: string | null
+          currency_code: string | null
+          entity: string | null
+          entity_id: string | null
+        }
+        Insert: {
+          account_name_bank?: string | null
+          account_number_bank?: string | null
+          account_number_coa: string
+          account_type?: string | null
+          active?: boolean | null
+          bank_name?: string | null
+          currency_code?: string | null
+          entity?: string | null
+          entity_id?: string | null
+        }
+        Update: {
+          account_name_bank?: string | null
+          account_number_bank?: string | null
+          account_number_coa?: string
+          account_type?: string | null
+          active?: boolean | null
+          bank_name?: string | null
+          currency_code?: string | null
+          entity?: string | null
+          entity_id?: string | null
+        }
+        Relationships: []
+      }
+      erp_bank_statement: {
+        Row: {
+          account_number_bank: string | null
+          bank_name: string | null
+          counterparty_name: string | null
+          counterparty_reference: string | null
+          currency_code: string | null
+          description: string | null
+          entity_id: string | null
+          entity_name: string | null
+          posting_date: string | null
+          starting_balance: number | null
+          transaction_amount: number | null
+          transaction_id: number
+          transaction_type: string | null
+          value_date: string | null
+        }
+        Insert: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          starting_balance?: number | null
+          transaction_amount?: number | null
+          transaction_id?: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Update: {
+          account_number_bank?: string | null
+          bank_name?: string | null
+          counterparty_name?: string | null
+          counterparty_reference?: string | null
+          currency_code?: string | null
+          description?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          posting_date?: string | null
+          starting_balance?: number | null
+          transaction_amount?: number | null
+          transaction_id?: number
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Relationships: []
+      }
+      erp_gl_transaction: {
+        Row: {
+          account_category_level_1: string | null
+          account_category_level_1_id: number | null
+          account_category_level_2: string | null
+          account_category_level_2_id: number | null
+          account_category_level_3: string | null
+          account_category_level_3_id: number | null
+          account_category_level_4: string | null
+          account_category_level_4_id: number | null
+          account_name: string | null
+          account_number: string | null
+          ap_invoice_id: string | null
+          ar_invoice_id: string | null
+          base_amount: number | null
+          cost_centre: string | null
+          country: string | null
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          daily_exchange_rate: number | null
+          delivery_date: string | null
+          description: string | null
+          doc_header_desc: string | null
+          document_date: string | null
+          document_type: string | null
+          entity: string | null
+          entity_id: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: number
+          je_id: string | null
+          je_line_id: string | null
+          monthly_exchange_rate: number | null
+          period: string | null
+          po_id: string | null
+          revalue_flag: boolean | null
+          subsystem_code: string | null
+          transaction_amount: number | null
+          transaction_currency: string | null
+          vendor_id: string | null
+          vendor_name: string | null
+          year: number | null
+          year_period: string | null
+        }
+        Insert: {
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
           account_name?: string | null
-          account_number?: string
+          account_number?: string | null
+          ap_invoice_id?: string | null
+          ar_invoice_id?: string | null
           base_amount?: number | null
           cost_centre?: string | null
-          created_at?: string | null
+          country?: string | null
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          daily_exchange_rate?: number | null
+          delivery_date?: string | null
+          description?: string | null
+          doc_header_desc?: string | null
           document_date?: string | null
-          entity?: string
-          entity_id?: string
-          id?: number
+          document_type?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id: number
+          je_id?: string | null
+          je_line_id?: string | null
+          monthly_exchange_rate?: number | null
           period?: string | null
+          po_id?: string | null
+          revalue_flag?: boolean | null
+          subsystem_code?: string | null
           transaction_amount?: number | null
-          transaction_currency?: string
-          updated_at?: string | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
           year?: number | null
+          year_period?: string | null
+        }
+        Update: {
+          account_category_level_1?: string | null
+          account_category_level_1_id?: number | null
+          account_category_level_2?: string | null
+          account_category_level_2_id?: number | null
+          account_category_level_3?: string | null
+          account_category_level_3_id?: number | null
+          account_category_level_4?: string | null
+          account_category_level_4_id?: number | null
+          account_name?: string | null
+          account_number?: string | null
+          ap_invoice_id?: string | null
+          ar_invoice_id?: string | null
+          base_amount?: number | null
+          cost_centre?: string | null
+          country?: string | null
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          daily_exchange_rate?: number | null
+          delivery_date?: string | null
+          description?: string | null
+          doc_header_desc?: string | null
+          document_date?: string | null
+          document_type?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number
+          je_id?: string | null
+          je_line_id?: string | null
+          monthly_exchange_rate?: number | null
+          period?: string | null
+          po_id?: string | null
+          revalue_flag?: boolean | null
+          subsystem_code?: string | null
+          transaction_amount?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+          year?: number | null
+          year_period?: string | null
+        }
+        Relationships: []
+      }
+      erp_legal_entity: {
+        Row: {
+          accounting_rate_method: string | null
+          entity_id: string
+          entity_name: string | null
+          functional_currency: string | null
+          local_currency: string | null
+        }
+        Insert: {
+          accounting_rate_method?: string | null
+          entity_id: string
+          entity_name?: string | null
+          functional_currency?: string | null
+          local_currency?: string | null
+        }
+        Update: {
+          accounting_rate_method?: string | null
+          entity_id?: string
+          entity_name?: string | null
+          functional_currency?: string | null
+          local_currency?: string | null
+        }
+        Relationships: []
+      }
+      erp_mgmt_structure: {
+        Row: {
+          cost_centre: string | null
+          country: string | null
+          entity_id: string | null
+          entity_name: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          id: number
+        }
+        Insert: {
+          cost_centre?: string | null
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number
+        }
+        Update: {
+          cost_centre?: string | null
+          country?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          geo_level_1?: string | null
+          geo_level_2?: string | null
+          geo_level_3?: string | null
+          id?: number
+        }
+        Relationships: []
+      }
+      erp_po_module: {
+        Row: {
+          cost_centre: string | null
+          country_currency_id: number
+          delivery_date: string | null
+          description: string | null
+          entity_name: string | null
+          expected_delivery_date: string | null
+          geo_structure_entity_id: number
+          id: number
+          legal_entity_id: string | null
+          po_date: string | null
+          po_date_time: string | null
+          po_id: string | null
+          subsystem_code: string | null
+          subtotal: number | null
+          transaction_currency: string | null
+          vendor_id: string | null
+          vendor_name: string | null
+        }
+        Insert: {
+          cost_centre?: string | null
+          country_currency_id?: number
+          delivery_date?: string | null
+          description?: string | null
+          entity_name?: string | null
+          expected_delivery_date?: string | null
+          geo_structure_entity_id?: number
+          id: number
+          legal_entity_id?: string | null
+          po_date?: string | null
+          po_date_time?: string | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Update: {
+          cost_centre?: string | null
+          country_currency_id?: number
+          delivery_date?: string | null
+          description?: string | null
+          entity_name?: string | null
+          expected_delivery_date?: string | null
+          geo_structure_entity_id?: number
+          id?: number
+          legal_entity_id?: string | null
+          po_date?: string | null
+          po_date_time?: string | null
+          po_id?: string | null
+          subsystem_code?: string | null
+          subtotal?: number | null
+          transaction_currency?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Relationships: []
+      }
+      erp_rates_daily: {
+        Row: {
+          base_currency: string
+          currency_pair: string
+          id: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Insert: {
+          base_currency: string
+          currency_pair: string
+          id?: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Update: {
+          base_currency?: string
+          currency_pair?: string
+          id?: number
+          quote_currency?: string
+          rate_date?: string
+          spot_rate?: number
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      erp_rates_monthly: {
+        Row: {
+          base_currency: string | null
+          bs_month: string | null
+          closing_rate: number | null
+          currency_pair: string | null
+          id: number
+          pl_month: string | null
+          quote_currency: string | null
+          rate_date: string | null
+          timestamp: string | null
+          transaction_month: string | null
+        }
+        Insert: {
+          base_currency?: string | null
+          bs_month?: string | null
+          closing_rate?: number | null
+          currency_pair?: string | null
+          id?: number
+          pl_month?: string | null
+          quote_currency?: string | null
+          rate_date?: string | null
+          timestamp?: string | null
+          transaction_month?: string | null
+        }
+        Update: {
+          base_currency?: string | null
+          bs_month?: string | null
+          closing_rate?: number | null
+          currency_pair?: string | null
+          id?: number
+          pl_month?: string | null
+          quote_currency?: string | null
+          rate_date?: string | null
+          timestamp?: string | null
+          transaction_month?: string | null
         }
         Relationships: []
       }
@@ -1327,13 +1276,6 @@ export type Database = {
             referencedRelation: "entities"
             referencedColumns: ["entity_id"]
           },
-          {
-            foreignKeyName: "management_structure_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_entity_configurations"
-            referencedColumns: ["entity_id"]
-          },
         ]
       }
       pipeline_executions: {
@@ -1534,36 +1476,6 @@ export type Database = {
             referencedColumns: ["exposure_type_id"]
           },
         ]
-      }
-      rates: {
-        Row: {
-          base_currency: string
-          created_at: string | null
-          effective_date: string
-          id: number
-          quote_currency: string
-          rate: number
-          updated_at: string | null
-        }
-        Insert: {
-          base_currency: string
-          created_at?: string | null
-          effective_date: string
-          id?: number
-          quote_currency: string
-          rate: number
-          updated_at?: string | null
-        }
-        Update: {
-          base_currency?: string
-          created_at?: string | null
-          effective_date?: string
-          id?: number
-          quote_currency?: string
-          rate?: number
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       rates_forward: {
         Row: {
@@ -2065,16 +1977,6 @@ export type Database = {
           source: string | null
           "Transaction Amount": number | null
           transaction_currency: string | null
-        }
-        Relationships: []
-      }
-      v_entity_configurations: {
-        Row: {
-          cost_centre_count: number | null
-          currency_count: number | null
-          entity_id: string | null
-          entity_name: string | null
-          functional_currency: string | null
         }
         Relationships: []
       }

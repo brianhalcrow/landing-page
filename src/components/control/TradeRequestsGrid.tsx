@@ -2,10 +2,10 @@
 import { AgGridReact } from 'ag-grid-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { GridStyles } from '../hedge-request/grid/components/GridStyles';
 import { ColDef } from 'ag-grid-community';
-import { Skeleton } from '../ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { useRef, useState } from 'react';
+import { useGridPreferences } from '../cash-management/hooks/useGridPreferences';
+import { format } from 'date-fns';
 
 interface TradeRequest {
   request_no: number;
@@ -25,167 +25,173 @@ interface TradeRequest {
 }
 
 const TradeRequestsGrid = () => {
-  const { toast } = useToast();
+  const gridRef = useRef<AgGridReact>(null);
+  const [api, setApi] = useState<any>(null);
+  const { saveColumnState, loadColumnState } = useGridPreferences(gridRef, 'trade-requests-grid');
 
   const { data: tradeRequests, isLoading } = useQuery({
     queryKey: ['trade-requests'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('trade_requests')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching trade requests:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load trade requests"
-        });
-        throw error;
-      }
-
+      if (error) throw error;
       return data as TradeRequest[];
     }
   });
 
+  const formatAmount = (params: any) => {
+    if (params.value === null || params.value === undefined) return '';
+    const value = params.value;
+    const formattedValue = Math.abs(value).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return value < 0 ? `-${formattedValue}` : formattedValue;
+  };
+
+  const amountCellStyle = (params: any) => {
+    if (params.value < 0) {
+      return { color: 'red' };
+    }
+    return null;
+  };
+
   const columnDefs: ColDef[] = [
-    {
-      field: 'request_no',
-      headerName: 'Request No',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center'
+    { 
+      field: 'request_no', 
+      headerName: 'Request No', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
     },
-    {
-      field: 'entity_id',
-      headerName: 'Entity ID',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center'
+    { 
+      field: 'trade_date', 
+      headerName: 'Trade Date', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true,
+      valueFormatter: (params: any) => 
+        params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
-    {
-      field: 'entity_name',
-      headerName: 'Entity Name',
-      flex: 2,
-      minWidth: 200,
-      headerClass: 'ag-header-center'
-    },
-    {
-      field: 'strategy',
-      headerName: 'Strategy',
-      flex: 1.5,
-      minWidth: 150,
-      headerClass: 'ag-header-center'
-    },
-    {
-      field: 'ccy_pair',
-      headerName: 'Currency Pair',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center'
-    },
-    {
-      field: 'ccy_1',
-      headerName: 'Currency 1',
-      flex: 1,
-      minWidth: 100,
-      headerClass: 'ag-header-center'
-    },
-    {
-      field: 'ccy_2',
-      headerName: 'Currency 2',
-      flex: 1,
-      minWidth: 100,
-      headerClass: 'ag-header-center'
-    },
-    {
-      field: 'ccy_1_amount',
-      headerName: 'Amount 1',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toLocaleString() : '';
-      }
-    },
-    {
-      field: 'ccy_2_amount',
-      headerName: 'Amount 2',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toLocaleString() : '';
-      }
-    },
-    {
-      field: 'trade_date',
-      headerName: 'Trade Date',
-      flex: 1.2,
-      minWidth: 120,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleDateString() : '';
-      }
-    },
-    {
-      field: 'settlement_date',
+    { 
+      field: 'settlement_date', 
       headerName: 'Settlement Date',
-      flex: 1.2,
-      minWidth: 120,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleDateString() : '';
-      }
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true,
+      valueFormatter: (params: any) => 
+        params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
     },
-    {
-      field: 'created_by',
-      headerName: 'Created By',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center'
+    { 
+      field: 'ccy_1_amount', 
+      headerName: 'Base Amount', 
+      filter: true,
+      width: 140,
+      suppressSizeToFit: true,
+      valueFormatter: formatAmount,
+      cellStyle: amountCellStyle
     },
-    {
-      field: 'created_at',
-      headerName: 'Created At',
-      flex: 1.5,
-      minWidth: 160,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
+    { 
+      field: 'ccy_2_amount', 
+      headerName: 'Quote Amount', 
+      filter: true,
+      width: 140,
+      suppressSizeToFit: true,
+      valueFormatter: formatAmount,
+      cellStyle: amountCellStyle
     },
-    {
-      field: 'updated_at',
-      headerName: 'Updated At',
-      flex: 1.5,
-      minWidth: 160,
-      headerClass: 'ag-header-center',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
+    { 
+      field: 'ccy_1', 
+      headerName: 'Base CCY', 
+      filter: true,
+      width: 100,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'ccy_pair', 
+      headerName: 'Currency Pair', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'ccy_2', 
+      headerName: 'Quote CCY', 
+      filter: true,
+      width: 100,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'created_by', 
+      headerName: 'Created By', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'entity_id', 
+      headerName: 'Entity ID', 
+      filter: true,
+      width: 120,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'entity_name', 
+      headerName: 'Entity', 
+      filter: true,
+      width: 200,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'strategy', 
+      headerName: 'Strategy', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
     }
   ];
 
+  const onGridReady = async (params: any) => {
+    setApi(params.api);
+    await loadColumnState();
+  };
+
+  const onColumnMoved = () => {
+    if (api) {
+      saveColumnState();
+    }
+  };
+
+  const onColumnResized = () => {
+    if (api) {
+      saveColumnState();
+    }
+  };
+
   if (isLoading) {
-    return <Skeleton className="h-[600px] w-full" />;
+    return <div>Loading trade requests...</div>;
   }
 
   return (
-    <div className="w-full h-[600px] ag-theme-alpine">
-      <GridStyles />
+    <div className="w-full h-[calc(100vh-200px)] ag-theme-alpine">
       <AgGridReact
+        ref={gridRef}
         rowData={tradeRequests}
         columnDefs={columnDefs}
         defaultColDef={{
           sortable: true,
           filter: true,
           resizable: true,
-          suppressSizeToFit: false
+          floatingFilter: true
         }}
-        animateRows={true}
-        suppressColumnVirtualisation={true}
-        enableCellTextSelection={true}
+        pagination={true}
+        paginationPageSize={100}
+        onGridReady={onGridReady}
+        onColumnMoved={onColumnMoved}
+        onColumnResized={onColumnResized}
       />
     </div>
   );
