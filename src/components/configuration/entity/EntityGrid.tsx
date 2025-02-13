@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
+import { ColDef, ColGroupDef } from "ag-grid-community";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -105,63 +106,85 @@ const EntityGrid = () => {
   });
 
   // Create base columns
-  const baseColumnDefs: ColDef[] = [
+  const baseColumnDefs: (ColDef | ColGroupDef)[] = [
     {
-      field: "entity_id",
-      headerName: "Entity ID",
-      sortable: true,
-      filter: true,
-      width: 130,
-    },
-    {
-      field: "entity_name",
-      headerName: "Entity Name",
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: "functional_currency",
-      headerName: "Functional Currency",
-      sortable: true,
-      filter: true,
-      width: 150,
-    },
-    {
-      field: "local_currency",
-      headerName: "Local Currency",
-      sortable: true,
-      filter: true,
-      width: 150,
-    },
-    {
-      field: "accounting_rate_method",
-      headerName: "Accounting Rate Method",
-      sortable: true,
-      filter: true,
-      width: 180,
-    },
+      headerName: 'Entity Information',
+      children: [
+        {
+          field: "entity_id",
+          headerName: "Entity ID",
+          sortable: true,
+          filter: true,
+          width: 130,
+        },
+        {
+          field: "entity_name",
+          headerName: "Entity Name",
+          sortable: true,
+          filter: true,
+          flex: 1,
+        },
+        {
+          field: "functional_currency",
+          headerName: "Functional Currency",
+          sortable: true,
+          filter: true,
+          width: 150,
+        },
+        {
+          field: "local_currency",
+          headerName: "Local Currency",
+          sortable: true,
+          filter: true,
+          width: 150,
+        },
+        {
+          field: "accounting_rate_method",
+          headerName: "Accounting Rate Method",
+          sortable: true,
+          filter: true,
+          width: 180,
+        },
+      ]
+    }
   ];
 
-  // Create exposure type columns dynamically
-  const exposureColumns: ColDef[] = exposureTypes?.map((type) => ({
-    field: `exposure_configs.${type.exposure_type_id}`,
-    headerName: `${type.exposure_category_l1} - ${type.exposure_category_l2}`,
-    width: 200,
-    cellRenderer: CheckboxCellRenderer,
-    cellRendererParams: {
-      disabled: !editingRows[type.exposure_type_id],
-      onChange: (isChecked: boolean, data: any) => {
-        if (!editingRows[data.entity_id]) return;
-        
-        updateConfigMutation.mutate({
-          entityId: data.entity_id,
-          exposureTypeId: type.exposure_type_id,
-          isActive: isChecked,
-        });
+  // Create grouped exposure columns
+  const groupedExposureColumns: ColGroupDef[] = exposureTypes?.reduce((acc: ColGroupDef[], type) => {
+    const groupKey = type.exposure_category_l1;
+    const existingGroup = acc.find(group => group.headerName === groupKey);
+
+    const column: ColDef = {
+      field: `exposure_configs.${type.exposure_type_id}`,
+      headerName: type.exposure_category_l2,
+      width: 150,
+      cellRenderer: CheckboxCellRenderer,
+      cellRendererParams: {
+        disabled: !editingRows[type.exposure_type_id],
+        onChange: (isChecked: boolean, data: any) => {
+          if (!editingRows[data.entity_id]) return;
+          
+          updateConfigMutation.mutate({
+            entityId: data.entity_id,
+            exposureTypeId: type.exposure_type_id,
+            isActive: isChecked,
+          });
+        },
       },
-    },
-  })) || [];
+    };
+
+    if (existingGroup) {
+      existingGroup.children?.push(column);
+      return acc;
+    }
+
+    acc.push({
+      headerName: groupKey,
+      children: [column],
+    });
+
+    return acc;
+  }, []) || [];
 
   // Add actions column
   const actionsColumn: ColDef = {
@@ -190,7 +213,7 @@ const EntityGrid = () => {
     },
   };
 
-  const columnDefs = [...baseColumnDefs, ...exposureColumns, actionsColumn];
+  const columnDefs = [...baseColumnDefs, ...groupedExposureColumns, actionsColumn];
 
   if (isLoading) {
     return <Skeleton className="w-full h-[600px]" />;
@@ -201,7 +224,13 @@ const EntityGrid = () => {
       <style>
         {`
           .ag-theme-alpine {
-            --ag-row-height: 60px !important; /* Increase row height by 50% from default 40px */
+            --ag-row-height: 80px !important; /* Increased from default 40px to 80px */
+          }
+          .ag-header-group-cell-label {
+            justify-content: center;
+          }
+          .ag-header-cell-label {
+            justify-content: center;
           }
         `}
       </style>
@@ -213,6 +242,8 @@ const EntityGrid = () => {
           defaultColDef={{
             resizable: true,
             editable: false,
+            sortable: true,
+            filter: true,
           }}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
