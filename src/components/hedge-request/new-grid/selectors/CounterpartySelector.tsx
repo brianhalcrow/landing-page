@@ -2,41 +2,58 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronDown } from "lucide-react";
-import { CounterpartySelectorProps, EntityCounterparty } from "../types/hedgeRequest.types";
+import { 
+  CounterpartySelectorProps, 
+  EntityCounterparty,
+  CounterpartyJoinResult 
+} from "../types/hedgeRequest.types";
+import { toast } from "sonner";
 
 export const CounterpartySelector = ({ value, data, node }: CounterpartySelectorProps) => {
-  const { data: counterparties, isLoading } = useQuery<EntityCounterparty[]>({
+  const { data: counterparties, isLoading, error } = useQuery<EntityCounterparty[]>({
     queryKey: ['counterparties', data?.entity_id],
     queryFn: async () => {
       if (!data?.entity_id) return [];
       
-      const { data: result, error } = await supabase
-        .from('entity_counterparty')
-        .select(`
-          counterparty_id,
-          relationship_id,
-          entity_id,
-          counterparty!inner (
-            counterparty_name
-          )
-        `)
-        .eq('entity_id', data.entity_id);
+      try {
+        const { data: result, error } = await supabase
+          .from('entity_counterparty')
+          .select(`
+            counterparty_id,
+            relationship_id,
+            entity_id,
+            counterparty:counterparty_id (
+              counterparty_name
+            )
+          `)
+          .eq('entity_id', data.entity_id);
 
-      if (error) throw error;
-      
-      // Transform the result to match our EntityCounterparty interface
-      return result.map(item => ({
-        counterparty_id: item.counterparty_id,
-        counterparty_name: item.counterparty.counterparty_name,
-        relationship_id: item.relationship_id,
-        entity_id: item.entity_id
-      }));
+        if (error) {
+          console.error('Supabase query error:', error);
+          throw error;
+        }
+
+        if (!result) return [];
+
+        // Transform the result to match our EntityCounterparty interface
+        return (result as CounterpartyJoinResult[]).map(item => ({
+          counterparty_id: item.counterparty_id,
+          counterparty_name: item.counterparty.counterparty_name,
+          relationship_id: item.relationship_id,
+          entity_id: item.entity_id
+        }));
+      } catch (err) {
+        console.error('Error fetching counterparties:', err);
+        toast.error('Failed to load counterparties');
+        return [];
+      }
     },
     enabled: !!data?.entity_id
   });
 
   if (!data?.entity_id) return <span>Select entity first</span>;
   if (isLoading) return <span>Loading...</span>;
+  if (error) return <span>Error loading counterparties</span>;
 
   return (
     <div className="relative w-full">

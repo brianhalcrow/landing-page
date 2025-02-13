@@ -27,3 +27,13 @@ export interface CounterpartySelectorProps {
     setData: (data: any) => void;
   };
 }
+
+// Add new interface for the joined data from Supabase
+export interface CounterpartyJoinResult {
+  counterparty_id: string;
+  relationship_id: string;
+  entity_id: string;
+  counterparty: {
+    counterparty_name: string;
+  };
+}
