@@ -149,14 +149,37 @@ const EntityGrid = () => {
     }
   ];
 
-  // Create grouped exposure columns
+  // Create grouped exposure columns with three levels
   const groupedExposureColumns: ColGroupDef[] = exposureTypes?.reduce((acc: ColGroupDef[], type) => {
-    const groupKey = type.exposure_category_l1;
-    const existingGroup = acc.find(group => group.headerName === groupKey);
+    const l1Key = type.exposure_category_l1;
+    const l2Key = type.exposure_category_l2;
+    
+    let l1Group = acc.find(group => group.headerName === l1Key);
+    
+    if (!l1Group) {
+      l1Group = {
+        headerName: l1Key,
+        children: []
+      };
+      acc.push(l1Group);
+    }
 
-    const column: ColDef = {
+    let l2Group = l1Group.children?.find(group => 
+      (group as ColGroupDef).headerName === l2Key
+    ) as ColGroupDef;
+
+    if (!l2Group) {
+      l2Group = {
+        headerName: l2Key,
+        children: []
+      };
+      l1Group.children?.push(l2Group);
+    }
+
+    // Add L3 level column
+    const l3Column: ColDef = {
       field: `exposure_configs.${type.exposure_type_id}`,
-      headerName: type.exposure_category_l2,
+      headerName: type.exposure_category_l3,
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -173,15 +196,7 @@ const EntityGrid = () => {
       },
     };
 
-    if (existingGroup) {
-      existingGroup.children?.push(column);
-      return acc;
-    }
-
-    acc.push({
-      headerName: groupKey,
-      children: [column],
-    });
+    l2Group.children?.push(l3Column);
 
     return acc;
   }, []) || [];
