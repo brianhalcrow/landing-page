@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -118,7 +117,7 @@ const EntityGrid = () => {
           filter: true,
           width: 130,
           headerClass: 'header-center',
-          cellClass: 'cell-center',
+          cellClass: 'cell-left',
         },
         {
           field: "entity_name",
@@ -127,7 +126,7 @@ const EntityGrid = () => {
           filter: true,
           flex: 1,
           headerClass: 'header-center',
-          cellClass: 'cell-center',
+          cellClass: 'cell-left',
         },
         {
           field: "functional_currency",
@@ -136,16 +135,7 @@ const EntityGrid = () => {
           filter: true,
           width: 150,
           headerClass: 'header-center',
-          cellClass: 'cell-center',
-        },
-        {
-          field: "local_currency",
-          headerName: "Local Currency",
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: 'header-center',
-          cellClass: 'cell-center',
+          cellClass: 'cell-left',
         },
         {
           field: "accounting_rate_method",
@@ -154,7 +144,7 @@ const EntityGrid = () => {
           filter: true,
           width: 180,
           headerClass: 'header-center',
-          cellClass: 'cell-center',
+          cellClass: 'cell-left',
         },
       ]
     }
@@ -189,13 +179,11 @@ const EntityGrid = () => {
       l1Group.children?.push(l2Group);
     }
 
-    // Add L3 level column
     const l3Column: ColDef = {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
       headerClass: 'header-center header-wrap',
       cellClass: 'cell-center',
-      autoHeight: true,
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -261,15 +249,24 @@ const EntityGrid = () => {
           }
           .ag-header-group-cell {
             font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .ag-header-cell {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
           .ag-header-group-cell-label,
           .ag-header-cell-label {
+            display: flex !important;
             justify-content: center !important;
             align-items: center !important;
+            width: 100% !important;
             height: 100% !important;
           }
-          .header-center .ag-header-cell-label {
-            justify-content: center !important;
+          .header-center {
             text-align: center !important;
           }
           .header-wrap .ag-header-cell-label {
@@ -293,10 +290,15 @@ const EntityGrid = () => {
             justify-content: center !important;
             height: 100% !important;
           }
-          .ag-cell {
+          .cell-left {
             display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
+            justify-content: flex-start !important;
+            height: 100% !important;
+            padding-left: 16px !important;
+          }
+          .ag-cell {
+            height: 100% !important;
           }
         `}
       </style>
