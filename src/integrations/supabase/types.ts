@@ -180,6 +180,24 @@ export type Database = {
         }
         Relationships: []
       }
+      counterparty: {
+        Row: {
+          counterparty_id: string | null
+          counterparty_name: string | null
+          counterparty_type: string | null
+        }
+        Insert: {
+          counterparty_id?: string | null
+          counterparty_name?: string | null
+          counterparty_type?: string | null
+        }
+        Update: {
+          counterparty_id?: string | null
+          counterparty_name?: string | null
+          counterparty_type?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           content: string | null
@@ -1878,7 +1896,9 @@ export type Database = {
           ccy_2: string | null
           ccy_2_amount: number | null
           ccy_pair: string | null
-          column16: string | null
+          cost_centre: string | null
+          counterparty: string | null
+          "Counterparty Type": string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -1896,7 +1916,9 @@ export type Database = {
           ccy_2?: string | null
           ccy_2_amount?: number | null
           ccy_pair?: string | null
-          column16?: string | null
+          cost_centre?: string | null
+          counterparty?: string | null
+          "Counterparty Type"?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -1914,7 +1936,9 @@ export type Database = {
           ccy_2?: string | null
           ccy_2_amount?: number | null
           ccy_pair?: string | null
-          column16?: string | null
+          cost_centre?: string | null
+          counterparty?: string | null
+          "Counterparty Type"?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
