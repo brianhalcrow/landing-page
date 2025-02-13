@@ -22,9 +22,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
             counterparty_id,
             relationship_id,
             entity_id,
-            counterparty!counterparty_id(
-              counterparty_name
-            )
+            counterparty!counterparty_id(*)
           `)
           .eq('entity_id', data.entity_id);
 
@@ -34,6 +32,8 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         }
 
         if (!result) return [];
+
+        console.log('Counterparties query result:', result); // Debug log
 
         // Transform the result to match our EntityCounterparty interface
         return result.map(item => ({
@@ -49,6 +49,13 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
       }
     },
     enabled: !!data?.entity_id
+  });
+
+  // Debug log for component state
+  console.log('CounterpartySelector state:', {
+    value,
+    entityId: data?.entity_id,
+    counterparties
   });
 
   if (!data?.entity_id) return <span>Select entity first</span>;
