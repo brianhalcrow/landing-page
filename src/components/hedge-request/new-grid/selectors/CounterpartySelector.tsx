@@ -22,7 +22,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
             counterparty_id,
             relationship_id,
             entity_id,
-            counterparty:counterparty_id (
+            counterparty!counterparty_id(
               counterparty_name
             )
           `)
@@ -36,9 +36,9 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         if (!result) return [];
 
         // Transform the result to match our EntityCounterparty interface
-        return (result as CounterpartyJoinResult[]).map(item => ({
+        return result.map(item => ({
           counterparty_id: item.counterparty_id,
-          counterparty_name: item.counterparty.counterparty_name,
+          counterparty_name: item.counterparty?.counterparty_name || '',
           relationship_id: item.relationship_id,
           entity_id: item.entity_id
         }));

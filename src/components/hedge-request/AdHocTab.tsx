@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +12,7 @@ const AdHocTab = () => {
     entity_id: "",
     entity_name: "",
     counterparty: "",
+    counterparty_name: "", // Added missing field
     strategy: "",
     instrument: "",
     ccy_pair: "",
