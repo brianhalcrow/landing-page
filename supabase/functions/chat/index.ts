@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { OpenAI } from "https://esm.sh/openai@4.24.1"
 import { getSchemaContext } from './schema-service.ts'
 import { extractCurrencyInfo, extractEntityInfo, generateChatResponse } from './openai-service.ts'
-import { getRateInfo, getForwardRateInfo, getEntityInfo } from './data-service.ts'
+import { getRateInfo, getForwardRateInfo, getEntityInfo, getEntityExposureTypes } from './data-service.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -62,6 +62,13 @@ serve(async (req) => {
     const entityInfo = extractedEntity ? await getEntityInfo(supabase, extractedEntity) : null
     console.log('Found entity info:', entityInfo)
 
+    // Get exposure types for the entity if available
+    let exposureTypes = null
+    if (entityInfo?.entity_id) {
+      exposureTypes = await getEntityExposureTypes(supabase, entityInfo.entity_id)
+      console.log('Found exposure types:', exposureTypes)
+    }
+
     // Prepare context for final chat completion
     const context = `You are a financial expert specializing in FX risk management. You have access to the following database schema:\n\n${schemaContext}\n\nWhen discussing rates:
     - Always reference actual rates from the database when available
@@ -75,8 +82,8 @@ serve(async (req) => {
     ${rateInfo ? `\nSpot rate information: ${JSON.stringify(rateInfo)}` : ''}
     ${forwardRateInfo ? `\nForward rate information: ${JSON.stringify(forwardRateInfo)}` : ''}`
 
-    // Generate final response
-    const reply = await generateChatResponse(openai, message, context)
+    // Generate final response with exposure types context
+    const reply = await generateChatResponse(openai, message, context, exposureTypes || undefined)
     console.log('Generated reply')
 
     return new Response(

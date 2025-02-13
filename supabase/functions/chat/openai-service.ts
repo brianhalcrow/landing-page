@@ -1,5 +1,5 @@
-
 import { OpenAI } from "https://esm.sh/openai@4.24.1"
+import { ExposureType } from "./data-service.ts"
 
 export interface ExtractedCurrency {
   base_currency: string;
@@ -69,13 +69,28 @@ export async function extractEntityInfo(openai: OpenAI, message: string, schemaC
   }
 }
 
-export async function generateChatResponse(openai: OpenAI, message: string, context: string) {
+export async function generateChatResponse(
+  openai: OpenAI, 
+  message: string, 
+  context: string,
+  exposureTypes?: ExposureType[]
+) {
+  const exposureContext = exposureTypes?.length 
+    ? `\n\nAvailable exposure types for this entity:
+      ${exposureTypes.map(type => 
+        `- ${type.exposure_category_l1} > ${type.exposure_category_l2} > ${type.exposure_category_l3} (${type.subsystem})`
+      ).join('\n')}`
+    : '';
+
   const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: context ? [
       {
         role: 'system',
-        content: context
+        content: context + exposureContext + `\n\nWhen discussing exposures:
+        - Reference the specific exposure categories (L1, L2, L3) when applicable
+        - Mention the relevant subsystem (GL, AP, AR, PO) when discussing specific exposures
+        - Consider the entity's configured exposure types when making recommendations`
       },
       { 
         role: 'user', 
