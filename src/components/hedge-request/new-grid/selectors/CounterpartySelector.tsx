@@ -14,14 +14,23 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         .from('entity_counterparty')
         .select(`
           counterparty_id,
-          counterparty_name,
           relationship_id,
-          entity_id
+          entity_id,
+          counterparty!inner (
+            counterparty_name
+          )
         `)
         .eq('entity_id', data.entity_id);
 
       if (error) throw error;
-      return result;
+      
+      // Transform the result to match our EntityCounterparty interface
+      return result.map(item => ({
+        counterparty_id: item.counterparty_id,
+        counterparty_name: item.counterparty.counterparty_name,
+        relationship_id: item.relationship_id,
+        entity_id: item.entity_id
+      }));
     },
     enabled: !!data?.entity_id
   });
