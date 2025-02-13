@@ -1,11 +1,15 @@
 
+import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { toast } from "sonner";
+import { Edit, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import CheckboxCellRenderer from "../grid/cellRenderers/CheckboxCellRenderer";
 
 interface LegalEntity {
   entity_id: string;
@@ -13,28 +17,96 @@ interface LegalEntity {
   local_currency: string;
   functional_currency: string;
   accounting_rate_method: string;
+  isEditing?: boolean;
+  exposure_configs?: Record<number, boolean>;
 }
 
 const EntityGrid = () => {
-  const { data: entities, isLoading } = useQuery({
-    queryKey: ["legal-entities"],
+  const queryClient = useQueryClient();
+  const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
+
+  // Fetch exposure types
+  const { data: exposureTypes } = useQuery({
+    queryKey: ["exposure-types"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("erp_legal_entity")
+        .from("exposure_types")
         .select("*")
-        .order("entity_name");
+        .eq("is_active", true)
+        .order("exposure_type_id");
 
-      if (error) {
-        console.error("Error fetching legal entities:", error);
-        toast.error("Failed to fetch entities");
-        throw error;
-      }
-
+      if (error) throw error;
       return data || [];
     },
   });
 
-  const columnDefs: ColDef[] = [
+  // Fetch entities with their exposure configs
+  const { data: entities, isLoading } = useQuery({
+    queryKey: ["legal-entities-with-config"],
+    queryFn: async () => {
+      // First get all legal entities
+      const { data: legalEntities, error: entityError } = await supabase
+        .from("erp_legal_entity")
+        .select("*")
+        .order("entity_name");
+
+      if (entityError) throw entityError;
+
+      // Then get all exposure configs
+      const { data: exposureConfigs, error: configError } = await supabase
+        .from("entity_exposure_config")
+        .select("*");
+
+      if (configError) throw configError;
+
+      // Combine the data
+      return legalEntities.map((entity) => ({
+        ...entity,
+        exposure_configs: exposureConfigs
+          .filter((config) => config.entity_id === entity.entity_id)
+          .reduce((acc, config) => ({
+            ...acc,
+            [config.exposure_type_id]: config.is_active,
+          }), {}),
+      }));
+    },
+  });
+
+  // Update exposure config mutation
+  const updateConfigMutation = useMutation({
+    mutationFn: async ({ 
+      entityId, 
+      exposureTypeId, 
+      isActive 
+    }: { 
+      entityId: string; 
+      exposureTypeId: number; 
+      isActive: boolean 
+    }) => {
+      const { error } = await supabase
+        .from("entity_exposure_config")
+        .upsert({
+          entity_id: entityId,
+          exposure_type_id: exposureTypeId,
+          is_active: isActive,
+        }, {
+          onConflict: 'entity_id,exposure_type_id'
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["legal-entities-with-config"] });
+      toast.success("Configuration updated successfully");
+    },
+    onError: (error) => {
+      console.error("Error updating configuration:", error);
+      toast.error("Failed to update configuration");
+    },
+  });
+
+  // Create base columns
+  const baseColumnDefs: ColDef[] = [
     {
       field: "entity_id",
       headerName: "Entity ID",
@@ -68,9 +140,58 @@ const EntityGrid = () => {
       headerName: "Accounting Rate Method",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 180,
     },
   ];
+
+  // Create exposure type columns dynamically
+  const exposureColumns: ColDef[] = exposureTypes?.map((type) => ({
+    field: `exposure_configs.${type.exposure_type_id}`,
+    headerName: `${type.exposure_category_l1} - ${type.exposure_category_l2}`,
+    width: 200,
+    cellRenderer: CheckboxCellRenderer,
+    cellRendererParams: {
+      disabled: !editingRows[type.exposure_type_id],
+      onChange: (isChecked: boolean, data: any) => {
+        if (!editingRows[data.entity_id]) return;
+        
+        updateConfigMutation.mutate({
+          entityId: data.entity_id,
+          exposureTypeId: type.exposure_type_id,
+          isActive: isChecked,
+        });
+      },
+    },
+  })) || [];
+
+  // Add actions column
+  const actionsColumn: ColDef = {
+    headerName: "Actions",
+    width: 100,
+    cellRenderer: (params: any) => {
+      const isEditing = editingRows[params.data.entity_id];
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setEditingRows(prev => ({
+              ...prev,
+              [params.data.entity_id]: !isEditing
+            }));
+          }}
+        >
+          {isEditing ? (
+            <Save className="h-4 w-4" />
+          ) : (
+            <Edit className="h-4 w-4" />
+          )}
+        </Button>
+      );
+    },
+  };
+
+  const columnDefs = [...baseColumnDefs, ...exposureColumns, actionsColumn];
 
   if (isLoading) {
     return <Skeleton className="w-full h-[600px]" />;
@@ -85,7 +206,7 @@ const EntityGrid = () => {
           columnDefs={columnDefs}
           defaultColDef={{
             resizable: true,
-            editable: false, // Make all columns read-only
+            editable: false,
           }}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
