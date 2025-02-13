@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket with AG Grid</title>
+  <!-- AG Grid JavaScript and CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+</head>
+<body>
+  <h1>Real-Time Forex Rates</h1>
+  <button id="connect-websocket">Connect WebSocket</button>
+  <button id="disconnect-websocket">Disconnect WebSocket</button>
+  <div id="myGrid" class="ag-theme-alpine" style="height: 400px; width: 80%;"></div>
+
+  <script>
+    const PROXY_WEBSOCKET_URL = 'ws://localhost:3001/ws'; // Proxy WebSocket URL
+    let socket = null;
+    const rowData = []; // Array to store grid data
+    let gridApi; // Reference to AG Grid API
+
+    // Grid Column Definitions
+    const columnDefs = [
+      { field: 'type', headerName: 'Type', sortable: true, filter: true },
+      { field: 'ticker', headerName: 'Ticker', sortable: true, filter: true },
+      { field: 'timestamp', headerName: 'Timestamp', sortable: true, filter: true },
+      { field: 'volumeBid', headerName: 'Volume Bid', sortable: true, filter: true },
+      { field: 'bidPrice', headerName: 'Bid Price', sortable: true, filter: true },
+      { field: 'midPrice', headerName: 'Mid Price', sortable: true, filter: true },
+      { field: 'volumeAsk', headerName: 'Volume Ask', sortable: true, filter: true },
+      { field: 'askPrice', headerName: 'Ask Price', sortable: true, filter: true },
+    ];
+
+    // Initialize AG Grid
+    const gridOptions = {
+      columnDefs,
+      rowData,
+      rowHeight: 20,
+      onGridReady: (params) => {
+        gridApi = params.api;
+        if (gridApi) {
+          console.log('Grid API initialized successfully.');
+          gridApi.sizeColumnsToFit(); // Auto-fit columns
+        } else {
+          console.error('Grid API failed to initialize.');
+        }
+      },
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const myGridElement = document.querySelector('#myGrid')
+      try {
+        agGrid.createGrid(myGridElement, gridOptions);
+        console.log('AG Grid initialized successfully.');
+      } catch (error) {
+        console.error('Error initializing AG Grid:', error.message);
+      }
+    });
+
+    console.log('AG Grid version:', agGrid);
+
+    const updateGrid = (message) => {
+      if (!gridApi) {
+        console.warn('Grid API is not initialized.');
+        return;
+      }
+      gridApi.applyTransaction({ add: [message] });
+    };
+
+    const connectWebSocket = () => {
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        console.log('WebSocket is already connected or connecting.');
+        return;
+      }
+
+      console.log('Connecting to WebSocket...');
+      socket = new WebSocket(PROXY_WEBSOCKET_URL);
+
+      socket.onopen = () => {
+        console.log('WebSocket connected successfully.');
+        const subscriptionMessage = {
+          eventName: 'subscribe',
+          authorization: '205c3dcff9feb9ea22b221c5a828d6acb71a7319',
+          eventData: { tickers: ['eurusd', 'audusd'] },
+        };
+        socket.send(JSON.stringify(subscriptionMessage));
+        console.log('Subscription message sent.');
+      };
+
+      socket.onmessage = async (event) => {
+        try {
+          const data = event.data instanceof Blob ? await event.data.text() : event.data;
+          const decodedMessage = JSON.parse(data);
+
+          console.log('Received message:', decodedMessage);
+
+          if (decodedMessage.messageType === 'A' && decodedMessage.data) {
+            const [type, ticker, timestamp, volumeBid, bidPrice, midPrice, volumeAsk, askPrice] = decodedMessage.data;
+            updateGrid({ type, ticker, timestamp, volumeBid, bidPrice, midPrice, volumeAsk, askPrice });
+          }
+
+          if (decodedMessage.messageType === 'H') {
+            console.log('Heartbeat received');
+          }
+          if (decodedMessage.messageType === 'I') {
+            console.log(`Subscription successful. Subscription ID: ${decodedMessage.data?.subscriptionId}`);
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error.message);
+        }
+      };
+
+      socket.onclose = (event) => {
+        console.log(`WebSocket closed (code: ${event.code}, reason: ${event.reason || 'none'})`);
+      };
+
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error.message || 'Unknown error occurred');
+      };
+    };
+
+    const disconnectWebSocket = () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        console.log('WebSocket connection closed by client.');
+      } else {
+        console.log('No active WebSocket connection to close.');
+      }
+    };
+
+    document.getElementById('connect-websocket').addEventListener('click', connectWebSocket);
+    document.getElementById('disconnect-websocket').addEventListener('click', disconnectWebSocket);
+  </script>
+</body>
+</html>

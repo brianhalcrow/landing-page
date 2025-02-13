@@ -1,8 +1,17 @@
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
+import CurrencyConverter from "@/trade/components/CurrencyConverter.jsx";
 
 const Execution = () => {
-  return <TabsContainer tabs={tabsConfig["execution"]} />;
+  const amplifyUsername = "test";
+  const kycComplete = true;
+
+  return (
+    <div>
+      <TabsContainer tabs={tabsConfig["execution"]} />
+      <CurrencyConverter amplifyUsername={amplifyUsername} kycComplete={kycComplete} />
+    </div>
+  );
 };
 
 export default Execution;

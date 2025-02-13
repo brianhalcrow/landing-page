@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Forward Rates</title>
+</head>
+<body>
+  <h1>Forward Rates Test</h1>
+  <button id="fetch-data">Fetch Forward Points Data</button>
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById('fetch-data').addEventListener('click', async () => {
+      const outputElement = document.getElementById('output');
+      outputElement.textContent = 'Fetching data...';
+
+      try {
+        // Fetch data from the API
+        const response = await fetch('https://api.sensefx.io/pre_trade_rates');
+
+        // Check if the response is successful
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API Error: ${errorText}`);
+        }
+
+        // Parse the JSON response
+        const data = await response.json();
+
+        // Display the fetched data in a formatted way
+        outputElement.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        // Handle errors and display the error message
+        outputElement.textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
+

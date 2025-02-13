@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Echo Test</title>
+</head>
+<body>
+  <h1>WebSocket Echo Test</h1>
+  <div>
+    <label for="message">Message to send:</label>
+    <input type="text" id="message" placeholder="Enter your message" />
+    <button id="send-message">Send Message</button>
+  </div>
+  <p></p>
+  <button id="connect-websocket">Connect WebSocket</button>
+  <button id="disconnect-websocket">Disconnect WebSocket</button>
+  <pre id="output"></pre>
+
+  <script>
+    let testSocket = null;
+    const outputElement = document.getElementById('output');
+
+    const updateOutput = (message) => {
+      outputElement.textContent += message + '\n';
+    };
+
+    const connectWebSocket = () => {
+      if (testSocket && testSocket.readyState === WebSocket.OPEN) {
+        updateOutput('WebSocket is already connected.');
+        return;
+      }
+
+      testSocket = new WebSocket('wss://echo.websocket.org');
+
+      testSocket.onopen = () => {
+        updateOutput('WebSocket connected.');
+      };
+
+      testSocket.onmessage = (event) => {
+        updateOutput('Received: ' + event.data);
+      };
+
+      testSocket.onclose = () => {
+        updateOutput('WebSocket disconnected.');
+      };
+
+      testSocket.onerror = (error) => {
+        updateOutput('WebSocket error: ' + error.message || 'Unknown error');
+      };
+    };
+
+    const disconnectWebSocket = () => {
+      if (testSocket && testSocket.readyState === WebSocket.OPEN) {
+        testSocket.close();
+        updateOutput('WebSocket disconnected by user.');
+      } else {
+        updateOutput('No active WebSocket connection to disconnect.');
+      }
+    };
+
+    const sendMessage = () => {
+      const message = document.getElementById('message').value;
+      if (testSocket && testSocket.readyState === WebSocket.OPEN) {
+        testSocket.send(message);
+        updateOutput('Sent: ' + message);
+      } else {
+        updateOutput('WebSocket is not connected. Please connect first.');
+      }
+    };
+
+    document.getElementById('connect-websocket').addEventListener('click', connectWebSocket);
+    document.getElementById('disconnect-websocket').addEventListener('click', disconnectWebSocket);
+    document.getElementById('send-message').addEventListener('click', sendMessage);
+  </script>
+</body>
+</html>

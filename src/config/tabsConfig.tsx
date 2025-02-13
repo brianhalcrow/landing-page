@@ -4,6 +4,8 @@ import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
 import RejectedTab from "@/components/monitor/RejectedTab";
 import HistoryTab from "@/components/monitor/HistoryTab";
+import FxRatesTab from "@/rates/FxRates";
+import SpotRatesStreaming from "@/rates/SpotRatesStreaming";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
@@ -18,11 +20,14 @@ import AnalyticsTab from "@/components/analytics/AnalyticsTab";
 import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
 
 export const tabsConfig = {
-  "monitor": [
+  "monitor": ({ baseCurrency, setBaseCurrency }) => [
     { value: "completed", label: "Completed", content: <CompletedTab /> },
     { value: "history", label: "History", content: <HistoryTab /> },
     { value: "pending", label: "Pending", content: <PendingTab /> },
     { value: "rejected", label: "Rejected", content: <RejectedTab /> },
+    { value: "gain-loss", label: "Gain/Loss", content: <div>Gain/Loss Content Goes Here</div> },
+    { value: "fx-rates", label: "FX Rates", content: <FxRatesTab baseCurrency={baseCurrency} setBaseCurrency={setBaseCurrency} /> },
+    { value: "spot-rates", label: "Spot Rates", content: <SpotRatesStreaming baseCurrency={baseCurrency} /> },
   ],
   "cash-management": [
     { value: "overview", label: "Overview", content: <CashManagementOverviewTab /> },

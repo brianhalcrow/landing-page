@@ -1,0 +1,22 @@
+/* FormField.css */
+
+.form-field {
+    display: flex;
+    align-items: flex-start; /* Align items at the start of the cross-axis (top) */
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .form-label {
+    flex: 0 0 30%; /* Allocate 30% of the space for the label */
+    min-width: 150px; /* Ensure the label has a minimum width */
+    text-align: right;
+    margin-right: 1rem;
+    font-size: 1rem;
+    padding-top: 0.5rem; /* Adjust padding to move text higher */  
+  }
+  
+  .form-input {
+    flex: 3; /* Adjust the flex value to ensure proper spacing */
+    max-width: 70%; /* Ensure it doesn't exceed 70% of the parent width */
+  }

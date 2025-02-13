@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forex Rates</title>
+  <!-- AG Grid JavaScript and CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <style>
+    #myGrid {
+      height: 600px;
+      width: 100%;
+    }
+    .positive-change {
+      color: green;
+      font-weight: bold;
+    }
+    .negative-change {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Forex Rates</h1>
+  <button id="connect-websocket">Connect WebSocket</button>
+  <button id="disconnect-websocket">Disconnect WebSocket</button>
+  <div id="myGrid" class="ag-theme-alpine"></div>
+
+  <script>
+    const PROXY_WEBSOCKET_URL = 'ws://localhost:3001/ws';
+    let socket = null;
+
+    // Define the column structure
+    const columnDefs = [
+      { field: 'pair', headerName: 'Currency Pair', width: 120 },
+      { field: 'bid', headerName: 'Bid', width: 100 },
+      { field: 'ask', headerName: 'Ask', width: 100 },
+      {
+        field: 'change',
+        headerName: 'Change',
+        width: 100,
+        cellStyle: (params) => {
+          return params.value >= 0
+            ? { color: 'green', fontWeight: 'bold' }
+            : { color: 'red', fontWeight: 'bold' };
+        },
+      },
+    ];
+
+    const gridOptions = {
+        columnDefs,
+        rowData: [],
+        defaultColDef: {
+            resizable: true,
+        },
+        domLayout: 'autoHeight',
+        rowHeight: 50,
+        getRowId: (params) => params.data.pair, // row ID
+        onGridReady: (params) => {
+            gridOptions.api = params.api; // Initialize the grid API
+            console.log('Grid API initialized');
+        },
+    };
+
+    // Initialize the grid
+    document.addEventListener('DOMContentLoaded', () => {
+      const myGridElement = document.querySelector('#myGrid')
+      try {
+        agGrid.createGrid(myGridElement, gridOptions);
+        console.log('AG Grid initialized successfully.');
+      } catch (error) {
+        console.error('Error initializing AG Grid:', error.message);
+      }
+    });
+
+    const updateGrid = (data) => {
+        if (!Array.isArray(data)) {
+            console.error('Invalid data format:', data);
+            return;
+        }
+
+        // Destructure the array to extract required fields
+        const [type, ticker, timestamp, volumeBid, bidPrice, askPrice, volumeAsk, lastPrice] = data;
+
+        if (!ticker) {
+            console.error('Ticker is undefined:', data);
+            return;
+        }
+
+        if (!gridOptions.api) {
+            console.warn('Grid API is not initialized');
+            return;
+        }
+
+        // Add the row data to the grid
+        const rowData = {
+            pair: ticker.toUpperCase(), // Convert the ticker to uppercase
+            bid: bidPrice.toFixed(5),  // Format bid price
+            ask: askPrice.toFixed(5),  // Format ask price
+            change: (askPrice - bidPrice).toFixed(5), // Calculate the change
+        };
+
+        // Find the existing row for the ticker
+        const rowNode = gridOptions.api.getRowNode(ticker.toUpperCase());
+
+        if (rowNode) {
+            // Update the existing row
+            gridOptions.api.applyTransaction({ update: [rowData] });
+        } else {
+            // Add a new row if it doesn't exist
+            gridOptions.api.applyTransaction({ add: [rowData] });
+        }
+    };
+
+    const connectWebSocket = () => {
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        console.log('WebSocket is already connected or connecting.');
+        return;
+      }
+
+      console.log('Connecting to WebSocket...');
+      socket = new WebSocket(PROXY_WEBSOCKET_URL);
+
+      socket.onopen = () => {
+        console.log('WebSocket connected successfully.');
+        const subscriptionMessage = {
+          eventName: 'subscribe',
+          authorization: '205c3dcff9feb9ea22b221c5a828d6acb71a7319',
+          eventData: { tickers: ['eurusd', 'audusd'] },
+        };
+        socket.send(JSON.stringify(subscriptionMessage));
+      };
+
+      socket.onmessage = async (event) => {
+        try {
+          const data = event.data instanceof Blob ? await event.data.text() : event.data;
+          const decodedMessage = JSON.parse(data);
+
+          console.log('Received message:', decodedMessage);
+
+          if (decodedMessage.messageType === 'A') {
+            updateGrid(decodedMessage.data);
+          }
+
+          if (decodedMessage.messageType === 'H') {
+            console.log('Heartbeat received');
+          }
+          if (decodedMessage.messageType === 'I') {
+            console.log(`Subscription successful. Subscription ID: ${decodedMessage.data?.subscriptionId}`);
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error.message);
+        }
+      };
+
+      socket.onclose = (event) => {
+        console.log(`WebSocket closed (code: ${event.code}, reason: ${event.reason || 'none'})`);
+      };
+
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error.message || 'Unknown error occurred');
+      };
+    };
+
+    const disconnectWebSocket = () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        console.log('WebSocket connection closed by client.');
+      } else {
+        console.log('No active WebSocket connection to close.');
+      }
+    };
+
+    document.getElementById('connect-websocket').addEventListener('click', connectWebSocket);
+    document.getElementById('disconnect-websocket').addEventListener('click', disconnectWebSocket);
+  </script>
+</body>
+</html>

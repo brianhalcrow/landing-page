@@ -1,0 +1,16 @@
+.execution-report-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    row-gap: 10px;
+    column-gap: 15px;
+    align-items: center; /* Align items vertically centered */
+}
+
+.label {
+    font-weight: bold;
+    text-align: right;
+}
+
+.value {
+    text-align: left;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Spot Rates</title>
+</head>
+<body>
+  <h1>Spot Rates Test</h1>
+  <button id="start-websocket">Start WebSocket</button>
+  <button id="stop-websocket">Stop WebSocket</button>
+  <pre id="output"></pre>
+
+  <script>
+    const TIINGO_API_KEY = '205c3dcff9feb9ea22b221c5a828d6acb71a7319';
+    const TIINGO_WEBSOCKET_URL = 'wss://api.tiingo.com/fx';
+
+    let socket = null;
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    const outputElement = document.getElementById('output');
+    const updateOutput = (message) => {
+      outputElement.textContent += message + '\n';
+    };
+
+    const connectWebSocket = () => {
+      updateOutput('Attempting to connect to WebSocket...');
+      socket = new WebSocket(TIINGO_WEBSOCKET_URL);
+
+      socket.onopen = () => {
+        updateOutput('WebSocket connected');
+        retryCount = 0;
+
+        const subscriptionMessage = {
+          eventName: 'subscribe',
+          authorization: TIINGO_API_KEY,
+          eventData: {
+            thresholdLevel: 5,
+            tickers: ['audusd', 'eurusd'],
+          },
+        };
+        socket.send(JSON.stringify(subscriptionMessage));
+      };
+
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+
+        updateOutput('Received message: ' + JSON.stringify(message, null, 2));
+
+        if (message.data) {
+          const rates = message.data.reduce((acc, item) => {
+            acc[item.ticker] = parseFloat(item.midPrice);
+            return acc;
+          }, {});
+          updateOutput('Parsed rates: ' + JSON.stringify(rates, null, 2));
+        }
+      };
+
+      socket.onclose = () => {
+        updateOutput('WebSocket closed');
+        if (retryCount < maxRetries) {
+          retryCount++;
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+          updateOutput(`Retrying connection in ${retryDelay / 1000} seconds...`);
+          setTimeout(connectWebSocket, retryDelay);
+        } else {
+          updateOutput('Max retries reached. Could not reconnect to WebSocket.');
+        }
+      };
+
+      socket.onerror = (event) => {
+        console.error('WebSocket error occurred:', event);
+        updateOutput(`WebSocket error occurred: ${event.message || 'Unknown error'}`);
+        };
+    };
+
+    const startWebSocket = () => {
+      if (!socket || socket.readyState === WebSocket.CLOSED) {
+        connectWebSocket();
+      } else {
+        updateOutput('WebSocket is already running.');
+      }
+    };
+
+    const stopWebSocket = () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        updateOutput('WebSocket stopped.');
+      } else {
+        updateOutput('No active WebSocket connection to stop.');
+      }
+    };
+
+    document.getElementById('start-websocket').addEventListener('click', startWebSocket);
+    document.getElementById('stop-websocket').addEventListener('click', stopWebSocket);
+  </script>
+</body>
+</html>
