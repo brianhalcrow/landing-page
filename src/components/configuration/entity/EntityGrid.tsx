@@ -112,8 +112,6 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 130,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
     },
     {
       field: "entity_name",
@@ -121,8 +119,6 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       flex: 1,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
     },
     {
       field: "functional_currency",
@@ -130,8 +126,6 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 150,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
     },
     {
       field: "local_currency",
@@ -139,8 +133,6 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 150,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
     },
     {
       field: "accounting_rate_method",
@@ -148,8 +140,6 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 180,
-      wrapHeaderText: true,
-      autoHeaderHeight: true,
     },
   ];
 
@@ -158,8 +148,6 @@ const EntityGrid = () => {
     field: `exposure_configs.${type.exposure_type_id}`,
     headerName: `${type.exposure_category_l1} - ${type.exposure_category_l2}`,
     width: 200,
-    wrapHeaderText: true,
-    autoHeaderHeight: true,
     cellRenderer: CheckboxCellRenderer,
     cellRendererParams: {
       disabled: !editingRows[type.exposure_type_id],
@@ -225,8 +213,6 @@ const EntityGrid = () => {
           defaultColDef={{
             resizable: true,
             editable: false,
-            wrapHeaderText: true,
-            autoHeaderHeight: true,
           }}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
