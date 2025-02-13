@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -115,36 +116,40 @@ const EntityGrid = () => {
           headerName: "Entity ID",
           sortable: true,
           filter: true,
-          width: 130,
+          width: 100,  // Adjusted width
           headerClass: 'header-center',
-          cellClass: 'cell-left',
+          cellClass: 'cell-left cell-wrap',
+          wrapText: true,
         },
         {
           field: "entity_name",
           headerName: "Entity Name",
           sortable: true,
           filter: true,
-          flex: 1,
+          width: 200,  // Fixed width instead of flex
           headerClass: 'header-center',
-          cellClass: 'cell-left',
+          cellClass: 'cell-left cell-wrap',
+          wrapText: true,
         },
         {
           field: "functional_currency",
           headerName: "Functional Currency",
           sortable: true,
           filter: true,
-          width: 150,
+          width: 120,  // Adjusted width
           headerClass: 'header-center',
-          cellClass: 'cell-left',
+          cellClass: 'cell-left cell-wrap',
+          wrapText: true,
         },
         {
           field: "accounting_rate_method",
           headerName: "Accounting Rate Method",
           sortable: true,
           filter: true,
-          width: 180,
+          width: 150,  // Adjusted width
           headerClass: 'header-center',
-          cellClass: 'cell-left',
+          cellClass: 'cell-left cell-wrap',
+          wrapText: true,
         },
       ]
     }
@@ -279,10 +284,12 @@ const EntityGrid = () => {
             min-height: 50px !important;
           }
           .ag-row {
-            height: 40px !important;
+            height: auto !important;
+            min-height: 40px !important;
           }
           .ag-row-group {
-            height: 40px !important;
+            height: auto !important;
+            min-height: 40px !important;
           }
           .cell-center {
             display: flex !important;
@@ -297,8 +304,13 @@ const EntityGrid = () => {
             height: 100% !important;
             padding-left: 16px !important;
           }
+          .cell-wrap {
+            white-space: normal !important;
+            line-height: 1.2 !important;
+          }
           .ag-cell {
             height: 100% !important;
+            padding: 8px 0 !important;
           }
         `}
       </style>
@@ -320,6 +332,7 @@ const EntityGrid = () => {
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
           animateRows={true}
+          domLayout="autoHeight"
         />
       </div>
     </div>
