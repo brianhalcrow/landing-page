@@ -245,25 +245,31 @@ export type Database = {
       }
       entities: {
         Row: {
-          created_at: string | null
+          created_at: string
+          description: string | null
           entity_id: string
           entity_name: string
           functional_currency: string
-          updated_at: string | null
+          is_active: boolean | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           entity_id: string
           entity_name: string
           functional_currency: string
-          updated_at?: string | null
+          is_active?: boolean | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           entity_id?: string
           entity_name?: string
           functional_currency?: string
-          updated_at?: string | null
+          is_active?: boolean | null
+          updated_at?: string
         }
         Relationships: []
       }
