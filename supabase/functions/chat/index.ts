@@ -37,12 +37,48 @@ serve(async (req) => {
       apiKey: openaiApiKey,
     })
 
+    // Get table schema information
+    const { data: tableSchema, error: schemaError } = await supabase
+      .from('tables')
+      .select('table_name, column_name, data_type, is_nullable, column_default')
+      .order('table_name');
+
+    if (schemaError) {
+      console.error('Error fetching schema:', schemaError);
+      throw schemaError;
+    }
+
+    // Organize schema information by table
+    const schemaByTable = tableSchema.reduce((acc: any, curr) => {
+      if (!acc[curr.table_name]) {
+        acc[curr.table_name] = [];
+      }
+      acc[curr.table_name].push({
+        column: curr.column_name,
+        type: curr.data_type,
+        nullable: curr.is_nullable,
+        default: curr.column_default
+      });
+      return acc;
+    }, {});
+
+    // Create schema context
+    const schemaContext = Object.entries(schemaByTable)
+      .map(([table, columns]) => 
+        `Table ${table}:\n${(columns as any[])
+          .map(col => `- ${col.column} (${col.type}${col.nullable === 'YES' ? ', nullable' : ''}${col.default ? `, default: ${col.default}` : ''})`)
+          .join('\n')}`
+      )
+      .join('\n\n');
+
+    console.log('Schema context created:', schemaContext);
+
     // Extract currency pair and tenor from message
     const currencyExtraction = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{
         role: 'system',
-        content: 'Extract currency pair and tenor (in days) information from the message. Return only a JSON object with base_currency, quote_currency, and tenor fields, for example: {"base_currency": "GBP", "quote_currency": "USD", "tenor": 90}. No other text, no markdown.'
+        content: `You have access to the following database schema:\n\n${schemaContext}\n\nExtract currency pair and tenor information from the message. Return only a JSON object with base_currency, quote_currency, and tenor fields, for example: {"base_currency": "GBP", "quote_currency": "USD", "tenor": 90}. No other text, no markdown.`
       }, {
         role: 'user',
         content: message
@@ -54,8 +90,8 @@ serve(async (req) => {
     
     if (currencyExtraction.choices[0]?.message?.content) {
       const cleanedContent = currencyExtraction.choices[0].message.content
-        .replace(/```json[\s\n]*/, '') // Remove opening ```json
-        .replace(/[\s\n]*```[\s\n]*$/, '') // Remove closing ```
+        .replace(/```json[\s\n]*/, '')
+        .replace(/[\s\n]*```[\s\n]*$/, '')
         .trim()
       
       console.log('Cleaned currency extraction response:', cleanedContent)
@@ -101,7 +137,7 @@ serve(async (req) => {
       model: "gpt-4o-mini",
       messages: [{
         role: 'system',
-        content: 'Extract any entity names mentioned in the message. Return only a JSON object with entity_name field, for example: {"entity_name": "Sense Inc"}. No other text, no markdown.'
+        content: `You have access to the following database schema:\n\n${schemaContext}\n\nExtract any entity names mentioned in the message. Return only a JSON object with entity_name field, for example: {"entity_name": "Sense Inc"}. No other text, no markdown.`
       }, {
         role: 'user',
         content: message
@@ -141,7 +177,7 @@ serve(async (req) => {
     const messages = [
       {
         role: 'system',
-        content: `You are a financial expert specializing in FX risk management. When discussing rates:
+        content: `You are a financial expert specializing in FX risk management. You have access to the following database schema:\n\n${schemaContext}\n\nWhen discussing rates:
         - Always reference actual rates from the database when available
         - For spot rates, use the closing_rate from the rates table
         - For forward rates, use the all_in_rate from rates_forward table
@@ -200,4 +236,3 @@ serve(async (req) => {
     )
   }
 })
-
