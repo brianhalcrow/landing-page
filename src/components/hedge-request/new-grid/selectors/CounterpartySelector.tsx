@@ -14,6 +14,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         .from('entity_counterparty')
         .select(`
           counterparty_id,
+          counterparty_name,
           relationship_id,
           entity_id
         `)
@@ -33,11 +34,14 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
       <select 
         value={value || ''} 
         onChange={(e) => {
-          const newValue = e.target.value;
-          if (node?.setData) {
+          const selectedCounterparty = counterparties?.find(
+            cp => cp.counterparty_id === e.target.value
+          );
+          if (node?.setData && selectedCounterparty) {
             node.setData({
               ...data,
-              counterparty: newValue
+              counterparty: selectedCounterparty.counterparty_id,
+              counterparty_name: selectedCounterparty.counterparty_name
             });
           }
         }}
@@ -47,7 +51,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         <option value="">Select Counterparty</option>
         {counterparties?.map((cp) => (
           <option key={cp.relationship_id} value={cp.counterparty_id}>
-            {cp.counterparty_id}
+            {cp.counterparty_name}
           </option>
         ))}
       </select>
