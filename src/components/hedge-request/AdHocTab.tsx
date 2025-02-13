@@ -2,8 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import InputDraftGrid from "./grid/InputDraftGrid";
+import NewHedgeRequestGrid from "./new-grid/NewHedgeRequestGrid";
+import { useState } from "react";
+import { HedgeRequest } from "./new-grid/types/hedgeRequest.types";
 
 const AdHocTab = () => {
+  const [newGridData, setNewGridData] = useState<HedgeRequest[]>([{
+    entity_id: "",
+    entity_name: "",
+    counterparty: "",
+    strategy: "",
+    instrument: "",
+    ccy_pair: "",
+    trade_date: "",
+    settlement_date: ""
+  }]);
+
   const { data: hedgeRequests, isLoading } = useQuery({
     queryKey: ['hedge-request-drafts'],
     queryFn: async () => {
@@ -45,7 +59,16 @@ const AdHocTab = () => {
     <div className="p-6 space-y-8">
       <div>
         <h2 className="text-2xl font-semibold mb-4">New Draft Request</h2>
-        <InputDraftGrid />
+        <div className="space-y-8">
+          <InputDraftGrid />
+          <div className="my-8">
+            <h3 className="text-xl font-semibold mb-4">New Implementation (In Progress)</h3>
+            <NewHedgeRequestGrid 
+              rowData={newGridData}
+              onRowDataChange={setNewGridData}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
