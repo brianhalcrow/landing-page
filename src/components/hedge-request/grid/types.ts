@@ -16,6 +16,23 @@ export interface HedgeRequestDraft {
   updated_at: string | null;
 }
 
+export interface HedgeRequestDraftTrade {
+  id: number;
+  draft_id: string | null;
+  buy_currency: string | null;
+  sell_currency: string | null;
+  buy_amount: number | null;
+  sell_amount: number | null;
+  trade_date: string | null;
+  settlement_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  entity_id: string | null;
+  entity_name: string | null;
+  spot_rate: number | null;
+  contract_rate: number | null;
+}
+
 export interface ValidEntity {
   entity_id: string;
   entity_name: string;
