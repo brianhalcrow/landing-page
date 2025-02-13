@@ -109,6 +109,7 @@ const EntityGrid = () => {
   const baseColumnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Entity Information',
+      headerClass: 'header-center',
       children: [
         {
           field: "entity_id",
@@ -116,6 +117,7 @@ const EntityGrid = () => {
           sortable: true,
           filter: true,
           width: 130,
+          headerClass: 'header-center',
         },
         {
           field: "entity_name",
@@ -123,6 +125,7 @@ const EntityGrid = () => {
           sortable: true,
           filter: true,
           flex: 1,
+          headerClass: 'header-center',
         },
         {
           field: "functional_currency",
@@ -130,6 +133,7 @@ const EntityGrid = () => {
           sortable: true,
           filter: true,
           width: 150,
+          headerClass: 'header-center',
         },
         {
           field: "local_currency",
@@ -137,6 +141,7 @@ const EntityGrid = () => {
           sortable: true,
           filter: true,
           width: 150,
+          headerClass: 'header-center',
         },
         {
           field: "accounting_rate_method",
@@ -144,6 +149,7 @@ const EntityGrid = () => {
           sortable: true,
           filter: true,
           width: 180,
+          headerClass: 'header-center',
         },
       ]
     }
@@ -183,6 +189,7 @@ const EntityGrid = () => {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
       headerClass: 'header-center header-wrap',
+      autoHeight: true,
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -243,31 +250,35 @@ const EntityGrid = () => {
         {`
           .ag-theme-alpine {
             --ag-row-height: 80px !important;
-            --ag-header-height: 40px;
-          }
-          .ag-header-group-cell-label {
-            justify-content: center;
-          }
-          .ag-header-cell-label {
-            justify-content: center;
-          }
-          .header-center .ag-header-cell-label {
-            justify-content: center;
-            text-align: center;
-          }
-          .header-wrap .ag-header-cell-label {
-            white-space: normal;
-            line-height: 1.2;
-            padding: 8px 0;
+            --ag-header-height: 50px !important;
+            --ag-header-group-height: 50px !important;
           }
           .ag-header-group-cell {
-            font-weight: bold;
+            font-weight: bold !important;
+          }
+          .ag-header-group-cell-label,
+          .ag-header-cell-label {
+            justify-content: center !important;
+            height: 100% !important;
+          }
+          .header-center .ag-header-cell-label {
+            justify-content: center !important;
+            text-align: center !important;
+          }
+          .header-wrap .ag-header-cell-label {
+            white-space: normal !important;
+            line-height: 1.2 !important;
+            padding: 8px 0 !important;
           }
           .ag-header-cell.header-wrap {
-            height: auto;
-            min-height: var(--ag-header-height);
-            padding-top: 4px;
-            padding-bottom: 4px;
+            height: auto !important;
+            min-height: 50px !important;
+          }
+          .ag-row {
+            height: 80px !important;
+          }
+          .ag-row-group {
+            height: 80px !important;
           }
         `}
       </style>
@@ -282,6 +293,10 @@ const EntityGrid = () => {
             sortable: true,
             filter: true,
           }}
+          headerHeight={50}
+          groupHeaderHeight={50}
+          rowHeight={80}
+          suppressRowTransform={true}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
           animateRows={true}
