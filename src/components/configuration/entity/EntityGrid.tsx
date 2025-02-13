@@ -116,8 +116,9 @@ const EntityGrid = () => {
           headerName: "Entity ID",
           sortable: true,
           filter: true,
-          width: 100,  // Adjusted width
+          width: 100,
           headerClass: 'header-center',
+          autoHeight: true,
           cellClass: 'cell-left cell-wrap',
           wrapText: true,
         },
@@ -126,8 +127,9 @@ const EntityGrid = () => {
           headerName: "Entity Name",
           sortable: true,
           filter: true,
-          width: 200,  // Fixed width instead of flex
+          width: 200,
           headerClass: 'header-center',
+          autoHeight: true,
           cellClass: 'cell-left cell-wrap',
           wrapText: true,
         },
@@ -136,8 +138,9 @@ const EntityGrid = () => {
           headerName: "Functional Currency",
           sortable: true,
           filter: true,
-          width: 120,  // Adjusted width
+          width: 120,
           headerClass: 'header-center',
+          autoHeight: true,
           cellClass: 'cell-left cell-wrap',
           wrapText: true,
         },
@@ -146,8 +149,9 @@ const EntityGrid = () => {
           headerName: "Accounting Rate Method",
           sortable: true,
           filter: true,
-          width: 150,  // Adjusted width
+          width: 150,
           headerClass: 'header-center',
+          autoHeight: true,
           cellClass: 'cell-left cell-wrap',
           wrapText: true,
         },
@@ -298,19 +302,20 @@ const EntityGrid = () => {
             height: 100% !important;
           }
           .cell-left {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: flex-start !important;
-            height: 100% !important;
-            padding-left: 16px !important;
+            display: block !important;
+            padding: 8px 16px !important;
+            height: auto !important;
           }
           .cell-wrap {
             white-space: normal !important;
+            word-break: break-word !important;
             line-height: 1.2 !important;
+            overflow: visible !important;
           }
           .ag-cell {
-            height: 100% !important;
-            padding: 8px 0 !important;
+            height: auto !important;
+            line-height: 1.2 !important;
+            overflow: visible !important;
           }
         `}
       </style>
@@ -327,7 +332,7 @@ const EntityGrid = () => {
           }}
           headerHeight={50}
           groupHeaderHeight={50}
-          rowHeight={40}
+          getRowHeight={() => undefined}
           suppressRowTransform={true}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
