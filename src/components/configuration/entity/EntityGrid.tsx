@@ -118,6 +118,7 @@ const EntityGrid = () => {
           filter: true,
           width: 130,
           headerClass: 'header-center',
+          cellClass: 'cell-center',
         },
         {
           field: "entity_name",
@@ -126,6 +127,7 @@ const EntityGrid = () => {
           filter: true,
           flex: 1,
           headerClass: 'header-center',
+          cellClass: 'cell-center',
         },
         {
           field: "functional_currency",
@@ -134,6 +136,7 @@ const EntityGrid = () => {
           filter: true,
           width: 150,
           headerClass: 'header-center',
+          cellClass: 'cell-center',
         },
         {
           field: "local_currency",
@@ -142,6 +145,7 @@ const EntityGrid = () => {
           filter: true,
           width: 150,
           headerClass: 'header-center',
+          cellClass: 'cell-center',
         },
         {
           field: "accounting_rate_method",
@@ -150,6 +154,7 @@ const EntityGrid = () => {
           filter: true,
           width: 180,
           headerClass: 'header-center',
+          cellClass: 'cell-center',
         },
       ]
     }
@@ -189,6 +194,7 @@ const EntityGrid = () => {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
       headerClass: 'header-center header-wrap',
+      cellClass: 'cell-center',
       autoHeight: true,
       width: 150,
       cellRenderer: CheckboxCellRenderer,
@@ -249,7 +255,7 @@ const EntityGrid = () => {
       <style>
         {`
           .ag-theme-alpine {
-            --ag-row-height: 80px !important;
+            --ag-row-height: 40px !important;
             --ag-header-height: 50px !important;
             --ag-header-group-height: 50px !important;
           }
@@ -259,6 +265,7 @@ const EntityGrid = () => {
           .ag-header-group-cell-label,
           .ag-header-cell-label {
             justify-content: center !important;
+            align-items: center !important;
             height: 100% !important;
           }
           .header-center .ag-header-cell-label {
@@ -275,10 +282,21 @@ const EntityGrid = () => {
             min-height: 50px !important;
           }
           .ag-row {
-            height: 80px !important;
+            height: 40px !important;
           }
           .ag-row-group {
-            height: 80px !important;
+            height: 40px !important;
+          }
+          .cell-center {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100% !important;
+          }
+          .ag-cell {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
         `}
       </style>
@@ -295,7 +313,7 @@ const EntityGrid = () => {
           }}
           headerHeight={50}
           groupHeaderHeight={50}
-          rowHeight={80}
+          rowHeight={40}
           suppressRowTransform={true}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
