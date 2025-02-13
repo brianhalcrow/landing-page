@@ -22,7 +22,10 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
             counterparty_id,
             relationship_id,
             entity_id,
-            counterparty!counterparty_id(*)
+            counterparty!entity_counterparty_counterparty_id_fkey(
+              counterparty_id,
+              counterparty_name
+            )
           `)
           .eq('entity_id', data.entity_id);
 

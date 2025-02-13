@@ -308,13 +308,6 @@ export type Database = {
             referencedRelation: "v_legal_entity"
             referencedColumns: ["entity_id"]
           },
-          {
-            foreignKeyName: "fk_counterparty"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "counterparty"
-            referencedColumns: ["counterparty_id"]
-          },
         ]
       }
       entity_exposure_config: {
