@@ -159,6 +159,7 @@ const EntityGrid = () => {
     if (!l1Group) {
       l1Group = {
         headerName: l1Key,
+        headerClass: 'header-center',
         children: []
       };
       acc.push(l1Group);
@@ -171,6 +172,7 @@ const EntityGrid = () => {
     if (!l2Group) {
       l2Group = {
         headerName: l2Key,
+        headerClass: 'header-center',
         children: []
       };
       l1Group.children?.push(l2Group);
@@ -180,6 +182,7 @@ const EntityGrid = () => {
     const l3Column: ColDef = {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
+      headerClass: 'header-center header-wrap',
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -239,13 +242,32 @@ const EntityGrid = () => {
       <style>
         {`
           .ag-theme-alpine {
-            --ag-row-height: 80px !important; /* Increased from default 40px to 80px */
+            --ag-row-height: 80px !important;
+            --ag-header-height: 40px;
           }
           .ag-header-group-cell-label {
             justify-content: center;
           }
           .ag-header-cell-label {
             justify-content: center;
+          }
+          .header-center .ag-header-cell-label {
+            justify-content: center;
+            text-align: center;
+          }
+          .header-wrap .ag-header-cell-label {
+            white-space: normal;
+            line-height: 1.2;
+            padding: 8px 0;
+          }
+          .ag-header-group-cell {
+            font-weight: bold;
+          }
+          .ag-header-cell.header-wrap {
+            height: auto;
+            min-height: var(--ag-header-height);
+            padding-top: 4px;
+            padding-bottom: 4px;
           }
         `}
       </style>
