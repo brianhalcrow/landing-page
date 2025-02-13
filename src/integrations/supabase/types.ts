@@ -1283,6 +1283,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hedge_strategy_assignment: {
+        Row: {
+          assignment_id: string
+          counterparty_id: string | null
+          created_at: string | null
+          entity_id: string | null
+          hedge_strategy_id: number | null
+          is_inhouse_bank: boolean | null
+        }
+        Insert: {
+          assignment_id: string
+          counterparty_id?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          hedge_strategy_id?: number | null
+          is_inhouse_bank?: boolean | null
+        }
+        Update: {
+          assignment_id?: string
+          counterparty_id?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          hedge_strategy_id?: number | null
+          is_inhouse_bank?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_counterparty_id_fkey"
+            columns: ["entity_id", "counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "entity_counterparty"
+            referencedColumns: ["entity_id", "counterparty_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
+            columns: ["hedge_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "hedge_strategy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       im_actual: {
         Row: {}
         Insert: {}
