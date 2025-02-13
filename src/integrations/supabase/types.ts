@@ -2357,6 +2357,10 @@ export type Database = {
         }
         Returns: Json
       }
+      get_live_schema: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       halfvec_avg: {
         Args: {
           "": number[]
