@@ -59,7 +59,7 @@ export const useProcessData = () => {
     queryKey: ['entity-process-settings'],
     queryFn: async () => {
       const { data: entities, error: entitiesError } = await supabase
-        .from('client_legal_entity')
+        .from('entities')
         .select('entity_id, entity_name');
 
       if (entitiesError) throw entitiesError;
@@ -67,7 +67,10 @@ export const useProcessData = () => {
       const { data: settings, error: settingsError } = await supabase
         .from('entity_process_settings')
         .select('*')
-        .in('entity_id', entities?.map(e => e.entity_id) || []);
+        .in(
+          'entity_id', 
+          entities?.map(e => e.entity_id) || []
+        );
 
       if (settingsError) throw settingsError;
 
