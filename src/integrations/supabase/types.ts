@@ -2242,6 +2242,103 @@ export type Database = {
             }
             Returns: unknown
           }
+      dblink: {
+        Args: {
+          "": string
+        }
+        Returns: Record<string, unknown>[]
+      }
+      dblink_cancel_query: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_close: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_connect: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_connect_u: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_current_query: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      dblink_disconnect:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: string
+          }
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+      dblink_error_message: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_exec: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      dblink_fdw_validator: {
+        Args: {
+          options: string[]
+          catalog: unknown
+        }
+        Returns: undefined
+      }
+      dblink_get_connections: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
+      }
+      dblink_get_notify:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: Record<string, unknown>[]
+          }
+        | {
+            Args: {
+              conname: string
+            }
+            Returns: Record<string, unknown>[]
+          }
+      dblink_get_pkey: {
+        Args: {
+          "": string
+        }
+        Returns: Database["public"]["CompositeTypes"]["dblink_pkey_results"][]
+      }
+      dblink_get_result: {
+        Args: {
+          "": string
+        }
+        Returns: Record<string, unknown>[]
+      }
+      dblink_is_busy: {
+        Args: {
+          "": string
+        }
+        Returns: number
+      }
       escape_special_chars: {
         Args: {
           input_text: string
@@ -2453,7 +2550,10 @@ export type Database = {
       schedule_type: "on_demand" | "scheduled"
     }
     CompositeTypes: {
-      [_ in never]: never
+      dblink_pkey_results: {
+        position: number | null
+        colname: string | null
+      }
     }
   }
 }
