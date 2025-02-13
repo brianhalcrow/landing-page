@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
@@ -113,6 +112,8 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 130,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     },
     {
       field: "entity_name",
@@ -120,6 +121,8 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       flex: 1,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     },
     {
       field: "functional_currency",
@@ -127,6 +130,8 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 150,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     },
     {
       field: "local_currency",
@@ -134,6 +139,8 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 150,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     },
     {
       field: "accounting_rate_method",
@@ -141,6 +148,8 @@ const EntityGrid = () => {
       sortable: true,
       filter: true,
       width: 180,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     },
   ];
 
@@ -149,6 +158,8 @@ const EntityGrid = () => {
     field: `exposure_configs.${type.exposure_type_id}`,
     headerName: `${type.exposure_category_l1} - ${type.exposure_category_l2}`,
     width: 200,
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
     cellRenderer: CheckboxCellRenderer,
     cellRendererParams: {
       disabled: !editingRows[type.exposure_type_id],
@@ -199,6 +210,13 @@ const EntityGrid = () => {
 
   return (
     <div className="space-y-4">
+      <style>
+        {`
+          .ag-theme-alpine {
+            --ag-row-height: 60px !important; /* Increase row height by 50% from default 40px */
+          }
+        `}
+      </style>
       <div className="w-full h-[600px] ag-theme-alpine">
         <GridStyles />
         <AgGridReact
@@ -207,6 +225,8 @@ const EntityGrid = () => {
           defaultColDef={{
             resizable: true,
             editable: false,
+            wrapHeaderText: true,
+            autoHeaderHeight: true,
           }}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
