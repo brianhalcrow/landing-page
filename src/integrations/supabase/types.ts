@@ -182,19 +182,22 @@ export type Database = {
       }
       counterparty: {
         Row: {
-          counterparty_id: string | null
+          counterparty_id: string
           counterparty_name: string | null
           counterparty_type: string | null
+          country: string | null
         }
         Insert: {
-          counterparty_id?: string | null
+          counterparty_id: string
           counterparty_name?: string | null
           counterparty_type?: string | null
+          country?: string | null
         }
         Update: {
-          counterparty_id?: string | null
+          counterparty_id?: string
           counterparty_name?: string | null
           counterparty_type?: string | null
+          country?: string | null
         }
         Relationships: []
       }
@@ -263,6 +266,49 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      entity_counterparty: {
+        Row: {
+          counterparty_id: string
+          created_at: string | null
+          entity_id: string
+          relationship_id: string
+        }
+        Insert: {
+          counterparty_id: string
+          created_at?: string | null
+          entity_id: string
+          relationship_id: string
+        }
+        Update: {
+          counterparty_id?: string
+          created_at?: string | null
+          entity_id?: string
+          relationship_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_counterparty_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "entity_counterparty_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "entity_counterparty_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+        ]
       }
       entity_exposure_config: {
         Row: {
@@ -1296,6 +1342,21 @@ export type Database = {
           },
         ]
       }
+      newtable: {
+        Row: {
+          counterparty: string | null
+          counterparty_type: string | null
+        }
+        Insert: {
+          counterparty?: string | null
+          counterparty_type?: string | null
+        }
+        Update: {
+          counterparty?: string | null
+          counterparty_type?: string | null
+        }
+        Relationships: []
+      }
       pipeline_executions: {
         Row: {
           created_at: string | null
@@ -1335,45 +1396,6 @@ export type Database = {
           status?: string
           target_table?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      pre_trade_rates_forward_curves: {
-        Row: {
-          ask: number | null
-          bid: number | null
-          change: number | null
-          date: string | null
-          high: number | null
-          id: number | null
-          low: number | null
-          symbol: string | null
-          tenor: string | null
-          time: string | null
-        }
-        Insert: {
-          ask?: number | null
-          bid?: number | null
-          change?: number | null
-          date?: string | null
-          high?: number | null
-          id?: number | null
-          low?: number | null
-          symbol?: string | null
-          tenor?: string | null
-          time?: string | null
-        }
-        Update: {
-          ask?: number | null
-          bid?: number | null
-          change?: number | null
-          date?: string | null
-          high?: number | null
-          id?: number | null
-          low?: number | null
-          symbol?: string | null
-          tenor?: string | null
-          time?: string | null
         }
         Relationships: []
       }
@@ -1495,39 +1517,72 @@ export type Database = {
           },
         ]
       }
-      rates_forward: {
+      rates_forwards: {
         Row: {
-          all_in_ask: number
-          all_in_bid: number
-          ask: number
-          bid: number
-          currency_pair: string
-          rate_date: string
-          spot_rate: number
-          tenor: string
-          time: string
+          ask: number | null
+          bid: number | null
+          change: number | null
+          date: string | null
+          high: number | null
+          id: number
+          low: number | null
+          symbol: string | null
+          tenor: string | null
+          time: string | null
         }
         Insert: {
-          all_in_ask: number
-          all_in_bid: number
-          ask: number
-          bid: number
-          currency_pair: string
-          rate_date: string
-          spot_rate: number
-          tenor: string
-          time: string
+          ask?: number | null
+          bid?: number | null
+          change?: number | null
+          date?: string | null
+          high?: number | null
+          id?: number
+          low?: number | null
+          symbol?: string | null
+          tenor?: string | null
+          time?: string | null
         }
         Update: {
-          all_in_ask?: number
-          all_in_bid?: number
-          ask?: number
-          bid?: number
+          ask?: number | null
+          bid?: number | null
+          change?: number | null
+          date?: string | null
+          high?: number | null
+          id?: number
+          low?: number | null
+          symbol?: string | null
+          tenor?: string | null
+          time?: string | null
+        }
+        Relationships: []
+      }
+      rates_spot: {
+        Row: {
+          base_currency: string
+          currency_pair: string
+          id: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Insert: {
+          base_currency: string
+          currency_pair: string
+          id?: number
+          quote_currency: string
+          rate_date: string
+          spot_rate: number
+          timestamp: string
+        }
+        Update: {
+          base_currency?: string
           currency_pair?: string
+          id?: number
+          quote_currency?: string
           rate_date?: string
           spot_rate?: number
-          tenor?: string
-          time?: string
+          timestamp?: string
         }
         Relationships: []
       }
@@ -1898,7 +1953,7 @@ export type Database = {
           ccy_pair: string | null
           cost_centre: string | null
           counterparty: string | null
-          "Counterparty Type": string | null
+          counterparty_type: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -1918,7 +1973,7 @@ export type Database = {
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty?: string | null
-          "Counterparty Type"?: string | null
+          counterparty_type?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -1938,7 +1993,7 @@ export type Database = {
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty?: string | null
-          "Counterparty Type"?: string | null
+          counterparty_type?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
