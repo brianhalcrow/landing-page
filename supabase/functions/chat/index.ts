@@ -2,6 +2,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { OpenAI } from "https://esm.sh/openai@4.24.1"
+import { getSchemaContext } from './schema-service.ts'
+import { extractCurrencyInfo, extractEntityInfo, generateChatResponse } from './openai-service.ts'
+import { getRateInfo, getForwardRateInfo, getEntityInfo } from './data-service.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,188 +40,44 @@ serve(async (req) => {
       apiKey: openaiApiKey,
     })
 
-    // Get table schema information
-    const { data: tableSchema, error: schemaError } = await supabase
-      .from('tables')
-      .select('table_name, column_name, data_type, is_nullable, column_default')
-      .order('table_name');
+    // Get schema context
+    const schemaContext = await getSchemaContext(supabase)
+    console.log('Schema context created')
 
-    if (schemaError) {
-      console.error('Error fetching schema:', schemaError);
-      throw schemaError;
-    }
+    // Extract currency information
+    const currencyInfo = await extractCurrencyInfo(openai, message, schemaContext)
+    console.log('Extracted currency info:', currencyInfo)
 
-    // Organize schema information by table
-    const schemaByTable = tableSchema.reduce((acc: any, curr) => {
-      if (!acc[curr.table_name]) {
-        acc[curr.table_name] = [];
-      }
-      acc[curr.table_name].push({
-        column: curr.column_name,
-        type: curr.data_type,
-        nullable: curr.is_nullable,
-        default: curr.column_default
-      });
-      return acc;
-    }, {});
-
-    // Create schema context
-    const schemaContext = Object.entries(schemaByTable)
-      .map(([table, columns]) => 
-        `Table ${table}:\n${(columns as any[])
-          .map(col => `- ${col.column} (${col.type}${col.nullable === 'YES' ? ', nullable' : ''}${col.default ? `, default: ${col.default}` : ''})`)
-          .join('\n')}`
-      )
-      .join('\n\n');
-
-    console.log('Schema context created:', schemaContext);
-
-    // Extract currency pair and tenor from message
-    const currencyExtraction = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{
-        role: 'system',
-        content: `You have access to the following database schema:\n\n${schemaContext}\n\nExtract currency pair and tenor information from the message. Return only a JSON object with base_currency, quote_currency, and tenor fields, for example: {"base_currency": "GBP", "quote_currency": "USD", "tenor": 90}. No other text, no markdown.`
-      }, {
-        role: 'user',
-        content: message
-      }]
-    })
-
+    // Get rate information if currency was extracted
     let rateInfo = null
     let forwardRateInfo = null
-    
-    if (currencyExtraction.choices[0]?.message?.content) {
-      const cleanedContent = currencyExtraction.choices[0].message.content
-        .replace(/```json[\s\n]*/, '')
-        .replace(/[\s\n]*```[\s\n]*$/, '')
-        .trim()
-      
-      console.log('Cleaned currency extraction response:', cleanedContent)
-      
-      try {
-        const params = JSON.parse(cleanedContent)
-        console.log('Extracted currency info:', params)
-
-        // Get spot rate
-        const { data: ratesData, error: ratesError } = await supabase
-          .from('rates')
-          .select('*')
-          .eq('base_currency', params.base_currency)
-          .eq('quote_currency', params.quote_currency)
-          .order('rate_date', { ascending: false })
-          .limit(1)
-
-        if (!ratesError && ratesData && ratesData.length > 0) {
-          rateInfo = ratesData[0]
-          console.log('Found spot rate:', rateInfo)
-        }
-
-        // Get forward rate
-        const { data: forwardRatesData, error: forwardRatesError } = await supabase
-          .from('rates_forward')
-          .select('*')
-          .eq('currency_pair', `${params.base_currency}${params.quote_currency}`)
-          .order('rate_date', { ascending: false })
-          .limit(1)
-
-        if (!forwardRatesError && forwardRatesData && forwardRatesData.length > 0) {
-          forwardRateInfo = forwardRatesData[0]
-          console.log('Found forward rate:', forwardRateInfo)
-        }
-      } catch (parseError) {
-        console.error('Error parsing currency extraction response:', parseError)
-        console.log('Invalid content was:', currencyExtraction.choices[0].message.content)
-      }
+    if (currencyInfo) {
+      rateInfo = await getRateInfo(supabase, currencyInfo)
+      forwardRateInfo = await getForwardRateInfo(supabase, currencyInfo)
+      console.log('Found rate info:', { rateInfo, forwardRateInfo })
     }
 
-    // Extract entity information if present
-    const entityExtraction = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{
-        role: 'system',
-        content: `You have access to the following database schema:\n\n${schemaContext}\n\nExtract any entity names mentioned in the message. Return only a JSON object with entity_name field, for example: {"entity_name": "Sense Inc"}. No other text, no markdown.`
-      }, {
-        role: 'user',
-        content: message
-      }]
-    })
+    // Extract and get entity information
+    const extractedEntity = await extractEntityInfo(openai, message, schemaContext)
+    const entityInfo = extractedEntity ? await getEntityInfo(supabase, extractedEntity) : null
+    console.log('Found entity info:', entityInfo)
 
-    let entityInfo = null
-    if (entityExtraction.choices[0]?.message?.content) {
-      const cleanedContent = entityExtraction.choices[0].message.content
-        .replace(/```json[\s\n]*/, '')
-        .replace(/[\s\n]*```[\s\n]*$/, '')
-        .trim()
-      
-      console.log('Cleaned entity extraction response:', cleanedContent)
-      
-      try {
-        const extractedEntity = JSON.parse(cleanedContent)
-        if (extractedEntity.entity_name) {
-          const { data: entityData, error: entityError } = await supabase
-            .from('entities')
-            .select('*')
-            .eq('entity_name', extractedEntity.entity_name)
-            .single()
+    // Prepare context for final chat completion
+    const context = `You are a financial expert specializing in FX risk management. You have access to the following database schema:\n\n${schemaContext}\n\nWhen discussing rates:
+    - Always reference actual rates from the database when available
+    - For spot rates, use the closing_rate from the rates table
+    - For forward rates, use the all_in_rate from rates_forward table
+    - If calculating forward points, it's the difference between forward and spot rates
+    - Include the rate date in your response for context
+    ${entityInfo ? `The entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''}
+    ${rateInfo ? `Current spot rate data available as of ${rateInfo.rate_date}` : ''}
+    ${forwardRateInfo ? `Forward rate data available as of ${forwardRateInfo.rate_date}` : ''}
+    ${rateInfo ? `\nSpot rate information: ${JSON.stringify(rateInfo)}` : ''}
+    ${forwardRateInfo ? `\nForward rate information: ${JSON.stringify(forwardRateInfo)}` : ''}`
 
-          if (!entityError && entityData) {
-            entityInfo = entityData
-            console.log('Found entity:', entityData)
-          }
-        }
-      } catch (parseError) {
-        console.error('Error parsing entity extraction response:', parseError)
-        console.log('Invalid content was:', entityExtraction.choices[0].message.content)
-      }
-    }
-
-    // Prepare final chat completion messages
-    const messages = [
-      {
-        role: 'system',
-        content: `You are a financial expert specializing in FX risk management. You have access to the following database schema:\n\n${schemaContext}\n\nWhen discussing rates:
-        - Always reference actual rates from the database when available
-        - For spot rates, use the closing_rate from the rates table
-        - For forward rates, use the all_in_rate from rates_forward table
-        - If calculating forward points, it's the difference between forward and spot rates
-        - Include the rate date in your response for context
-        ${entityInfo ? `The entity ${entityInfo.entity_name} operates with ${entityInfo.functional_currency} as its functional currency.` : ''}
-        ${rateInfo ? `Current spot rate data available as of ${rateInfo.rate_date}` : ''}
-        ${forwardRateInfo ? `Forward rate data available as of ${forwardRateInfo.rate_date}` : ''}`
-      },
-      { role: 'user', content: message }
-    ]
-
-    if (rateInfo) {
-      messages.push({
-        role: 'system',
-        content: `Spot rate information: ${JSON.stringify(rateInfo)}`
-      })
-    }
-
-    if (forwardRateInfo) {
-      messages.push({
-        role: 'system',
-        content: `Forward rate information: ${JSON.stringify(forwardRateInfo)}`
-      })
-    }
-
-    console.log('Sending messages to OpenAI:', messages)
-
-    // Generate final response using OpenAI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messages
-    })
-
-    if (!completion.choices[0]?.message?.content) {
-      throw new Error('No response received from OpenAI')
-    }
-
-    const reply = completion.choices[0].message.content
-
-    console.log('Generated reply:', reply)
+    // Generate final response
+    const reply = await generateChatResponse(openai, message, context)
+    console.log('Generated reply')
 
     return new Response(
       JSON.stringify({ reply }),
