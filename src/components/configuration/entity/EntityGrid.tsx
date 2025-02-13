@@ -119,7 +119,6 @@ const EntityGrid = () => {
           width: 100,
           headerClass: 'header-left header-wrap',
           cellClass: 'cell-left',
-          wrapText: true,
         },
         {
           field: "entity_name",
@@ -129,7 +128,6 @@ const EntityGrid = () => {
           width: 200,
           headerClass: 'header-left header-wrap',
           cellClass: 'cell-left',
-          wrapText: true,
         },
         {
           field: "functional_currency",
@@ -139,7 +137,6 @@ const EntityGrid = () => {
           width: 120,
           headerClass: 'header-left header-wrap',
           cellClass: 'cell-left',
-          wrapText: true,
         },
         {
           field: "accounting_rate_method",
@@ -149,7 +146,6 @@ const EntityGrid = () => {
           width: 150,
           headerClass: 'header-left header-wrap',
           cellClass: 'cell-left',
-          wrapText: true,
         },
       ]
     }
@@ -188,7 +184,7 @@ const EntityGrid = () => {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
       headerClass: 'header-center header-wrap',
-      cellClass: 'cell-center l3-row',
+      cellClass: 'cell-center',
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -250,63 +246,81 @@ const EntityGrid = () => {
           .ag-theme-alpine {
             --ag-header-height: auto !important;
             --ag-header-group-height: auto !important;
-            --ag-row-height: 24px !important;  /* Reduced by 40% from 40px */
+            --ag-row-height: 24px !important;
+            --ag-cell-height: 24px !important;
           }
+
+          /* Base cell styles */
+          .ag-cell {
+            line-height: 24px !important;
+            padding: 0 16px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+          }
+
+          /* Header styles */
+          .ag-header-cell {
+            padding: 8px 0 !important;
+            min-height: 50px !important;
+          }
+
           .ag-header-group-cell {
             font-weight: bold !important;
             height: auto !important;
             min-height: 50px !important;
             padding: 8px 0 !important;
           }
+
+          /* Header alignment classes */
           .header-center {
             text-align: center !important;
           }
+
           .header-center .ag-header-cell-label {
             justify-content: center !important;
             text-align: center !important;
           }
+
           .header-left {
             text-align: left !important;
           }
+
           .header-left .ag-header-cell-label {
             justify-content: flex-start !important;
             text-align: left !important;
             padding-left: 16px !important;
           }
-          .header-wrap {
-            height: auto !important;
-            min-height: 50px !important;
-          }
+
+          /* Header wrap styles */
           .header-wrap .ag-header-cell-label {
             white-space: normal !important;
             line-height: 1.2 !important;
             height: auto !important;
           }
+
+          /* Cell alignment classes */
           .cell-center {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+            text-align: center !important;
           }
+
+          .cell-center .ag-checkbox {
+            margin: 0 auto !important;
+          }
+
           .cell-left {
-            padding: 8px 16px !important;
-            white-space: normal !important;
-            word-wrap: break-word !important;
-            line-height: 1.2 !important;
             text-align: left !important;
           }
-          .l3-row {
-            height: 45px !important;  /* Base height + 5px for L3 categories */
+
+          /* Row styles */
+          .ag-row {
+            height: 24px !important;
+            line-height: 24px !important;
           }
-          .ag-cell {
-            overflow: visible !important;
-          }
-          .ag-header-cell {
-            height: auto !important;
-            min-height: 50px !important;
-            padding: 8px 0 !important;
-          }
-          .ag-row-level-0 {
-            height: 24px !important;  /* Reduced by 40% from 40px */
+
+          /* Special styles for checkbox cells */
+          .ag-cell.ag-cell-inline-editing {
+            padding: 0 !important;
           }
         `}
       </style>
@@ -321,11 +335,12 @@ const EntityGrid = () => {
             sortable: true,
             filter: true,
           }}
+          rowHeight={24}
+          headerHeight={50}
           suppressRowTransform={true}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
           animateRows={true}
-          domLayout="autoHeight"
         />
       </div>
     </div>
