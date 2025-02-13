@@ -26,7 +26,7 @@ const Configuration = () => {
       const { data, error } = await supabase
         .from("process_types")
         .select("*")
-        .order("name");
+        .order("process_name");  // Changed from "name" to "process_name"
 
       if (error) throw error;
       return data || [];
@@ -52,7 +52,7 @@ const Configuration = () => {
             <TabsTrigger value="process">Process</TabsTrigger>
           </TabsList>
           <TabsContent value="entities" className="space-y-4">
-            <EntityGrid />
+            <EntityConfigurationTab />
           </TabsContent>
           <TabsContent value="process" className="space-y-4">
             <ProcessConfigurationGrid 
