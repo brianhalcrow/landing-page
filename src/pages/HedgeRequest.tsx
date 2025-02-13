@@ -1,10 +1,8 @@
+import TabsContainer from "@/components/TabsContainer";
+import { tabsConfig } from "@/config/tabsConfig";
 
 const HedgeRequest = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">Hedge Request</h1>
-    </div>
-  );
+  return <TabsContainer tabs={tabsConfig["hedge-request"]} />;
 };
 
 export default HedgeRequest;
