@@ -17,13 +17,15 @@ export async function getSchemaContext(supabase: ReturnType<typeof createClient>
     }
 
     // Format the schema information into a readable context
-    return schemaData.map((table: any) => {
+    // Convert the object into an array of table information
+    return Object.values(schemaData).map((table: any) => {
       const tableName = table.table_name
+      const rowCount = table.row_count || 0
       const columns = table.columns.map((col: any) => {
         return `- ${col.column_name} (${col.data_type}${col.is_nullable === 'YES' ? ', nullable' : ''}${col.column_default ? `, default: ${col.column_default}` : ''})`
       }).join('\n')
       
-      return `Table ${tableName}:\n${columns}`
+      return `Table ${tableName} (${rowCount} rows):\n${columns}`
     }).join('\n\n')
 
   } catch (error) {
