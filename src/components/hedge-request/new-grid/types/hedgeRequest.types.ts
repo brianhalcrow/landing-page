@@ -11,3 +11,17 @@ export interface HedgeRequest {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface EntityCounterparty {
+  counterparty_id: string;
+  relationship_id: string;
+  entity_id: string;
+}
+
+export interface CounterpartySelectorProps {
+  value: string;
+  data: Partial<HedgeRequest>;
+  node: {
+    setData: (data: any) => void;
+  };
+}

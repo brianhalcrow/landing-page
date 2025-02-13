@@ -2,34 +2,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronDown } from "lucide-react";
-
-interface CounterpartySelectorProps {
-  value: string;
-  data: any;
-  node: any;
-}
+import { CounterpartySelectorProps, EntityCounterparty } from "../types/hedgeRequest.types";
 
 export const CounterpartySelector = ({ value, data, node }: CounterpartySelectorProps) => {
-  const { data: counterparties, isLoading } = useQuery({
-    queryKey: ['counterparties', data.entity_id],
+  const { data: counterparties, isLoading } = useQuery<EntityCounterparty[]>({
+    queryKey: ['counterparties', data?.entity_id],
     queryFn: async () => {
-      if (!data.entity_id) return [];
+      if (!data?.entity_id) return [];
       
-      const { data, error } = await supabase
+      const { data: result, error } = await supabase
         .from('entity_counterparty')
         .select(`
           counterparty_id,
-          relationship_id
+          relationship_id,
+          entity_id
         `)
         .eq('entity_id', data.entity_id);
 
       if (error) throw error;
-      return data;
+      return result;
     },
-    enabled: !!data.entity_id
+    enabled: !!data?.entity_id
   });
 
-  if (!data.entity_id) return <span>Select entity first</span>;
+  if (!data?.entity_id) return <span>Select entity first</span>;
   if (isLoading) return <span>Loading...</span>;
 
   return (
@@ -38,7 +34,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
         value={value || ''} 
         onChange={(e) => {
           const newValue = e.target.value;
-          if (node && node.setData) {
+          if (node?.setData) {
             node.setData({
               ...data,
               counterparty: newValue
@@ -46,7 +42,7 @@ export const CounterpartySelector = ({ value, data, node }: CounterpartySelector
           }
         }}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-        disabled={!data.entity_id}
+        disabled={!data?.entity_id}
       >
         <option value="">Select Counterparty</option>
         {counterparties?.map((cp) => (
