@@ -213,24 +213,28 @@ const EntityGrid = () => {
     cellRenderer: (params: any) => {
       const isEditing = editingRows[params.data.entity_id];
       return (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setEditingRows(prev => ({
-              ...prev,
-              [params.data.entity_id]: !isEditing
-            }));
-          }}
-        >
-          {isEditing ? (
-            <Save className="h-4 w-4" />
-          ) : (
-            <Edit className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex items-center justify-center h-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setEditingRows(prev => ({
+                ...prev,
+                [params.data.entity_id]: !isEditing
+              }));
+            }}
+            className="h-5 w-5 p-0"
+          >
+            {isEditing ? (
+              <Save className="h-3 w-3" />
+            ) : (
+              <Edit className="h-3 w-3" />
+            )}
+          </Button>
+        </div>
       );
     },
+    cellClass: 'actions-cell',
   };
 
   const columnDefs = [...baseColumnDefs, ...groupedExposureColumns, actionsColumn];
@@ -247,21 +251,26 @@ const EntityGrid = () => {
             --ag-header-height: auto !important;
             --ag-header-group-height: auto !important;
             --ag-row-height: 24px !important;
-            --ag-cell-height: 24px !important;
           }
 
           /* Base cell styles */
           .ag-cell {
-            line-height: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            height: 24px !important;
             padding: 0 16px !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            white-space: nowrap !important;
           }
 
           /* Header styles */
           .ag-header-cell {
             padding: 8px 0 !important;
+            min-height: 50px !important;
+          }
+
+          .ag-header-cell.header-wrap {
+            height: auto !important;
             min-height: 50px !important;
           }
 
@@ -272,7 +281,7 @@ const EntityGrid = () => {
             padding: 8px 0 !important;
           }
 
-          /* Header alignment classes */
+          /* Header alignment and wrapping */
           .header-center {
             text-align: center !important;
           }
@@ -292,35 +301,53 @@ const EntityGrid = () => {
             padding-left: 16px !important;
           }
 
-          /* Header wrap styles */
           .header-wrap .ag-header-cell-label {
             white-space: normal !important;
             line-height: 1.2 !important;
+            padding: 8px 4px !important;
             height: auto !important;
           }
 
           /* Cell alignment classes */
           .cell-center {
-            text-align: center !important;
-          }
-
-          .cell-center .ag-checkbox {
-            margin: 0 auto !important;
+            justify-content: center !important;
           }
 
           .cell-left {
-            text-align: left !important;
+            justify-content: flex-start !important;
+          }
+
+          /* Action cell specific styles */
+          .actions-cell {
+            padding: 0 !important;
+            justify-content: center !important;
           }
 
           /* Row styles */
           .ag-row {
             height: 24px !important;
-            line-height: 24px !important;
           }
 
-          /* Special styles for checkbox cells */
-          .ag-cell.ag-cell-inline-editing {
-            padding: 0 !important;
+          .ag-row-group {
+            height: 24px !important;
+          }
+
+          /* Checkbox specific styles */
+          .ag-checkbox-input-wrapper {
+            height: 16px !important;
+            margin: 4px 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          /* Button alignment in cells */
+          .ag-cell .button {
+            height: 20px !important;
+            margin: 2px 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
         `}
       </style>
