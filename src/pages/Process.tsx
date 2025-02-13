@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import ProcessGrid from "@/components/process/ProcessGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Process = () => {
