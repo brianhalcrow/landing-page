@@ -187,8 +187,8 @@ const EntityGrid = () => {
     const l3Column: ColDef = {
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
-      headerClass: 'header-left header-wrap',
-      cellClass: 'cell-center',
+      headerClass: 'header-center header-wrap',
+      cellClass: 'cell-center l3-row',
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
@@ -250,7 +250,7 @@ const EntityGrid = () => {
           .ag-theme-alpine {
             --ag-header-height: auto !important;
             --ag-header-group-height: auto !important;
-            --ag-row-height: 40px !important;
+            --ag-row-height: 24px !important;  /* Reduced by 40% from 40px */
           }
           .ag-header-group-cell {
             font-weight: bold !important;
@@ -292,6 +292,10 @@ const EntityGrid = () => {
             white-space: normal !important;
             word-wrap: break-word !important;
             line-height: 1.2 !important;
+            text-align: left !important;
+          }
+          .l3-row {
+            height: 45px !important;  /* Base height + 5px for L3 categories */
           }
           .ag-cell {
             overflow: visible !important;
@@ -300,6 +304,9 @@ const EntityGrid = () => {
             height: auto !important;
             min-height: 50px !important;
             padding: 8px 0 !important;
+          }
+          .ag-row-level-0 {
+            height: 24px !important;  /* Reduced by 40% from 40px */
           }
         `}
       </style>
