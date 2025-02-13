@@ -7,9 +7,11 @@ port = 54321
 schemas = ["public", "storage"]
 
 [functions]
+[functions.chat]
+verify_jwt = false
+
 [functions.get-draft-data]
 verify_jwt = false
 
 [functions.vector-operations]
 verify_jwt = false
-

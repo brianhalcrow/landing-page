@@ -9,14 +9,24 @@ import { getRateInfo, getForwardRateInfo, getEntityInfo, getEntityExposureTypes 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400'
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    })
   }
 
   try {
+    if (req.method !== 'POST') {
+      throw new Error('Method not allowed')
+    }
+
     const { message, context = '', previousMessages = [] } = await req.json()
     console.log('Received message:', message)
 
@@ -145,29 +155,49 @@ serve(async (req) => {
       messages: [
         {
           role: 'system',
-          content: 'Based on the conversation, suggest 3 relevant follow-up questions that the user might want to ask. Return them as a JSON array of strings. Only return the JSON array, no other text.'
+          content: 'Based on the conversation, suggest 3 relevant follow-up questions that the user might want to ask. Return ONLY an array of strings, no other text or formatting.'
         },
         { role: 'user', content: `Previous message: ${message}\nYour response: ${reply}` }
       ]
     });
 
-    const suggestedQuestions = JSON.parse(suggestionsResponse.choices[0]?.message?.content || '[]');
+    let suggestedQuestions;
+    try {
+      const content = suggestionsResponse.choices[0]?.message?.content || '[]';
+      // Remove any markdown formatting if present
+      const cleanContent = content.replace(/```json\s*|\s*```/g, '').trim();
+      suggestedQuestions = JSON.parse(cleanContent);
+    } catch (error) {
+      console.error('Error parsing suggestions:', error);
+      suggestedQuestions = [];
+    }
 
     return new Response(
       JSON.stringify({ 
         reply,
         suggestedQuestions
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 200,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        } 
+      }
     )
 
   } catch (error) {
     console.error('Error in chat function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message 
+      }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        }
       }
     )
   }
