@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -305,7 +306,7 @@ const EntityGrid = () => {
           }}
           headerHeight={50}
           groupHeaderHeight={50}
-          getRowHeight={() => 'auto'}
+          getRowHeight={() => 60}
           suppressRowTransform={true}
           enableCellTextSelection={true}
           suppressRowClickSelection={true}
