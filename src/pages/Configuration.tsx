@@ -25,8 +25,14 @@ const Configuration = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("process_types")
-        .select("*")
-        .order("process_name");  // Changed from "name" to "process_name"
+        .select(`
+          *,
+          process_options (
+            *,
+            process_settings (*)
+          )
+        `)
+        .order("process_name");
 
       if (error) throw error;
       return data || [];
