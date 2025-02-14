@@ -12,7 +12,6 @@ export const InstrumentsConfigGrid = () => {
     configData,
     instruments,
     isLoading,
-    editingRows,
     pendingChanges,
     setPendingChanges,
     handleEditClick,
@@ -49,7 +48,7 @@ export const InstrumentsConfigGrid = () => {
       width: 120,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
-        disabled: (params: any) => !editingRows[params.data?.counterparty_id],
+        disabled: (params: any) => !params.data?.isEditing,
         onChange: (checked: boolean, data: any) => {
           if (!data?.counterparty_id) return;
           setPendingChanges((prev) => ({
@@ -67,11 +66,10 @@ export const InstrumentsConfigGrid = () => {
       field: 'actions',
       width: 100,
       cellRenderer: ActionsCellRenderer,
-      cellRendererParams: (params: any) => ({
-        isEditing: editingRows[params.data?.counterparty_id] || false,
-        onEditClick: () => handleEditClick(params.data?.counterparty_id),
-        onSaveClick: () => handleSaveClick(params.data?.counterparty_id),
-      }),
+      cellRendererParams: {
+        onEditClick: handleEditClick,
+        onSaveClick: handleSaveClick,
+      },
       headerClass: 'header-center',
       cellClass: 'cell-center'
     },

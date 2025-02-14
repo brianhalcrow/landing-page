@@ -1979,6 +1979,697 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_confirmation: {
+        Row: {
+          client: string | null
+          clientemail: string | null
+          clientid: string | null
+          confirmid: number | null
+          dealid: string | null
+          id: number
+          processed: number | null
+          timestamp: string | null
+        }
+        Insert: {
+          client?: string | null
+          clientemail?: string | null
+          clientid?: string | null
+          confirmid?: number | null
+          dealid?: string | null
+          id?: number
+          processed?: number | null
+          timestamp?: string | null
+        }
+        Update: {
+          client?: string | null
+          clientemail?: string | null
+          clientid?: string | null
+          confirmid?: number | null
+          dealid?: string | null
+          id?: number
+          processed?: number | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      trade_confirmation_leg: {
+        Row: {
+          additionalinformation: string | null
+          amount: number | null
+          bankaddress: string | null
+          bankname: string | null
+          beneficiary: string | null
+          beneficiarybankswift: string | null
+          beneficiaryiban: string | null
+          branchno: string | null
+          country: string | null
+          currency: string | null
+          id: number
+          indexid: number
+          paymentdate: string | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          additionalinformation?: string | null
+          amount?: number | null
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string | null
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          country?: string | null
+          currency?: string | null
+          id?: number
+          indexid: number
+          paymentdate?: string | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          additionalinformation?: string | null
+          amount?: number | null
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string | null
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          country?: string | null
+          currency?: string | null
+          id?: number
+          indexid?: number
+          paymentdate?: string | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_confirmation_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_confirmation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_cover_deal_request: {
+        Row: {
+          clientid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_cover_deal_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_cover_deal_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_cover_deal_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_cover_execution_report: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          processed: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_cover_execution_report_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_cover_execution_report_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_cover_execution_report"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_deal_request: {
+        Row: {
+          clientid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_deal_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_deal_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_deal_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_error: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          message: string | null
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          message?: string | null
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          message?: string | null
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_error_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_error_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_error"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_execution_report: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          processed: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_execution_report_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_execution_report_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_execution_report"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_quote: {
+        Row: {
+          clientid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_quote_leg: {
+        Row: {
+          amount: number | null
+          bid: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          offer: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          bid?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          offer?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          bid?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          offer?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_quote_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_quote"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_quote_request: {
+        Row: {
+          clientid: string | null
+          id: number
+          messagetime: number | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_quote_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_quote_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_quote_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trade_register: {
         Row: {
           ccy_1: string | null
@@ -2108,6 +2799,54 @@ export type Database = {
           strategy?: string | null
           trade_date?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trade_settlement_instruction: {
+        Row: {
+          bankaddress: string | null
+          bankname: string | null
+          beneficiary: string
+          beneficiarybankswift: string | null
+          beneficiaryiban: string | null
+          branchno: string | null
+          client: string
+          clientemail: string | null
+          clientid: string
+          country: string | null
+          id: number
+          settlementid: number
+          timestamp: string | null
+        }
+        Insert: {
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary: string
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          client: string
+          clientemail?: string | null
+          clientid: string
+          country?: string | null
+          id?: number
+          settlementid: number
+          timestamp?: string | null
+        }
+        Update: {
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          client?: string
+          clientemail?: string | null
+          clientid?: string
+          country?: string | null
+          id?: number
+          settlementid?: number
+          timestamp?: string | null
         }
         Relationships: []
       }

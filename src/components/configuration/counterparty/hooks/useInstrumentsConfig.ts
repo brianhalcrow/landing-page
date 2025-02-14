@@ -8,7 +8,6 @@ type PendingChanges = Record<string, Record<string, boolean>>;
 
 export const useInstrumentsConfig = () => {
   const queryClient = useQueryClient();
-  const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
   const { data: counterparties, isLoading: loadingCounterparties } = useQuery({
@@ -24,7 +23,8 @@ export const useInstrumentsConfig = () => {
       if (error) throw error;
       return data.map(cp => ({
         ...cp,
-        counterparty_type: cp.counterparty_type || "External"
+        counterparty_type: cp.counterparty_type || "External",
+        isEditing: false
       }));
     },
   });
@@ -96,10 +96,14 @@ export const useInstrumentsConfig = () => {
   });
 
   const handleEditClick = (counterpartyId: string) => {
-    setEditingRows(prev => ({
-      ...prev,
-      [counterpartyId]: true
+    const updatedData = configData?.map(item => ({
+      ...item,
+      isEditing: item.counterparty_id === counterpartyId
     }));
+    
+    if (updatedData) {
+      queryClient.setQueryData(["counterparties"], updatedData);
+    }
   };
 
   const handleSaveClick = async (counterpartyId: string) => {
@@ -111,10 +115,16 @@ export const useInstrumentsConfig = () => {
           changes,
         });
       }
-      setEditingRows(prev => ({
-        ...prev,
-        [counterpartyId]: false
+
+      const updatedData = configData?.map(item => ({
+        ...item,
+        isEditing: false
       }));
+      
+      if (updatedData) {
+        queryClient.setQueryData(["counterparties"], updatedData);
+      }
+
       setPendingChanges(prev => {
         const newPending = { ...prev };
         delete newPending[counterpartyId];
@@ -131,7 +141,6 @@ export const useInstrumentsConfig = () => {
     instruments: instruments || [],
     configData,
     isLoading: loadingCounterparties || loadingInstruments || loadingConfig,
-    editingRows,
     pendingChanges,
     setPendingChanges,
     handleEditClick,
