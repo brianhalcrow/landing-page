@@ -3,17 +3,23 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface CheckboxCellRendererProps extends ICellRendererParams {
-  settingType: string;
-  disabled?: boolean;
+  disabled?: (params: ICellRendererParams) => boolean;
+  onChange: (checked: boolean, data: any) => void;
 }
 
-const CheckboxCellRenderer = ({ value, settingType, disabled }: CheckboxCellRendererProps) => {
+const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
+  const isDisabled = typeof props.disabled === 'function' ? props.disabled(props) : props.disabled;
+  
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center h-full">
       <Checkbox 
-        checked={!!value} 
-        disabled={disabled}
-        onCheckedChange={() => {}}
+        checked={!!props.value}
+        disabled={isDisabled}
+        onCheckedChange={(checked) => {
+          if (!isDisabled) {
+            props.onChange(!!checked, props.data);
+          }
+        }}
       />
     </div>
   );

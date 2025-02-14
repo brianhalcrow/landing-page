@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -44,7 +43,6 @@ const EntityGrid = () => {
   const { data: entities, isLoading } = useQuery({
     queryKey: ["legal-entities-with-config"],
     queryFn: async () => {
-      // First get all legal entities
       const { data: legalEntities, error: entityError } = await supabase
         .from("erp_legal_entity")
         .select("*")
@@ -52,14 +50,12 @@ const EntityGrid = () => {
 
       if (entityError) throw entityError;
 
-      // Then get all exposure configs
       const { data: exposureConfigs, error: configError } = await supabase
         .from("entity_exposure_config")
         .select("*");
 
       if (configError) throw configError;
 
-      // Combine the data
       return legalEntities.map((entity) => ({
         ...entity,
         exposure_configs: exposureConfigs
@@ -188,10 +184,8 @@ const EntityGrid = () => {
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
-        disabled: !editingRows[type.exposure_type_id],
+        disabled: (params: any) => !editingRows[params.data.entity_id],
         onChange: (isChecked: boolean, data: any) => {
-          if (!editingRows[data.entity_id]) return;
-          
           updateConfigMutation.mutate({
             entityId: data.entity_id,
             exposureTypeId: type.exposure_type_id,
@@ -222,6 +216,10 @@ const EntityGrid = () => {
                 ...prev,
                 [params.data.entity_id]: !isEditing
               }));
+              
+              if (isEditing) {
+                queryClient.invalidateQueries({ queryKey: ["legal-entities-with-config"] });
+              }
             }}
             className="h-5 w-5 p-0"
           >
