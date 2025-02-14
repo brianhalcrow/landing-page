@@ -22,8 +22,7 @@ export const useHedgeStrategyData = () => {
           strategy_description,
           instrument,
           counterparty_id,
-          counterparty_name,
-          hedge_strategy_assignment:hedge_strategy_assignment(id)
+          counterparty_name
         `);
 
       if (error) {
@@ -42,8 +41,8 @@ export const useHedgeStrategyData = () => {
         instrument: config.instrument,
         counterparty_id: config.counterparty_id,
         counterparty_name: config.counterparty_name,
-        isAssigned: config.hedge_strategy_assignment?.length > 0,
-        assignmentId: config.hedge_strategy_assignment?.[0]?.id
+        isAssigned: true, // All rows from the view are valid configurations
+        assignmentId: undefined // No longer tracking assignments
       }));
 
       console.log('Generated grid rows:', gridRows);
