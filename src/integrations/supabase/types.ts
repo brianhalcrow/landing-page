@@ -1427,13 +1427,6 @@ export type Database = {
             referencedRelation: "v_hedge_request_config"
             referencedColumns: ["strategy_id"]
           },
-          {
-            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
-            columns: ["hedge_strategy_id"]
-            isOneToOne: false
-            referencedRelation: "v_valid_hedge_configurations"
-            referencedColumns: ["strategy_id"]
-          },
         ]
       }
       im_actual: {
@@ -1491,13 +1484,6 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "management_structure_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_valid_hedge_configurations"
             referencedColumns: ["entity_id"]
           },
         ]
@@ -3218,41 +3204,6 @@ export type Database = {
           year_period: string | null
         }
         Relationships: []
-      }
-      v_valid_hedge_configurations: {
-        Row: {
-          assignment_id: string | null
-          counterparty_id: string | null
-          counterparty_name: string | null
-          entity_id: string | null
-          entity_name: string | null
-          exposure_category_l1: string | null
-          exposure_category_l2: string | null
-          exposure_category_l3: string | null
-          functional_currency: string | null
-          instrument: string | null
-          is_assigned: boolean | null
-          strategy: string | null
-          strategy_description: string | null
-          strategy_id: number | null
-          subsystem: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "counterparty"
-            referencedColumns: ["counterparty_id"]
-          },
-          {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
-          },
-        ]
       }
     }
     Functions: {
