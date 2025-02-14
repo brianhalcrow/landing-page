@@ -1,23 +1,30 @@
 
-import { ICellRendererParams } from 'ag-grid-community';
-import { Button } from '@/components/ui/button';
-import { Edit, Save } from 'lucide-react';
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Pencil, Save } from "lucide-react";
 
-const ActionsCellRenderer = (props: ICellRendererParams) => {
-  const isEditing = props.data?.isEditing;
+interface ActionsCellRendererProps {
+  isEditing: boolean;
+  onEditClick: () => void;
+  onSaveClick: () => void;
+}
 
+const ActionsCellRenderer: React.FC<ActionsCellRendererProps> = ({
+  isEditing,
+  onEditClick,
+  onSaveClick,
+}) => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex justify-center">
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => {}}
-        className="h-8 w-8 p-0"
+        onClick={isEditing ? onSaveClick : onEditClick}
       >
         {isEditing ? (
           <Save className="h-4 w-4" />
         ) : (
-          <Edit className="h-4 w-4" />
+          <Pencil className="h-4 w-4" />
         )}
       </Button>
     </div>

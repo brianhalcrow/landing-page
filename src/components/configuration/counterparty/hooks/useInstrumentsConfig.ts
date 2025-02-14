@@ -14,33 +14,15 @@ export const useInstrumentsConfig = () => {
   const { data: counterparties, isLoading: loadingCounterparties } = useQuery({
     queryKey: ["counterparties"],
     queryFn: async () => {
-      // First get all entity-counterparty relationships
-      const { data: relationships, error: relError } = await supabase
-        .from("entity_counterparty")
-        .select("*");
-
-      if (relError) throw relError;
-
-      // Get counterparties excluding those only linked to NL01
       const { data, error } = await supabase
         .from("counterparty")
         .select("*")
-        .order("counterparty_type", { ascending: false }) // This will put Internal first
+        .order("counterparty_type", { ascending: false })
         .order("country")
         .order("counterparty_name");
 
       if (error) throw error;
-      
-      // Filter out counterparties that are only linked to NL01
-      const filteredCounterparties = data.filter(cp => {
-        const counterpartyRelationships = relationships.filter(
-          rel => rel.counterparty_id === cp.counterparty_id
-        );
-        // Include counterparty if it has relationships with entities other than NL01
-        return counterpartyRelationships.some(rel => rel.entity_id !== 'NL01');
-      });
-      
-      return filteredCounterparties.map(cp => ({
+      return data.map(cp => ({
         ...cp,
         counterparty_type: cp.counterparty_type || "External"
       }));
