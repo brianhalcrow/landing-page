@@ -27,11 +27,15 @@ export const useHedgeRequestData = () => {
     queryKey: ['valid-hedge-configurations'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('v_valid_hedge_configurations')
-        .select('*')
-        .eq('is_assigned', true);
+        .from('v_hedge_request_config')
+        .select('*');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching valid configurations:', error);
+        toast.error('Failed to fetch valid configurations');
+        return [];
+      }
+
       return data as ValidHedgeConfig[];
     }
   });
