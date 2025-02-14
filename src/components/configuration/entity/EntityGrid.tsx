@@ -191,8 +191,11 @@ const EntityGrid = () => {
       width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
-        disabled: (params: any) => !editingRows[params.data.entity_id],
-        getValue: (params: any) => {
+        disabled: (params: any) => !editingRows[params.data?.entity_id],
+        getValue: () => {
+          const params = arguments[0];
+          if (!params?.data?.entity_id) return false;
+          
           const entityId = params.data.entity_id;
           const exposureTypeId = type.exposure_type_id;
           
@@ -203,6 +206,8 @@ const EntityGrid = () => {
           return params.value;
         },
         onChange: (isChecked: boolean, data: any) => {
+          if (!data?.entity_id) return;
+          
           const entityId = data.entity_id;
           setPendingChanges(prev => ({
             ...prev,

@@ -11,8 +11,25 @@ interface CheckboxCellRendererProps {
 }
 
 const CheckboxCellRenderer = (props: ICellRendererParams & CheckboxCellRendererProps) => {
-  const isDisabled = typeof props.disabled === 'function' ? props.disabled(props) : props.disabled;
-  const value = typeof props.getValue === 'function' ? props.getValue() : props.value;
+  // Add null checks for all property accesses
+  const isDisabled = props.disabled ? 
+    (typeof props.disabled === 'function' ? props.disabled(props) : props.disabled) 
+    : false;
+  
+  // Safely access getValue with a fallback chain
+  const getValue = () => {
+    if (typeof props.getValue === 'function') {
+      try {
+        return props.getValue();
+      } catch (e) {
+        console.warn('Error in getValue:', e);
+        return props.value;
+      }
+    }
+    return props.value;
+  };
+
+  const value = getValue();
   
   return (
     <div className="flex items-center justify-center h-full">
@@ -20,7 +37,7 @@ const CheckboxCellRenderer = (props: ICellRendererParams & CheckboxCellRendererP
         checked={!!value}
         disabled={isDisabled}
         onCheckedChange={(checked) => {
-          if (!isDisabled) {
+          if (!isDisabled && props.data) {
             props.onChange(!!checked, props.data);
           }
         }}
