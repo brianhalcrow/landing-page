@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -161,8 +162,7 @@ const CounterpartiesGrid = () => {
         onSaveClick: () => handleSaveClick(params.data?.entity_id),
       }),
       headerClass: 'header-center',
-      cellClass: 'cell-center',
-      pinned: 'right',
+      cellClass: 'cell-center'
     },
   ];
 
