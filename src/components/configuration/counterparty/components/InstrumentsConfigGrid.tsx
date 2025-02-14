@@ -27,6 +27,12 @@ export const InstrumentsConfigGrid = () => {
 
   const columnDefs: ColDef[] = [
     {
+      field: "counterparty_type",
+      headerName: "Type",
+      rowGroup: true,
+      hide: true,
+    },
+    {
       field: "counterparty_name",
       headerName: "Counterparty",
       width: 200,
@@ -64,6 +70,8 @@ export const InstrumentsConfigGrid = () => {
     }
   };
 
+  const getRowId = (params: any) => params.data.counterparty_id;
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -97,6 +105,11 @@ export const InstrumentsConfigGrid = () => {
             sortable: true,
             filter: true,
           }}
+          groupDefaultExpanded={-1}
+          getRowId={getRowId}
+          rowGroupPanelShow="never"
+          groupDisplayType="groupRows"
+          animateRows={true}
           rowHeight={24}
           headerHeight={40}
           suppressRowClickSelection={true}

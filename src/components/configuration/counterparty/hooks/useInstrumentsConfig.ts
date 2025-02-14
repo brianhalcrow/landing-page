@@ -16,10 +16,16 @@ export const useInstrumentsConfig = () => {
       const { data, error } = await supabase
         .from("counterparty")
         .select("*")
+        .order("counterparty_type", { ascending: true, nullsLast: true })
         .order("counterparty_name");
 
       if (error) throw error;
-      return data;
+      
+      // Ensure all counterparties have a type, defaulting to "External"
+      return data.map(cp => ({
+        ...cp,
+        counterparty_type: cp.counterparty_type || "External"
+      }));
     },
   });
 
