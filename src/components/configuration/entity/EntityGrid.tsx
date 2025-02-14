@@ -7,24 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { toast } from "sonner";
-import { Edit, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import CheckboxCellRenderer from "../grid/cellRenderers/CheckboxCellRenderer";
-
-interface LegalEntity {
-  entity_id: string;
-  entity_name: string;
-  local_currency: string;
-  functional_currency: string;
-  accounting_rate_method: string;
-  exposure_configs?: Record<number, boolean>;
-}
-
-interface PendingChanges {
-  [entityId: string]: {
-    [exposureTypeId: number]: boolean;
-  };
-}
+import { LegalEntity, PendingChanges } from "./types/entityTypes";
+import { createBaseColumnDefs, createActionsColumn, createExposureColumns } from "./columnDefs/entityColumns";
+import { gridStyles } from "./styles/gridStyles";
+import { useExposureTypes } from "@/hooks/useExposureTypes";
 
 const EntityGrid = () => {
   const queryClient = useQueryClient();
@@ -32,19 +18,7 @@ const EntityGrid = () => {
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
   // Fetch exposure types
-  const { data: exposureTypes } = useQuery({
-    queryKey: ["exposure-types"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exposure_types")
-        .select("*")
-        .eq("is_active", true)
-        .order("exposure_type_id");
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
+  const { data: exposureTypes } = useExposureTypes();
 
   // Fetch entities with their exposure configs
   const { data: entities, isLoading } = useQuery({
@@ -108,175 +82,51 @@ const EntityGrid = () => {
     },
   });
 
-  // Create base columns
-  const baseColumnDefs: (ColDef | ColGroupDef)[] = [
+  const handleEditClick = (entityId: string) => {
+    setEditingRows(prev => ({
+      ...prev,
+      [entityId]: true
+    }));
+  };
+
+  const handleSaveClick = (entityId: string) => {
+    const changes = pendingChanges[entityId];
+    if (changes) {
+      updateConfigsMutation.mutate({
+        entityId,
+        changes,
+      });
+    }
+    setEditingRows(prev => ({
+      ...prev,
+      [entityId]: false
+    }));
+    setPendingChanges(prev => {
+      const newPending = { ...prev };
+      delete newPending[entityId];
+      return newPending;
+    });
+  };
+
+  // Create column definitions
+  const baseColumns = createBaseColumnDefs();
+  const actionsColumn = createActionsColumn(editingRows, handleEditClick, handleSaveClick);
+  const exposureColumns = exposureTypes ? createExposureColumns(
+    exposureTypes,
+    editingRows,
+    pendingChanges,
+    setPendingChanges
+  ) : [];
+
+  const columnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Entity Information',
       headerClass: 'header-center',
-      children: [
-        {
-          field: "entity_id",
-          headerName: "Entity ID",
-          sortable: true,
-          filter: true,
-          width: 100,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "entity_name",
-          headerName: "Entity Name",
-          sortable: true,
-          filter: true,
-          width: 200,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "functional_currency",
-          headerName: "Functional Currency",
-          sortable: true,
-          filter: true,
-          width: 120,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "accounting_rate_method",
-          headerName: "Accounting Rate Method",
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-      ]
-    }
+      children: baseColumns
+    } as ColGroupDef,
+    ...exposureColumns,
+    actionsColumn
   ];
-
-  // Create grouped exposure columns with three levels
-  const groupedExposureColumns: ColGroupDef[] = exposureTypes?.reduce((acc: ColGroupDef[], type) => {
-    const l1Key = type.exposure_category_l1;
-    const l2Key = type.exposure_category_l2;
-    
-    let l1Group = acc.find(group => group.headerName === l1Key);
-    
-    if (!l1Group) {
-      l1Group = {
-        headerName: l1Key,
-        headerClass: 'header-center',
-        children: []
-      };
-      acc.push(l1Group);
-    }
-
-    let l2Group = l1Group.children?.find(group => 
-      (group as ColGroupDef).headerName === l2Key
-    ) as ColGroupDef;
-
-    if (!l2Group) {
-      l2Group = {
-        headerName: l2Key,
-        headerClass: 'header-center',
-        children: []
-      };
-      l1Group.children?.push(l2Group);
-    }
-
-    const l3Column: ColDef = {
-      field: `exposure_configs.${type.exposure_type_id}`,
-      headerName: type.exposure_category_l3,
-      headerClass: 'header-center header-wrap',
-      cellClass: 'cell-center',
-      width: 150,
-      cellRenderer: CheckboxCellRenderer,
-      cellRendererParams: {
-        disabled: (params: any) => !editingRows[params.data?.entity_id],
-        getValue: () => {
-          const params = arguments[0];
-          if (!params?.data?.entity_id) return false;
-          
-          const entityId = params.data.entity_id;
-          const exposureTypeId = type.exposure_type_id;
-          
-          // Return pending change if it exists, otherwise return original value
-          if (pendingChanges[entityId]?.[exposureTypeId] !== undefined) {
-            return pendingChanges[entityId][exposureTypeId];
-          }
-          return params.value;
-        },
-        onChange: (isChecked: boolean, data: any) => {
-          if (!data?.entity_id) return;
-          
-          const entityId = data.entity_id;
-          setPendingChanges(prev => ({
-            ...prev,
-            [entityId]: {
-              ...prev[entityId],
-              [type.exposure_type_id]: isChecked
-            }
-          }));
-        },
-      },
-    };
-
-    l2Group.children?.push(l3Column);
-
-    return acc;
-  }, []) || [];
-
-  // Add actions column
-  const actionsColumn: ColDef = {
-    headerName: "Actions",
-    width: 100,
-    cellRenderer: (params: any) => {
-      const isEditing = editingRows[params.data.entity_id];
-      return (
-        <div className="flex items-center justify-center h-full">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const entityId = params.data.entity_id;
-              const currentlyEditing = editingRows[entityId];
-              
-              if (currentlyEditing) {
-                // If saving, update the database with pending changes
-                const changes = pendingChanges[entityId];
-                if (changes) {
-                  updateConfigsMutation.mutate({
-                    entityId,
-                    changes,
-                  });
-                }
-                // Clear pending changes for this entity
-                setPendingChanges(prev => {
-                  const newPending = { ...prev };
-                  delete newPending[entityId];
-                  return newPending;
-                });
-              }
-              
-              setEditingRows(prev => ({
-                ...prev,
-                [entityId]: !currentlyEditing
-              }));
-            }}
-            className="h-5 w-5 p-0"
-          >
-            {isEditing ? (
-              <Save className="h-3 w-3" />
-            ) : (
-              <Edit className="h-3 w-3" />
-            )}
-          </Button>
-        </div>
-      );
-    },
-    cellClass: 'actions-cell',
-  };
-
-  const columnDefs = [...baseColumnDefs, ...groupedExposureColumns, actionsColumn];
 
   if (isLoading) {
     return <Skeleton className="w-full h-[600px]" />;
@@ -284,112 +134,7 @@ const EntityGrid = () => {
 
   return (
     <div className="space-y-4">
-      <style>
-        {`
-          .ag-theme-alpine {
-            --ag-header-height: auto !important;
-            --ag-header-group-height: auto !important;
-            --ag-row-height: 24px !important;
-          }
-
-          /* Base cell styles */
-          .ag-cell {
-            display: flex !important;
-            align-items: center !important;
-            height: 24px !important;
-            padding: 0 16px !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-          }
-
-          /* Header styles */
-          .ag-header-cell {
-            padding: 8px 0 !important;
-            min-height: 50px !important;
-          }
-
-          .ag-header-cell.header-wrap {
-            height: auto !important;
-            min-height: 50px !important;
-          }
-
-          .ag-header-group-cell {
-            font-weight: bold !important;
-            height: auto !important;
-            min-height: 50px !important;
-            padding: 8px 0 !important;
-          }
-
-          /* Header alignment and wrapping */
-          .header-center {
-            text-align: center !important;
-          }
-
-          .header-center .ag-header-cell-label {
-            justify-content: center !important;
-            text-align: center !important;
-          }
-
-          .header-left {
-            text-align: left !important;
-          }
-
-          .header-left .ag-header-cell-label {
-            justify-content: flex-start !important;
-            text-align: left !important;
-            padding-left: 16px !important;
-          }
-
-          .header-wrap .ag-header-cell-label {
-            white-space: normal !important;
-            line-height: 1.2 !important;
-            padding: 8px 4px !important;
-            height: auto !important;
-          }
-
-          /* Cell alignment classes */
-          .cell-center {
-            justify-content: center !important;
-          }
-
-          .cell-left {
-            justify-content: flex-start !important;
-          }
-
-          /* Action cell specific styles */
-          .actions-cell {
-            padding: 0 !important;
-            justify-content: center !important;
-          }
-
-          /* Row styles */
-          .ag-row {
-            height: 24px !important;
-          }
-
-          .ag-row-group {
-            height: 24px !important;
-          }
-
-          /* Checkbox specific styles */
-          .ag-checkbox-input-wrapper {
-            height: 16px !important;
-            margin: 4px 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-
-          /* Button alignment in cells */
-          .ag-cell .button {
-            height: 20px !important;
-            margin: 2px 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-        `}
-      </style>
+      <style>{gridStyles}</style>
       <div className="w-full h-[600px] ag-theme-alpine">
         <GridStyles />
         <AgGridReact
