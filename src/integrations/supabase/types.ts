@@ -238,6 +238,13 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
             foreignKeyName: "counterparty_instrument_instrument_id_fkey"
             columns: ["instrument_id"]
             isOneToOne: false
@@ -346,10 +353,24 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
+            foreignKeyName: "entity_counterparty_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
             foreignKeyName: "entity_counterparty_entity_id_fkey"
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "entity_counterparty_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
           {
@@ -1365,10 +1386,24 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
+            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
             foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
           {
@@ -1384,6 +1419,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "hedge_strategy"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
+            columns: ["hedge_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["strategy_id"]
           },
           {
             foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
@@ -3090,6 +3132,20 @@ export type Database = {
         }
         Relationships: []
       }
+      v_hedge_request_config: {
+        Row: {
+          counterparty_id: string | null
+          counterparty_name: string | null
+          entity_id: string | null
+          entity_name: string | null
+          functional_currency: string | null
+          instrument: string | null
+          strategy: string | null
+          strategy_description: string | null
+          strategy_id: number | null
+        }
+        Relationships: []
+      }
       v_legal_entity: {
         Row: {
           accounting_rate_method: string | null
@@ -3187,6 +3243,13 @@ export type Database = {
             columns: ["counterparty_id"]
             isOneToOne: false
             referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["counterparty_id"]
           },
         ]
