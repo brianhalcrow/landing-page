@@ -49,6 +49,13 @@ const CounterpartiesGrid = () => {
 
       if (relationshipsError) throw relationshipsError;
 
+      // Fetch hedge strategy assignments
+      const { data: hedgeAssignments, error: hedgeError } = await supabase
+        .from("hedge_strategy_assignment")
+        .select("*");
+
+      if (hedgeError) throw hedgeError;
+
       return entities.map((entity) => ({
         ...entity,
         relationships: relationships
@@ -56,6 +63,12 @@ const CounterpartiesGrid = () => {
           .reduce((acc, rel) => ({
             ...acc,
             [rel.counterparty_id]: true,
+          }), {}),
+        hedgeAssignments: hedgeAssignments
+          .filter((assignment) => assignment.entity_id === entity.entity_id)
+          .reduce((acc, assignment) => ({
+            ...acc,
+            [assignment.counterparty_id]: assignment.hedge_strategy_id,
           }), {}),
       }));
     },
@@ -70,14 +83,19 @@ const CounterpartiesGrid = () => {
       entityId: string; 
       changes: Record<string, boolean>;
     }) => {
-      // Start a Supabase transaction by first deleting hedge strategy assignments
-      const { error: deleteHedgeError } = await supabase
-        .from("hedge_strategy_assignment")
-        .delete()
-        .eq("entity_id", entityId)
-        .in("counterparty_id", Object.keys(changes).filter(id => !changes[id]));
+      // Start by handling hedge strategy assignments
+      const removedCounterparties = Object.keys(changes).filter(id => !changes[id]);
+      
+      // Delete hedge strategy assignments for removed relationships
+      if (removedCounterparties.length > 0) {
+        const { error: deleteHedgeError } = await supabase
+          .from("hedge_strategy_assignment")
+          .delete()
+          .eq("entity_id", entityId)
+          .in("counterparty_id", removedCounterparties);
 
-      if (deleteHedgeError) throw deleteHedgeError;
+        if (deleteHedgeError) throw deleteHedgeError;
+      }
 
       // Then delete existing relationships for this entity
       const { error: deleteError } = await supabase

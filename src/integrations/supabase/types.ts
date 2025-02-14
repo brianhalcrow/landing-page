@@ -1294,36 +1294,47 @@ export type Database = {
       }
       hedge_strategy_assignment: {
         Row: {
-          assignment_id: string
-          counterparty_id: string | null
+          counterparty_id: string
           created_at: string | null
-          entity_id: string | null
-          hedge_strategy_id: number | null
-          is_inhouse_bank: boolean | null
+          entity_id: string
+          hedge_strategy_id: number
+          id: string
         }
         Insert: {
-          assignment_id: string
-          counterparty_id?: string | null
+          counterparty_id: string
           created_at?: string | null
-          entity_id?: string | null
-          hedge_strategy_id?: number | null
-          is_inhouse_bank?: boolean | null
+          entity_id: string
+          hedge_strategy_id: number
+          id?: string
         }
         Update: {
-          assignment_id?: string
-          counterparty_id?: string | null
+          counterparty_id?: string
           created_at?: string | null
-          entity_id?: string | null
-          hedge_strategy_id?: number | null
-          is_inhouse_bank?: boolean | null
+          entity_id?: string
+          hedge_strategy_id?: number
+          id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "hedge_strategy_assignment_entity_id_counterparty_id_fkey"
-            columns: ["entity_id", "counterparty_id"]
+            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
+            columns: ["counterparty_id"]
             isOneToOne: false
-            referencedRelation: "entity_counterparty"
-            referencedColumns: ["entity_id", "counterparty_id"]
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_legal_entity"
+            referencedColumns: ["entity_id"]
           },
           {
             foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
