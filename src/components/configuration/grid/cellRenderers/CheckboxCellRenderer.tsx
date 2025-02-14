@@ -30,12 +30,10 @@ const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
         disabled={isDisabled}
         onChange={handleChange}
         className={cn(
-          "w-4 h-4 rounded transition-colors",
+          "w-4 h-4 rounded transition-colors focus:ring-2 focus:ring-blue-500",
           isDisabled
-            ? value 
-              ? "bg-blue-100 border-blue-200 checked:bg-blue-100" // Light blue when saved
-              : "bg-gray-100 border-gray-200"  // Gray when unchecked
-            : "border-blue-500 checked:bg-blue-500 checked:border-blue-500" // Dark blue when editing
+            ? "accent-blue-300 bg-blue-50 border-blue-200" // Lighter blue for disabled/saved state
+            : "accent-blue-500 border-blue-500" // Darker blue for editing state
         )}
       />
     </div>
