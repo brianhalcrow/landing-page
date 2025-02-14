@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -16,13 +17,19 @@ interface LegalEntity {
   local_currency: string;
   functional_currency: string;
   accounting_rate_method: string;
-  isEditing?: boolean;
   exposure_configs?: Record<number, boolean>;
+}
+
+interface PendingChanges {
+  [entityId: string]: {
+    [exposureTypeId: number]: boolean;
+  };
 }
 
 const EntityGrid = () => {
   const queryClient = useQueryClient();
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
+  const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
   // Fetch exposure types
   const { data: exposureTypes } = useQuery({
@@ -68,24 +75,24 @@ const EntityGrid = () => {
     },
   });
 
-  // Update exposure config mutation
-  const updateConfigMutation = useMutation({
+  // Batch update exposure configs mutation
+  const updateConfigsMutation = useMutation({
     mutationFn: async ({ 
       entityId, 
-      exposureTypeId, 
-      isActive 
+      changes 
     }: { 
       entityId: string; 
-      exposureTypeId: number; 
-      isActive: boolean 
+      changes: Record<number, boolean>;
     }) => {
+      const updates = Object.entries(changes).map(([exposureTypeId, isActive]) => ({
+        entity_id: entityId,
+        exposure_type_id: parseInt(exposureTypeId),
+        is_active: isActive,
+      }));
+
       const { error } = await supabase
         .from("entity_exposure_config")
-        .upsert({
-          entity_id: entityId,
-          exposure_type_id: exposureTypeId,
-          is_active: isActive,
-        }, {
+        .upsert(updates, {
           onConflict: 'entity_id,exposure_type_id'
         });
 
@@ -185,12 +192,25 @@ const EntityGrid = () => {
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
         disabled: (params: any) => !editingRows[params.data.entity_id],
+        getValue: (params: any) => {
+          const entityId = params.data.entity_id;
+          const exposureTypeId = type.exposure_type_id;
+          
+          // Return pending change if it exists, otherwise return original value
+          if (pendingChanges[entityId]?.[exposureTypeId] !== undefined) {
+            return pendingChanges[entityId][exposureTypeId];
+          }
+          return params.value;
+        },
         onChange: (isChecked: boolean, data: any) => {
-          updateConfigMutation.mutate({
-            entityId: data.entity_id,
-            exposureTypeId: type.exposure_type_id,
-            isActive: isChecked,
-          });
+          const entityId = data.entity_id;
+          setPendingChanges(prev => ({
+            ...prev,
+            [entityId]: {
+              ...prev[entityId],
+              [type.exposure_type_id]: isChecked
+            }
+          }));
         },
       },
     };
@@ -212,14 +232,30 @@ const EntityGrid = () => {
             variant="ghost"
             size="sm"
             onClick={() => {
+              const entityId = params.data.entity_id;
+              const currentlyEditing = editingRows[entityId];
+              
+              if (currentlyEditing) {
+                // If saving, update the database with pending changes
+                const changes = pendingChanges[entityId];
+                if (changes) {
+                  updateConfigsMutation.mutate({
+                    entityId,
+                    changes,
+                  });
+                }
+                // Clear pending changes for this entity
+                setPendingChanges(prev => {
+                  const newPending = { ...prev };
+                  delete newPending[entityId];
+                  return newPending;
+                });
+              }
+              
               setEditingRows(prev => ({
                 ...prev,
-                [params.data.entity_id]: !isEditing
+                [entityId]: !currentlyEditing
               }));
-              
-              if (isEditing) {
-                queryClient.invalidateQueries({ queryKey: ["legal-entities-with-config"] });
-              }
             }}
             className="h-5 w-5 p-0"
           >
