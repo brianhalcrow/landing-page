@@ -2,7 +2,7 @@
 import { ICellRendererParams } from 'ag-grid-community';
 import { Checkbox } from '@/components/ui/checkbox';
 
-interface CheckboxCellRendererProps extends ICellRendererParams {
+interface CheckboxCellRendererProps extends Omit<ICellRendererParams, 'getValue'> {
   disabled?: (params: ICellRendererParams) => boolean;
   getValue?: (params: ICellRendererParams) => boolean;
   onChange: (checked: boolean, data: any) => void;

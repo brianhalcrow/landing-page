@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
+import { ColDef, ColGroupDef } from "ag-grid-community";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,78 +53,82 @@ const CounterpartiesGrid = () => {
     },
   });
 
-  const columnDefs: ColDef[] = [
+  const baseColumns: ColDef[] = [
+    {
+      field: "counterparty_id",
+      headerName: "Counterparty ID",
+      sortable: true,
+      filter: true,
+      width: 150,
+      headerClass: 'header-left header-wrap',
+      cellClass: 'cell-left',
+    },
+    {
+      field: "counterparty_name",
+      headerName: "Name",
+      sortable: true,
+      filter: true,
+      width: 200,
+      headerClass: 'header-left header-wrap',
+      cellClass: 'cell-left',
+    },
+    {
+      field: "counterparty_type",
+      headerName: "Type",
+      sortable: true,
+      filter: true,
+      width: 150,
+      headerClass: 'header-left header-wrap',
+      cellClass: 'cell-left',
+    },
+    {
+      field: "country",
+      headerName: "Country",
+      sortable: true,
+      filter: true,
+      width: 120,
+      headerClass: 'header-left header-wrap',
+      cellClass: 'cell-left',
+    }
+  ];
+
+  const actionsColumn: ColDef = {
+    headerName: "Actions",
+    width: 100,
+    cellRenderer: (params: any) => {
+      const isEditing = editingRows[params.data.counterparty_id];
+      return (
+        <div className="flex items-center justify-center h-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setEditingRows(prev => ({
+                ...prev,
+                [params.data.counterparty_id]: !isEditing
+              }));
+            }}
+            className="h-5 w-5 p-0"
+          >
+            {isEditing ? (
+              <Save className="h-3 w-3" />
+            ) : (
+              <Edit className="h-3 w-3" />
+            )}
+          </Button>
+        </div>
+      );
+    },
+    cellClass: 'actions-cell',
+  };
+
+  const columnDefs: (ColDef | ColGroupDef)[] = [
     {
       headerName: 'Counterparty Information',
       headerClass: 'header-center',
-      children: [
-        {
-          field: "counterparty_id",
-          headerName: "Counterparty ID",
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "counterparty_name",
-          headerName: "Name",
-          sortable: true,
-          filter: true,
-          width: 200,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "counterparty_type",
-          headerName: "Type",
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        },
-        {
-          field: "country",
-          headerName: "Country",
-          sortable: true,
-          filter: true,
-          width: 120,
-          headerClass: 'header-left header-wrap',
-          cellClass: 'cell-left',
-        }
-      ]
-    },
-    {
-      headerName: "Actions",
-      width: 100,
-      cellRenderer: (params: any) => {
-        const isEditing = editingRows[params.data.counterparty_id];
-        return (
-          <div className="flex items-center justify-center h-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setEditingRows(prev => ({
-                  ...prev,
-                  [params.data.counterparty_id]: !isEditing
-                }));
-              }}
-              className="h-5 w-5 p-0"
-            >
-              {isEditing ? (
-                <Save className="h-3 w-3" />
-              ) : (
-                <Edit className="h-3 w-3" />
-              )}
-            </Button>
-          </div>
-        );
-      },
-      cellClass: 'actions-cell',
-    }
+      children: baseColumns
+    } as ColGroupDef,
+    actionsColumn
   ];
 
   if (isLoading) {
