@@ -38,7 +38,7 @@ const CounterpartiesGrid = () => {
       const { data: entities, error: entitiesError } = await supabase
         .from("erp_legal_entity")
         .select("entity_id, entity_name")
-        .neq('entity_id', 'NL01') // Exclude NL01
+        .neq('entity_id', 'NL01')
         .order("entity_name");
 
       if (entitiesError) throw entitiesError;
@@ -70,7 +70,16 @@ const CounterpartiesGrid = () => {
       entityId: string; 
       changes: Record<string, boolean>;
     }) => {
-      // Delete existing relationships for this entity
+      // Start a Supabase transaction by first deleting hedge strategy assignments
+      const { error: deleteHedgeError } = await supabase
+        .from("hedge_strategy_assignment")
+        .delete()
+        .eq("entity_id", entityId)
+        .in("counterparty_id", Object.keys(changes).filter(id => !changes[id]));
+
+      if (deleteHedgeError) throw deleteHedgeError;
+
+      // Then delete existing relationships for this entity
       const { error: deleteError } = await supabase
         .from("entity_counterparty")
         .delete()
