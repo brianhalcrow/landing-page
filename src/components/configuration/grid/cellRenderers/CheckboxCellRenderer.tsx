@@ -35,8 +35,8 @@ const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
           "focus:ring-2 focus:ring-blue-500",
           isEditing
             ? "accent-blue-500 border-blue-500 bg-white" // Active editing state
-            : "accent-blue-300 border-blue-200 bg-blue-50", // Saved/disabled state
-          isDisabled && !isEditing && "opacity-50 cursor-not-allowed" // Disabled state when not editing
+            : "accent-blue-600 border-blue-400 bg-blue-50", // Saved state with better contrast
+          isDisabled && !isEditing && "cursor-not-allowed" // Removed opacity reduction
         )}
       />
     </div>
