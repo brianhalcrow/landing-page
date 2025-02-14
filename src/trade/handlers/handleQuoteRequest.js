@@ -3,35 +3,40 @@ import encodeQuoteRequest from '../messages/encodeQuoteRequest.js';
 import { format } from 'date-fns';
 
 const handleQuoteRequest = async ({
+  tradeType,
+  currencyPair,
   clientID,
-  amount,
-  selectedDate,
-  toCurrency,
-  fromCurrency,
+  legs,
   sendMessage,
   handleClientIDCheck
 }) => {
-  const clientIDCheckResult = handleClientIDCheck(clientID, amount);
+  console.log('In handleQuoteRequest');
+
+  const clientIDCheckResult = handleClientIDCheck(clientID);
   if (clientIDCheckResult) return;
 
-  // Prepare the data to encode
-  const requestData = {
-    amount: {
-      mantissa: Math.round(amount * Math.pow(10, 2)),
-      exponent: -2
-    },
-    saleCurrency: toCurrency,
-    side: 'BUY',
-    symbol: `${fromCurrency}${toCurrency}`,
-    deliveryDate: format(selectedDate, 'yyyyMMdd'),
+  const quoteRequest = {
+    transactionType: tradeType.toUpperCase(),
+    symbol: currencyPair,
     transactTime: format(new Date(), 'yyyyMMdd-HH:mm:ss.SSS'),
+    messageTime: BigInt(Date.now()),
     quoteRequestID: generateUUID(),
-    currencyOwned: fromCurrency,
-    clientID: 'TEST'
+    clientID: clientID,
+    legs: legs.map((leg) => ({
+      amount: {
+        mantissa: Math.round(leg.amount * Math.pow(10, 2)),
+        exponent: -2
+      },
+      currency: leg.currency,
+      valueDate: format(leg.valueDate, "yyyyMMdd"),
+      side: leg.side.toUpperCase()
+    }))
   };
 
+  console.log('quoteRequest:', quoteRequest);
+
   // Encode the data using the JavaScript encoder
-  const encodedMessage = encodeQuoteRequest(requestData);
+  const encodedMessage = encodeQuoteRequest(quoteRequest);
 
   // Send the encoded message via WebSocket
   sendMessage(encodedMessage);

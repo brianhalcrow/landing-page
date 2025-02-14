@@ -1,6 +1,6 @@
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
-import CurrencyConverter from "@/trade/components/CurrencyConverter.jsx";
+import FxTrade from "@/trade/components/FxTrade.jsx";
 
 const Execution = () => {
   const amplifyUsername = "test";
@@ -9,7 +9,7 @@ const Execution = () => {
   return (
     <div>
       <TabsContainer tabs={tabsConfig["execution"]} />
-      <CurrencyConverter amplifyUsername={amplifyUsername} kycComplete={kycComplete} />
+      <FxTrade amplifyUsername={amplifyUsername} kycComplete={kycComplete} />
     </div>
   );
 };

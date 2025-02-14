@@ -6,7 +6,7 @@ class TradeDealRequestEncoder {
     static LEG_BLOCK_LENGTH = 33;
 
     static TEMPLATE_ID = 3;
-    static SCHEMA_ID = 3;
+    static SCHEMA_ID = 4;
     static SCHEMA_VERSION = 1;
     static LITTLE_ENDIAN = true;
 

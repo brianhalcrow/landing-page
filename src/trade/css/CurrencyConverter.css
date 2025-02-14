@@ -1,56 +1,37 @@
 /* CurrencyConverter.css */
 
-.container {
-  max-width: 600px;
+.fx-dealing-container {
+  width: 1200px;
+  margin: auto;
+  font-family: Arial, sans-serif;
 }
 
-.card {
-  border-radius: 25px; /* Increase the border-radius for rounder edges */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #d7f3ff; /* Light blue background color */
-  padding: 20px; /* Add padding for better spacing inside the card */
-}
-
-label {
-  font-size: 1rem;
-}
-
-.form-control {
-  font-size: 1rem;
-}
-
-.btn {
-  width: 100%;
-}
-
-.datepicker-input {
-  padding: .375rem .75rem;
-}
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.popup-content {
-  background: white;
+.fx-card {
+  background: #fff;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
 }
 
-.converter-container {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+.fx-header {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
+
+.fx-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.fx-btn {
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.primary { background: blue; color: white; }
+.success { background: green; color: white; }
+.danger { background: red; color: white; }

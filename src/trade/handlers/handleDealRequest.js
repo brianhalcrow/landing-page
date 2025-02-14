@@ -3,41 +3,32 @@ import encodeDealRequest from '../messages/encodeDealRequest.js';
 import { format } from 'date-fns';
 
 const handleDealRequest = async ({
-  amount,
-  toCurrency,
-  selectedDate,
-  fxRate,
-  secondaryAmount,
-  symbol,
+  tradeType,
+  currencyPair,
+  clientID,
   quoteRequestID,
   quoteID,
-  clientID,
+  legs,
   sendMessage
 }) => {
   console.log('Received clientID in handleDealRequest:', clientID);
 
   const dealRequest = {
-    amount: {
-      mantissa: Math.round(amount * Math.pow(10, 2)),
-      exponent: -2
-    },
-    currency: toCurrency,
-    side: 'BUY',
-    symbol: symbol,
-    deliveryDate: format(selectedDate, 'yyyyMMdd'),
+    transactionType: tradeType.toUpperCase(),
+    symbol: currencyPair,
     transactTime: format(new Date(), 'yyyyMMdd-HH:mm:ss.SSS'),
+    messageTime: BigInt(Date.now()),
     quoteRequestID: quoteRequestID,
     quoteID: quoteID,
     dealRequestID: generateUUID(),
-    fxRate: {
-      mantissa: Math.round(fxRate * Math.pow(10, 5)),
-      exponent: -5
-    },
-    secondaryAmount: {
-      mantissa: Math.round(secondaryAmount * Math.pow(10, 2)),
-      exponent: -2
-    },
-    clientID: 'test'
+    clientID: clientID,
+    legs: legs.map((leg) => ({
+      amount: leg.amount,
+      currency: leg.currency,
+      valueDate: leg.valueDate,
+      side: leg.side.toUpperCase(),
+      price: leg.price
+    }))
   };
 
   console.log('dealRequest:', dealRequest);

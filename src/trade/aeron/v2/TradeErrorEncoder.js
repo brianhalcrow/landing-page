@@ -6,7 +6,7 @@ class TradeErrorEncoder {
     static LEG_BLOCK_LENGTH = 45;
 
     static TEMPLATE_ID = 5;
-    static SCHEMA_ID = 5;
+    static SCHEMA_ID = 4;
     static SCHEMA_VERSION = 1;
     static LITTLE_ENDIAN = true;
 

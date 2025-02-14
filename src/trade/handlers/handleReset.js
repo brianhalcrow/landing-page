@@ -1,8 +1,7 @@
 import { addBusinessDays } from '../utils/utils.js';
 
 const handleReset = ({
-  setFromCurrency,
-  setToCurrency,
+  setCurrencyPair,
   setAmount,
   setSelectedDate,
   setClientID,
@@ -13,8 +12,7 @@ const handleReset = ({
   setError,
   setShowError
 }) => {
-  setFromCurrency('EUR');
-  setToCurrency('USD');
+  setCurrencyPair('EUR/USD');
   setAmount('');
   setSelectedDate(addBusinessDays(new Date(), 2));
   setClientID('');

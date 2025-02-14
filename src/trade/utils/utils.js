@@ -62,16 +62,24 @@ export const currencyRates1 = {
     return rates[pair] || 1;
   };
   
-/**
- * Generates a random ID.
- * @returns {string} A random D.
- */
-export const generateUUID = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 12; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
+  /**
+   * Generates a random ID.
+   * @returns {string} A random D.
+   */
+  export const generateUUID = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 12; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  // Function to convert mantissa-exponent objects to numbers
+  export const convertBigDecimal = (bigDecimal) => {
+    if (!bigDecimal || typeof bigDecimal.mantissa === 'undefined' || typeof bigDecimal.exponent === 'undefined') {
+      return NaN;
+    }
+    return Number(bigDecimal.mantissa) * Math.pow(10, bigDecimal.exponent);
+  };
   

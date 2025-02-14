@@ -31,16 +31,19 @@ const useCurrencyConversion = (amplifyUsername) => {
   } = useWebSocket();
 
   // Main panel variables
-  const [fromCurrency, setFromCurrency] = useState('EUR'); // Default from ccy is EUR
-  const [toCurrency, setToCurrency] = useState('USD'); // Default to ccy is USD
+  const [currencyPair, setCurrencyPair] = useState('EUR/USD');
+  const [account, setAccount] = useState('Break');
   const [amount, setAmount] = useState('');
+  const [tradeType, setTradeType] = useState('Spot');
+  const [buySell, setBuySell] = useState('Sell');
+  const [tenor, setTenor] = useState('SPOT');
   const [selectedDate, setSelectedDate] = useState(addBusinessDays(new Date(), 2));
 
   // Form validation
-  const isFormValid = useFormValidation(fromCurrency, toCurrency, amount);
+  const isFormValid = useFormValidation(amount);
 
   // ClientID status
-  const [clientID, setClientID] = useState(amplifyUsername || '');
+  const [clientID, setClientID] = useState(amplifyUsername || 'test');
   const [clientIDMessage, setClientIDMessage] = useState('');
   const [showClientID, setShowClientID] = useState(false);
 
@@ -63,49 +66,93 @@ const useCurrencyConversion = (amplifyUsername) => {
   const { handleExecutionModalClose } = useExecutionModal(setShowExecutionReport);
   const { handleErrorModalClose } = useErrorModal(setShowError);
 
-  const handleQuoteRequest = () => prepareQuoteRequest({
-    clientID,
-    amount,
-    selectedDate,
-    toCurrency,
-    fromCurrency,
-    sendMessage,
-    handleClientIDCheck
-  });
+  const handleQuoteRequest = () => {
+    const baseCurrency = currencyPair.split('/')[0];
+    const formattedCurrencyPair = currencyPair.replace('/', '');
+  
+    const legs = [
+      {
+        amount: parseFloat(amount),
+        currency: baseCurrency, 
+        valueDate: selectedDate.toISOString().split('T')[0],
+        side: buySell
+      }
+    ];
+  
+    prepareQuoteRequest({
+      tradeType,
+      currencyPair: formattedCurrencyPair,
+      clientID,
+      legs,
+      sendMessage,
+      handleClientIDCheck
+    });
+  };
+  
+  const handleDealRequest = () => { 
+    if (!quote || !quote.legs || quote.legs.length === 0) {
+      console.error("No valid quote legs available for deal request.");
+      return;
+    }
+  
+    const formattedCurrencyPair = currencyPair.replace('/', '');
+  
+    // Transform quote to dealRequest legs
+    const dealRequestLegs = quote.legs.map((leg) => ({
+      amount: leg.amount,
+      currency: leg.currency,
+      valueDate: leg.valueDate,
+      side: leg.side,
+      price: leg.side === "SELL" ? leg.bid : leg.offer  // Select price based on side
+    }));
 
-  const handleDealRequest = () => prepareDealRequest({
-    amount,
-    toCurrency,
-    selectedDate,
-    fromCurrency,
-    fxRate: quote.fxRate,
-    secondaryAmount: quote.secondaryAmount,
-    symbol: quote.symbol,
-    quoteRequestID: quote.quoteRequestID,
-    quoteID: quote.quoteID,
-    clientID,
-    sendMessage
-  });
-
-  const handleReset = () => prepareReset({
-    setFromCurrency,
-    setToCurrency,
-    setAmount,
-    setSelectedDate,
-    setClientID,
-    setQuote,
-    setShowQuote,
-    setExecutionReport,
-    setShowExecutionReport,
-    setError,
-    setShowError
-  });
+    console.log("Deal Request Legs:", dealRequestLegs);
+  
+    prepareDealRequest({
+      tradeType,
+      currencyPair: formattedCurrencyPair,
+      clientID,
+      quoteRequestID: quote.quoteRequestID,
+      quoteID: quote.quoteID,
+      legs: dealRequestLegs,
+      sendMessage
+    });
+  };
+  
+  const handleReset = () => {
+    prepareReset({
+      setCurrencyPair,
+      setAccount,
+      setAmount,
+      setTradeType,
+      setBuySell,
+      setTenor,
+      setSelectedDate,
+      setClientID,
+      setQuote,
+      setShowQuote,
+      setExecutionReport,
+      setShowExecutionReport,
+      setError,
+      setShowError
+    });
+  
+    // Explicitly reset clientID if needed
+    setClientID(amplifyUsername || 'test');
+  };
+  
 
   return {
-    fromCurrency,
-    setFromCurrency,
-    toCurrency,
-    setToCurrency,
+    currencyPair,
+    setCurrencyPair,
+    account,
+    setAccount,
+    tradeType,
+    setTradeType,
+    buySell,
+    setBuySell,
+    tenor,
+    setTenor,
     amount,
     setAmount,
     selectedDate,

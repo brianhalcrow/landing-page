@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import useWebSocketConnection from '../handlers/handleWebSocketConnection.js';
 import incomingMessage from '../handlers/handleIncomingMessage.js';
 import outgoingMessage from '../handlers/handleOutgoingMessage.js';
@@ -9,41 +10,43 @@ export const WebSocketProvider = ({ url, children }) => {
 
     // local state variable for incoming quotes
     const [quote, setQuote] = useState({
-        fxRate: 0,
-        secondaryAmount: 0,
+        transactionType: '',
         symbol: '',
+        transactTime: '',
+        messageTime: '',
+        quoteID: '',
         quoteRequestID: '',
-        quoteID: ''
+        clientID: '',
+        legs: []
       });
 
     // local state variable for incoming deals
     const [executionReport, setExecutionReport] = useState({
-        dealID: '',
-        amount: 0,
-        currency: '',
+        transactionType: '',
         symbol: '',
-        deliveryDate: '',
-        secondaryCurrency: '',
-        rate: 0,
-        secondaryAmount: 0
+        transactTime: '',
+        messageTime: '',
+        quoteID: '',
+        quoteRequestID: '',
+        dealRequestID: '',
+        dealID: '',
+        clientID: '',
+        legs: []
       });
 
     // local state variable for incoming errors
     const [error, setError] = useState({
-        amount: 0,
-        currency: '',
-        side: '',
+        transactionType: '',
         symbol: '',
-        deliveryDate: '',
         transactTime: '',
-        quoteRequestID: '',
+        messageTime: '',
         quoteID: '',
+        quoteRequestID: '',
         dealRequestID: '',
         dealID: '',
-        rate: 0,
-        secondaryAmount: 0,
         clientID: '',
-        message: ''
+        message: '',
+        legs: []
       });
 
     // Show panels or not depending on incoming messages
@@ -54,26 +57,32 @@ export const WebSocketProvider = ({ url, children }) => {
     const socketRef = useWebSocketConnection(url, (data) => incomingMessage(data, setQuote, setShowQuote, setExecutionReport, setShowExecutionReport, setError, setShowError));
     const sendMessage = outgoingMessage(socketRef);
 
+    const contextValue = useMemo(() => ({
+        sendMessage,
+        quote,
+        setQuote,
+        showQuote,
+        setShowQuote,
+        executionReport,
+        setExecutionReport,
+        showExecutionReport,
+        setShowExecutionReport,
+        error,
+        setError,
+        showError,
+        setShowError
+    }), [sendMessage, quote, showQuote, executionReport, showExecutionReport, error, showError]);
+
     return (
-        <WebSocketContext.Provider 
-            value={{
-                sendMessage,
-                quote,
-                setQuote,
-                showQuote,
-                setShowQuote,
-                executionReport,
-                setExecutionReport,
-                showExecutionReport,
-                setShowExecutionReport,
-                error,
-                setError,
-                showError,
-                setShowError
-            }}>
-                {children}
+        <WebSocketContext.Provider value={contextValue}>
+            {children}
         </WebSocketContext.Provider>
     );
+};
+
+WebSocketProvider.propTypes = {
+    url: PropTypes.string.isRequired,
+    children: PropTypes.node.isRequired,
 };
 
 export const useWebSocket = () => {

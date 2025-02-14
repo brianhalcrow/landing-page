@@ -21,75 +21,71 @@ const handleIncomingMessage = (data, setQuote, setShowQuote, setExecutionReport,
         headerDecoder.wrap(data, 0);
 
         switch (headerDecoder.templateId()) {
-            case 4: { // Quote
+            case 2: { // Quote
                 const decoder = new QuoteDecoder();
                 decoder.wrap(data, MessageHeaderDecoder.ENCODED_LENGTH);
 
-                // Decode the data
-                decodedData = {
-                    amount: decoder.decodeamount(),
-                    currency: decoder.currency(),
-                    side: decoder.side().replace(/\0/g, ''),
-                    symbol: decoder.symbol(),
-                    transactTime: decoder.transactTime(),
+                // Extract and decode legs
+                const groupHeaderOffset = QuoteDecoder.BLOCK_LENGTH + 8;
+                const legs = decoder.decodeLeg(decoder.buffer, groupHeaderOffset);
+
+                // Extract decoded data
+                const decodedData = {
+                    transactionType: decoder.transactionType().replace(/\0/g, ''),
+                    symbol: decoder.symbol().replace(/\0/g, ''),
+                    transactTime: decoder.transactTime().replace(/\0/g, ''),
+                    messageTime: decoder.messageTime(),
                     quoteID: decoder.quoteID().replace(/\0/g, ''),
                     quoteRequestID: decoder.quoteRequestID().replace(/\0/g, ''),
-                    fxRate: decoder.decodefxRate(),
-                    secondaryAmount: decoder.decodesecondaryAmount(),
-                    clientID: decoder.clientID().replace(/\0/g, '')
+                    clientID: decoder.clientID().replace(/\0/g, ''),
+                    legs: legs.map(leg => ({
+                        amount: leg.amount,
+                        currency: leg.currency.replace(/\0/g, ''),
+                        valueDate: leg.valueDate.replace(/\0/g, ''),
+                        side: leg.side.replace(/\0/g, ''),
+                        bid: leg.bid,
+                        offer: leg.offer
+                    }))
                 };
 
-                const fxRate1 = decodedData.fxRate.mantissa * Math.pow(10, decodedData.fxRate.exponent);
-                const secondaryAmount1 = decodedData.secondaryAmount.mantissa * Math.pow(10, decodedData.secondaryAmount.exponent);
-
-                setQuote({
-                    fxRate: fxRate1,
-                    secondaryAmount: secondaryAmount1,
-                    symbol: decodedData.symbol,
-                    quoteRequestID: decodedData.quoteRequestID,
-                    quoteID: decodedData.quoteID
-                });
+                setQuote(decodedData);
 
                 console.log('setShowQuote');
                 setShowQuote(true);
 
                 break;
             }
-            case 2: { // Execution Report
+            case 4: { // Execution Report
                 const decoder = new ExecutionReportDecoder();
                 decoder.wrap(data, MessageHeaderDecoder.ENCODED_LENGTH);
 
-                decodedData = {
-                    amount: decoder.decodeamount(),
-                    currency: decoder.currency(),
-                    secondaryAmount: decoder.decodesecondaryAmount(),
-                    secondaryCurrency: decoder.secondaryCurrency(),
-                    side: decoder.side().replace(/\0/g, ''),
-                    symbol: decoder.symbol(),
-                    deliveryDate: decoder.deliveryDate(),
-                    transactTime: decoder.transactTime(),
-                    quoteRequestID: decoder.quoteRequestID().replace(/\0/g, ''),
+                // Extract and decode legs
+                const groupHeaderOffset = QuoteDecoder.BLOCK_LENGTH + 8;
+                const legs = decoder.decodeLeg(decoder.buffer, groupHeaderOffset);
+
+                // Extract decoded data
+                const decodedData = {
+                    transactionType: decoder.transactionType().replace(/\0/g, ''),
+                    symbol: decoder.symbol().replace(/\0/g, ''),
+                    transactTime: decoder.transactTime().replace(/\0/g, ''),
+                    messageTime: decoder.messageTime(),
                     quoteID: decoder.quoteID().replace(/\0/g, ''),
+                    quoteRequestID: decoder.quoteRequestID().replace(/\0/g, ''),
                     dealRequestID: decoder.dealRequestID().replace(/\0/g, ''),
                     dealID: decoder.dealID().replace(/\0/g, ''),
                     clientID: decoder.clientID().replace(/\0/g, ''),
-                    fxRate: decoder.decodefxRate()
+                    legs: legs.map(leg => ({
+                        amount: leg.amount,
+                        currency: leg.currency.replace(/\0/g, ''),
+                        secondaryAmount: leg.secondaryAmount,
+                        secondaryCurrency: leg.secondaryCurrency.replace(/\0/g, ''),
+                        valueDate: leg.valueDate.replace(/\0/g, ''),
+                        side: leg.side.replace(/\0/g, ''),
+                        price: leg.price
+                    }))
                 };
 
-                const amount1 = decodedData.amount.mantissa * Math.pow(10, decodedData.amount.exponent);
-                const fxRate1 = decodedData.fxRate.mantissa * Math.pow(10, decodedData.fxRate.exponent);
-                const secondaryAmount1 = decodedData.secondaryAmount.mantissa * Math.pow(10, decodedData.secondaryAmount.exponent);
-
-                setExecutionReport({
-                    dealID: decodedData.dealID,
-                    amount: amount1,
-                    currency: decodedData.currency,
-                    symbol: decodedData.symbol,
-                    deliveryDate: decodedData.deliveryDate,
-                    secondaryCurrency: decodedData.secondaryCurrency,
-                    rate: fxRate1,
-                    secondaryAmount: secondaryAmount1
-                });
+                setExecutionReport(decodedData);
 
                 setShowExecutionReport(true);
 
@@ -99,43 +95,34 @@ const handleIncomingMessage = (data, setQuote, setShowQuote, setExecutionReport,
                 const decoder = new ErrorDecoder();
                 decoder.wrap(data, MessageHeaderDecoder.ENCODED_LENGTH);
 
-                decodedData = {
-                    amount: decoder.decodeamount(),
-                    currency: decoder.currency(),
-                    side: decoder.side().replace(/\0/g, ''),
-                    symbol: decoder.symbol(),
-                    deliveryDate: decoder.deliveryDate(),
-                    transactTime: decoder.transactTime(),
-                    quoteRequestID: decoder.quoteRequestID().replace(/\0/g, ''),
+                // Extract and decode legs
+                const groupHeaderOffset = QuoteDecoder.BLOCK_LENGTH + 8;
+                const legs = decoder.decodeLeg(decoder.buffer, groupHeaderOffset);
+
+                // Extract decoded data
+                const decodedData = {
+                    transactionType: decoder.transactionType().replace(/\0/g, ''),
+                    symbol: decoder.symbol().replace(/\0/g, ''),
+                    transactTime: decoder.transactTime().replace(/\0/g, ''),
+                    messageTime: decoder.messageTime(),
                     quoteID: decoder.quoteID().replace(/\0/g, ''),
+                    quoteRequestID: decoder.quoteRequestID().replace(/\0/g, ''),
                     dealRequestID: decoder.dealRequestID().replace(/\0/g, ''),
                     dealID: decoder.dealID().replace(/\0/g, ''),
-                    fxRate: decoder.decodefxRate(),
-                    secondaryAmount: decoder.decodesecondaryAmount(),
                     clientID: decoder.clientID().replace(/\0/g, ''),
-                    message: decoder.message().replace(/\0/g, '')
+                    message: decoder.message().replace(/\0/g, ''),
+                    legs: legs.map(leg => ({
+                        amount: leg.amount,
+                        currency: leg.currency.replace(/\0/g, ''),
+                        secondaryAmount: leg.secondaryAmount,
+                        secondaryCurrency: leg.secondaryCurrency.replace(/\0/g, ''),
+                        valueDate: leg.valueDate.replace(/\0/g, ''),
+                        side: leg.side.replace(/\0/g, ''),
+                        price: leg.price
+                    }))
                 };
 
-                const amount1 = decodedData.amount.mantissa * Math.pow(10, decodedData.amount.exponent);
-                const fxRate1 = decodedData.fxRate.mantissa * Math.pow(10, decodedData.fxRate.exponent);
-                const secondaryAmount1 = decodedData.secondaryAmount.mantissa * Math.pow(10, decodedData.secondaryAmount.exponent);
-
-                setError({
-                    amount: amount1,
-                    currency: decodedData.currency,
-                    side: decodedData.side,
-                    symbol: decodedData.symbol,
-                    deliveryDate: decodedData.deliveryDate,
-                    transactTime: decodedData.transactTime,
-                    quoteRequestID: decodedData.quoteRequestID,
-                    quoteID: decodedData.quoteID,
-                    dealRequestID: decodedData.dealRequestID,
-                    dealID: decodedData.dealID,
-                    rate: fxRate1,
-                    secondaryAmount: secondaryAmount1,
-                    clientID: decodedData.clientID,
-                    message: decodedData.message
-                });
+                setError(decodedData);
 
                 setShowError(true);
 

@@ -6,7 +6,7 @@ class TradeQuoteEncoder {
     static LEG_BLOCK_LENGTH = 42;
 
     static TEMPLATE_ID = 2;
-    static SCHEMA_ID = 2;
+    static SCHEMA_ID = 4;
     static SCHEMA_VERSION = 1;
     static LITTLE_ENDIAN = true;
 
