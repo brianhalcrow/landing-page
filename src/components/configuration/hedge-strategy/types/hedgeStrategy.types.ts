@@ -10,9 +10,8 @@ export interface HedgeStrategyAssignment {
 export interface HedgeStrategyGridRow {
   entity_id: string;
   entity_name: string;
-  exposure_category_l2: string;
   strategy: string;
-  strategy_name: string; // Added strategy name for display
+  strategy_name: string;
   strategy_description: string;
   instrument: string;
   counterparty_id: string;
