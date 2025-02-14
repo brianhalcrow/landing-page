@@ -18,27 +18,64 @@ const HedgeStrategyAssignmentGrid = () => {
   const { isLoading } = useQuery({
     queryKey: ['hedge-strategy-assignments'],
     queryFn: async () => {
-      const { data: entities } = await supabase
+      // Debug logging
+      console.log('Fetching data for hedge strategy assignments');
+      
+      const { data: entities, error: entitiesError } = await supabase
         .from('entities')
         .select('*')
         .eq('is_active', true);
 
-      const { data: exposureConfigs } = await supabase
+      if (entitiesError) {
+        console.error('Error fetching entities:', entitiesError);
+        throw entitiesError;
+      }
+
+      const { data: exposureConfigs, error: configsError } = await supabase
         .from('entity_exposure_config')
-        .select('*')
+        .select('*, exposure_types(exposure_category_l2)')
         .eq('is_active', true);
 
-      const { data: hedgeStrategies } = await supabase
+      if (configsError) {
+        console.error('Error fetching exposure configs:', configsError);
+        throw configsError;
+      }
+
+      const { data: hedgeStrategies, error: strategiesError } = await supabase
         .from('hedge_strategy')
         .select('*');
 
-      const { data: counterparties } = await supabase
+      if (strategiesError) {
+        console.error('Error fetching hedge strategies:', strategiesError);
+        throw strategiesError;
+      }
+
+      const { data: counterparties, error: counterpartiesError } = await supabase
         .from('counterparty')
         .select('*');
 
-      const { data: assignments } = await supabase
+      if (counterpartiesError) {
+        console.error('Error fetching counterparties:', counterpartiesError);
+        throw counterpartiesError;
+      }
+
+      const { data: assignments, error: assignmentsError } = await supabase
         .from('hedge_strategy_assignment')
         .select('*');
+
+      if (assignmentsError) {
+        console.error('Error fetching assignments:', assignmentsError);
+        throw assignmentsError;
+      }
+
+      // Debug logging
+      console.log('Fetched data:', {
+        entities,
+        exposureConfigs,
+        hedgeStrategies,
+        counterparties,
+        assignments
+      });
 
       // Process and combine the data
       const gridRows: HedgeStrategyGridRow[] = [];
@@ -49,7 +86,13 @@ const HedgeStrategyAssignmentGrid = () => {
         ) || [];
 
         entityConfigs.forEach(config => {
-          hedgeStrategies?.forEach(strategy => {
+          const exposureCategoryL2 = config.exposure_types?.exposure_category_l2;
+          
+          const matchingStrategies = hedgeStrategies?.filter(
+            strategy => strategy.exposure_category_l2 === exposureCategoryL2
+          ) || [];
+
+          matchingStrategies.forEach(strategy => {
             counterparties?.forEach(counterparty => {
               const assignment = assignments?.find(
                 a => a.entity_id === entity.entity_id &&
@@ -74,6 +117,7 @@ const HedgeStrategyAssignmentGrid = () => {
         });
       });
 
+      console.log('Generated grid rows:', gridRows);
       setRowData(gridRows);
       return gridRows;
     }
@@ -136,13 +180,15 @@ const HedgeStrategyAssignmentGrid = () => {
       field: 'entity_name',
       headerName: 'Entity',
       width: 150,
-      rowGroup: true
+      rowGroup: true,
+      hide: true
     },
     {
       field: 'exposure_category_l2',
       headerName: 'Exposure Category',
       width: 150,
-      rowGroup: true
+      rowGroup: true,
+      hide: true
     },
     {
       field: 'strategy',
@@ -174,6 +220,10 @@ const HedgeStrategyAssignmentGrid = () => {
       }
     }
   ], [handleAssignmentChange]);
+
+  if (isLoading) {
+    return <div>Loading hedge strategy assignments...</div>;
+  }
 
   return (
     <div className="space-y-4">
