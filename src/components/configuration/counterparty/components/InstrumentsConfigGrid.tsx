@@ -31,6 +31,12 @@ export const InstrumentsConfigGrid = () => {
       hide: true,
     },
     {
+      field: "country",
+      headerName: "Country",
+      rowGroup: true,
+      hide: true,
+    },
+    {
       field: "counterparty_name",
       headerName: "Counterparty",
       width: 200,
