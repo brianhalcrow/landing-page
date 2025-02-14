@@ -7,32 +7,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { toast } from "sonner";
-import { LegalEntity, PendingChanges, Counterparty } from "./types/entityTypes";
-import { createBaseColumnDefs, createActionsColumn, createCounterpartyColumns } from "./columnDefs/entityColumns";
+import { LegalEntity, PendingChanges } from "./types/entityTypes";
+import { createBaseColumnDefs, createActionsColumn, createExposureColumns } from "./columnDefs/entityColumns";
 import { gridStyles } from "./styles/gridStyles";
+import { useExposureTypes } from "@/hooks/useExposureTypes";
 
 const EntityGrid = () => {
   const queryClient = useQueryClient();
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
-  // Fetch counterparties
-  const { data: counterparties } = useQuery({
-    queryKey: ["counterparties"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("counterparty")
-        .select("*")
-        .order("counterparty_name");
+  // Fetch exposure types
+  const { data: exposureTypes } = useExposureTypes();
 
-      if (error) throw error;
-      return data as Counterparty[];
-    },
-  });
-
-  // Fetch entities with their counterparty relationships
+  // Fetch entities with their exposure configs
   const { data: entities, isLoading } = useQuery({
-    queryKey: ["legal-entities-with-relationships"],
+    queryKey: ["legal-entities-with-config"],
     queryFn: async () => {
       const { data: legalEntities, error: entityError } = await supabase
         .from("erp_legal_entity")
@@ -41,65 +31,54 @@ const EntityGrid = () => {
 
       if (entityError) throw entityError;
 
-      const { data: relationships, error: relationshipError } = await supabase
-        .from("entity_counterparty")
+      const { data: exposureConfigs, error: configError } = await supabase
+        .from("entity_exposure_config")
         .select("*");
 
-      if (relationshipError) throw relationshipError;
+      if (configError) throw configError;
 
       return legalEntities.map((entity) => ({
         ...entity,
-        exposure_configs: relationships
-          .filter((rel) => rel.entity_id === entity.entity_id)
-          .reduce((acc, rel) => ({
+        exposure_configs: exposureConfigs
+          .filter((config) => config.entity_id === entity.entity_id)
+          .reduce((acc, config) => ({
             ...acc,
-            [rel.counterparty_id]: true,
+            [config.exposure_type_id]: config.is_active,
           }), {}),
       }));
     },
   });
 
-  // Batch update entity-counterparty relationships mutation
-  const updateRelationshipsMutation = useMutation({
+  // Batch update exposure configs mutation
+  const updateConfigsMutation = useMutation({
     mutationFn: async ({ 
       entityId, 
       changes 
     }: { 
       entityId: string; 
-      changes: Record<string, boolean>;
+      changes: Record<number, boolean>;
     }) => {
-      // Delete existing relationships for this entity
-      const { error: deleteError } = await supabase
-        .from("entity_counterparty")
-        .delete()
-        .eq("entity_id", entityId);
+      const updates = Object.entries(changes).map(([exposureTypeId, isActive]) => ({
+        entity_id: entityId,
+        exposure_type_id: parseInt(exposureTypeId),
+        is_active: isActive,
+      }));
 
-      if (deleteError) throw deleteError;
+      const { error } = await supabase
+        .from("entity_exposure_config")
+        .upsert(updates, {
+          onConflict: 'entity_id,exposure_type_id'
+        });
 
-      // Insert new relationships
-      const relationships = Object.entries(changes)
-        .filter(([_, isActive]) => isActive)
-        .map(([counterpartyId]) => ({
-          entity_id: entityId,
-          counterparty_id: counterpartyId,
-          relationship_id: `${entityId}-${counterpartyId}`,
-        }));
-
-      if (relationships.length > 0) {
-        const { error: insertError } = await supabase
-          .from("entity_counterparty")
-          .insert(relationships);
-
-        if (insertError) throw insertError;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["legal-entities-with-relationships"] });
-      toast.success("Relationships updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["legal-entities-with-config"] });
+      toast.success("Configuration updated successfully");
     },
     onError: (error) => {
-      console.error("Error updating relationships:", error);
-      toast.error("Failed to update relationships");
+      console.error("Error updating configuration:", error);
+      toast.error("Failed to update configuration");
     },
   });
 
@@ -113,7 +92,7 @@ const EntityGrid = () => {
   const handleSaveClick = (entityId: string) => {
     const changes = pendingChanges[entityId];
     if (changes) {
-      updateRelationshipsMutation.mutate({
+      updateConfigsMutation.mutate({
         entityId,
         changes,
       });
@@ -132,8 +111,8 @@ const EntityGrid = () => {
   // Create column definitions
   const baseColumns = createBaseColumnDefs();
   const actionsColumn = createActionsColumn(editingRows, handleEditClick, handleSaveClick);
-  const counterpartyColumns = counterparties ? createCounterpartyColumns(
-    counterparties,
+  const exposureColumns = exposureTypes ? createExposureColumns(
+    exposureTypes,
     editingRows,
     pendingChanges,
     setPendingChanges
@@ -145,10 +124,7 @@ const EntityGrid = () => {
       headerClass: 'header-center',
       children: baseColumns
     } as ColGroupDef,
-    {
-      headerName: 'Type',
-      children: counterpartyColumns
-    } as ColGroupDef,
+    ...exposureColumns,
     actionsColumn
   ];
 
