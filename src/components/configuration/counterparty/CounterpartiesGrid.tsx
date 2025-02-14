@@ -147,25 +147,23 @@ const CounterpartiesGrid = () => {
     {
       headerName: 'Entity Information',
       headerClass: 'header-center',
-      children: [
-        ...baseColumns,
-        {
-          headerName: 'Actions',
-          field: 'actions',
-          width: 100,
-          cellRenderer: ActionsCellRenderer,
-          cellRendererParams: (params: any) => ({
-            isEditing: editingRows[params.data?.entity_id] || false,
-            onEditClick: () => handleEditClick(params.data?.entity_id),
-            onSaveClick: () => handleSaveClick(params.data?.entity_id),
-          }),
-          headerClass: 'header-center',
-          cellClass: 'cell-center',
-          pinned: 'left',
-        },
-      ]
+      children: baseColumns
     } as ColGroupDef,
-    ...counterpartyColumns
+    ...counterpartyColumns,
+    {
+      headerName: 'Actions',
+      field: 'actions',
+      width: 100,
+      cellRenderer: ActionsCellRenderer,
+      cellRendererParams: (params: any) => ({
+        isEditing: editingRows[params.data?.entity_id] || false,
+        onEditClick: () => handleEditClick(params.data?.entity_id),
+        onSaveClick: () => handleSaveClick(params.data?.entity_id),
+      }),
+      headerClass: 'header-center',
+      cellClass: 'cell-center',
+      pinned: 'right',
+    },
   ];
 
   return (
