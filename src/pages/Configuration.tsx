@@ -2,6 +2,7 @@
 import TabsContainer from "@/components/TabsContainer";
 import EntityConfigurationTab from "@/components/configuration/entity/EntityConfigurationTab";
 import CounterpartiesTab from "@/components/configuration/counterparty/CounterpartiesTab";
+import HedgeStrategyAssignmentGrid from "@/components/configuration/hedge-strategy/HedgeStrategyAssignmentGrid";
 
 const Configuration = () => {
   const tabs = [
@@ -15,6 +16,11 @@ const Configuration = () => {
       label: "Counterparties",
       content: <CounterpartiesTab />,
     },
+    {
+      value: "hedge-strategies",
+      label: "Hedge Strategies",
+      content: <HedgeStrategyAssignmentGrid />,
+    }
   ];
 
   return (
