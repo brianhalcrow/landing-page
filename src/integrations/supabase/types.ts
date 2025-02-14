@@ -204,6 +204,48 @@ export type Database = {
         }
         Relationships: []
       }
+      counterparty_instrument: {
+        Row: {
+          counterparty_id: string
+          created_at: string | null
+          id: string
+          instrument_id: number
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          counterparty_id: string
+          created_at?: string | null
+          id?: string
+          instrument_id: number
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          counterparty_id?: string
+          created_at?: string | null
+          id?: string
+          instrument_id?: number
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "counterparty_instrument_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "instruments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           content: string | null
