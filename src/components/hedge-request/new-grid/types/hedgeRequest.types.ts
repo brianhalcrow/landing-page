@@ -1,39 +1,26 @@
 
-export interface HedgeRequest {
+export interface HedgeRequestRow {
   entity_id: string;
   entity_name: string;
-  counterparty: string;
-  counterparty_name: string;
   strategy: string;
   instrument: string;
-  ccy_pair: string;
+  counterparty: string;
+  counterparty_name: string;
+  // Trade details
+  buy_sell: 'BUY' | 'SELL';
+  amount: number;
+  currency: string;
   trade_date: string;
   settlement_date: string;
-  created_at?: string;
-  updated_at?: string;
+  cost_centre?: string;
 }
 
-export interface EntityCounterparty {
+export interface ValidHedgeConfig {
+  entity_id: string;
+  entity_name: string;
+  strategy: string;
+  strategy_description: string;
+  instrument: string;
   counterparty_id: string;
   counterparty_name: string;
-  relationship_id: string;
-  entity_id: string;
-}
-
-export interface CounterpartySelectorProps {
-  value: string;
-  data: Partial<HedgeRequest>;
-  node: {
-    setData: (data: any) => void;
-  };
-}
-
-// Add new interface for the joined data from Supabase
-export interface CounterpartyJoinResult {
-  counterparty_id: string;
-  relationship_id: string;
-  entity_id: string;
-  counterparty: {
-    counterparty_name: string;
-  };
 }
