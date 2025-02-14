@@ -1,24 +1,22 @@
 
-import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInstrumentsConfig } from "../hooks/useInstrumentsConfig";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
+import ActionsCellRenderer from "../../grid/cellRenderers/ActionsCellRenderer";
 import type { ColDef } from "ag-grid-community";
 
 export const InstrumentsConfigGrid = () => {
-  const [isEditing, setIsEditing] = useState(false);
   const {
-    counterparties,
-    instruments,
     configData,
+    instruments,
     isLoading,
+    editingRows,
     pendingChanges,
     setPendingChanges,
-    saveChanges,
+    handleEditClick,
+    handleSaveClick,
   } = useInstrumentsConfig();
 
   if (isLoading) {
@@ -45,7 +43,7 @@ export const InstrumentsConfigGrid = () => {
       width: 120,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
-        disabled: !isEditing,
+        disabled: (params: any) => !editingRows[params.data?.counterparty_id],
         onChange: (checked: boolean, data: any) => {
           if (!data?.counterparty_id) return;
           setPendingChanges((prev) => ({
@@ -58,43 +56,26 @@ export const InstrumentsConfigGrid = () => {
         },
       },
     })),
+    {
+      headerName: 'Actions',
+      field: 'actions',
+      width: 100,
+      cellRenderer: ActionsCellRenderer,
+      cellRendererParams: (params: any) => ({
+        isEditing: editingRows[params.data?.counterparty_id] || false,
+        onEditClick: () => handleEditClick(params.data?.counterparty_id),
+        onSaveClick: () => handleSaveClick(params.data?.counterparty_id),
+      }),
+      headerClass: 'header-center',
+      cellClass: 'cell-center'
+    },
   ];
-
-  const handleSave = async () => {
-    try {
-      await saveChanges();
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error saving changes:', error);
-      toast.error('Failed to save changes');
-    }
-  };
 
   const getRowId = (params: any) => params.data.counterparty_id;
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Instrument Configuration</h3>
-        <div>
-          {isEditing ? (
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditing(false);
-                  setPendingChanges({});
-                }}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>Save</Button>
-            </div>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>Edit</Button>
-          )}
-        </div>
-      </div>
+      <h3 className="text-lg font-semibold">Instrument Configuration</h3>
       <div className="w-full h-[400px] ag-theme-alpine">
         <GridStyles />
         <AgGridReact

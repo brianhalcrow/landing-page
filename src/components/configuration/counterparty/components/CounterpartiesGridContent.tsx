@@ -58,7 +58,7 @@ export const CounterpartiesGridContent = ({
   return (
     <div className="space-y-4">
       <style>{gridStyles}</style>
-      <div className="w-full h-[600px] ag-theme-alpine">
+      <div className="w-full h-[300px] ag-theme-alpine">
         <GridStyles />
         <AgGridReact
           rowData={gridData}

@@ -8,6 +8,7 @@ type PendingChanges = Record<string, Record<string, boolean>>;
 
 export const useInstrumentsConfig = () => {
   const queryClient = useQueryClient();
+  const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
   const { data: counterparties, isLoading: loadingCounterparties } = useQuery({
@@ -16,12 +17,11 @@ export const useInstrumentsConfig = () => {
       const { data, error } = await supabase
         .from("counterparty")
         .select("*")
-        .order("counterparty_type", { ascending: true })
+        .order("counterparty_type", { ascending: false }) // This will put Internal first
         .order("counterparty_name");
 
       if (error) throw error;
       
-      // Ensure all counterparties have a type, defaulting to "External"
       return data.map(cp => ({
         ...cp,
         counterparty_type: cp.counterparty_type || "External"
@@ -55,18 +55,12 @@ export const useInstrumentsConfig = () => {
   });
 
   const updateConfigMutation = useMutation({
-    mutationFn: async (changes: PendingChanges) => {
-      const updates = [];
-
-      for (const [counterpartyId, instruments] of Object.entries(changes)) {
-        for (const [instrumentId, isActive] of Object.entries(instruments)) {
-          updates.push({
-            counterparty_id: counterpartyId,
-            instrument_id: parseInt(instrumentId),
-            is_active: isActive,
-          });
-        }
-      }
+    mutationFn: async ({ counterpartyId, changes }: { counterpartyId: string; changes: Record<string, boolean> }) => {
+      const updates = Object.entries(changes).map(([instrumentId, isActive]) => ({
+        counterparty_id: counterpartyId,
+        instrument_id: parseInt(instrumentId),
+        is_active: isActive,
+      }));
 
       const { error } = await supabase
         .from("counterparty_instrument")
@@ -101,9 +95,35 @@ export const useInstrumentsConfig = () => {
     };
   });
 
-  const saveChanges = async () => {
-    await updateConfigMutation.mutateAsync(pendingChanges);
-    setPendingChanges({});
+  const handleEditClick = (counterpartyId: string) => {
+    setEditingRows(prev => ({
+      ...prev,
+      [counterpartyId]: true
+    }));
+  };
+
+  const handleSaveClick = async (counterpartyId: string) => {
+    try {
+      const changes = pendingChanges[counterpartyId];
+      if (changes) {
+        await updateConfigMutation.mutateAsync({
+          counterpartyId,
+          changes,
+        });
+      }
+      setEditingRows(prev => ({
+        ...prev,
+        [counterpartyId]: false
+      }));
+      setPendingChanges(prev => {
+        const newPending = { ...prev };
+        delete newPending[counterpartyId];
+        return newPending;
+      });
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      toast.error('Failed to save changes');
+    }
   };
 
   return {
@@ -111,8 +131,10 @@ export const useInstrumentsConfig = () => {
     instruments: instruments || [],
     configData,
     isLoading: loadingCounterparties || loadingInstruments || loadingConfig,
+    editingRows,
     pendingChanges,
     setPendingChanges,
-    saveChanges,
+    handleEditClick,
+    handleSaveClick,
   };
 };
