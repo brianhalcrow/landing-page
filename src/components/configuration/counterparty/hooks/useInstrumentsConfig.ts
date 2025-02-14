@@ -16,7 +16,7 @@ export const useInstrumentsConfig = () => {
       const { data, error } = await supabase
         .from("counterparty")
         .select("*")
-        .order("counterparty_type", { ascending: true, nullsLast: true })
+        .order("counterparty_type", { ascending: true })
         .order("counterparty_name");
 
       if (error) throw error;
