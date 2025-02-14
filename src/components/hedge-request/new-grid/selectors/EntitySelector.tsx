@@ -14,11 +14,18 @@ interface EntitySelectorProps {
 
 export const EntitySelector = (props: EntitySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
-  const entities = [...new Set(validConfigs.map(c => ({
-    id: c.entity_id,
-    name: c.entity_name,
-    functional_currency: c.functional_currency
-  })))];
+  
+  // Get unique entities by entity_id
+  const entities = Array.from(new Map(
+    validConfigs.map(config => [
+      config.entity_id,
+      {
+        id: config.entity_id,
+        name: config.entity_name,
+        functional_currency: config.functional_currency
+      }
+    ])
+  ).values());
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEntity = entities.find(e => e.id === event.target.value);
@@ -28,6 +35,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name,
         strategy: '',
+        strategy_name: '',
+        strategy_description: '',
         instrument: '',
         counterparty: '',
         counterparty_name: '',

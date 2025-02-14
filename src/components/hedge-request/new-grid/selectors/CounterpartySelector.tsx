@@ -14,16 +14,22 @@ interface CounterpartySelectorProps {
 
 export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
-  const counterparties = validConfigs
-    .filter(c => 
-      c.entity_id === props.data.entity_id && 
-      c.strategy === props.data.strategy
-    )
-    .map(c => ({
-      id: c.counterparty_id,
-      name: c.counterparty_name
-    }))
-    .filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+  
+  // Filter counterparties based on selected entity and strategy
+  const counterparties = Array.from(new Map(
+    validConfigs
+      .filter(c => 
+        c.entity_id === props.data.entity_id && 
+        c.strategy_id.toString() === props.data.strategy
+      )
+      .map(c => [
+        c.counterparty_id,
+        {
+          id: c.counterparty_id,
+          name: c.counterparty_name
+        }
+      ])
+  ).values());
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
@@ -42,6 +48,7 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
       value={props.value}
       onChange={handleChange}
       className="w-full h-full border-0 outline-none bg-transparent"
+      disabled={!props.data.strategy}
     >
       <option value="">Select Counterparty</option>
       {counterparties.map(cp => (

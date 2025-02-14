@@ -238,6 +238,13 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
             foreignKeyName: "counterparty_instrument_instrument_id_fkey"
             columns: ["instrument_id"]
             isOneToOne: false
@@ -343,6 +350,13 @@ export type Database = {
             columns: ["counterparty_id"]
             isOneToOne: false
             referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "entity_counterparty_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["counterparty_id"]
           },
           {
@@ -1369,6 +1383,13 @@ export type Database = {
             columns: ["counterparty_id"]
             isOneToOne: false
             referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["counterparty_id"]
           },
           {
@@ -3103,7 +3124,7 @@ export type Database = {
           counterparty_name: string | null
           entity_id: string | null
           entity_name: string | null
-          exposure_category_l2: string | null
+          exposure_type_id: number | null
           functional_currency: string | null
           instrument: string | null
           strategy: string | null
@@ -3112,11 +3133,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
+            foreignKeyName: "entity_exposure_config_exposure_type_id_fkey"
+            columns: ["exposure_type_id"]
             isOneToOne: false
-            referencedRelation: "counterparty"
-            referencedColumns: ["counterparty_id"]
+            referencedRelation: "exposure_types"
+            referencedColumns: ["exposure_type_id"]
           },
         ]
       }
