@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,6 +97,13 @@ export const useInstrumentsConfig = () => {
   });
 
   const handleEditClick = (counterpartyId: string) => {
+    // Validate if there are any pending changes
+    if (Object.keys(pendingChanges).length > 0) {
+      toast.error("Please save pending changes before editing another row");
+      return;
+    }
+
+    // Only allow editing if no other row is being edited
     if (!currentlyEditing || currentlyEditing === counterpartyId) {
       const updatedData = configData?.map(item => ({
         ...item,
@@ -114,12 +122,15 @@ export const useInstrumentsConfig = () => {
   const handleSaveClick = async (counterpartyId: string) => {
     try {
       const changes = pendingChanges[counterpartyId];
-      if (changes) {
-        await updateConfigMutation.mutateAsync({
-          counterpartyId,
-          changes,
-        });
+      if (!changes) {
+        toast.error("No changes to save");
+        return;
       }
+
+      await updateConfigMutation.mutateAsync({
+        counterpartyId,
+        changes,
+      });
 
       const updatedData = configData?.map(item => ({
         ...item,
@@ -144,6 +155,8 @@ export const useInstrumentsConfig = () => {
     }
   };
 
+  const hasPendingChanges = Object.keys(pendingChanges).length > 0;
+
   return {
     counterparties,
     instruments: instruments || [],
@@ -154,5 +167,6 @@ export const useInstrumentsConfig = () => {
     handleEditClick,
     handleSaveClick,
     currentlyEditing,
+    hasPendingChanges,
   };
 };

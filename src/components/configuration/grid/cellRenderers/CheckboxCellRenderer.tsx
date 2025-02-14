@@ -15,6 +15,7 @@ const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
     : props.disabled || !props.data?.isEditing;
 
   const value = props.getValue ? props.getValue() : props.value;
+  const isEditing = props.data?.isEditing;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isDisabled && props.data) {
@@ -30,10 +31,12 @@ const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
         disabled={isDisabled}
         onChange={handleChange}
         className={cn(
-          "w-4 h-4 rounded transition-colors focus:ring-2 focus:ring-blue-500",
-          isDisabled
-            ? "accent-blue-300 bg-blue-50 border-blue-200" // Lighter blue for disabled/saved state
-            : "accent-blue-500 border-blue-500" // Darker blue for editing state
+          "w-4 h-4 rounded border transition-colors",
+          "focus:ring-2 focus:ring-blue-500",
+          isEditing
+            ? "accent-blue-500 border-blue-500 bg-white" // Active editing state
+            : "accent-blue-300 border-blue-200 bg-blue-50", // Saved/disabled state
+          isDisabled && !isEditing && "opacity-50 cursor-not-allowed" // Disabled state when not editing
         )}
       />
     </div>

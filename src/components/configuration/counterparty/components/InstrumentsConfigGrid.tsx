@@ -1,4 +1,3 @@
-
 import { AgGridReact } from "ag-grid-react";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +16,8 @@ export const InstrumentsConfigGrid = () => {
     setPendingChanges,
     handleEditClick,
     handleSaveClick,
-    currentlyEditing
+    currentlyEditing,
+    hasPendingChanges
   } = useInstrumentsConfig();
 
   if (isLoading) {
@@ -44,7 +44,7 @@ export const InstrumentsConfigGrid = () => {
       pinned: 'left',
       suppressMovable: true,
       cellClass: (params) => {
-        return params.data?.isEditing ? 'bg-blue-50' : '';
+        return params.data?.isEditing ? 'row-editing' : '';
       }
     },
     ...instruments.map((instrument) => ({
@@ -53,7 +53,7 @@ export const InstrumentsConfigGrid = () => {
       width: 120,
       cellRenderer: CheckboxCellRenderer,
       cellClass: (params) => {
-        return params.data?.isEditing ? 'bg-blue-50' : '';
+        return params.data?.isEditing ? 'row-editing' : '';
       },
       cellRendererParams: {
         disabled: (params: any) => !params.data?.isEditing,
@@ -77,13 +77,14 @@ export const InstrumentsConfigGrid = () => {
       cellRendererParams: {
         onEditClick: handleEditClick,
         onSaveClick: handleSaveClick,
-        currentlyEditing
+        currentlyEditing,
+        hasPendingChanges
       },
       headerClass: 'header-center',
       cellClass: (params) => {
         return cn(
           'cell-center',
-          params.data?.isEditing ? 'bg-blue-50' : ''
+          params.data?.isEditing ? 'row-editing' : ''
         );
       }
     },

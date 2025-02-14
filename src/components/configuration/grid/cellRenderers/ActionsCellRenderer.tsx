@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Edit2, SaveAll } from "lucide-react";
 import { ICellRendererParams } from 'ag-grid-community';
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ActionsCellRendererProps extends ICellRendererParams {
   data: any;
@@ -12,6 +13,7 @@ interface ActionsCellRendererProps extends ICellRendererParams {
   onEditClick: (id: string) => void;
   onSaveClick: (id: string) => void;
   currentlyEditing: string | null;
+  hasPendingChanges?: boolean;
 }
 
 const ActionsCellRenderer = (props: ActionsCellRendererProps) => {
@@ -24,10 +26,19 @@ const ActionsCellRenderer = (props: ActionsCellRendererProps) => {
     if (isEditing) {
       props.onSaveClick(currentId);
     } else {
-      // Only allow editing if no other row is being edited
-      if (!props.currentlyEditing || props.currentlyEditing === currentId) {
-        props.onEditClick(currentId);
+      // Validate if another row is being edited
+      if (props.currentlyEditing && props.currentlyEditing !== currentId) {
+        toast.error("Please save your changes before editing another row");
+        return;
       }
+      
+      // Check for pending changes
+      if (props.hasPendingChanges) {
+        toast.error("Please save your pending changes first");
+        return;
+      }
+      
+      props.onEditClick(currentId);
     }
   };
 
