@@ -21,7 +21,6 @@ export const useInstrumentsConfig = () => {
 
       if (relError) throw relError;
 
-      // Get counterparties excluding those only linked to NL01
       const { data, error } = await supabase
         .from("counterparty")
         .select("*")
@@ -31,12 +30,25 @@ export const useInstrumentsConfig = () => {
 
       if (error) throw error;
       
-      // Filter out counterparties that are only linked to NL01
+      // Filter counterparties to include:
+      // 1. Those that have relationships with entities other than NL01
+      // 2. Those that are Internal/NL/Sense Treasury B.V. (even if only linked to NL01)
       const filteredCounterparties = data.filter(cp => {
         const counterpartyRelationships = relationships.filter(
           rel => rel.counterparty_id === cp.counterparty_id
         );
-        // Include counterparty if it has relationships with entities other than NL01
+        
+        // Always include Sense Treasury if it's Internal/NL
+        const isSenseTreasury = cp.counterparty_type === 'Internal' && 
+                               cp.country === 'NL' && 
+                               cp.counterparty_name === 'Sense Treasury B.V.';
+        
+        if (isSenseTreasury) {
+          return true;
+        }
+        
+        // For all other counterparties, include only if they have relationships
+        // with entities other than NL01
         return counterpartyRelationships.some(rel => rel.entity_id !== 'NL01');
       });
       
