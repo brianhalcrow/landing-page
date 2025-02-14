@@ -7,36 +7,39 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { toast } from "sonner";
-import { Edit, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-interface Counterparty {
-  counterparty_id: string;
-  counterparty_name: string;
-  counterparty_type: string;
-  country: string;
-}
-
-interface EntityCounterparty {
-  entity_id: string;
-  counterparty_id: string;
-  relationship_id: string;
-}
+import { LegalEntity, Counterparty, EntityCounterparty, PendingChanges } from "./types/counterpartyTypes";
+import { createBaseColumnDefs, createCounterpartyColumns } from "./columnDefs/counterpartyColumns";
+import { gridStyles } from "./styles/gridStyles";
 
 const CounterpartiesGrid = () => {
   const queryClient = useQueryClient();
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
+  const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
 
-  // Fetch counterparties with their relationships
-  const { data: counterparties, isLoading } = useQuery({
-    queryKey: ["counterparties-with-relationships"],
+  // Fetch counterparties
+  const { data: counterparties, isLoading: loadingCounterparties } = useQuery({
+    queryKey: ["counterparties"],
     queryFn: async () => {
-      const { data: counterpartiesData, error: counterpartiesError } = await supabase
+      const { data, error } = await supabase
         .from("counterparty")
         .select("*")
         .order("counterparty_name");
 
-      if (counterpartiesError) throw counterpartiesError;
+      if (error) throw error;
+      return data as Counterparty[];
+    },
+  });
+
+  // Fetch entities with their relationships
+  const { data: gridData, isLoading: loadingEntities } = useQuery({
+    queryKey: ["entities-with-relationships"],
+    queryFn: async () => {
+      const { data: entities, error: entitiesError } = await supabase
+        .from("erp_legal_entity")
+        .select("entity_id, entity_name")
+        .order("entity_name");
+
+      if (entitiesError) throw entitiesError;
 
       const { data: relationships, error: relationshipsError } = await supabase
         .from("entity_counterparty")
@@ -44,182 +47,117 @@ const CounterpartiesGrid = () => {
 
       if (relationshipsError) throw relationshipsError;
 
-      return counterpartiesData.map((counterparty) => ({
-        ...counterparty,
-        relationships: relationships.filter(
-          (rel) => rel.counterparty_id === counterparty.counterparty_id
-        ),
+      return entities.map((entity) => ({
+        ...entity,
+        relationships: relationships
+          .filter((rel) => rel.entity_id === entity.entity_id)
+          .reduce((acc, rel) => ({
+            ...acc,
+            [rel.counterparty_id]: true,
+          }), {}),
       }));
     },
   });
 
-  const baseColumns: ColDef[] = [
-    {
-      field: "counterparty_id",
-      headerName: "Counterparty ID",
-      sortable: true,
-      filter: true,
-      width: 150,
-      headerClass: 'header-left header-wrap',
-      cellClass: 'cell-left',
-    },
-    {
-      field: "counterparty_name",
-      headerName: "Name",
-      sortable: true,
-      filter: true,
-      width: 200,
-      headerClass: 'header-left header-wrap',
-      cellClass: 'cell-left',
-    },
-    {
-      field: "counterparty_type",
-      headerName: "Type",
-      sortable: true,
-      filter: true,
-      width: 150,
-      headerClass: 'header-left header-wrap',
-      cellClass: 'cell-left',
-    },
-    {
-      field: "country",
-      headerName: "Country",
-      sortable: true,
-      filter: true,
-      width: 120,
-      headerClass: 'header-left header-wrap',
-      cellClass: 'cell-left',
-    }
-  ];
+  // Update relationships mutation
+  const updateRelationshipsMutation = useMutation({
+    mutationFn: async ({ 
+      entityId, 
+      changes 
+    }: { 
+      entityId: string; 
+      changes: Record<string, boolean>;
+    }) => {
+      // Delete existing relationships for this entity
+      const { error: deleteError } = await supabase
+        .from("entity_counterparty")
+        .delete()
+        .eq("entity_id", entityId);
 
-  const actionsColumn: ColDef = {
-    headerName: "Actions",
-    width: 100,
-    cellRenderer: (params: any) => {
-      const isEditing = editingRows[params.data.counterparty_id];
-      return (
-        <div className="flex items-center justify-center h-full">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setEditingRows(prev => ({
-                ...prev,
-                [params.data.counterparty_id]: !isEditing
-              }));
-            }}
-            className="h-5 w-5 p-0"
-          >
-            {isEditing ? (
-              <Save className="h-3 w-3" />
-            ) : (
-              <Edit className="h-3 w-3" />
-            )}
-          </Button>
-        </div>
-      );
+      if (deleteError) throw deleteError;
+
+      // Insert new relationships
+      const relationships = Object.entries(changes)
+        .filter(([_, isActive]) => isActive)
+        .map(([counterpartyId]) => ({
+          entity_id: entityId,
+          counterparty_id: counterpartyId,
+          relationship_id: `${entityId}-${counterpartyId}`,
+        }));
+
+      if (relationships.length > 0) {
+        const { error: insertError } = await supabase
+          .from("entity_counterparty")
+          .insert(relationships);
+
+        if (insertError) throw insertError;
+      }
     },
-    cellClass: 'actions-cell',
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["entities-with-relationships"] });
+      toast.success("Relationships updated successfully");
+    },
+    onError: (error) => {
+      console.error("Error updating relationships:", error);
+      toast.error("Failed to update relationships");
+    },
+  });
+
+  const handleEditClick = (entityId: string) => {
+    setEditingRows(prev => ({
+      ...prev,
+      [entityId]: true
+    }));
   };
 
-  const columnDefs: (ColDef | ColGroupDef)[] = [
-    {
-      headerName: 'Counterparty Information',
-      headerClass: 'header-center',
-      children: baseColumns
-    } as ColGroupDef,
-    actionsColumn
-  ];
+  const handleSaveClick = (entityId: string) => {
+    const changes = pendingChanges[entityId];
+    if (changes) {
+      updateRelationshipsMutation.mutate({
+        entityId,
+        changes,
+      });
+    }
+    setEditingRows(prev => ({
+      ...prev,
+      [entityId]: false
+    }));
+    setPendingChanges(prev => {
+      const newPending = { ...prev };
+      delete newPending[entityId];
+      return newPending;
+    });
+  };
 
-  if (isLoading) {
+  if (loadingCounterparties || loadingEntities) {
     return <Skeleton className="w-full h-[600px]" />;
   }
 
+  // Create column definitions
+  const baseColumns = createBaseColumnDefs();
+  const counterpartyColumns = counterparties ? createCounterpartyColumns(
+    counterparties,
+    editingRows,
+    pendingChanges,
+    setPendingChanges
+  ) : [];
+
+  const columnDefs: (ColDef | ColGroupDef)[] = [
+    {
+      headerName: 'Entity Information',
+      headerClass: 'header-center',
+      children: baseColumns
+    } as ColGroupDef,
+    ...counterpartyColumns
+  ];
+
   return (
     <div className="space-y-4">
-      <style>
-        {`
-          .ag-theme-alpine {
-            --ag-header-height: auto !important;
-            --ag-header-group-height: auto !important;
-            --ag-row-height: 24px !important;
-          }
-
-          /* Base cell styles */
-          .ag-cell {
-            display: flex !important;
-            align-items: center !important;
-            height: 24px !important;
-            padding: 0 16px !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-          }
-
-          /* Header styles */
-          .ag-header-cell {
-            padding: 8px 0 !important;
-            min-height: 50px !important;
-          }
-
-          .ag-header-cell.header-wrap {
-            height: auto !important;
-            min-height: 50px !important;
-          }
-
-          .ag-header-group-cell {
-            font-weight: bold !important;
-            height: auto !important;
-            min-height: 50px !important;
-            padding: 8px 0 !important;
-          }
-
-          /* Header alignment and wrapping */
-          .header-center {
-            text-align: center !important;
-          }
-
-          .header-center .ag-header-cell-label {
-            justify-content: center !important;
-            text-align: center !important;
-          }
-
-          .header-left {
-            text-align: left !important;
-          }
-
-          .header-left .ag-header-cell-label {
-            justify-content: flex-start !important;
-            text-align: left !important;
-            padding-left: 16px !important;
-          }
-
-          .header-wrap .ag-header-cell-label {
-            white-space: normal !important;
-            line-height: 1.2 !important;
-            padding: 8px 4px !important;
-            height: auto !important;
-          }
-
-          /* Cell alignment classes */
-          .cell-center {
-            justify-content: center !important;
-          }
-
-          .cell-left {
-            justify-content: flex-start !important;
-          }
-
-          /* Action cell specific styles */
-          .actions-cell {
-            padding: 0 !important;
-            justify-content: center !important;
-          }
-        `}
-      </style>
+      <style>{gridStyles}</style>
       <div className="w-full h-[600px] ag-theme-alpine">
         <GridStyles />
         <AgGridReact
-          rowData={counterparties}
+          rowData={gridData}
           columnDefs={columnDefs}
           defaultColDef={{
             resizable: true,

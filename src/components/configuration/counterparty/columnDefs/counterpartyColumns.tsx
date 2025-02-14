@@ -1,0 +1,82 @@
+
+import { ColDef, ColGroupDef } from "ag-grid-community";
+import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
+import { Counterparty } from "../types/counterpartyTypes";
+
+export const createBaseColumnDefs = (): ColDef[] => [
+  {
+    field: "entity_id",
+    headerName: "Entity ID",
+    sortable: true,
+    filter: true,
+    width: 120,
+    headerClass: 'header-left header-wrap',
+    cellClass: 'cell-left',
+    pinned: 'left'
+  },
+  {
+    field: "entity_name",
+    headerName: "Entity Name",
+    sortable: true,
+    filter: true,
+    width: 200,
+    headerClass: 'header-left header-wrap',
+    cellClass: 'cell-left',
+    pinned: 'left'
+  },
+];
+
+export const createCounterpartyColumns = (
+  counterparties: Counterparty[],
+  editingRows: Record<string, boolean>,
+  pendingChanges: Record<string, Record<string, boolean>>,
+  setPendingChanges: (changes: Record<string, Record<string, boolean>>) => void
+): ColGroupDef[] => {
+  const groupedCounterparties = counterparties.reduce((acc, counterparty) => {
+    const type = counterparty.counterparty_type || 'External';
+    if (!acc[type]) {
+      acc[type] = [];
+    }
+    acc[type].push(counterparty);
+    return acc;
+  }, {} as Record<string, Counterparty[]>);
+
+  return Object.entries(groupedCounterparties).map(([type, counterparties]) => ({
+    headerName: type,
+    headerClass: 'header-center',
+    children: counterparties.map(counterparty => ({
+      field: `relationships.${counterparty.counterparty_id}`,
+      headerName: counterparty.counterparty_name || counterparty.counterparty_id,
+      headerClass: 'header-center header-wrap',
+      cellClass: 'cell-center',
+      width: 150,
+      cellRenderer: CheckboxCellRenderer,
+      cellRendererParams: {
+        disabled: (params: any) => !editingRows[params.data?.entity_id],
+        getValue: function() {
+          if (!this?.data?.entity_id) return false;
+          
+          const entityId = this.data.entity_id;
+          const counterpartyId = counterparty.counterparty_id;
+          
+          if (pendingChanges[entityId]?.[counterpartyId] !== undefined) {
+            return pendingChanges[entityId][counterpartyId];
+          }
+          return this.data.relationships?.[counterpartyId] || false;
+        },
+        onChange: (isChecked: boolean, data: any) => {
+          if (!data?.entity_id) return;
+          
+          const entityId = data.entity_id;
+          setPendingChanges({
+            ...pendingChanges,
+            [entityId]: {
+              ...pendingChanges[entityId],
+              [counterparty.counterparty_id]: isChecked
+            }
+          });
+        },
+      },
+    })),
+  }));
+};
