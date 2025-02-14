@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Edit2, SaveAll } from "lucide-react";
 import { ICellRendererParams } from 'ag-grid-community';
+import { cn } from "@/lib/utils";
 
 interface ActionsCellRendererProps extends ICellRendererParams {
   data: any;
