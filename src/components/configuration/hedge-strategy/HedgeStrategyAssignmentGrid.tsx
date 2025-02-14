@@ -19,7 +19,7 @@ const HedgeStrategyAssignmentGrid = () => {
     queryKey: ['hedge-strategy-assignments'],
     queryFn: async () => {
       // Debug logging
-      console.log('Fetching data for hedge strategy assignments');
+      console.log('Starting to fetch data for hedge strategy assignments');
       
       // Fetch entities with proper error handling
       const { data: entities, error: entitiesError } = await supabase
@@ -31,16 +31,14 @@ const HedgeStrategyAssignmentGrid = () => {
         console.error('Error fetching entities:', entitiesError);
         throw entitiesError;
       }
+      console.log('Fetched entities:', entities);
 
       // Fetch exposure configs with joined exposure types
       const { data: exposureConfigs, error: configsError } = await supabase
         .from('entity_exposure_config')
         .select(`
           *,
-          exposure_types!inner(
-            exposure_type_id,
-            exposure_category_l2
-          )
+          exposure_types!inner(*)
         `)
         .eq('is_active', true);
 
@@ -48,6 +46,7 @@ const HedgeStrategyAssignmentGrid = () => {
         console.error('Error fetching exposure configs:', configsError);
         throw configsError;
       }
+      console.log('Fetched exposure configs:', exposureConfigs);
 
       // Fetch hedge strategies
       const { data: hedgeStrategies, error: strategiesError } = await supabase
@@ -58,6 +57,7 @@ const HedgeStrategyAssignmentGrid = () => {
         console.error('Error fetching hedge strategies:', strategiesError);
         throw strategiesError;
       }
+      console.log('Fetched hedge strategies:', hedgeStrategies);
 
       // Fetch counterparties
       const { data: counterparties, error: counterpartiesError } = await supabase
@@ -68,6 +68,7 @@ const HedgeStrategyAssignmentGrid = () => {
         console.error('Error fetching counterparties:', counterpartiesError);
         throw counterpartiesError;
       }
+      console.log('Fetched counterparties:', counterparties);
 
       // Fetch existing assignments
       const { data: assignments, error: assignmentsError } = await supabase
@@ -78,24 +79,25 @@ const HedgeStrategyAssignmentGrid = () => {
         console.error('Error fetching assignments:', assignmentsError);
         throw assignmentsError;
       }
-
-      // Debug logging of raw data
-      console.log('Fetched data:', {
-        entities,
-        exposureConfigs,
-        hedgeStrategies,
-        counterparties,
-        assignments
-      });
+      console.log('Fetched assignments:', assignments);
 
       // Process and combine the data
       const gridRows: HedgeStrategyGridRow[] = [];
       
-      entities?.forEach(entity => {
+      if (!entities?.length) {
+        console.warn('No active entities found');
+        return [];
+      }
+
+      entities.forEach(entity => {
         // Get all exposure configs for this entity
         const entityConfigs = exposureConfigs?.filter(
           config => config.entity_id === entity.entity_id
         ) || [];
+
+        if (!entityConfigs.length) {
+          console.warn(`No exposure configs found for entity ${entity.entity_id}`);
+        }
 
         entityConfigs.forEach(config => {
           // Access exposure_category_l2 from the joined exposure_types data
@@ -111,6 +113,10 @@ const HedgeStrategyAssignmentGrid = () => {
             strategy => strategy.exposure_category_l2 === exposureCategoryL2
           ) || [];
 
+          if (!matchingStrategies.length) {
+            console.warn(`No matching strategies found for exposure category ${exposureCategoryL2}`);
+          }
+
           // Create grid rows for each strategy-counterparty combination
           matchingStrategies.forEach(strategy => {
             counterparties?.forEach(counterparty => {
@@ -125,7 +131,8 @@ const HedgeStrategyAssignmentGrid = () => {
                 entity_id: entity.entity_id,
                 entity_name: entity.entity_name,
                 exposure_category_l2: exposureCategoryL2,
-                strategy: strategy.strategy,
+                strategy: strategy.id.toString(), // Fix: Store strategy ID instead of name
+                strategy_name: strategy.strategy, // Add strategy name for display
                 strategy_description: strategy.strategy_description,
                 instrument: strategy.instrument,
                 counterparty_id: counterparty.counterparty_id,
@@ -212,7 +219,7 @@ const HedgeStrategyAssignmentGrid = () => {
       hide: true
     },
     {
-      field: 'strategy',
+      field: 'strategy_name', // Updated to use strategy_name for display
       headerName: 'Strategy',
       width: 150
     },
