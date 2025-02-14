@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ColGroupDef } from "ag-grid-community";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { LegalEntity, Counterparty, EntityCounterparty, PendingChanges } from "./types/counterpartyTypes";
 import { createBaseColumnDefs, createCounterpartyColumns } from "./columnDefs/counterpartyColumns";
 import { gridStyles } from "./styles/gridStyles";
+import ActionsCellRenderer from "../grid/ActionsCellRenderer";
 
 const CounterpartiesGrid = () => {
   const queryClient = useQueryClient();
@@ -147,7 +147,23 @@ const CounterpartiesGrid = () => {
     {
       headerName: 'Entity Information',
       headerClass: 'header-center',
-      children: baseColumns
+      children: [
+        ...baseColumns,
+        {
+          headerName: 'Actions',
+          field: 'actions',
+          width: 100,
+          cellRenderer: ActionsCellRenderer,
+          cellRendererParams: (params: any) => ({
+            isEditing: editingRows[params.data?.entity_id] || false,
+            onEditClick: () => handleEditClick(params.data?.entity_id),
+            onSaveClick: () => handleSaveClick(params.data?.entity_id),
+          }),
+          headerClass: 'header-center',
+          cellClass: 'cell-center',
+          pinned: 'left',
+        },
+      ]
     } as ColGroupDef,
     ...counterpartyColumns
   ];

@@ -1,6 +1,7 @@
 
 import { ColDef, ColGroupDef } from "ag-grid-community";
 import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
+import ActionsCellRenderer from "../../grid/ActionsCellRenderer";
 import { Counterparty } from "../types/counterpartyTypes";
 
 export const createBaseColumnDefs = (): ColDef[] => [
@@ -51,7 +52,7 @@ export const createCounterpartyColumns = (
   }, {} as Record<string, Record<string, Counterparty[]>>);
 
   // Create nested column groups
-  return Object.entries(groupedCounterparties).map(([type, countriesMap]) => ({
+  const typeGroups = Object.entries(groupedCounterparties).map(([type, countriesMap]) => ({
     headerName: type,
     headerClass: 'header-center',
     children: Object.entries(countriesMap).map(([country, countryCounterparties]) => ({
@@ -93,4 +94,11 @@ export const createCounterpartyColumns = (
       })),
     })),
   }));
+
+  // Reorder to put Internal type first
+  return typeGroups.sort((a, b) => {
+    if (a.headerName === 'Internal') return -1;
+    if (b.headerName === 'Internal') return 1;
+    return 0;
+  });
 };
