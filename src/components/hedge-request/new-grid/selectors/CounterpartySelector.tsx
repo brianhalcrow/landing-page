@@ -1,97 +1,53 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { ChevronDown } from "lucide-react";
-import { 
-  CounterpartySelectorProps, 
-  EntityCounterparty,
-  CounterpartyJoinResult 
-} from "../types/hedgeRequest.types";
-import { toast } from "sonner";
+import { ValidHedgeConfig } from '../types/hedgeRequest.types';
 
-export const CounterpartySelector = ({ value, data, node }: CounterpartySelectorProps) => {
-  const { data: counterparties, isLoading, error } = useQuery<EntityCounterparty[]>({
-    queryKey: ['counterparties', data?.entity_id],
-    queryFn: async () => {
-      if (!data?.entity_id) return [];
-      
-      try {
-        const { data: result, error } = await supabase
-          .from('entity_counterparty')
-          .select(`
-            counterparty_id,
-            relationship_id,
-            entity_id,
-            counterparty!entity_counterparty_counterparty_id_fkey(
-              counterparty_id,
-              counterparty_name
-            )
-          `)
-          .eq('entity_id', data.entity_id);
+interface CounterpartySelectorProps {
+  value: string;
+  api: any;
+  data: any;
+  column: any;
+  node: any;
+  context?: {
+    validConfigs?: ValidHedgeConfig[];
+  };
+}
 
-        if (error) {
-          console.error('Supabase query error:', error);
-          throw error;
-        }
+export const CounterpartySelector = (props: CounterpartySelectorProps) => {
+  const validConfigs = props.context?.validConfigs || [];
+  const counterparties = validConfigs
+    .filter(c => 
+      c.entity_id === props.data.entity_id && 
+      c.strategy === props.data.strategy
+    )
+    .map(c => ({
+      id: c.counterparty_id,
+      name: c.counterparty_name
+    }));
 
-        if (!result) return [];
-
-        console.log('Counterparties query result:', result); // Debug log
-
-        // Transform the result to match our EntityCounterparty interface
-        return result.map(item => ({
-          counterparty_id: item.counterparty_id,
-          counterparty_name: item.counterparty?.counterparty_name || '',
-          relationship_id: item.relationship_id,
-          entity_id: item.entity_id
-        }));
-      } catch (err) {
-        console.error('Error fetching counterparties:', err);
-        toast.error('Failed to load counterparties');
-        return [];
-      }
-    },
-    enabled: !!data?.entity_id
-  });
-
-  // Debug log for component state
-  console.log('CounterpartySelector state:', {
-    value,
-    entityId: data?.entity_id,
-    counterparties
-  });
-
-  if (!data?.entity_id) return <span>Select entity first</span>;
-  if (isLoading) return <span>Loading...</span>;
-  if (error) return <span>Error loading counterparties</span>;
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
+    if (selectedCounterparty) {
+      const updatedData = {
+        ...props.data,
+        counterparty: selectedCounterparty.id,
+        counterparty_name: selectedCounterparty.name
+      };
+      props.node.setData(updatedData);
+    }
+  };
 
   return (
-    <div className="relative w-full">
-      <select 
-        value={value || ''} 
-        onChange={(e) => {
-          const selectedCounterparty = counterparties?.find(
-            cp => cp.counterparty_id === e.target.value
-          );
-          if (node?.setData && selectedCounterparty) {
-            node.setData({
-              ...data,
-              counterparty: selectedCounterparty.counterparty_id,
-              counterparty_name: selectedCounterparty.counterparty_name
-            });
-          }
-        }}
-        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-        disabled={!data?.entity_id}
-      >
-        <option value="">Select Counterparty</option>
-        {counterparties?.map((cp) => (
-          <option key={cp.relationship_id} value={cp.counterparty_id}>
-            {cp.counterparty_name}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
-    </div>
+    <select
+      value={props.value}
+      onChange={handleChange}
+      className="w-full h-full border-0 outline-none bg-transparent"
+    >
+      <option value="">Select Counterparty</option>
+      {counterparties.map(cp => (
+        <option key={cp.id} value={cp.id}>
+          {cp.name}
+        </option>
+      ))}
+    </select>
   );
 };
