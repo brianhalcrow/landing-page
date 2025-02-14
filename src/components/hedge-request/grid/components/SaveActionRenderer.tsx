@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,12 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
     try {
       console.log('Saving trade data:', data);
       
+      // Validate required fields
+      if (!data.entity_id || !data.exposure_category_l2 || !data.strategy_description) {
+        toast.error('Please fill in all required fields: Entity, Exposure Category, and Strategy');
+        return;
+      }
+      
       // Remove id, calculated fields, but preserve timestamps
       const { id, spot_rate, contract_rate, ...rowData } = data;
       
@@ -32,7 +39,14 @@ export const SaveActionRenderer = ({ data }: SaveActionRendererProps) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Check for validation error message
+        if (error.message.includes('Invalid hedge request configuration')) {
+          toast.error('This combination of entity, exposure category, strategy, and counterparty is not allowed. Please check the hedge strategy configuration.');
+          return;
+        }
+        throw error;
+      }
       
       toast.success('Draft saved successfully');
       setSavedDraftId(savedDraft.id);
