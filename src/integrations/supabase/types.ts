@@ -186,18 +186,21 @@ export type Database = {
           counterparty_name: string | null
           counterparty_type: string | null
           country: string | null
+          ihb: boolean | null
         }
         Insert: {
           counterparty_id: string
           counterparty_name?: string | null
           counterparty_type?: string | null
           country?: string | null
+          ihb?: boolean | null
         }
         Update: {
           counterparty_id?: string
           counterparty_name?: string | null
           counterparty_type?: string | null
           country?: string | null
+          ihb?: boolean | null
         }
         Relationships: []
       }

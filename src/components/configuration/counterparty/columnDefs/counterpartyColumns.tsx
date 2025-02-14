@@ -32,51 +32,65 @@ export const createCounterpartyColumns = (
   pendingChanges: Record<string, Record<string, boolean>>,
   setPendingChanges: (changes: Record<string, Record<string, boolean>>) => void
 ): ColGroupDef[] => {
-  const groupedCounterparties = counterparties.reduce((acc, counterparty) => {
-    const type = counterparty.counterparty_type || 'External';
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(counterparty);
-    return acc;
-  }, {} as Record<string, Counterparty[]>);
+  // Filter out IHB counterparties
+  const eligibleCounterparties = counterparties.filter(cp => !cp.ihb);
 
-  return Object.entries(groupedCounterparties).map(([type, counterparties]) => ({
+  // First group by type, then by country
+  const groupedCounterparties = eligibleCounterparties.reduce((acc, counterparty) => {
+    const type = counterparty.counterparty_type || 'External';
+    const country = counterparty.country || 'Other';
+    
+    if (!acc[type]) {
+      acc[type] = {};
+    }
+    if (!acc[type][country]) {
+      acc[type][country] = [];
+    }
+    acc[type][country].push(counterparty);
+    return acc;
+  }, {} as Record<string, Record<string, Counterparty[]>>);
+
+  // Create nested column groups
+  return Object.entries(groupedCounterparties).map(([type, countriesMap]) => ({
     headerName: type,
     headerClass: 'header-center',
-    children: counterparties.map(counterparty => ({
-      field: `relationships.${counterparty.counterparty_id}`,
-      headerName: counterparty.counterparty_name || counterparty.counterparty_id,
-      headerClass: 'header-center header-wrap',
-      cellClass: 'cell-center',
-      width: 150,
-      cellRenderer: CheckboxCellRenderer,
-      cellRendererParams: {
-        disabled: (params: any) => !editingRows[params.data?.entity_id],
-        getValue: function() {
-          if (!this?.data?.entity_id) return false;
-          
-          const entityId = this.data.entity_id;
-          const counterpartyId = counterparty.counterparty_id;
-          
-          if (pendingChanges[entityId]?.[counterpartyId] !== undefined) {
-            return pendingChanges[entityId][counterpartyId];
-          }
-          return this.data.relationships?.[counterpartyId] || false;
-        },
-        onChange: (isChecked: boolean, data: any) => {
-          if (!data?.entity_id) return;
-          
-          const entityId = data.entity_id;
-          setPendingChanges({
-            ...pendingChanges,
-            [entityId]: {
-              ...pendingChanges[entityId],
-              [counterparty.counterparty_id]: isChecked
+    children: Object.entries(countriesMap).map(([country, countryCounterparties]) => ({
+      headerName: country,
+      headerClass: 'header-center',
+      children: countryCounterparties.map(counterparty => ({
+        field: `relationships.${counterparty.counterparty_id}`,
+        headerName: counterparty.counterparty_name || counterparty.counterparty_id,
+        headerClass: 'header-center header-wrap',
+        cellClass: 'cell-center',
+        width: 150,
+        cellRenderer: CheckboxCellRenderer,
+        cellRendererParams: {
+          disabled: (params: any) => !editingRows[params.data?.entity_id],
+          getValue: function() {
+            if (!this?.data?.entity_id) return false;
+            
+            const entityId = this.data.entity_id;
+            const counterpartyId = counterparty.counterparty_id;
+            
+            if (pendingChanges[entityId]?.[counterpartyId] !== undefined) {
+              return pendingChanges[entityId][counterpartyId];
             }
-          });
+            return this.data.relationships?.[counterpartyId] || false;
+          },
+          onChange: (isChecked: boolean, data: any) => {
+            if (!data?.entity_id) return;
+            
+            const entityId = data.entity_id;
+            setPendingChanges({
+              ...pendingChanges,
+              [entityId]: {
+                ...pendingChanges[entityId],
+                [counterparty.counterparty_id]: isChecked
+              }
+            });
+          },
         },
-      },
+      })),
     })),
   }));
 };

@@ -4,6 +4,7 @@ export interface Counterparty {
   counterparty_name: string | null;
   counterparty_type: string | null;
   country: string | null;
+  ihb: boolean | null;
 }
 
 export interface LegalEntity {

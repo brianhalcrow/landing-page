@@ -30,13 +30,14 @@ const CounterpartiesGrid = () => {
     },
   });
 
-  // Fetch entities with their relationships
+  // Fetch entities with their relationships, excluding NL01
   const { data: gridData, isLoading: loadingEntities } = useQuery({
     queryKey: ["entities-with-relationships"],
     queryFn: async () => {
       const { data: entities, error: entitiesError } = await supabase
         .from("erp_legal_entity")
         .select("entity_id, entity_name")
+        .neq('entity_id', 'NL01') // Exclude NL01
         .order("entity_name");
 
       if (entitiesError) throw entitiesError;
