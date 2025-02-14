@@ -22,7 +22,8 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
     .map(c => ({
       id: c.counterparty_id,
       name: c.counterparty_name
-    }));
+    }))
+    .filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);

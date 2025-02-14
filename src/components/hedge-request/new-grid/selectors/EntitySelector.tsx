@@ -16,7 +16,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   const entities = [...new Set(validConfigs.map(c => ({
     id: c.entity_id,
-    name: c.entity_name
+    name: c.entity_name,
+    functional_currency: c.functional_currency
   })))];
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -29,7 +30,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         strategy: '',
         instrument: '',
         counterparty: '',
-        counterparty_name: ''
+        counterparty_name: '',
+        currency: selectedEntity.functional_currency // Set default currency to functional currency
       };
       props.node.setData(updatedData);
     }

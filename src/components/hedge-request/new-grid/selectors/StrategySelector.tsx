@@ -16,21 +16,22 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   const strategies = validConfigs
     .filter(c => c.entity_id === props.data.entity_id)
-    .map(c => c.strategy)
-    .filter((v, i, a) => a.indexOf(v) === i);
+    .map(c => ({
+      id: c.strategy_id,
+      name: c.strategy,
+      description: c.strategy_description,
+      instrument: c.instrument
+    }))
+    .filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedStrategy = event.target.value;
-    const config = validConfigs.find(c => 
-      c.entity_id === props.data.entity_id && 
-      c.strategy === selectedStrategy
-    );
+    const selectedStrategy = strategies.find(s => s.name === event.target.value);
     
-    if (config) {
+    if (selectedStrategy) {
       const updatedData = {
         ...props.data,
-        strategy: selectedStrategy,
-        instrument: config.instrument,
+        strategy: selectedStrategy.name,
+        instrument: selectedStrategy.instrument,
         counterparty: '',
         counterparty_name: ''
       };
@@ -46,8 +47,8 @@ export const StrategySelector = (props: StrategySelectorProps) => {
     >
       <option value="">Select Strategy</option>
       {strategies.map(strategy => (
-        <option key={strategy} value={strategy}>
-          {strategy}
+        <option key={strategy.id} value={strategy.name}>
+          {strategy.description}
         </option>
       ))}
     </select>
