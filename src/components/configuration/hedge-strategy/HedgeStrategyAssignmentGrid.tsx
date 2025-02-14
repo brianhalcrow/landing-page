@@ -21,6 +21,7 @@ const HedgeStrategyAssignmentGrid = () => {
       // Debug logging
       console.log('Fetching data for hedge strategy assignments');
       
+      // Fetch entities with proper error handling
       const { data: entities, error: entitiesError } = await supabase
         .from('entities')
         .select('*')
@@ -31,9 +32,16 @@ const HedgeStrategyAssignmentGrid = () => {
         throw entitiesError;
       }
 
+      // Fetch exposure configs with joined exposure types
       const { data: exposureConfigs, error: configsError } = await supabase
         .from('entity_exposure_config')
-        .select('*, exposure_types(exposure_category_l2)')
+        .select(`
+          *,
+          exposure_types!inner(
+            exposure_type_id,
+            exposure_category_l2
+          )
+        `)
         .eq('is_active', true);
 
       if (configsError) {
@@ -41,6 +49,7 @@ const HedgeStrategyAssignmentGrid = () => {
         throw configsError;
       }
 
+      // Fetch hedge strategies
       const { data: hedgeStrategies, error: strategiesError } = await supabase
         .from('hedge_strategy')
         .select('*');
@@ -50,6 +59,7 @@ const HedgeStrategyAssignmentGrid = () => {
         throw strategiesError;
       }
 
+      // Fetch counterparties
       const { data: counterparties, error: counterpartiesError } = await supabase
         .from('counterparty')
         .select('*');
@@ -59,6 +69,7 @@ const HedgeStrategyAssignmentGrid = () => {
         throw counterpartiesError;
       }
 
+      // Fetch existing assignments
       const { data: assignments, error: assignmentsError } = await supabase
         .from('hedge_strategy_assignment')
         .select('*');
@@ -68,7 +79,7 @@ const HedgeStrategyAssignmentGrid = () => {
         throw assignmentsError;
       }
 
-      // Debug logging
+      // Debug logging of raw data
       console.log('Fetched data:', {
         entities,
         exposureConfigs,
@@ -81,19 +92,29 @@ const HedgeStrategyAssignmentGrid = () => {
       const gridRows: HedgeStrategyGridRow[] = [];
       
       entities?.forEach(entity => {
+        // Get all exposure configs for this entity
         const entityConfigs = exposureConfigs?.filter(
           config => config.entity_id === entity.entity_id
         ) || [];
 
         entityConfigs.forEach(config => {
+          // Access exposure_category_l2 from the joined exposure_types data
           const exposureCategoryL2 = config.exposure_types?.exposure_category_l2;
           
+          if (!exposureCategoryL2) {
+            console.warn(`No exposure category found for config:`, config);
+            return;
+          }
+
+          // Find matching strategies for this exposure category
           const matchingStrategies = hedgeStrategies?.filter(
             strategy => strategy.exposure_category_l2 === exposureCategoryL2
           ) || [];
 
+          // Create grid rows for each strategy-counterparty combination
           matchingStrategies.forEach(strategy => {
             counterparties?.forEach(counterparty => {
+              // Check if this combination has an existing assignment
               const assignment = assignments?.find(
                 a => a.entity_id === entity.entity_id &&
                     a.counterparty_id === counterparty.counterparty_id &&
@@ -103,7 +124,7 @@ const HedgeStrategyAssignmentGrid = () => {
               gridRows.push({
                 entity_id: entity.entity_id,
                 entity_name: entity.entity_name,
-                exposure_category_l2: strategy.exposure_category_l2,
+                exposure_category_l2: exposureCategoryL2,
                 strategy: strategy.strategy,
                 strategy_description: strategy.strategy_description,
                 instrument: strategy.instrument,
