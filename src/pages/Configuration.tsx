@@ -1,6 +1,7 @@
 
 import TabsContainer from "@/components/TabsContainer";
 import EntityConfigurationTab from "@/components/configuration/entity/EntityConfigurationTab";
+import CounterpartiesTab from "@/components/configuration/counterparty/CounterpartiesTab";
 
 const Configuration = () => {
   const tabs = [
@@ -8,6 +9,11 @@ const Configuration = () => {
       value: "entities",
       label: "Entities",
       content: <EntityConfigurationTab />,
+    },
+    {
+      value: "counterparties",
+      label: "Counterparties",
+      content: <CounterpartiesTab />,
     },
   ];
 
