@@ -1,18 +1,44 @@
 
 import { ColDef } from 'ag-grid-community';
+import { EntitySelector } from '../selectors/EntitySelector';
+import { StrategySelector } from '../selectors/StrategySelector';
+import { CounterpartySelector } from '../selectors/CounterpartySelector';
 
 export const createColumnDefs = (): ColDef[] => [
   {
-    field: 'entity_name',
-    headerName: 'Entity Name',
+    field: 'entity_id',
+    headerName: 'Entity',
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
-    editable: false
+    editable: true,
+    cellRenderer: EntitySelector,
+    cellEditor: EntitySelector,
+    cellEditorPopup: false
   },
   {
-    field: 'entity_id',
-    headerName: 'Entity ID',
+    field: 'entity_name',
+    headerName: 'Entity Name',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: false,
+    hide: true
+  },
+  {
+    field: 'strategy',
+    headerName: 'Strategy',
+    minWidth: 160,
+    flex: 1.5,
+    headerClass: 'ag-header-center',
+    editable: true,
+    cellRenderer: StrategySelector,
+    cellEditor: StrategySelector,
+    cellEditorPopup: false
+  },
+  {
+    field: 'instrument',
+    headerName: 'Instrument',
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center',
@@ -24,23 +50,19 @@ export const createColumnDefs = (): ColDef[] => [
     minWidth: 160,
     flex: 1.5,
     headerClass: 'ag-header-center',
-    editable: false
+    editable: true,
+    cellRenderer: CounterpartySelector,
+    cellEditor: CounterpartySelector,
+    cellEditorPopup: false
   },
   {
-    field: 'strategy',
-    headerName: 'Strategy',
-    minWidth: 160,
-    flex: 1.5,
-    headerClass: 'ag-header-center',
-    editable: false
-  },
-  {
-    field: 'instrument',
-    headerName: 'Instrument',
+    field: 'counterparty_name',
+    headerName: 'Counterparty Name',
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center',
-    editable: false
+    editable: false,
+    hide: true
   },
   {
     field: 'buy_sell',
@@ -69,7 +91,11 @@ export const createColumnDefs = (): ColDef[] => [
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center',
-    editable: true
+    editable: true,
+    cellEditor: 'agSelectCellEditor',
+    cellEditorParams: {
+      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD']
+    }
   },
   {
     field: 'trade_date',
@@ -78,7 +104,11 @@ export const createColumnDefs = (): ColDef[] => [
     flex: 1,
     headerClass: 'ag-header-center',
     editable: true,
-    cellEditor: 'agDateCellEditor'
+    cellEditor: 'agDateCellEditor',
+    valueFormatter: (params) => {
+      if (!params.value) return '';
+      return new Date(params.value).toISOString().split('T')[0];
+    }
   },
   {
     field: 'settlement_date',
@@ -87,6 +117,18 @@ export const createColumnDefs = (): ColDef[] => [
     flex: 1,
     headerClass: 'ag-header-center',
     editable: true,
-    cellEditor: 'agDateCellEditor'
+    cellEditor: 'agDateCellEditor',
+    valueFormatter: (params) => {
+      if (!params.value) return '';
+      return new Date(params.value).toISOString().split('T')[0];
+    }
+  },
+  {
+    field: 'cost_centre',
+    headerName: 'Cost Centre',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true
   }
 ];

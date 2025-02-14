@@ -4,6 +4,8 @@ import { GridStyles } from '../grid/components/GridStyles';
 import { createColumnDefs } from './config/columnDefs';
 import { useHedgeRequestData } from './hooks/useHedgeRequestData';
 import { GridActions } from './components/GridActions';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const HedgeRequestGrid = () => {
   const {
@@ -34,6 +36,7 @@ const HedgeRequestGrid = () => {
           onCellValueChanged={(event) => {
             updateRowData(event.rowIndex, event.colDef.field!, event.newValue);
           }}
+          stopEditingWhenCellsLoseFocus={true}
         />
       </div>
 
