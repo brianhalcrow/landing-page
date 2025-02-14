@@ -238,13 +238,6 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
-          },
-          {
             foreignKeyName: "counterparty_instrument_instrument_id_fkey"
             columns: ["instrument_id"]
             isOneToOne: false
@@ -353,17 +346,17 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
-            foreignKeyName: "entity_counterparty_counterparty_id_fkey"
-            columns: ["counterparty_id"]
+            foreignKeyName: "entity_counterparty_entity_id_fkey"
+            columns: ["entity_id"]
             isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
+            referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
           },
           {
             foreignKeyName: "entity_counterparty_entity_id_fkey"
             columns: ["entity_id"]
             isOneToOne: false
-            referencedRelation: "erp_legal_entity"
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
           {
@@ -1379,17 +1372,17 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
-            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
-            columns: ["counterparty_id"]
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
             isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
+            referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
           },
           {
             foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
             columns: ["entity_id"]
             isOneToOne: false
-            referencedRelation: "erp_legal_entity"
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
           {
@@ -1470,13 +1463,6 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "management_structure_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
         ]
@@ -3117,13 +3103,22 @@ export type Database = {
           counterparty_name: string | null
           entity_id: string | null
           entity_name: string | null
+          exposure_category_l2: string | null
           functional_currency: string | null
           instrument: string | null
           strategy: string | null
           strategy_description: string | null
           strategy_id: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+        ]
       }
       v_legal_entity: {
         Row: {
