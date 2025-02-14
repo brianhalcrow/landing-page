@@ -6,6 +6,7 @@ import { useInstrumentsConfig } from "../hooks/useInstrumentsConfig";
 import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
 import ActionsCellRenderer from "../../grid/cellRenderers/ActionsCellRenderer";
 import type { ColDef } from "ag-grid-community";
+import { cn } from "@/lib/utils";
 
 export const InstrumentsConfigGrid = () => {
   const {
@@ -16,6 +17,7 @@ export const InstrumentsConfigGrid = () => {
     setPendingChanges,
     handleEditClick,
     handleSaveClick,
+    currentlyEditing
   } = useInstrumentsConfig();
 
   if (isLoading) {
@@ -41,12 +43,18 @@ export const InstrumentsConfigGrid = () => {
       width: 200,
       pinned: 'left',
       suppressMovable: true,
+      cellClass: (params) => {
+        return params.data?.isEditing ? 'bg-blue-50' : '';
+      }
     },
     ...instruments.map((instrument) => ({
       field: `instruments.${instrument.id}`,
       headerName: instrument.instrument,
       width: 120,
       cellRenderer: CheckboxCellRenderer,
+      cellClass: (params) => {
+        return params.data?.isEditing ? 'bg-blue-50' : '';
+      },
       cellRendererParams: {
         disabled: (params: any) => !params.data?.isEditing,
         onChange: (checked: boolean, data: any) => {
@@ -69,9 +77,15 @@ export const InstrumentsConfigGrid = () => {
       cellRendererParams: {
         onEditClick: handleEditClick,
         onSaveClick: handleSaveClick,
+        currentlyEditing
       },
       headerClass: 'header-center',
-      cellClass: 'cell-center'
+      cellClass: (params) => {
+        return cn(
+          'cell-center',
+          params.data?.isEditing ? 'bg-blue-50' : ''
+        );
+      }
     },
   ];
 

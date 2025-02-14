@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,7 @@ type PendingChanges = Record<string, Record<string, boolean>>;
 export const useInstrumentsConfig = () => {
   const queryClient = useQueryClient();
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({});
+  const [currentlyEditing, setCurrentlyEditing] = useState<string | null>(null);
 
   const { data: counterparties, isLoading: loadingCounterparties } = useQuery({
     queryKey: ["counterparties"],
@@ -96,13 +96,18 @@ export const useInstrumentsConfig = () => {
   });
 
   const handleEditClick = (counterpartyId: string) => {
-    const updatedData = configData?.map(item => ({
-      ...item,
-      isEditing: item.counterparty_id === counterpartyId
-    }));
-    
-    if (updatedData) {
-      queryClient.setQueryData(["counterparties"], updatedData);
+    if (!currentlyEditing || currentlyEditing === counterpartyId) {
+      const updatedData = configData?.map(item => ({
+        ...item,
+        isEditing: item.counterparty_id === counterpartyId
+      }));
+      
+      if (updatedData) {
+        queryClient.setQueryData(["counterparties"], updatedData);
+        setCurrentlyEditing(counterpartyId);
+      }
+    } else {
+      toast.error("Please save your changes before editing another row");
     }
   };
 
@@ -130,6 +135,9 @@ export const useInstrumentsConfig = () => {
         delete newPending[counterpartyId];
         return newPending;
       });
+      
+      setCurrentlyEditing(null);
+      toast.success("Changes saved successfully");
     } catch (error) {
       console.error('Error saving changes:', error);
       toast.error('Failed to save changes');
@@ -145,5 +153,6 @@ export const useInstrumentsConfig = () => {
     setPendingChanges,
     handleEditClick,
     handleSaveClick,
+    currentlyEditing,
   };
 };
