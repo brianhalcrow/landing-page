@@ -1,56 +1,56 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { ChevronDown } from "lucide-react";
+import { ValidHedgeConfig } from '../types/hedgeRequest.types';
 
 interface StrategySelectorProps {
   value: string;
+  api: any;
   data: any;
+  column: any;
   node: any;
+  context?: {
+    validConfigs?: ValidHedgeConfig[];
+  };
 }
 
-export const StrategySelector = ({ value, data, node }: StrategySelectorProps) => {
-  const { data: strategies, isLoading } = useQuery({
-    queryKey: ['strategies'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hedge_strategy')
-        .select('*');
+export const StrategySelector = (props: StrategySelectorProps) => {
+  const validConfigs = props.context?.validConfigs || [];
+  const strategies = validConfigs
+    .filter(c => c.entity_id === props.data.entity_id)
+    .map(c => ({
+      id: c.strategy_id,
+      name: c.strategy,
+      description: c.strategy_description,
+      instrument: c.instrument
+    }))
+    .filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
 
-      if (error) throw error;
-      return data;
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedStrategy = strategies.find(s => s.name === event.target.value);
+    
+    if (selectedStrategy) {
+      const updatedData = {
+        ...props.data,
+        strategy: selectedStrategy.name,
+        instrument: selectedStrategy.instrument,
+        counterparty: '',
+        counterparty_name: ''
+      };
+      props.node.setData(updatedData);
     }
-  });
-
-  if (isLoading) return <span>Loading...</span>;
+  };
 
   return (
-    <div className="relative w-full">
-      <select 
-        value={value || ''} 
-        onChange={(e) => {
-          const selectedStrategy = strategies?.find(
-            s => s.strategy === e.target.value
-          );
-          if (selectedStrategy && node.setData) {
-            node.setData({
-              ...data,
-              strategy: selectedStrategy.strategy,
-              strategy_description: selectedStrategy.strategy_description,
-              instrument: selectedStrategy.instrument
-            });
-          }
-        }}
-        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-      >
-        <option value="">Select Strategy</option>
-        {strategies?.map((strategy) => (
-          <option key={strategy.id} value={strategy.strategy}>
-            {strategy.strategy}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
-    </div>
+    <select
+      value={props.value}
+      onChange={handleChange}
+      className="w-full h-full border-0 outline-none bg-transparent"
+    >
+      <option value="">Select Strategy</option>
+      {strategies.map(strategy => (
+        <option key={strategy.id} value={strategy.name}>
+          {strategy.description}
+        </option>
+      ))}
+    </select>
   );
 };

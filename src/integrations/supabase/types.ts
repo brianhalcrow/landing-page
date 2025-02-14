@@ -186,20 +186,72 @@ export type Database = {
           counterparty_name: string | null
           counterparty_type: string | null
           country: string | null
+          ihb: boolean | null
         }
         Insert: {
           counterparty_id: string
           counterparty_name?: string | null
           counterparty_type?: string | null
           country?: string | null
+          ihb?: boolean | null
         }
         Update: {
           counterparty_id?: string
           counterparty_name?: string | null
           counterparty_type?: string | null
           country?: string | null
+          ihb?: boolean | null
         }
         Relationships: []
+      }
+      counterparty_instrument: {
+        Row: {
+          counterparty_id: string
+          created_at: string | null
+          id: string
+          instrument_id: number
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          counterparty_id: string
+          created_at?: string | null
+          id?: string
+          instrument_id: number
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          counterparty_id?: string
+          created_at?: string | null
+          id?: string
+          instrument_id?: number
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "counterparty_instrument_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "instruments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -245,25 +297,31 @@ export type Database = {
       }
       entities: {
         Row: {
-          created_at: string | null
+          created_at: string
+          description: string | null
           entity_id: string
           entity_name: string
           functional_currency: string
-          updated_at: string | null
+          is_active: boolean | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           entity_id: string
           entity_name: string
           functional_currency: string
-          updated_at?: string | null
+          is_active?: boolean | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          description?: string | null
           entity_id?: string
           entity_name?: string
           functional_currency?: string
-          updated_at?: string | null
+          is_active?: boolean | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -295,10 +353,24 @@ export type Database = {
             referencedColumns: ["counterparty_id"]
           },
           {
+            foreignKeyName: "entity_counterparty_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
             foreignKeyName: "entity_counterparty_entity_id_fkey"
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "entity_counterparty_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
             referencedColumns: ["entity_id"]
           },
           {
@@ -1283,6 +1355,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hedge_strategy_assignment: {
+        Row: {
+          counterparty_id: string
+          created_at: string | null
+          entity_id: string
+          hedge_strategy_id: number
+          id: string
+        }
+        Insert: {
+          counterparty_id: string
+          created_at?: string | null
+          entity_id: string
+          hedge_strategy_id: number
+          id?: string
+        }
+        Update: {
+          counterparty_id?: string
+          created_at?: string | null
+          entity_id?: string
+          hedge_strategy_id?: number
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "erp_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_legal_entity"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
+            columns: ["hedge_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "hedge_strategy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
+            columns: ["hedge_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
+            columns: ["hedge_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "v_valid_hedge_configurations"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
       im_actual: {
         Row: {}
         Insert: {}
@@ -1338,6 +1491,13 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
+            referencedColumns: ["entity_id"]
+          },
+          {
+            foreignKeyName: "management_structure_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "v_valid_hedge_configurations"
             referencedColumns: ["entity_id"]
           },
         ]
@@ -1875,6 +2035,697 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_confirmation: {
+        Row: {
+          client: string | null
+          clientemail: string | null
+          clientid: string | null
+          confirmid: number | null
+          dealid: string | null
+          id: number
+          processed: number | null
+          timestamp: string | null
+        }
+        Insert: {
+          client?: string | null
+          clientemail?: string | null
+          clientid?: string | null
+          confirmid?: number | null
+          dealid?: string | null
+          id?: number
+          processed?: number | null
+          timestamp?: string | null
+        }
+        Update: {
+          client?: string | null
+          clientemail?: string | null
+          clientid?: string | null
+          confirmid?: number | null
+          dealid?: string | null
+          id?: number
+          processed?: number | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      trade_confirmation_leg: {
+        Row: {
+          additionalinformation: string | null
+          amount: number | null
+          bankaddress: string | null
+          bankname: string | null
+          beneficiary: string | null
+          beneficiarybankswift: string | null
+          beneficiaryiban: string | null
+          branchno: string | null
+          country: string | null
+          currency: string | null
+          id: number
+          indexid: number
+          paymentdate: string | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          additionalinformation?: string | null
+          amount?: number | null
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string | null
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          country?: string | null
+          currency?: string | null
+          id?: number
+          indexid: number
+          paymentdate?: string | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          additionalinformation?: string | null
+          amount?: number | null
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string | null
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          country?: string | null
+          currency?: string | null
+          id?: number
+          indexid?: number
+          paymentdate?: string | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_confirmation_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_confirmation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_cover_deal_request: {
+        Row: {
+          clientid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_cover_deal_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_cover_deal_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_cover_deal_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_cover_execution_report: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          processed: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_cover_execution_report_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_cover_execution_report_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_cover_execution_report"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_deal_request: {
+        Row: {
+          clientid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_deal_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_deal_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_deal_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_error: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          message: string | null
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          message?: string | null
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          message?: string | null
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_error_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_error_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_error"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_execution_report: {
+        Row: {
+          clientid: string | null
+          dealid: string | null
+          dealrequestid: string | null
+          id: number
+          messagetime: number | null
+          processed: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          dealid?: string | null
+          dealrequestid?: string | null
+          id?: number
+          messagetime?: number | null
+          processed?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_execution_report_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          price: number | null
+          secondaryamount: number | null
+          secondarycurrency: string | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          price?: number | null
+          secondaryamount?: number | null
+          secondarycurrency?: string | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_execution_report_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_execution_report"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_quote: {
+        Row: {
+          clientid: string | null
+          id: number
+          messagetime: number | null
+          quoteid: string | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoteid?: string | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_quote_leg: {
+        Row: {
+          amount: number | null
+          bid: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          offer: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          bid?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          offer?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          bid?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          offer?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_quote_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_quote"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_quote_request: {
+        Row: {
+          clientid: string | null
+          id: number
+          messagetime: number | null
+          quoterequestid: string | null
+          symbol: string | null
+          timestamp: string | null
+          transactiontype: string | null
+          transacttime: string | null
+        }
+        Insert: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Update: {
+          clientid?: string | null
+          id?: number
+          messagetime?: number | null
+          quoterequestid?: string | null
+          symbol?: string | null
+          timestamp?: string | null
+          transactiontype?: string | null
+          transacttime?: string | null
+        }
+        Relationships: []
+      }
+      trade_quote_request_leg: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          id: number
+          indexid: number | null
+          side: string | null
+          timestamp: string | null
+          valuedate: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          id?: number
+          indexid?: number | null
+          side?: string | null
+          timestamp?: string | null
+          valuedate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_quote_request_leg_indexid_fkey"
+            columns: ["indexid"]
+            isOneToOne: false
+            referencedRelation: "trade_quote_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trade_register: {
         Row: {
           ccy_1: string | null
@@ -2004,6 +2855,54 @@ export type Database = {
           strategy?: string | null
           trade_date?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trade_settlement_instruction: {
+        Row: {
+          bankaddress: string | null
+          bankname: string | null
+          beneficiary: string
+          beneficiarybankswift: string | null
+          beneficiaryiban: string | null
+          branchno: string | null
+          client: string
+          clientemail: string | null
+          clientid: string
+          country: string | null
+          id: number
+          settlementid: number
+          timestamp: string | null
+        }
+        Insert: {
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary: string
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          client: string
+          clientemail?: string | null
+          clientid: string
+          country?: string | null
+          id?: number
+          settlementid: number
+          timestamp?: string | null
+        }
+        Update: {
+          bankaddress?: string | null
+          bankname?: string | null
+          beneficiary?: string
+          beneficiarybankswift?: string | null
+          beneficiaryiban?: string | null
+          branchno?: string | null
+          client?: string
+          clientemail?: string | null
+          clientid?: string
+          country?: string | null
+          id?: number
+          settlementid?: number
+          timestamp?: string | null
         }
         Relationships: []
       }
@@ -2233,6 +3132,20 @@ export type Database = {
         }
         Relationships: []
       }
+      v_hedge_request_config: {
+        Row: {
+          counterparty_id: string | null
+          counterparty_name: string | null
+          entity_id: string | null
+          entity_name: string | null
+          functional_currency: string | null
+          instrument: string | null
+          strategy: string | null
+          strategy_description: string | null
+          strategy_id: number | null
+        }
+        Relationships: []
+      }
       v_legal_entity: {
         Row: {
           accounting_rate_method: string | null
@@ -2305,6 +3218,41 @@ export type Database = {
           year_period: string | null
         }
         Relationships: []
+      }
+      v_valid_hedge_configurations: {
+        Row: {
+          assignment_id: string | null
+          counterparty_id: string | null
+          counterparty_name: string | null
+          entity_id: string | null
+          entity_name: string | null
+          exposure_category_l1: string | null
+          exposure_category_l2: string | null
+          exposure_category_l3: string | null
+          functional_currency: string | null
+          instrument: string | null
+          is_assigned: boolean | null
+          strategy: string | null
+          strategy_description: string | null
+          strategy_id: number | null
+          subsystem: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "counterparty"
+            referencedColumns: ["counterparty_id"]
+          },
+          {
+            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
+            columns: ["counterparty_id"]
+            isOneToOne: false
+            referencedRelation: "v_hedge_request_config"
+            referencedColumns: ["counterparty_id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -2429,6 +3377,15 @@ export type Database = {
           query_text: string
         }
         Returns: Json
+      }
+      fn_validate_hedge_request: {
+        Args: {
+          p_entity_id: string
+          p_exposure_category_l2: string
+          p_strategy_id: number
+          p_counterparty_id: string
+        }
+        Returns: boolean
       }
       get_draft_with_options: {
         Args: {
