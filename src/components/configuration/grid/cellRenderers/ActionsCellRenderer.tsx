@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Pencil, Save } from "lucide-react";
+import { PenSquare, SaveAll } from "lucide-react";
 import { ICellRendererParams } from 'ag-grid-community';
 
 interface ActionsCellRendererProps extends ICellRendererParams {
@@ -32,11 +32,12 @@ const ActionsCellRenderer = (props: ActionsCellRendererProps) => {
         variant="ghost"
         size="sm"
         onClick={handleClick}
+        className="hover:bg-transparent"
       >
         {isEditing ? (
-          <Save className="h-4 w-4" />
+          <SaveAll className="h-4 w-4 text-blue-500 hover:text-blue-600" />
         ) : (
-          <Pencil className="h-4 w-4" />
+          <PenSquare className="h-4 w-4 text-gray-500 hover:text-gray-600" />
         )}
       </Button>
     </div>
