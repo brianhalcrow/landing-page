@@ -31,7 +31,7 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
   };
 
   const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(rates, setLastSelectedCurrency);
-  const columnDefs = useTradeColumns(rates, lastSelectedCurrency);
+  const columnDefs = useTradeColumns(); // Remove the arguments since they're not used
 
   const initialEditorState: CurrencyEditorState = {
     lastSelectedCurrency: null,
@@ -76,7 +76,7 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
         }}
         context={{
           editorState: initialEditorState,
-          updateRow // Add updateRow to context for cell renderers
+          updateRow
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}
