@@ -126,6 +126,14 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
     const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
     const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
     
+    // Check if we have either buy or sell amount (but not both) for the first leg
+    const hasFirstLegBuyAmount = firstLegBuyAmount !== null;
+    const hasFirstLegSellAmount = firstLegSellAmount !== null;
+    
+    if (hasFirstLegBuyAmount && hasFirstLegSellAmount) {
+      console.warn("First leg has both buy and sell amounts");
+    }
+    
     const swapLegs: TradeRequest[] = [
       {
         entity_id: data.entity_id,
