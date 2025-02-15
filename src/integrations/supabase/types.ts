@@ -2545,6 +2545,9 @@ export type Database = {
       }
       trade_requests: {
         Row: {
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           ccy_1: string | null
           ccy_1_amount: number | null
           ccy_2: string | null
@@ -2558,6 +2561,9 @@ export type Database = {
           entity_name: string | null
           instrument: string | null
           request_no: number
+          reviewed: boolean | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           settlement_date: string | null
           strategy_id: string | null
           strategy_name: string | null
@@ -2565,6 +2571,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           ccy_1?: string | null
           ccy_1_amount?: number | null
           ccy_2?: string | null
@@ -2578,6 +2587,9 @@ export type Database = {
           entity_name?: string | null
           instrument?: string | null
           request_no?: number
+          reviewed?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
@@ -2585,6 +2597,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           ccy_1?: string | null
           ccy_1_amount?: number | null
           ccy_2?: string | null
@@ -2598,6 +2613,9 @@ export type Database = {
           entity_name?: string | null
           instrument?: string | null
           request_no?: number
+          reviewed?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
