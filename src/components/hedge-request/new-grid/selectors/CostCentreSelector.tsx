@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, memo } from "react";
 
 interface CostCentreSelectorProps {
   value: string;
@@ -15,9 +15,7 @@ interface CostCentreSelectorProps {
   };
 }
 
-export const CostCentreSelector = ({ value, data, node, field, context }: CostCentreSelectorProps) => {
-  const [lastProcessedEntityId, setLastProcessedEntityId] = useState<string | null>(null);
-
+export const CostCentreSelector = memo(({ value, data, node, field, context }: CostCentreSelectorProps) => {
   const { data: costCentres, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
@@ -54,40 +52,30 @@ export const CostCentreSelector = ({ value, data, node, field, context }: CostCe
     enabled: !!data.entity_id
   });
 
-  useEffect(() => {
-    if (data.entity_id && data.entity_id !== lastProcessedEntityId && costCentres) {
-      console.log('Processing entity change:', {
-        entityId: data.entity_id,
-        costCentresCount: costCentres.length,
-        currentValue: value
+  const handleAutoSelect = useCallback(() => {
+    if (!costCentres || !context?.updateRowData) return;
+
+    if (costCentres.length === 1 && !value) {
+      context.updateRowData(node.rowIndex, {
+        cost_centre: costCentres[0]
       });
-
-      setLastProcessedEntityId(data.entity_id);
-
-      if (costCentres.length === 1) {
-        // Only auto-select if there's exactly one cost centre
-        context?.updateRowData?.(node.rowIndex, {
-          cost_centre: costCentres[0]
-        });
-      } else if (costCentres.length > 1) {
-        // Clear the cost centre if there are multiple options
-        context?.updateRowData?.(node.rowIndex, {
-          cost_centre: ''
-        });
-      }
     }
-  }, [data.entity_id, costCentres, lastProcessedEntityId, context, node.rowIndex, value]);
+  }, [costCentres, value, context, node.rowIndex]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  useEffect(() => {
+    handleAutoSelect();
+  }, [handleAutoSelect]);
+
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {
       context.updateRowData(node.rowIndex, {
         cost_centre: event.target.value
       });
     }
-  };
+  }, [context, node.rowIndex]);
 
   if (error) {
-    toast.error('Error loading cost centres');
+    console.error('Error loading cost centres:', error);
   }
 
   return (
@@ -106,4 +94,6 @@ export const CostCentreSelector = ({ value, data, node, field, context }: CostCe
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
     </div>
   );
-};
+});
+
+CostCentreSelector.displayName = 'CostCentreSelector';

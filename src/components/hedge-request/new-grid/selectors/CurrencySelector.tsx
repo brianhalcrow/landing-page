@@ -1,5 +1,6 @@
 
 import { ChevronDown } from "lucide-react";
+import { memo, useCallback } from "react";
 
 interface CurrencySelectorProps {
   value: string;
@@ -11,21 +12,15 @@ interface CurrencySelectorProps {
   };
 }
 
-export const CurrencySelector = ({ value, field, data, node, context }: CurrencySelectorProps) => {
+export const CurrencySelector = memo(({ value, field, data, node, context }: CurrencySelectorProps) => {
   const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'NZD', 'SGD'];
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
     if (context?.updateRowData) {
-      console.log(`Currency ${field} changing to ${newValue} for row ${node.rowIndex}`, {
-        currentValue: value,
-        newValue,
-        rowData: data
-      });
-      
       context.updateRowData(node.rowIndex, { [field]: newValue });
     }
-  };
+  }, [context, node.rowIndex, field]);
 
   return (
     <div className="relative w-full">
@@ -44,4 +39,6 @@ export const CurrencySelector = ({ value, field, data, node, context }: Currency
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
     </div>
   );
-};
+});
+
+CurrencySelector.displayName = 'CurrencySelector';
