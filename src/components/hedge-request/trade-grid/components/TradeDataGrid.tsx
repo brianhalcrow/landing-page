@@ -35,6 +35,25 @@ const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: Trade
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
         onCellKeyDown={handleCellKeyDown}
+        tabToNextCell={(params) => {
+          // Prevent tabbing to disabled amount fields
+          const nextColumn = params.nextCellPosition?.column.getColId();
+          if (nextColumn?.includes('amount')) {
+            const rowData = params.previousCellPosition.rowIndex !== null 
+              ? gridRef.current?.api.getDisplayedRowAtIndex(params.previousCellPosition.rowIndex)?.data
+              : null;
+            
+            if (rowData) {
+              const isBuyAmount = nextColumn === 'buy_amount';
+              const otherAmount = isBuyAmount ? rowData.sell_amount : rowData.buy_amount;
+              
+              if (otherAmount !== null) {
+                return params.previousCellPosition;
+              }
+            }
+          }
+          return params.nextCellPosition;
+        }}
         onCellValueChanged={(event) => {
           handleCellValueChanged(event);
           const newData = [...rowData];
