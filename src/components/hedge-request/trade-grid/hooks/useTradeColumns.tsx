@@ -1,7 +1,7 @@
 
 import { ColDef } from 'ag-grid-community';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import CurrencyCellEditor from '../components/CurrencyCellEditor';
+import { CurrencyCellEditor } from '../components/CurrencyCellEditor';
 
 export const useTradeColumns = (): ColDef<HedgeRequestDraftTrade>[] => {
   return [

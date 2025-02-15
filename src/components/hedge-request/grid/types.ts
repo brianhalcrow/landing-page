@@ -18,7 +18,7 @@ export interface HedgeRequestDraft {
 
 export interface HedgeRequestDraftTrade {
   id: number;
-  request_no: number | null;  // Added this field
+  request_no: number | null;
   draft_id: string | null;
   buy_currency: string | null;
   sell_currency: string | null;
@@ -33,6 +33,9 @@ export interface HedgeRequestDraftTrade {
   spot_rate: number | null;
   contract_rate: number | null;
   instrument: string | null;
+  strategy_name: string | null;
+  counterparty_name: string | null;
+  cost_centre: string | null;
 }
 
 export interface ValidEntity {
