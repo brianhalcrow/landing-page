@@ -73,6 +73,12 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
+  if (buyCurrency && sellCurrency && buyCurrency === sellCurrency) {
+    console.log("Validation failed: Same currency on both sides");
+    toast.error("Buy and sell currencies must be different");
+    return false;
+  }
+
   if (!data.settlement_date) {
     console.log("Validation failed: Missing settlement date");
     toast.error("Settlement date is required");
@@ -95,7 +101,7 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
 };
 
 export const transformTradeRequest = (data: any) => {
-  return {
+  const transformed = {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
     strategy_name: data.strategy_name,
@@ -110,4 +116,7 @@ export const transformTradeRequest = (data: any) => {
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
     counterparty_name: data.counterparty_name
   };
+
+  console.log("Transformed trade request:", transformed);
+  return transformed;
 };
