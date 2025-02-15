@@ -22,6 +22,15 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     minWidth: 200
   },
   {
+    headerName: "Entity ID",
+    field: "entity_id",
+    cellRenderer: EntitySelector,
+    cellRendererParams: {
+      context
+    },
+    minWidth: 150
+  },
+  {
     headerName: "Cost Centre",
     field: "cost_centre",
     cellRenderer: CostCentreSelector,

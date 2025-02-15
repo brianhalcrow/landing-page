@@ -20,6 +20,12 @@ const NewHedgeRequestGrid = ({ rowData, onRowDataChange }: NewHedgeRequestGridPr
     onRowDataChange(newData);
   };
 
+  const updateRowData = (rowIndex: number, updates: any) => {
+    const newData = [...rowData];
+    newData[rowIndex] = { ...newData[rowIndex], ...updates };
+    onRowDataChange(newData);
+  };
+
   return (
     <div className="space-y-4">
       <div className="w-full h-[600px] ag-theme-alpine">
@@ -27,7 +33,7 @@ const NewHedgeRequestGrid = ({ rowData, onRowDataChange }: NewHedgeRequestGridPr
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
-          columnDefs={createColumnDefs()}
+          columnDefs={createColumnDefs(gridRef.current?.api || null, { updateRowData })}
           defaultColDef={{
             sortable: true,
             filter: true,

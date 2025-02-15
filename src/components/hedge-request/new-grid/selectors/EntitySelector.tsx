@@ -15,12 +15,6 @@ interface EntitySelectorProps {
   };
 }
 
-interface Entity {
-  id: string;
-  name: string;
-  functional_currency: string;
-}
-
 export const EntitySelector = (props: EntitySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   const fieldName = props.column.colDef.field;
@@ -38,7 +32,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
 
   const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    let selectedEntity: Entity | undefined;
+    let selectedEntity;
     
     if (fieldName === 'entity_id') {
       selectedEntity = entities.find(e => e.id === selectedValue);
@@ -56,7 +50,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         const { data: costCentres } = await supabase
           .from('erp_mgmt_structure')
           .select('cost_centre')
-          .eq('entity_id', selectedEntity.id);
+          .eq('entity_id', selectedEntity.id)
+          .limit(1);
 
         if (costCentres && costCentres.length === 1) {
           updates.cost_centre = costCentres[0].cost_centre;
@@ -75,6 +70,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
     label: fieldName === 'entity_id' ? entity.id : entity.name
   }));
 
+  const isEntityNameOrCostCentre = fieldName === 'entity_name' || fieldName === 'cost_centre';
+
   return (
     <div className="relative w-full">
       <select
@@ -82,7 +79,11 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
       >
-        <option value=""></option>
+        {isEntityNameOrCostCentre ? (
+          <option value="">Select</option>
+        ) : (
+          <option value=""></option>
+        )}
         {options.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}

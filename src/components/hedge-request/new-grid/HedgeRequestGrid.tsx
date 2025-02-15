@@ -5,8 +5,10 @@ import { useHedgeRequestData } from './hooks/useHedgeRequestData';
 import { GridActions } from './components/GridActions';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { useRef } from 'react';
 
 const HedgeRequestGrid = () => {
+  const gridRef = useRef<AgGridReact>(null);
   const {
     rowData,
     validConfigs,
@@ -18,17 +20,17 @@ const HedgeRequestGrid = () => {
     <div className="space-y-4">
       <div className="w-full h-[400px] ag-theme-alpine">
         <AgGridReact
+          ref={gridRef}
           rowData={rowData}
-          columnDefs={createColumnDefs()}
+          columnDefs={createColumnDefs(gridRef.current?.api || null, { 
+            validConfigs,
+            updateRowData 
+          })}
           defaultColDef={{
             sortable: true,
             filter: true,
             resizable: true,
             suppressSizeToFit: false
-          }}
-          context={{ 
-            validConfigs,
-            updateRowData 
           }}
           animateRows={true}
           suppressColumnVirtualisation={true}
