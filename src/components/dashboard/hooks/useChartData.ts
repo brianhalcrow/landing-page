@@ -4,14 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useChartData = () => {
   return useQuery({
-    queryKey: ['hedge-request-drafts-by-entity'],
+    queryKey: ['trade-requests-by-entity'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('hedge_request_draft')
+        .from('trade_requests')
         .select('entity_name');
 
       if (error) {
-        console.error('Error fetching hedge requests:', error);
+        console.error('Error fetching trade requests:', error);
         throw error;
       }
 

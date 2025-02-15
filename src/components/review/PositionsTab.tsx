@@ -1,67 +1,51 @@
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+
+import { useState, useEffect } from "react";
 import RealtimeSubscription from "./RealtimeSubscription";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { HedgeRequestsGrid } from "./components/HedgeRequestsGrid";
 
 export const PositionsTab = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: tradeRequests = [], refetch } = useQuery({
+    queryKey: ['trade-requests'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trade_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isMounted
+  });
 
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
 
-  const fetchHedgeRequests = useCallback(async () => {
-    try {
-      console.log("🔄 Fetching hedge requests for positions...");
-      setIsLoading(true);
-
-      const { data, error } = await supabase
-        .from("hedge_request_draft")
-        .select("*")
-        .order("id", { ascending: false });
-
-      if (!isMounted) return;
-
-      if (error) {
-        console.error("❌ Error fetching data:", error);
-        throw error;
-      }
-
-      console.log("✅ Fetched hedge requests for positions:", data);
-    } catch (error) {
-      console.error("❌ Error in fetchHedgeRequests:", error);
-      if (isMounted) {
-        toast.error("Failed to fetch hedge request data");
-      }
-    } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    }
-  }, [isMounted]);
-
   useEffect(() => {
     console.log("🏁 PositionsTab mounted");
-    fetchHedgeRequests();
+    refetch();
 
     return () => {
       console.log("🔚 PositionsTab unmounted");
     };
-  }, [fetchHedgeRequests]);
+  }, [refetch]);
 
   return (
     <div className="space-y-4">
-      <RealtimeSubscription onDataChange={fetchHedgeRequests} />
+      <RealtimeSubscription onDataChange={refetch} />
       {isLoading ? (
         <div className="flex items-center justify-center p-4">
-          <span>Loading hedge requests...</span>
+          <span>Loading trade requests...</span>
         </div>
       ) : (
-        <div className="flex items-center justify-center p-4">
-          <span>Positions content will be implemented here</span>
-        </div>
+        <HedgeRequestsGrid rowData={tradeRequests} />
       )}
     </div>
   );

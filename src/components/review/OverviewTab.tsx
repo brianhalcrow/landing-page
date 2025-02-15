@@ -1,11 +1,27 @@
+
 import { useState, useEffect } from "react";
 import RealtimeSubscription from "./RealtimeSubscription";
-import { useHedgeRequests } from "./hooks/useHedgeRequests";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { HedgeRequestsGrid } from "./components/HedgeRequestsGrid";
 
 export const OverviewTab = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const { rowData, isLoading, fetchHedgeRequests } = useHedgeRequests(isMounted);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: tradeRequests = [], refetch } = useQuery({
+    queryKey: ['trade-requests-overview'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trade_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isMounted
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -14,22 +30,22 @@ export const OverviewTab = () => {
 
   useEffect(() => {
     console.log("🏁 OverviewTab mounted");
-    fetchHedgeRequests();
+    refetch();
 
     return () => {
       console.log("🔚 OverviewTab unmounted");
     };
-  }, [fetchHedgeRequests]);
+  }, [refetch]);
 
   return (
     <div className="space-y-4">
-      <RealtimeSubscription onDataChange={fetchHedgeRequests} />
+      <RealtimeSubscription onDataChange={refetch} />
       {isLoading ? (
         <div className="flex items-center justify-center p-4">
-          <span>Loading hedge requests...</span>
+          <span>Loading trade requests...</span>
         </div>
       ) : (
-        <HedgeRequestsGrid rowData={rowData} />
+        <HedgeRequestsGrid rowData={tradeRequests} />
       )}
     </div>
   );
