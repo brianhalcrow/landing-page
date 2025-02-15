@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,26 +18,7 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
   const hasAttemptedAutoSelect = useRef(false);
   const [lastAttemptedEntityId, setLastAttemptedEntityId] = useState<string | null>(null);
 
-  // Debug query to check table data
-  const debugQuery = useQuery({
-    queryKey: ['debug-erp-structure'],
-    queryFn: async () => {
-      console.log('Running debug query for entity:', data.entity_id);
-      
-      const { data: entityData, error: entityError } = await supabase
-        .from('erp_mgmt_structure')
-        .select('*')
-        .eq('entity_id', data.entity_id);
-      
-      console.log('Debug - Entity data from erp_mgmt_structure:', entityData);
-      if (entityError) console.error('Entity query error:', entityError);
-
-      return null;
-    },
-    enabled: !!data.entity_id
-  });
-
-  // Main cost centres query with correct table name
+  // Main cost centres query
   const { data: costCentres, isLoading, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
@@ -49,7 +31,7 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       
       try {
         const { data: centresData, error } = await supabase
-          .from('erp_mgmt_structure')  // Updated table name
+          .from('management_structure')
           .select('cost_centre')
           .eq('entity_id', data.entity_id.trim());
 
@@ -81,7 +63,8 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       }
     },
     enabled: !!data.entity_id,
-    staleTime: 300000, // 5 minutes
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
     refetchOnWindowFocus: false,
     retry: 2,
     retryDelay: 1000
