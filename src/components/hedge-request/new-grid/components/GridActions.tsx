@@ -17,7 +17,6 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
     const validRows = rows.filter(row => {
       const isValid = validateTradeRequest(row);
       
-      // Log validation details for debugging
       console.log('Row validation:', {
         row,
         isValid,
@@ -31,7 +30,6 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       });
 
       if (!isValid) {
-        // Add specific validation messages
         if (!row.entity_id || !row.entity_name) {
           validationErrors.push("Entity information is missing");
         }
@@ -48,7 +46,7 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       return isValid;
     });
 
-    return { validRows, errors: [...new Set(validationErrors)] }; // Remove duplicate errors
+    return { validRows, errors: [...new Set(validationErrors)] };
   };
 
   const handleSave = async () => {
@@ -82,24 +80,16 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         return;
       }
 
-      // Transform all rows and collect swap legs
+      // Transform all rows and collect trades
       const tradesToSave = validRows.flatMap(row => {
         const transformedData = transformTradeRequest(row);
         return Array.isArray(transformedData) ? transformedData : [transformedData];
       });
 
-      // Sort trades so that for swaps, leg 1 always comes before leg 2
-      const sortedTrades = tradesToSave.sort((a, b) => {
-        if (a.instrument === 'Swap' && b.instrument === 'Swap' && a.swap_reference === b.swap_reference) {
-          return (a.leg_number || 0) - (b.leg_number || 0);
-        }
-        return 0;
-      });
-
-      console.log("Saving sorted trades:", sortedTrades);
+      console.log("Saving trades:", tradesToSave);
 
       // Save all trades in a single batch
-      await saveMutation.mutateAsync(sortedTrades);
+      await saveMutation.mutateAsync(tradesToSave);
 
       toast.success(`Successfully saved ${validRows.length} trade request(s)`);
     } catch (error) {

@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -39,7 +40,7 @@ export const validateTradeRequest = (data: any): boolean => {
   
   // Basic required fields
   if (!data.entity_id || !data.entity_name) {
-    console.log("Validation failed: Missing entity information", { entity_id: data.entity_id, entity_name: data.entity_name });
+    console.log("Validation failed: Missing entity information");
     toast.error("Entity information is required");
     return false;
   }
@@ -68,49 +69,14 @@ export const validateTradeRequest = (data: any): boolean => {
   const buyAmount = data.buy_amount || data.ccy_1_amount;
   const sellAmount = data.sell_amount || data.ccy_2_amount;
 
-  console.log("Currency validation values:", {
-    buyCurrency,
-    sellCurrency,
-    buyAmount,
-    sellAmount
-  });
+  // For all trades, validate that at least one side is complete
+  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
+  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
 
-  // For swaps, validate currencies and amounts
-  if (data.instrument === 'Swap') {
-    // Both currencies must be specified
-    if (!buyCurrency || !sellCurrency) {
-      console.log("Validation failed: Swap requires both currencies");
-      toast.error("Swaps require both buy and sell currencies to be specified");
-      return false;
-    }
-
-    // Exactly one amount must be specified (not both)
-    const hasAmount = (buyAmount !== null && buyAmount !== undefined) || 
-                     (sellAmount !== null && sellAmount !== undefined);
-    const hasBothAmounts = (buyAmount !== null && buyAmount !== undefined) && 
-                          (sellAmount !== null && sellAmount !== undefined);
-
-    if (!hasAmount) {
-      console.log("Validation failed: Swap requires one amount");
-      toast.error("Please specify either buy amount or sell amount");
-      return false;
-    }
-
-    if (hasBothAmounts) {
-      console.log("Validation failed: Swap can only have one amount per leg");
-      toast.error("Please specify only one amount (either buy or sell) per leg");
-      return false;
-    }
-  } else {
-    // For non-swaps, validate that at least one side is complete
-    const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
-    const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
-
-    if (!hasBuySide && !hasSellSide) {
-      console.log("Validation failed: No complete side specified");
-      toast.error("Please specify at least one complete side (currency and amount)");
-      return false;
-    }
+  if (!hasBuySide && !hasSellSide) {
+    console.log("Validation failed: No complete side specified");
+    toast.error("Please specify at least one complete side (currency and amount)");
+    return false;
   }
 
   if (buyCurrency && sellCurrency && buyCurrency === sellCurrency) {
@@ -132,16 +98,13 @@ export const validateTradeRequest = (data: any): boolean => {
 const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
   if (!dateStr || dateStr.trim() === '') return null;
   
-  // If the date is already in yyyy-MM-dd format, validate and return it
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    // Parse to verify it's a valid date
     const date = parse(dateStr, 'yyyy-MM-dd', new Date());
     if (isValid(date)) {
-      return dateStr; // Return as is since it's already in the correct format
+      return dateStr;
     }
   }
   
-  // Fallback to parsing dd/MM/yyyy format
   try {
     const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
     if (isValid(parsedDate)) {
@@ -157,18 +120,13 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
 export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] => {
   // If it's a swap, we need to create both legs
   if (data.instrument === 'Swap') {
-    const swapReference = crypto.randomUUID();
-    
-    // Determine which leg has the amount and set up the reverse for the other leg
-    const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
-    const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
-    
     const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
     const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
     
-    // We don't need to throw here as validation already checked the settlement date
+    const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
+    const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
+    
     const swapLegs: TradeRequest[] = [
-      // First leg (leg 1)
       {
         entity_id: data.entity_id,
         entity_name: data.entity_name,
@@ -184,9 +142,7 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
         counterparty_name: data.counterparty_name,
         leg_number: 1,
-        swap_reference: swapReference
       },
-      // Second leg (leg 2) - with reversed currencies and amounts
       {
         entity_id: data.entity_id,
         entity_name: data.entity_name,
@@ -202,7 +158,6 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
         counterparty_name: data.counterparty_name,
         leg_number: 2,
-        swap_reference: swapReference
       }
     ];
 
