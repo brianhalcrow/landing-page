@@ -60,22 +60,35 @@ export const useHedgeRequestData = () => {
     
     setRowData(currentRows => {
       const newData = [...currentRows];
+      const currentRow = newData[rowIndex];
+      const isSwap = currentRow.instrument?.toLowerCase() === 'swap';
       
       // Update the current row
       newData[rowIndex] = {
-        ...newData[rowIndex],
+        ...currentRow,
         ...updates
       };
 
-      // Check if this is a swap instrument and handle second leg
-      const isSwap = updates.instrument?.toLowerCase() === 'swap';
-      console.log('Checking for SWAP instrument:', { 
-        instrument: updates.instrument, 
-        isSwap,
-        rowIndex,
-        isLastRow: rowIndex === newData.length - 1 
-      });
+      // Handle currency mirroring for swap legs if currencies are being updated
+      if (isSwap && (updates.buy_currency || updates.sell_currency)) {
+        const nextRow = newData[rowIndex + 1];
+        if (nextRow) {
+          if (updates.buy_currency) {
+            newData[rowIndex + 1] = {
+              ...nextRow,
+              sell_currency: updates.buy_currency
+            };
+          }
+          if (updates.sell_currency) {
+            newData[rowIndex + 1] = {
+              ...nextRow,
+              buy_currency: updates.sell_currency
+            };
+          }
+        }
+      }
 
+      // Handle SWAP-specific logic for other updates
       if (isSwap) {
         // If this is the first row or there's no second row yet
         if (rowIndex === newData.length - 1) {
@@ -88,17 +101,23 @@ export const useHedgeRequestData = () => {
             strategy_name: newData[rowIndex].strategy_name,
             instrument: newData[rowIndex].instrument,
             counterparty_name: newData[rowIndex].counterparty_name,
+            cost_centre: newData[rowIndex].cost_centre,
+            // Mirror currencies if they exist
+            buy_currency: newData[rowIndex].sell_currency,
+            sell_currency: newData[rowIndex].buy_currency
           });
         } else {
           console.log('Updating existing second leg row');
           // Update the next row with the same values
+          const existingNextRow = newData[rowIndex + 1];
           newData[rowIndex + 1] = {
-            ...newData[rowIndex + 1],
+            ...existingNextRow,
             entity_id: newData[rowIndex].entity_id,
             entity_name: newData[rowIndex].entity_name,
             strategy_name: newData[rowIndex].strategy_name,
             instrument: newData[rowIndex].instrument,
-            counterparty_name: newData[rowIndex].counterparty_name,
+            counterparty_name: updates.counterparty_name || newData[rowIndex].counterparty_name,
+            cost_centre: updates.cost_centre || newData[rowIndex].cost_centre
           };
         }
       }
