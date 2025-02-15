@@ -1,6 +1,8 @@
 
 import { ChevronDown } from "lucide-react";
 import { memo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CurrencySelectorProps {
   value: string;
@@ -13,7 +15,22 @@ interface CurrencySelectorProps {
 }
 
 export const CurrencySelector = memo(({ value, field, data, node, context }: CurrencySelectorProps) => {
-  const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'NZD', 'SGD'];
+  const { data: currencyData, isLoading } = useQuery({
+    queryKey: ['currencies'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('v_currency_list')
+        .select('currency')
+        .order('priority_order, currency');
+
+      if (error) {
+        console.error('Error fetching currencies:', error);
+        return [];
+      }
+
+      return data.map(row => row.currency);
+    }
+  });
 
   const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
@@ -28,6 +45,10 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
     }
   }, [context, node, field]);
 
+  if (isLoading) {
+    return <div className="w-full h-full flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="relative w-full">
       <select
@@ -36,7 +57,7 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
       >
         <option value=""></option>
-        {currencies.map(currency => (
+        {currencyData?.map(currency => (
           <option key={currency} value={currency}>
             {currency}
           </option>

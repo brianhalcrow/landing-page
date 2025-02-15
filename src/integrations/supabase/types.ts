@@ -3012,6 +3012,13 @@ export type Database = {
         }
         Relationships: []
       }
+      v_currency_list: {
+        Row: {
+          currency: string | null
+          priority_order: number | null
+        }
+        Relationships: []
+      }
       v_fx_forward_points_detailed: {
         Row: {
           ccy_1: string | null
