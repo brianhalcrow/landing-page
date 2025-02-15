@@ -40,6 +40,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         instrument: '',
         counterparty: '',
         counterparty_name: '',
+        cost_centre: '', // Clear cost_centre when entity changes
         currency: selectedEntity.functional_currency // Set default currency to functional currency
       };
       props.node.setData(updatedData);

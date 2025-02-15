@@ -3,6 +3,7 @@ import { ColDef } from 'ag-grid-community';
 import { EntitySelector } from '../selectors/EntitySelector';
 import { StrategySelector } from '../selectors/StrategySelector';
 import { CounterpartySelector } from '../selectors/CounterpartySelector';
+import { CostCentreSelector } from '../selectors/CostCentreSelector';
 
 export const createColumnDefs = (): ColDef[] => [
   {
@@ -14,6 +15,17 @@ export const createColumnDefs = (): ColDef[] => [
     editable: true,
     cellRenderer: EntitySelector,
     cellEditor: EntitySelector,
+    cellEditorPopup: false
+  },
+  {
+    field: 'cost_centre',
+    headerName: 'Cost Centre*',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true,
+    cellRenderer: CostCentreSelector,
+    cellEditor: CostCentreSelector,
     cellEditorPopup: false
   },
   {
@@ -122,13 +134,5 @@ export const createColumnDefs = (): ColDef[] => [
       if (!params.value) return '';
       return new Date(params.value).toISOString().split('T')[0];
     }
-  },
-  {
-    field: 'cost_centre',
-    headerName: 'Cost Centre',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true
   }
 ];
