@@ -40,6 +40,17 @@ export const useTradeData = () => {
       // Set leg numbers
       leg1.leg_number = 1;
       leg2.leg_number = 2;
+
+      // Only validate amounts if they are present
+      if (leg1.buy_amount !== null && leg2.sell_amount === null) {
+        toast.error('Second leg must have sell amount when first leg has buy amount');
+        return false;
+      }
+
+      if (leg1.sell_amount !== null && leg2.buy_amount === null) {
+        toast.error('Second leg must have buy amount when first leg has sell amount');
+        return false;
+      }
     }
 
     return true;
