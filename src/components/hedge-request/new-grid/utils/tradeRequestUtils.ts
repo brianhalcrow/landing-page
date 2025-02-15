@@ -14,6 +14,7 @@ interface TradeRequestInput {
   buy_amount: number | string | null;
   sell_amount: number | string | null;
   cost_centre: string;
+  counterparty_name: string;
 }
 
 export const validateTradeRequest = (data: any): boolean => {
@@ -57,20 +58,23 @@ export const validateTradeRequest = (data: any): boolean => {
     sellAmount
   });
 
-  // For swaps, validate that at least one side (buy or sell) is complete
-  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
-  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
+  // For swaps, validate that both sides (buy and sell) are complete
+  if (data.instrument === 'Swap') {
+    if (!buyCurrency || !sellCurrency || !buyAmount || !sellAmount) {
+      console.log("Validation failed: Swap requires both buy and sell sides");
+      toast.error("Swaps require both buy and sell currencies and amounts");
+      return false;
+    }
+  } else {
+    // For non-swaps, validate that at least one side is complete
+    const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
+    const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
 
-  console.log("Side validation:", {
-    hasBuySide,
-    hasSellSide,
-    instrument: data.instrument
-  });
-
-  if (!hasBuySide && !hasSellSide) {
-    console.log("Validation failed: No complete side specified");
-    toast.error("Please specify at least one complete side (currency and amount)");
-    return false;
+    if (!hasBuySide && !hasSellSide) {
+      console.log("Validation failed: No complete side specified");
+      toast.error("Please specify at least one complete side (currency and amount)");
+      return false;
+    }
   }
 
   if (buyCurrency && sellCurrency && buyCurrency === sellCurrency) {

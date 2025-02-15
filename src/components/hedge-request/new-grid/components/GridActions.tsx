@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useTradeRequestSave } from "../hooks/useTradeRequestSave";
 import { toast } from "sonner";
+import { transformTradeRequest, validateTradeRequest } from "../utils/tradeRequestUtils";
 
 interface GridActionsProps {
   onAddRow: () => void;
@@ -15,10 +16,7 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
     try {
       // Filter out empty rows with detailed logging
       const validRows = rowData.filter(row => {
-        const isValid = row.entity_id && 
-          row.strategy_name && 
-          ((row.buy_currency && row.buy_amount) || (row.sell_currency && row.sell_amount)) &&
-          row.settlement_date;
+        const isValid = validateTradeRequest(row);
 
         console.log('Row validation:', {
           row,
@@ -60,8 +58,11 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
           await saveMutation.mutateAsync(transformedData);
         }
       }
+
+      toast.success("Trade requests saved successfully");
     } catch (error) {
       console.error("Error in save handler:", error);
+      toast.error("Failed to save trade requests");
     }
   };
 
