@@ -2790,7 +2790,6 @@ export type Database = {
           ccy_pair: string | null
           cost_centre: string | null
           counterparty: string | null
-          counterparty_type: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -2810,7 +2809,6 @@ export type Database = {
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty?: string | null
-          counterparty_type?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -2830,7 +2828,6 @@ export type Database = {
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty?: string | null
-          counterparty_type?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
