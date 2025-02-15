@@ -9,20 +9,20 @@ import { CellEditingStartedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
 import { CurrencyEditorState } from '../components/CurrencyCellEditor';
+import { useTradeData } from '../hooks/useTradeData';
 
 interface TradeDataGridProps {
-  rowData: HedgeRequestDraftTrade[];
-  onRowDataChange: (data: HedgeRequestDraftTrade[]) => void;
   entityId?: string | null;
   entityName?: string | null;
 }
 
-const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: TradeDataGridProps) => {
+const TradeDataGrid = ({ entityId, entityName }: TradeDataGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
   const [lastSelectedCurrency, setLastSelectedCurrency] = useState<'buy' | 'sell' | null>(null);
   
-  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(undefined, setLastSelectedCurrency);
-  const columnDefs = useTradeColumns(undefined, lastSelectedCurrency);
+  const { rowData, updateRow, handleSave, addRow } = useTradeData();
+  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(updateRow, setLastSelectedCurrency);
+  const columnDefs = useTradeColumns(updateRow, lastSelectedCurrency);
 
   const initialEditorState: CurrencyEditorState = {
     lastSelectedCurrency: null,

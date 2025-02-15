@@ -2659,10 +2659,12 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           instrument: string | null
+          leg_number: number | null
           request_no: number
           settlement_date: string | null
           strategy_id: string | null
           strategy_name: string | null
+          swap_reference: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2679,10 +2681,12 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          leg_number?: number | null
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
+          swap_reference?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2699,10 +2703,12 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          leg_number?: number | null
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
+          swap_reference?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
