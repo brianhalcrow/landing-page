@@ -1,11 +1,12 @@
+
 import * as React from "react"
 import type {
   ToastActionElement,
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3  // Increased to show multiple toasts
+const TOAST_REMOVE_DELAY = 3000  // Reduced to 3 seconds
 
 type ToasterToast = ToastProps & {
   id: string
@@ -145,9 +146,6 @@ function toast({ ...props }: Toast) {
       toast: { ...props, id },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  // Dismiss any existing toasts before adding a new one
-  dispatch({ type: "DISMISS_TOAST" })
 
   dispatch({
     type: "ADD_TOAST",

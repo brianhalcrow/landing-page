@@ -12,40 +12,78 @@ interface GridActionsProps {
 export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
   const saveMutation = useTradeRequestSave();
 
-  const handleSave = async () => {
-    try {
-      // Filter out empty rows with detailed logging
-      const validRows = rowData.filter(row => {
-        const isValid = validateTradeRequest(row);
-
-        console.log('Row validation:', {
-          row,
-          isValid,
-          hasEntityId: !!row.entity_id,
-          hasStrategy: !!row.strategy_name,
-          hasBuyCurrency: !!row.buy_currency,
-          hasBuyAmount: !!row.buy_amount,
-          hasSellCurrency: !!row.sell_currency,
-          hasSellAmount: !!row.sell_amount,
-          hasSettlementDate: !!row.settlement_date
-        });
-
-        return isValid;
+  const validateRows = (rows: any[]) => {
+    const validationErrors: string[] = [];
+    const validRows = rows.filter(row => {
+      const isValid = validateTradeRequest(row);
+      
+      // Log validation details for debugging
+      console.log('Row validation:', {
+        row,
+        isValid,
+        hasEntityId: !!row.entity_id,
+        hasStrategy: !!row.strategy_name,
+        hasBuyCurrency: !!row.buy_currency,
+        hasBuyAmount: !!row.buy_amount,
+        hasSellCurrency: !!row.sell_currency,
+        hasSellAmount: !!row.sell_amount,
+        hasSettlementDate: !!row.settlement_date
       });
 
-      console.log("Attempting to save rows:", {
+      if (!isValid) {
+        // Add specific validation messages
+        if (!row.entity_id || !row.entity_name) {
+          validationErrors.push("Entity information is missing");
+        }
+        if (!row.strategy_name) {
+          validationErrors.push("Strategy is required");
+        }
+        if (!row.buy_currency && !row.sell_currency) {
+          validationErrors.push("At least one currency is required");
+        }
+        if (!row.settlement_date) {
+          validationErrors.push("Settlement date is required");
+        }
+      }
+      return isValid;
+    });
+
+    return { validRows, errors: [...new Set(validationErrors)] }; // Remove duplicate errors
+  };
+
+  const handleSave = async () => {
+    try {
+      const { validRows, errors } = validateRows(rowData);
+
+      console.log("Validation results:", {
         totalRows: rowData.length,
         validRowsCount: validRows.length,
         validRows,
+        errors,
         allRows: rowData
       });
 
-      if (validRows.length === 0) {
-        toast.error("No valid trades to save. Please ensure each trade has: Entity, Strategy, Currency, Amount, and Settlement Date");
+      if (errors.length > 0) {
+        // Show all validation errors in a single toast
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold">Please fix the following issues:</p>
+            <ul className="list-disc pl-4">
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        );
         return;
       }
 
-      // Save each row, handling both single trades and swap legs
+      if (validRows.length === 0) {
+        toast.error("No valid trades to save");
+        return;
+      }
+
+      // Save valid rows
       for (const row of validRows) {
         const transformedData = transformTradeRequest(row);
         if (Array.isArray(transformedData)) {
@@ -59,7 +97,7 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         }
       }
 
-      toast.success("Trade requests saved successfully");
+      toast.success(`Successfully saved ${validRows.length} trade request(s)`);
     } catch (error) {
       console.error("Error in save handler:", error);
       toast.error("Failed to save trade requests");
