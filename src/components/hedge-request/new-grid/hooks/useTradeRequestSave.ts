@@ -28,9 +28,18 @@ export const useTradeRequestSave = () => {
       // If it's a single request, wrap it in an array
       const requests = Array.isArray(data) ? data : [data];
       
+      // Filter out any undefined or invalid requests
+      const validRequests = requests.filter(request => {
+        return request.entity_id && request.strategy_name && request.instrument;
+      });
+
+      if (validRequests.length === 0) {
+        throw new Error("No valid trade requests to save");
+      }
+
       const { error } = await supabase
         .from('trade_requests')
-        .insert(requests);
+        .insert(validRequests);
 
       if (error) {
         console.error("Error saving trade request:", error);

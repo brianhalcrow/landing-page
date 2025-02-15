@@ -71,7 +71,7 @@ export const useHedgeRequestData = () => {
       const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
       const isNewSwap = updates.instrument?.toLowerCase() === 'swap' && currentRow.instrument?.toLowerCase() !== 'swap';
       
-      // Handle amount validation and mirroring for SWAP trades
+      // Handle amount validation for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
         // For first leg
         if (rowIndex % 2 === 0) {
@@ -84,70 +84,11 @@ export const useHedgeRequestData = () => {
             toast.error('First leg can only have either buy or sell amount');
             return newData;
           }
-
-          // Mirror the amount to the second leg with the opposite type
-          const nextRow = newData[rowIndex + 1];
-          if (nextRow && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
-            if (updates.buy_amount !== undefined) {
-              newData[rowIndex + 1] = {
-                ...nextRow,
-                sell_amount: updates.buy_amount // Set sell amount in second leg equal to buy amount in first leg
-              };
-            }
-            if (updates.sell_amount !== undefined) {
-              newData[rowIndex + 1] = {
-                ...nextRow,
-                buy_amount: updates.sell_amount // Set buy amount in second leg equal to sell amount in first leg
-              };
-            }
-          }
-        }
-        // For second leg
-        else {
-          const firstLeg = newData[rowIndex - 1];
-          const firstLegBuyAmount = firstLeg.buy_amount;
-          const firstLegSellAmount = firstLeg.sell_amount;
-          
-          // Only validate when trying to enter an amount in the second leg
-          if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
-            if (firstLegBuyAmount !== null) {
-              // If first leg has buy amount, second leg must have sell amount
-              if (updates.buy_amount !== null) {
-                toast.error('Second leg must have sell amount when first leg has buy amount');
-                return newData;
-              }
-            } else if (firstLegSellAmount !== null) {
-              // If first leg has sell amount, second leg must have buy amount
-              if (updates.sell_amount !== null) {
-                toast.error('Second leg must have buy amount when first leg has sell amount');
-                return newData;
-              }
-            }
-          }
         }
       }
 
       // Update the current row
       newData[rowIndex] = updatedRow;
-
-      // Handle currency mirroring for swap legs if currencies are being updated
-      if (isSwap && (updates.buy_currency || updates.sell_currency)) {
-        const nextRow = newData[rowIndex + 1];
-        if (nextRow) {
-          if (updates.buy_currency) {
-            newData[rowIndex + 1] = {
-              ...nextRow,
-              sell_currency: updates.buy_currency
-            };
-          }
-          if (updates.sell_currency) {
-            newData[rowIndex + 1] = {
-              ...nextRow,
-              buy_currency: updates.sell_currency
-            };
-          }
-        }
-      }
 
       // Only add a new row if this is the first time the instrument is being set to swap
       if (isNewSwap && rowIndex === newData.length - 1) {
@@ -183,36 +124,6 @@ export const useHedgeRequestData = () => {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('trade_requests')
-        .insert(
-          rowData.map(row => ({
-            entity_id: row.entity_id,
-            entity_name: row.entity_name,
-            strategy_name: row.strategy_name,
-            instrument: row.instrument,
-            counterparty_name: row.counterparty_name,
-            ccy_1: row.buy_currency,
-            ccy_1_amount: row.buy_amount,
-            ccy_2: row.sell_currency,
-            ccy_2_amount: row.sell_amount,
-            trade_date: row.trade_date,
-            settlement_date: row.settlement_date,
-            cost_centre: row.cost_centre,
-            created_at: new Date().toISOString()
-          }))
-        );
-
-      if (error) throw error;
-      toast.success('Trade request saved successfully');
-    } catch (error) {
-      console.error('Error saving trade request:', error);
-      toast.error('Failed to save trade request');
-    }
-  };
-
   const addNewRow = () => {
     setRowData([...rowData, { ...defaultRow }]);
   };
@@ -220,7 +131,6 @@ export const useHedgeRequestData = () => {
   return {
     rowData,
     validConfigs,
-    handleSave,
     addNewRow,
     updateRowData
   };
