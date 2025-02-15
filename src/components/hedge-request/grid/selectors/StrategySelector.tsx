@@ -19,8 +19,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       const { data: strategyData, error } = await supabase
         .from('hedge_strategy')
         .select('strategy_name')
-        .eq('exposure_category_l2', data.exposure_category_l2)
-        .order('strategy_name', { ascending: true });
+        .eq('exposure_category_l2', data.exposure_category_l2);
 
       if (error) {
         console.error('Error fetching strategies:', error);
@@ -33,10 +32,31 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
     enabled: !!(data.exposure_category_l2)
   });
 
-  const uniqueStrategies = Array.from(new Set(strategies?.map(s => ({
-    strategy: s.strategy_name,
-    description: s.strategy_name
-  })) || []));
+  const prefixOrder = ['IM', 'CF', 'BS'];
+  
+  const sortStrategies = (strategies: { strategy_name: string }[]) => {
+    return strategies.sort((a, b) => {
+      const aParts = a.strategy_name.split(' ');
+      const bParts = b.strategy_name.split(' ');
+      const aPrefix = aParts[0];
+      const bPrefix = bParts[0];
+
+      // If prefixes are different, sort by prefix order
+      if (aPrefix !== bPrefix) {
+        return prefixOrder.indexOf(aPrefix) - prefixOrder.indexOf(bPrefix);
+      }
+
+      // If prefixes are the same, sort alphabetically
+      return a.strategy_name.localeCompare(b.strategy_name);
+    });
+  };
+
+  const uniqueStrategies = Array.from(new Set(
+    sortStrategies(strategies || []).map(s => ({
+      strategy: s.strategy_name,
+      description: s.strategy_name
+    }))
+  ));
 
   // Only update if we have data and the current value doesn't match
   if (!isLoading && uniqueStrategies.length === 1 && !value) {
