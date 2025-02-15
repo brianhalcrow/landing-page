@@ -18,7 +18,6 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
   const hasAttemptedAutoSelect = useRef(false);
   const [lastAttemptedEntityId, setLastAttemptedEntityId] = useState<string | null>(null);
 
-  // Main cost centres query
   const { data: costCentres, isLoading, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
@@ -30,7 +29,6 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       }
       
       try {
-        // Now fetch the cost centres from erp_mgmt_structure
         const { data: centresData, error } = await supabase
           .from('erp_mgmt_structure')
           .select('cost_centre')
@@ -49,7 +47,6 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
           return [];
         }
 
-        // Ensure we remove any null or undefined values and sort the array
         const validCentres = centresData
           .map(item => item.cost_centre)
           .filter(Boolean)
@@ -71,7 +68,6 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
     retryDelay: 1000
   });
 
-  // Auto-selection effect
   useEffect(() => {
     const shouldAutoSelect = 
       !isLoading && 
@@ -82,23 +78,11 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       data.entity_id && 
       data.entity_id !== lastAttemptedEntityId;
 
-    console.log('Auto-select evaluation:', {
-      isLoading,
-      costCentresLength: costCentres?.length,
-      currentValue: value,
-      hasContext: !!context?.updateRowData,
-      hasAttempted: hasAttemptedAutoSelect.current,
-      entityId: data.entity_id,
-      lastAttemptedEntityId,
-      shouldAutoSelect
-    });
-
     if (shouldAutoSelect) {
       console.log('Attempting to auto-select cost centre:', costCentres[0]);
       hasAttemptedAutoSelect.current = true;
       setLastAttemptedEntityId(data.entity_id);
 
-      // Increased delay for auto-selection
       setTimeout(() => {
         requestAnimationFrame(() => {
           if (context?.updateRowData) {
@@ -107,11 +91,10 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
             });
           }
         });
-      }, 100); // Added a 100ms delay
+      }, 100);
     }
   }, [costCentres, value, context, node.rowIndex, isLoading, data.entity_id, lastAttemptedEntityId]);
 
-  // Reset auto-select when entity changes
   useEffect(() => {
     if (data.entity_id !== lastAttemptedEntityId) {
       console.log('Resetting auto-select for new entity:', data.entity_id);
@@ -147,7 +130,7 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!data.entity_id || isLoading}
       >
-        <option value="">Select Cost Centre</option>
+        <option value=""></option>
         {(costCentres || []).map((cc: string) => (
           <option key={cc} value={cc}>{cc}</option>
         ))}
