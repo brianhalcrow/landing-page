@@ -58,17 +58,19 @@ export const useTradeData = () => {
         return;
       }
 
+      const updatedRowData = [...rowData];
+      
       // Save trades one by one to establish relationships for swaps
-      for (let i = 0; i < rowData.length; i++) {
-        const row = rowData[i];
+      for (let i = 0; i < updatedRowData.length; i++) {
+        const row = updatedRowData[i];
         const { data, error } = await supabase
           .from('trade_requests')
           .insert({
             ...row,
             created_at: new Date().toISOString(),
             // For swaps, link second leg to first leg
-            related_trade_id: row.instrument === 'Swap' && i % 2 === 1 ? 
-              rowData[i - 1].request_no : null
+            related_trade_id: row.instrument === 'Swap' && i % 2 === 1 && updatedRowData[i - 1].request_no ? 
+              updatedRowData[i - 1].request_no : null
           })
           .select();
 
@@ -76,7 +78,10 @@ export const useTradeData = () => {
 
         // Update the request_no in our rowData for the next iteration
         if (data?.[0]) {
-          rowData[i].request_no = data[0].request_no;
+          updatedRowData[i] = {
+            ...updatedRowData[i],
+            request_no: data[0].request_no
+          };
         }
       }
       
@@ -90,6 +95,7 @@ export const useTradeData = () => {
 
   const addRow = () => {
     const newRow: Partial<HedgeRequestDraftTrade> = {
+      request_no: null,
       // Initialize with default values
     };
     setRowData([...rowData, newRow as HedgeRequestDraftTrade]);
