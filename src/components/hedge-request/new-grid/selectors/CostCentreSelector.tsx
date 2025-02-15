@@ -1,9 +1,8 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CostCentreSelectorProps {
   value: string;
@@ -16,6 +15,17 @@ interface CostCentreSelectorProps {
 
 export const CostCentreSelector = ({ value, data, node, context }: CostCentreSelectorProps) => {
   const hasAttemptedAutoSelect = useRef(false);
+  const [lastAttemptedEntityId, setLastAttemptedEntityId] = useState<string | null>(null);
+
+  // Debug logging for props
+  useEffect(() => {
+    console.log('CostCentreSelector Props:', {
+      value,
+      entityId: data.entity_id,
+      rowIndex: node.rowIndex,
+      hasContext: !!context?.updateRowData
+    });
+  }, [value, data.entity_id, node.rowIndex, context]);
 
   const { data: costCentres, isLoading, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
@@ -23,83 +33,111 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       console.log('Fetching cost centres for entity:', data.entity_id);
       
       if (!data.entity_id) {
-        console.log('No entity_id provided, returning empty array');
+        console.warn('No entity_id provided for cost centre fetch');
         return [];
       }
       
-      const { data: centresData, error } = await supabase
-        .from('management_structure')
-        .select('cost_centre')
-        .eq('entity_id', data.entity_id);
+      try {
+        const { data: centresData, error } = await supabase
+          .from('management_structure')
+          .select('cost_centre')
+          .eq('entity_id', data.entity_id);
 
-      if (error) {
-        console.error('Error fetching cost centres:', error);
+        if (error) {
+          console.error('Supabase error fetching cost centres:', error);
+          toast.error(`Failed to fetch cost centres: ${error.message}`);
+          throw error;
+        }
+
+        if (!centresData || !Array.isArray(centresData)) {
+          console.warn('Unexpected data format from Supabase:', centresData);
+          return [];
+        }
+
+        console.log('Raw cost centre data:', centresData);
+        
+        // Ensure we remove any null or undefined values and sort the array
+        const validCentres = centresData
+          .map(item => item.cost_centre)
+          .filter(Boolean)
+          .sort();
+
+        console.log('Processed cost centres:', validCentres);
+        return [...new Set(validCentres)];
+      } catch (err) {
+        console.error('Error in cost centre fetch:', err);
         toast.error('Failed to fetch cost centres');
-        return [];
+        throw err;
       }
-
-      console.log('Raw cost centre data:', centresData);
-
-      // Ensure we remove any null or undefined values and sort the array
-      const validCentres = centresData
-        .map(item => item.cost_centre)
-        .filter(Boolean)
-        .sort();
-
-      console.log('Processed cost centres:', validCentres);
-      return [...new Set(validCentres)];
     },
     enabled: !!data.entity_id,
-    staleTime: 0,
+    staleTime: 300000, // 5 minutes
+    refetchOnWindowFocus: false,
     retry: 2,
     retryDelay: 1000
   });
 
+  // Auto-selection effect
   useEffect(() => {
-    if (
+    const shouldAutoSelect = 
       !isLoading && 
       costCentres?.length === 1 && 
       !value && 
       context?.updateRowData && 
       !hasAttemptedAutoSelect.current &&
-      data.entity_id // Ensure we have an entity_id
-    ) {
-      console.log('Attempting to auto-select cost centre:', {
-        costCentres,
-        currentValue: value,
-        entityId: data.entity_id,
-        rowIndex: node.rowIndex
-      });
+      data.entity_id && 
+      data.entity_id !== lastAttemptedEntityId;
 
+    console.log('Auto-select evaluation:', {
+      isLoading,
+      costCentresLength: costCentres?.length,
+      currentValue: value,
+      hasContext: !!context?.updateRowData,
+      hasAttempted: hasAttemptedAutoSelect.current,
+      entityId: data.entity_id,
+      lastAttemptedEntityId,
+      shouldAutoSelect
+    });
+
+    if (shouldAutoSelect) {
+      console.log('Attempting to auto-select cost centre:', costCentres[0]);
       hasAttemptedAutoSelect.current = true;
+      setLastAttemptedEntityId(data.entity_id);
 
-      // Use requestAnimationFrame to ensure DOM updates have completed
       requestAnimationFrame(() => {
         context.updateRowData(node.rowIndex, {
           cost_centre: costCentres[0]
         });
-        console.log('Auto-selected cost centre:', costCentres[0]);
       });
     }
-  }, [costCentres, value, context, node.rowIndex, isLoading, data.entity_id]);
+  }, [costCentres, value, context, node.rowIndex, isLoading, data.entity_id, lastAttemptedEntityId]);
 
-  // Reset the auto-select flag when the entity changes
+  // Reset auto-select when entity changes
   useEffect(() => {
-    hasAttemptedAutoSelect.current = false;
-  }, [data.entity_id]);
+    if (data.entity_id !== lastAttemptedEntityId) {
+      console.log('Resetting auto-select for new entity:', data.entity_id);
+      hasAttemptedAutoSelect.current = false;
+    }
+  }, [data.entity_id, lastAttemptedEntityId]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {
       const newValue = event.target.value;
-      console.log('Manual cost centre selection:', newValue);
+      console.log('Manual cost centre selection:', {
+        newValue,
+        rowIndex: node.rowIndex
+      });
       context.updateRowData(node.rowIndex, {
         cost_centre: newValue
       });
+    } else {
+      console.warn('No updateRowData function available in context');
     }
   };
 
   if (error) {
     console.error('Cost centre query error:', error);
+    toast.error('Error loading cost centres');
   }
 
   return (
@@ -110,12 +148,13 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!data.entity_id || isLoading}
       >
-        <option value=""></option>
+        <option value="">Select Cost Centre</option>
         {(costCentres || []).map((cc: string) => (
           <option key={cc} value={cc}>{cc}</option>
         ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
+      {isLoading && <span className="absolute right-8 top-1/2 transform -translate-y-1/2">Loading...</span>}
     </div>
   );
 };
