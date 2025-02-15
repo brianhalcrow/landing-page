@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,9 +13,9 @@ export const useEntities = () => {
   } = useQuery({
     queryKey: ["entities"],
     queryFn: async () => {
-      console.log('Fetching entities from entities table...');
+      console.log('Fetching entities from erp_legal_entity table...');
       const { data, error } = await supabase
-        .from("entities")
+        .from("erp_legal_entity")
         .select("*")
         .order('entity_name');
       

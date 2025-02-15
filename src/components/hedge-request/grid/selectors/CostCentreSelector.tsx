@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -16,7 +17,7 @@ export const CostCentreSelector = ({ data, value, node }: CostCentreSelectorProp
       if (!data.entity_id) return [];
       
       const { data: centresData, error } = await supabase
-        .from('management_structure')
+        .from('erp_mgmt_structure')
         .select('cost_centre')
         .eq('entity_id', data.entity_id);
 
@@ -26,7 +27,7 @@ export const CostCentreSelector = ({ data, value, node }: CostCentreSelectorProp
         return [];
       }
 
-      return centresData.map(item => item.cost_centre);
+      return [...new Set(centresData.map(item => item.cost_centre))].sort();
     },
     enabled: !!data.entity_id
   });

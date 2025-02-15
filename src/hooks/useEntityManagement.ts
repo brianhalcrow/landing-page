@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -7,7 +8,7 @@ export const useEntityManagement = (entityId?: string) => {
     queryKey: ["entity", entityId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("entities")
+        .from("erp_legal_entity")
         .select("*")
         .eq("entity_id", entityId)
         .single();

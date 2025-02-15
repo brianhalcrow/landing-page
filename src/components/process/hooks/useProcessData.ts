@@ -59,7 +59,7 @@ export const useProcessData = () => {
     queryKey: ['entity-process-settings'],
     queryFn: async () => {
       const { data: entities, error: entitiesError } = await supabase
-        .from('entities')
+        .from('erp_legal_entity')
         .select('entity_id, entity_name');
 
       if (entitiesError) throw entitiesError;
