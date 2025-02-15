@@ -15,10 +15,12 @@ export const CurrencySelector = ({ value, field, data, node, context }: Currency
   const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'NZD', 'SGD'];
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = event.target.value;
     if (context?.updateRowData) {
-      context.updateRowData(node.rowIndex, {
-        [field]: event.target.value
-      });
+      const updates = {
+        [field]: newValue
+      };
+      context.updateRowData(node.rowIndex, updates);
     }
   };
 

@@ -9,12 +9,13 @@ interface CostCentreSelectorProps {
   value: string;
   data: any;
   node: any;
+  field: string;
   context?: {
     updateRowData?: (rowIndex: number, updates: any) => void;
   };
 }
 
-export const CostCentreSelector = ({ value, data, node, context }: CostCentreSelectorProps) => {
+export const CostCentreSelector = ({ value, data, node, field, context }: CostCentreSelectorProps) => {
   const hasAttemptedAutoSelect = useRef(false);
   const [lastAttemptedEntityId, setLastAttemptedEntityId] = useState<string | null>(null);
 
@@ -55,19 +56,24 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
   });
 
   useEffect(() => {
-    const shouldAutoSelect = 
+    // Only auto-select if there's exactly one cost centre
+    if (
       costCentres?.length === 1 && 
       !value && 
       context?.updateRowData && 
       !hasAttemptedAutoSelect.current &&
       data.entity_id && 
-      data.entity_id !== lastAttemptedEntityId;
-
-    if (shouldAutoSelect) {
+      data.entity_id !== lastAttemptedEntityId
+    ) {
       hasAttemptedAutoSelect.current = true;
       setLastAttemptedEntityId(data.entity_id);
       context.updateRowData(node.rowIndex, {
         cost_centre: costCentres[0]
+      });
+    } else if (costCentres?.length > 1 && value && data.entity_id !== lastAttemptedEntityId) {
+      // Clear the cost centre if there are multiple options and the entity has changed
+      context?.updateRowData?.(node.rowIndex, {
+        cost_centre: ''
       });
     }
   }, [costCentres, value, context, node.rowIndex, data.entity_id, lastAttemptedEntityId]);
