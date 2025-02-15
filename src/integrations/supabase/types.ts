@@ -2545,7 +2545,6 @@ export type Database = {
       }
       trade_requests: {
         Row: {
-          approved: boolean | null
           approved_at: string | null
           approved_by: string | null
           ccy_1: string | null
@@ -2561,17 +2560,18 @@ export type Database = {
           entity_name: string | null
           instrument: string | null
           request_no: number
-          reviewed: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           settlement_date: string | null
+          status: Database["public"]["Enums"]["request_status"] | null
           strategy_id: string | null
           strategy_name: string | null
+          submitted_at: string | null
+          submitted_by: string | null
           trade_date: string | null
           updated_at: string | null
         }
         Insert: {
-          approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
           ccy_1?: string | null
@@ -2587,17 +2587,18 @@ export type Database = {
           entity_name?: string | null
           instrument?: string | null
           request_no?: number
-          reviewed?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           settlement_date?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
           strategy_id?: string | null
           strategy_name?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
         Update: {
-          approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
           ccy_1?: string | null
@@ -2613,12 +2614,14 @@ export type Database = {
           entity_name?: string | null
           instrument?: string | null
           request_no?: number
-          reviewed?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           settlement_date?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
           strategy_id?: string | null
           strategy_name?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -3333,6 +3336,7 @@ export type Database = {
       }
     }
     Enums: {
+      request_status: "Submitted" | "Reviewed" | "Approved"
       schedule_frequency: "daily" | "weekly" | "monthly" | "on_demand"
       schedule_type: "on_demand" | "scheduled"
     }
