@@ -8,8 +8,8 @@ interface TradeRequestInput {
   instrument: string;
   trade_date: Date | null;
   settlement_date: Date | null;
-  buy_currency: string;
-  sell_currency: string;
+  buy_currency: string | null;
+  sell_currency: string | null;
   buy_amount: number | string | null;
   sell_amount: number | string | null;
   cost_centre: string;
@@ -46,18 +46,12 @@ export const validateTradeRequest = (data: any): boolean => {
   const buyAmount = data.buy_amount || data.ccy_1_amount;
   const sellAmount = data.sell_amount || data.ccy_2_amount;
 
-  if (!buyCurrency || !sellCurrency) {
-    toast.error("Both currencies are required");
-    return false;
-  }
+  // Check if at least one side (buy or sell) has both currency and amount
+  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
+  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
 
-  if (!buyAmount || buyAmount === "0") {
-    toast.error("Buy amount is required and must be greater than 0");
-    return false;
-  }
-
-  if (!sellAmount || sellAmount === "0") {
-    toast.error("Sell amount is required and must be greater than 0");
+  if (!hasBuySide && !hasSellSide) {
+    toast.error("At least one side (buy or sell) must have both currency and amount");
     return false;
   }
 
@@ -80,8 +74,8 @@ export const transformTradeRequest = (data: any) => {
   // Handle currency fields mapping
   const buyCurrency = data.buy_currency || data.ccy_1;
   const sellCurrency = data.sell_currency || data.ccy_2;
-  const buyAmount = parseFloat(data.buy_amount || data.ccy_1_amount);
-  const sellAmount = parseFloat(data.sell_amount || data.ccy_2_amount);
+  const buyAmount = data.buy_amount || data.ccy_1_amount ? parseFloat(data.buy_amount || data.ccy_1_amount) : null;
+  const sellAmount = data.sell_amount || data.ccy_2_amount ? parseFloat(data.sell_amount || data.ccy_2_amount) : null;
 
   return {
     entity_id: data.entity_id,
@@ -95,7 +89,7 @@ export const transformTradeRequest = (data: any) => {
     ccy_1_amount: buyAmount,
     ccy_2_amount: sellAmount,
     cost_centre: data.cost_centre,
-    ccy_pair: `${buyCurrency}${sellCurrency}`,
+    ccy_pair: buyCurrency && sellCurrency ? `${buyCurrency}${sellCurrency}` : null,
     counterparty: data.counterparty,
     counterparty_name: data.counterparty_name,
     strategy_name: data.strategy_name
