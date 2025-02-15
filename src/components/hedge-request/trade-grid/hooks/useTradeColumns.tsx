@@ -1,6 +1,6 @@
+
 import { ColDef } from 'ag-grid-community';
 import { CurrencyCellEditor } from '../components/CurrencyCellEditor';
-import ActionsCellRenderer from '../components/ActionsCellRenderer';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
 
 const formatNumber = (value: number) => {
@@ -115,14 +115,6 @@ export const useTradeColumns = (
         type: 'date'
       },
       valueFormatter: (params) => params.value || '',
-    },
-    {
-      headerName: 'Actions',
-      cellRenderer: ActionsCellRenderer,
-      editable: false,
-      sortable: false,
-      filter: false,
-      width: 100
     }
   ];
 };

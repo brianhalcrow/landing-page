@@ -2,18 +2,18 @@
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { GridStyles } from "../../hedge-request/grid/components/GridStyles";
-import { HedgeRequestOverview } from '../types/hedge-request.types';
+import { TradeRequest } from '../types/hedge-request.types';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 interface HedgeRequestsGridProps {
-  rowData: HedgeRequestOverview[];
+  rowData: TradeRequest[];
 }
 
 export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
-  const columnDefs: ColDef<HedgeRequestOverview>[] = [
+  const columnDefs: ColDef<TradeRequest>[] = [
     { 
-      field: 'id', 
+      field: 'request_no', 
       headerName: 'ID',
       flex: 0.5,
       minWidth: 80,
@@ -41,38 +41,17 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'functional_currency', 
-      headerName: 'Currency',
+      field: 'ccy_1', 
+      headerName: 'Currency 1',
       flex: 1,
       minWidth: 100,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'exposure_category_l1', 
-      headerName: 'Category L1',
+      field: 'ccy_2', 
+      headerName: 'Currency 2',
       flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'exposure_category_l2', 
-      headerName: 'Category L2',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'exposure_category_l3', 
-      headerName: 'Category L3',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'strategy_description', 
-      headerName: 'Strategy',
-      flex: 1,
-      minWidth: 150,
+      minWidth: 100,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
@@ -80,13 +59,6 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerName: 'Instrument',
       flex: 1,
       minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'status', 
-      headerName: 'Status',
-      flex: 1,
-      minWidth: 100,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
@@ -117,29 +89,8 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       }
     },
     { 
-      field: 'trade_id', 
-      headerName: 'Trade ID',
-      flex: 0.5,
-      minWidth: 80,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'buy_currency', 
-      headerName: 'Buy Currency',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'sell_currency', 
-      headerName: 'Sell Currency',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'buy_amount', 
-      headerName: 'Buy Amount',
+      field: 'ccy_1_amount', 
+      headerName: 'Amount 1',
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
@@ -148,8 +99,8 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       }
     },
     { 
-      field: 'sell_amount', 
-      headerName: 'Sell Amount',
+      field: 'ccy_2_amount', 
+      headerName: 'Amount 2',
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
