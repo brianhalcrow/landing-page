@@ -1,5 +1,14 @@
+
 import { ValidEntity } from "../types";
 import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EntityNameSelectorProps {
   value: string;
@@ -8,14 +17,20 @@ interface EntityNameSelectorProps {
   context?: {
     validEntities?: ValidEntity[];
   };
+  colDef?: {
+    field: string;
+  };
 }
 
-export const EntityNameSelector = ({ value, data, node, context }: EntityNameSelectorProps) => {
+export const EntityNameSelector = ({ value, data, node, context, colDef }: EntityNameSelectorProps) => {
   const entities = context?.validEntities || [];
+  const isEntityId = colDef?.field === 'entity_id';
   
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (selectedValue: string) => {
     const selectedEntity = entities.find(
-      (entity: ValidEntity) => entity.entity_name === event.target.value
+      (entity: ValidEntity) => isEntityId 
+        ? entity.entity_id === selectedValue
+        : entity.entity_name === selectedValue
     );
     
     if (selectedEntity) {
@@ -35,20 +50,25 @@ export const EntityNameSelector = ({ value, data, node, context }: EntityNameSel
   };
 
   return (
-    <div className="relative w-full">
-      <select 
-        value={value || ''} 
-        onChange={handleChange}
-        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-      >
-        <option value="">Select Entity</option>
-        {entities.map((entity: ValidEntity) => (
-          <option key={entity.entity_id} value={entity.entity_name}>
-            {entity.entity_name}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
-    </div>
+    <Select
+      value={value || ''}
+      onValueChange={handleChange}
+    >
+      <SelectTrigger className="h-full w-full border-0 outline-none bg-transparent">
+        <SelectValue placeholder={isEntityId ? "Select Entity ID" : "Select Entity"} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {entities.map((entity: ValidEntity) => (
+            <SelectItem
+              key={entity.entity_id}
+              value={isEntityId ? entity.entity_id : entity.entity_name}
+            >
+              {isEntityId ? entity.entity_id : entity.entity_name}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 };
