@@ -64,13 +64,16 @@ export const EntityNameSelector = ({ value, data, node, context, colDef }: Entit
     }
   };
 
+  // Ensure value is empty string if it's null/undefined for proper placeholder display
+  const displayValue = value || '';
+
   return (
     <Select
-      value={value || ''}
+      value={displayValue}
       onValueChange={handleChange}
     >
       <SelectTrigger className="h-full w-full border-0 outline-none bg-transparent">
-        <SelectValue placeholder={isEntityId ? "Select Entity ID" : "Select Entity"} />
+        <SelectValue defaultValue="" placeholder={isEntityId ? "Select Entity ID" : "Select Entity"} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

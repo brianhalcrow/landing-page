@@ -19,7 +19,8 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       const { data: strategyData, error } = await supabase
         .from('hedge_strategy')
         .select('strategy_name')
-        .eq('exposure_category_l2', data.exposure_category_l2);
+        .eq('exposure_category_l2', data.exposure_category_l2)
+        .order('strategy_name', { ascending: true });
 
       if (error) {
         console.error('Error fetching strategies:', error);
@@ -35,7 +36,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
   const uniqueStrategies = Array.from(new Set(strategies?.map(s => ({
     strategy: s.strategy_name,
     description: s.strategy_name
-  })) || [])).sort((a, b) => a.description.localeCompare(b.description)); // Sort alphabetically by description
+  })) || []));
 
   // Only update if we have data and the current value doesn't match
   if (!isLoading && uniqueStrategies.length === 1 && !value) {
