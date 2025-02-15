@@ -1,6 +1,7 @@
 
 import { ValidHedgeConfig } from '../types/hedgeRequest.types';
 import { ChevronDown } from "lucide-react";
+import { useEffect } from "react";
 
 interface CounterpartySelectorProps {
   value: string;
@@ -31,6 +32,17 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
         }
       ])
   ).values());
+
+  useEffect(() => {
+    // Auto-select if there's only one counterparty and none is selected
+    if (counterparties.length === 1 && !props.value && props.context?.updateRowData) {
+      const counterparty = counterparties[0];
+      props.context.updateRowData(props.node.rowIndex, {
+        counterparty: counterparty.id,
+        counterparty_name: counterparty.name
+      });
+    }
+  }, [counterparties, props.value, props.context, props.node.rowIndex, props.data.strategy]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
