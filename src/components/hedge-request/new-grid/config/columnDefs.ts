@@ -1,3 +1,4 @@
+
 import { ColDef } from 'ag-grid-community';
 import { EntitySelector } from '../selectors/EntitySelector';
 import { StrategySelector } from '../selectors/StrategySelector';
@@ -21,8 +22,7 @@ export const createColumnDefs = (): ColDef[] => [
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
-    editable: true,
-    cellRenderer: EntitySelector
+    editable: false
   },
   {
     field: 'cost_centre',
@@ -36,7 +36,7 @@ export const createColumnDefs = (): ColDef[] => [
     cellEditorPopup: false
   },
   {
-    field: 'strategy',
+    field: 'strategy_id',
     headerName: 'Strategy',
     minWidth: 160,
     flex: 1.5,
@@ -47,6 +47,14 @@ export const createColumnDefs = (): ColDef[] => [
     cellEditorPopup: false
   },
   {
+    field: 'strategy_name',
+    headerName: 'Strategy Name',
+    minWidth: 160,
+    flex: 1.5,
+    headerClass: 'ag-header-center',
+    editable: false
+  },
+  {
     field: 'instrument',
     headerName: 'Instrument',
     minWidth: 120,
@@ -55,7 +63,7 @@ export const createColumnDefs = (): ColDef[] => [
     editable: false
   },
   {
-    field: 'counterparty',
+    field: 'counterparty_name',
     headerName: 'Counterparty',
     minWidth: 160,
     flex: 1.5,
@@ -64,15 +72,6 @@ export const createColumnDefs = (): ColDef[] => [
     cellRenderer: CounterpartySelector,
     cellEditor: CounterpartySelector,
     cellEditorPopup: false
-  },
-  {
-    field: 'counterparty_name',
-    headerName: 'Counterparty Name',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: false,
-    hide: true
   },
   {
     field: 'buy_currency',
