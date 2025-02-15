@@ -1,13 +1,14 @@
 
 import { toast } from "sonner";
+import { parse, format } from "date-fns";
 
 interface TradeRequestInput {
   entity_id: string;
   entity_name: string;
   strategy_description: string;
   instrument: string;
-  trade_date: Date | null;
-  settlement_date: Date;  // Changed to non-nullable
+  trade_date: string | null;
+  settlement_date: string;
   buy_currency: string;
   sell_currency: string;
   buy_amount: number | string | null;
@@ -93,6 +94,19 @@ export const validateTradeRequest = (data: any): boolean => {
   return true;
 };
 
+const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
+  if (!dateStr) return null;
+  try {
+    // Parse the DD/MM/YYYY format to a Date object
+    const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
+    // Format to YYYY-MM-DD
+    return format(parsedDate, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error("Error parsing date:", error);
+    return null;
+  }
+};
+
 export const transformTradeRequest = (data: any) => {
   // Handle strategy field mapping
   const strategy = data.strategy_description || data.strategy;
@@ -107,8 +121,8 @@ export const transformTradeRequest = (data: any) => {
     entity_name: data.entity_name,
     strategy,
     instrument: data.instrument,
-    trade_date: data.trade_date || null,  // Explicitly handle null trade date
-    settlement_date: data.settlement_date,
+    trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
+    settlement_date: parseDateToYYYYMMDD(data.settlement_date),
     ccy_1: buyCurrency,
     ccy_2: sellCurrency,
     ccy_1_amount: buyAmount,
