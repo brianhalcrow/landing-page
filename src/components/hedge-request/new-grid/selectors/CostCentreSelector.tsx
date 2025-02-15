@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CostCentreSelectorProps {
   value: string;
@@ -16,8 +16,7 @@ interface CostCentreSelectorProps {
 }
 
 export const CostCentreSelector = ({ value, data, node, field, context }: CostCentreSelectorProps) => {
-  const hasAttemptedAutoSelect = useRef(false);
-  const [lastAttemptedEntityId, setLastAttemptedEntityId] = useState<string | null>(null);
+  const [lastProcessedEntityId, setLastProcessedEntityId] = useState<string | null>(null);
 
   const { data: costCentres, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
@@ -56,24 +55,28 @@ export const CostCentreSelector = ({ value, data, node, field, context }: CostCe
   });
 
   useEffect(() => {
-    if (!hasAttemptedAutoSelect.current && data.entity_id && data.entity_id !== lastAttemptedEntityId) {
-      hasAttemptedAutoSelect.current = true;
-      setLastAttemptedEntityId(data.entity_id);
-      
-      // Only set a value if there's exactly one cost centre
-      if (costCentres?.length === 1 && !value && context?.updateRowData) {
-        context.updateRowData(node.rowIndex, {
+    if (data.entity_id && data.entity_id !== lastProcessedEntityId && costCentres) {
+      console.log('Processing entity change:', {
+        entityId: data.entity_id,
+        costCentresCount: costCentres.length,
+        currentValue: value
+      });
+
+      setLastProcessedEntityId(data.entity_id);
+
+      if (costCentres.length === 1) {
+        // Only auto-select if there's exactly one cost centre
+        context?.updateRowData?.(node.rowIndex, {
           cost_centre: costCentres[0]
+        });
+      } else if (costCentres.length > 1) {
+        // Clear the cost centre if there are multiple options
+        context?.updateRowData?.(node.rowIndex, {
+          cost_centre: ''
         });
       }
     }
-  }, [costCentres, value, context, node.rowIndex, data.entity_id, lastAttemptedEntityId]);
-
-  useEffect(() => {
-    if (data.entity_id !== lastAttemptedEntityId) {
-      hasAttemptedAutoSelect.current = false;
-    }
-  }, [data.entity_id, lastAttemptedEntityId]);
+  }, [data.entity_id, costCentres, lastProcessedEntityId, context, node.rowIndex, value]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {

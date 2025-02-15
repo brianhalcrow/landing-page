@@ -1,6 +1,5 @@
 
 import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
 
 interface CurrencySelectorProps {
   value: string;
@@ -18,17 +17,15 @@ export const CurrencySelector = ({ value, field, data, node, context }: Currency
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
     if (context?.updateRowData) {
-      console.log(`Updating ${field} to ${newValue} for row ${node.rowIndex}`);
+      console.log(`Currency ${field} changing to ${newValue} for row ${node.rowIndex}`, {
+        currentValue: value,
+        newValue,
+        rowData: data
+      });
+      
       context.updateRowData(node.rowIndex, { [field]: newValue });
     }
   };
-
-  // Ensure the value is properly initialized in the data
-  useEffect(() => {
-    if (value && context?.updateRowData) {
-      context.updateRowData(node.rowIndex, { [field]: value });
-    }
-  }, []);
 
   return (
     <div className="relative w-full">
