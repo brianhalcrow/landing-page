@@ -116,6 +116,32 @@ export const useHedgeRequestData = () => {
         }
       }
 
+      // If this is an amount update for a swap
+      if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
+        // For first leg, update second leg's amounts
+        if (rowIndex % 2 === 0) {
+          const nextRowIndex = rowIndex + 1;
+          if (newData[nextRowIndex]) {
+            newData[nextRowIndex] = {
+              ...newData[nextRowIndex],
+              buy_amount: updatedRow.sell_amount,
+              sell_amount: updatedRow.buy_amount
+            };
+          }
+        }
+        // For second leg, update first leg's amounts
+        else {
+          const prevRowIndex = rowIndex - 1;
+          if (newData[prevRowIndex]) {
+            newData[prevRowIndex] = {
+              ...newData[prevRowIndex],
+              buy_amount: updatedRow.sell_amount,
+              sell_amount: updatedRow.buy_amount
+            };
+          }
+        }
+      }
+
       // Only add a new row if this is the first time the instrument is being set to swap
       if (isNewSwap && rowIndex === newData.length - 1) {
         console.log('Adding new row for SWAP second leg');
