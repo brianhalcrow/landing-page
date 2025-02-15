@@ -13,11 +13,6 @@ export const createColumnDefs = (): ColDef[] => [
   {
     field: 'strategy_name',
     headerName: 'Strategy',
-    width: 150
-  },
-  {
-    field: 'strategy_description',
-    headerName: 'Description',
     width: 200
   },
   {

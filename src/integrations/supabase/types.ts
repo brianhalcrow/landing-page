@@ -1337,21 +1337,21 @@ export type Database = {
           id: number
           instrument: string | null
           strategy: string | null
-          strategy_description: string | null
+          strategy_name: string | null
         }
         Insert: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
           strategy?: string | null
-          strategy_description?: string | null
+          strategy_name?: string | null
         }
         Update: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
           strategy?: string | null
-          strategy_description?: string | null
+          strategy_name?: string | null
         }
         Relationships: []
       }
@@ -2647,7 +2647,7 @@ export type Database = {
           ccy_pair: string | null
           contract_rate: number | null
           cost_centre: string | null
-          counterparty: string | null
+          counterparty_name: string | null
           created_at: string | null
           created_by: string | null
           currency_pair: string | null
@@ -2657,7 +2657,7 @@ export type Database = {
           instrument: string | null
           settlement_date: string | null
           spot_rate: number | null
-          strategy: string | null
+          strategy_name: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2669,7 +2669,7 @@ export type Database = {
           ccy_pair?: string | null
           contract_rate?: number | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           currency_pair?: string | null
@@ -2679,7 +2679,7 @@ export type Database = {
           instrument?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
-          strategy?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2691,7 +2691,7 @@ export type Database = {
           ccy_pair?: string | null
           contract_rate?: number | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           currency_pair?: string | null
@@ -2701,7 +2701,7 @@ export type Database = {
           instrument?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
-          strategy?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }

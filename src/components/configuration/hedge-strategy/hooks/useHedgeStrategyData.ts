@@ -15,9 +15,7 @@ export const useHedgeStrategyData = () => {
         .select(`
           entity_id,
           entity_name,
-          strategy_id,
-          strategy,
-          strategy_description,
+          strategy_name,
           instrument,
           counterparty_id,
           counterparty_name
@@ -33,9 +31,7 @@ export const useHedgeStrategyData = () => {
       const gridRows: HedgeStrategyGridRow[] = configurations.map(config => ({
         entity_id: config.entity_id,
         entity_name: config.entity_name,
-        strategy: config.strategy_id.toString(),
-        strategy_name: config.strategy,
-        strategy_description: config.strategy_description,
+        strategy_name: config.strategy_name,
         instrument: config.instrument,
         counterparty_id: config.counterparty_id,
         counterparty_name: config.counterparty_name
