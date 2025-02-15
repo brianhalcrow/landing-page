@@ -7,9 +7,10 @@ import { transformTradeRequest, validateTradeRequest } from "../utils/tradeReque
 interface GridActionsProps {
   onAddRow: () => void;
   rowData: any[];
+  onClearGrid?: () => void; // Add new prop for clearing the grid
 }
 
-export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
+export const GridActions = ({ onAddRow, rowData, onClearGrid }: GridActionsProps) => {
   const saveMutation = useTradeRequestSave();
 
   const validateRows = (rows: any[]) => {
@@ -80,11 +81,8 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         return;
       }
 
-      // Transform all rows and collect trades
-      const tradesToSave = validRows.flatMap(row => {
-        const transformedData = transformTradeRequest(row);
-        return Array.isArray(transformedData) ? transformedData : [transformedData];
-      });
+      // Transform all rows
+      const tradesToSave = validRows.map(row => transformTradeRequest(row));
 
       console.log("Saving trades:", tradesToSave);
 
@@ -92,6 +90,11 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       await saveMutation.mutateAsync(tradesToSave);
 
       toast.success(`Successfully saved ${validRows.length} trade request(s)`);
+      
+      // Clear the grid after successful save
+      if (onClearGrid) {
+        onClearGrid();
+      }
     } catch (error) {
       console.error("Error in save handler:", error);
       toast.error("Failed to save trade requests");

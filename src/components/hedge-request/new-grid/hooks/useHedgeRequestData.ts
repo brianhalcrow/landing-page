@@ -180,10 +180,15 @@ export const useHedgeRequestData = () => {
     setRowData([...rowData, { ...defaultRow }]);
   };
 
+  const clearRowData = () => {
+    setRowData([{ ...defaultRow }]); // Reset to a single empty row
+  };
+
   return {
     rowData,
     validConfigs,
     addNewRow,
-    updateRowData
+    updateRowData,
+    clearRowData
   };
 };

@@ -13,7 +13,8 @@ const HedgeRequestGrid = () => {
     rowData,
     validConfigs,
     addNewRow,
-    updateRowData
+    updateRowData,
+    clearRowData // Add this from useHedgeRequestData hook
   } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback((event: any) => {
@@ -40,11 +41,9 @@ const HedgeRequestGrid = () => {
             suppressSizeToFit: false
           }}
           getRowId={(params) => {
-            // First try to use the id from data
             if (params.data?.id) {
               return params.data.id.toString();
             }
-            // Fall back to a generated id if no id exists
             return `generated-${Date.now()}-${Math.random()}`;
           }}
           animateRows={true}
@@ -59,6 +58,7 @@ const HedgeRequestGrid = () => {
       <GridActions 
         onAddRow={addNewRow}
         rowData={rowData}
+        onClearGrid={clearRowData}
       />
     </div>
   );
