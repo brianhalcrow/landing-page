@@ -34,14 +34,13 @@ export const EntitySelector = (props: EntitySelectorProps) => {
         ...props.data,
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name,
+        // Only clear strategy-related and cost centre fields
         strategy: '',
         strategy_name: '',
         strategy_description: '',
         instrument: '',
-        counterparty: '',
-        counterparty_name: '',
-        cost_centre: '', // Clear cost_centre when entity changes
-        currency: selectedEntity.functional_currency // Set default currency to functional currency
+        cost_centre: '',
+        // Preserve all other fields
       };
       props.node.setData(updatedData);
     }
