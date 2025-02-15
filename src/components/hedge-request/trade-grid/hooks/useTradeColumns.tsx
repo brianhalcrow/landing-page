@@ -1,5 +1,5 @@
 import { ColDef } from 'ag-grid-community';
-import { CurrencySelector } from '../components/CurrencySelector';
+import { CurrencyCellEditor } from '../components/CurrencyCellEditor';
 import ActionsCellRenderer from '../components/ActionsCellRenderer';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
 
@@ -19,9 +19,13 @@ export const useTradeColumns = (
       field: 'buy_currency',
       headerName: 'Buy',
       editable: true,
-      cellRenderer: CurrencySelector,
+      cellEditor: CurrencyCellEditor,
       cellDataType: 'text',
-      valueParser: (params) => params.newValue === "" ? null : params.newValue
+      valueParser: (params) => params.newValue === "" ? null : params.newValue,
+      cellStyle: { 
+        backgroundColor: 'white',
+        border: '1px solid #e2e8f0'
+      }
     },
     {
       field: 'buy_amount',
@@ -42,21 +46,19 @@ export const useTradeColumns = (
           };
         }
         return {};
-      },
-      cellClass: (params) => {
-        return params.data?.buy_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
-      },
-      suppressKeyboardEvent: (params) => {
-        return !shouldAllowAmountEdit(params, 'buy', lastSelectedCurrency);
       }
     },
     {
       field: 'sell_currency',
       headerName: 'Sell',
       editable: true,
-      cellRenderer: CurrencySelector,
+      cellEditor: CurrencyCellEditor,
       cellDataType: 'text',
-      valueParser: (params) => params.newValue === "" ? null : params.newValue
+      valueParser: (params) => params.newValue === "" ? null : params.newValue,
+      cellStyle: { 
+        backgroundColor: 'white',
+        border: '1px solid #e2e8f0'
+      }
     },
     {
       field: 'sell_amount',
@@ -77,12 +79,6 @@ export const useTradeColumns = (
           };
         }
         return {};
-      },
-      cellClass: (params) => {
-        return params.data?.sell_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
-      },
-      suppressKeyboardEvent: (params) => {
-        return !shouldAllowAmountEdit(params, 'sell', lastSelectedCurrency);
       }
     },
     {
