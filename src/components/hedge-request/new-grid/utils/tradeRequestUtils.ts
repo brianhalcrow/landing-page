@@ -15,13 +15,17 @@ interface TradeRequestInput {
   cost_centre: string;
 }
 
-export const validateTradeRequest = (data: TradeRequestInput): boolean => {
+export const validateTradeRequest = (data: any): boolean => {
+  console.log("Validating trade request data:", data);
+
+  // Handle strategy field mapping
+  const strategy = data.strategy_description || data.strategy;
   if (!data.entity_id || !data.entity_name) {
     toast.error("Entity information is required");
     return false;
   }
 
-  if (!data.strategy_description) {
+  if (!strategy) {
     toast.error("Strategy is required");
     return false;
   }
@@ -36,12 +40,18 @@ export const validateTradeRequest = (data: TradeRequestInput): boolean => {
     return false;
   }
 
-  if (!data.buy_currency || !data.sell_currency) {
+  // Handle currency fields mapping
+  const buyCurrency = data.buy_currency || data.ccy_1;
+  const sellCurrency = data.sell_currency || data.ccy_2;
+  const buyAmount = data.buy_amount || data.ccy_1_amount;
+  const sellAmount = data.sell_amount || data.ccy_2_amount;
+
+  if (!buyCurrency || !sellCurrency) {
     toast.error("Both currencies are required");
     return false;
   }
 
-  if (!data.buy_amount || !data.sell_amount) {
+  if (!buyAmount || !sellAmount) {
     toast.error("Currency amounts are required");
     return false;
   }
@@ -54,19 +64,27 @@ export const validateTradeRequest = (data: TradeRequestInput): boolean => {
   return true;
 };
 
-export const transformTradeRequest = (data: TradeRequestInput) => {
+export const transformTradeRequest = (data: any) => {
+  // Handle strategy field mapping
+  const strategy = data.strategy_description || data.strategy;
+  // Handle currency fields mapping
+  const buyCurrency = data.buy_currency || data.ccy_1;
+  const sellCurrency = data.sell_currency || data.ccy_2;
+  const buyAmount = data.buy_amount || data.ccy_1_amount;
+  const sellAmount = data.sell_amount || data.ccy_2_amount;
+
   return {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
-    strategy: data.strategy_description,
+    strategy,
     instrument: data.instrument,
     trade_date: data.trade_date,
     settlement_date: data.settlement_date,
-    ccy_1: data.buy_currency,
-    ccy_2: data.sell_currency,
-    ccy_1_amount: data.buy_amount,
-    ccy_2_amount: data.sell_amount,
+    ccy_1: buyCurrency,
+    ccy_2: sellCurrency,
+    ccy_1_amount: buyAmount,
+    ccy_2_amount: sellAmount,
     cost_centre: data.cost_centre,
-    ccy_pair: `${data.buy_currency}${data.sell_currency}`,
+    ccy_pair: `${buyCurrency}${sellCurrency}`,
   };
 };
