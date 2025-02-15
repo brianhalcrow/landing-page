@@ -8,9 +8,10 @@ import type { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.ty
 const defaultRow: HedgeRequestRow = {
   entity_id: "",
   entity_name: "",
-  strategy: "",
+  strategy_id: "",
+  strategy_name: "",
   instrument: "",
-  counterparty: "",
+  counterparty_id: "",
   counterparty_name: "",
   buy_currency: "",
   buy_amount: null,
@@ -38,7 +39,10 @@ export const useHedgeRequestData = () => {
       }
 
       console.log('Fetched configurations:', data);
-      return data as ValidHedgeConfig[];
+      return (data as any[]).map(config => ({
+        ...config,
+        strategy_description: config.strategy_name // Using strategy_name as description temporarily
+      })) as ValidHedgeConfig[];
     },
     staleTime: 0,
     gcTime: 0,
@@ -64,9 +68,10 @@ export const useHedgeRequestData = () => {
           rowData.map(row => ({
             entity_id: row.entity_id,
             entity_name: row.entity_name,
-            strategy: row.strategy,
+            strategy_id: row.strategy_id,
+            strategy_name: row.strategy_name,
             instrument: row.instrument,
-            counterparty: row.counterparty,
+            counterparty_id: row.counterparty_id,
             counterparty_name: row.counterparty_name,
             ccy_1: row.buy_currency,
             ccy_1_amount: row.buy_amount,
