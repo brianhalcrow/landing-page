@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { parse, format } from "date-fns";
 
@@ -131,7 +130,7 @@ export const validateTradeRequest = (data: any): boolean => {
 };
 
 const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
-  if (!dateStr) return null;
+  if (!dateStr || dateStr.trim() === '') return null;
   try {
     const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
     return format(parsedDate, 'yyyy-MM-dd');
@@ -150,6 +149,13 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
     const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
     const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
     
+    const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
+    const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
+    
+    if (!parsedSettlementDate) {
+      throw new Error('Invalid settlement date');
+    }
+
     // Create an array to hold both legs
     const swapLegs: TradeRequest[] = [
       // First leg (leg 1)
@@ -158,8 +164,8 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         entity_name: data.entity_name,
         strategy_name: data.strategy_name,
         instrument: data.instrument,
-        trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-        settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
+        trade_date: parsedTradeDate,
+        settlement_date: parsedSettlementDate,
         ccy_1: data.buy_currency,
         ccy_2: data.sell_currency,
         ccy_1_amount: firstLegBuyAmount,
@@ -176,8 +182,8 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         entity_name: data.entity_name,
         strategy_name: data.strategy_name,
         instrument: data.instrument,
-        trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-        settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
+        trade_date: parsedTradeDate,
+        settlement_date: parsedSettlementDate,
         ccy_1: data.sell_currency, // Reversed currencies
         ccy_2: data.buy_currency,
         ccy_1_amount: firstLegSellAmount, // Reversed amounts
@@ -195,13 +201,20 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
   }
 
   // For non-swap trades, return a single transformed trade
+  const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
+  const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
+  
+  if (!parsedSettlementDate) {
+    throw new Error('Invalid settlement date');
+  }
+
   const transformed: TradeRequest = {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
     strategy_name: data.strategy_name,
     instrument: data.instrument,
-    trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-    settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
+    trade_date: parsedTradeDate,
+    settlement_date: parsedSettlementDate,
     ccy_1: data.buy_currency,
     ccy_2: data.sell_currency,
     ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
