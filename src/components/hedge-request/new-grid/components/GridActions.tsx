@@ -13,22 +13,37 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
 
   const handleSave = async () => {
     try {
-      // Filter out empty rows
-      const validRows = rowData.filter(row => 
-        row.entity_id && 
-        row.strategy_description && 
-        row.buy_currency && 
-        row.sell_currency
-      );
+      // Filter out empty rows with detailed logging
+      const validRows = rowData.filter(row => {
+        const isValid = row.entity_id && 
+          row.strategy_name && 
+          ((row.buy_currency && row.buy_amount) || (row.sell_currency && row.sell_amount)) &&
+          row.settlement_date;
+
+        console.log('Row validation:', {
+          row,
+          isValid,
+          hasEntityId: !!row.entity_id,
+          hasStrategy: !!row.strategy_name,
+          hasBuyCurrency: !!row.buy_currency,
+          hasBuyAmount: !!row.buy_amount,
+          hasSellCurrency: !!row.sell_currency,
+          hasSellAmount: !!row.sell_amount,
+          hasSettlementDate: !!row.settlement_date
+        });
+
+        return isValid;
+      });
 
       console.log("Attempting to save rows:", {
         totalRows: rowData.length,
         validRowsCount: validRows.length,
-        validRows
+        validRows,
+        allRows: rowData
       });
 
       if (validRows.length === 0) {
-        toast.error("No valid trades to save");
+        toast.error("No valid trades to save. Please ensure each trade has: Entity, Strategy, Currency, Amount, and Settlement Date");
         return;
       }
 
