@@ -64,7 +64,6 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       });
 
       if (errors.length > 0) {
-        // Show all validation errors in a single toast
         toast.error(
           <div className="space-y-2">
             <p className="font-semibold">Please fix the following issues:</p>
@@ -86,11 +85,18 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       // Save valid rows
       for (const row of validRows) {
         const transformedData = transformTradeRequest(row);
+        
         if (Array.isArray(transformedData)) {
-          // For swaps, save both legs sequentially
-          for (const leg of transformedData) {
-            await saveMutation.mutateAsync(leg);
-          }
+          // For swaps, save legs sequentially
+          const [leg1, leg2] = transformedData;
+          
+          // Save leg 1 first
+          console.log("Saving swap leg 1:", leg1);
+          await saveMutation.mutateAsync(leg1);
+          
+          // Then save leg 2
+          console.log("Saving swap leg 2:", leg2);
+          await saveMutation.mutateAsync(leg2);
         } else {
           // For single trades
           await saveMutation.mutateAsync(transformedData);
