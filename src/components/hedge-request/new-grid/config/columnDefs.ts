@@ -4,6 +4,7 @@ import { EntitySelector } from '../selectors/EntitySelector';
 import { StrategySelector } from '../selectors/StrategySelector';
 import { CounterpartySelector } from '../selectors/CounterpartySelector';
 import { CostCentreSelector } from '../selectors/CostCentreSelector';
+import { format } from 'date-fns';
 
 export const createColumnDefs = (): ColDef[] => [
   {
@@ -77,29 +78,8 @@ export const createColumnDefs = (): ColDef[] => [
     hide: true
   },
   {
-    field: 'buy_sell',
-    headerName: 'Buy/Sell',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: {
-      values: ['BUY', 'SELL']
-    }
-  },
-  {
-    field: 'amount',
-    headerName: 'Amount',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    type: 'numericColumn'
-  },
-  {
-    field: 'currency',
-    headerName: 'Currency',
+    field: 'buy_currency',
+    headerName: 'Buy CCY',
     minWidth: 120,
     flex: 1,
     headerClass: 'ag-header-center',
@@ -110,6 +90,50 @@ export const createColumnDefs = (): ColDef[] => [
     }
   },
   {
+    field: 'buy_amount',
+    headerName: 'Buy Amount',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true,
+    type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (!params.value) return '';
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(params.value);
+    }
+  },
+  {
+    field: 'sell_currency',
+    headerName: 'Sell CCY',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true,
+    cellEditor: 'agSelectCellEditor',
+    cellEditorParams: {
+      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD']
+    }
+  },
+  {
+    field: 'sell_amount',
+    headerName: 'Sell Amount',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true,
+    type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (!params.value) return '';
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(params.value);
+    }
+  },
+  {
     field: 'trade_date',
     headerName: 'Trade Date',
     minWidth: 120,
@@ -117,9 +141,13 @@ export const createColumnDefs = (): ColDef[] => [
     headerClass: 'ag-header-center',
     editable: true,
     cellEditor: 'agDateCellEditor',
+    cellEditorParams: {
+      useCellRendererInPopup: true
+    },
     valueFormatter: (params) => {
       if (!params.value) return '';
-      return new Date(params.value).toISOString().split('T')[0];
+      const date = new Date(params.value);
+      return format(date, 'dd/MM/yyyy');
     }
   },
   {
@@ -130,9 +158,13 @@ export const createColumnDefs = (): ColDef[] => [
     headerClass: 'ag-header-center',
     editable: true,
     cellEditor: 'agDateCellEditor',
+    cellEditorParams: {
+      useCellRendererInPopup: true
+    },
     valueFormatter: (params) => {
       if (!params.value) return '';
-      return new Date(params.value).toISOString().split('T')[0];
+      const date = new Date(params.value);
+      return format(date, 'dd/MM/yyyy');
     }
   }
 ];

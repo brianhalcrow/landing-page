@@ -18,10 +18,11 @@ export interface HedgeRequestRow {
   instrument: string;
   counterparty: string;
   counterparty_name: string;
-  buy_sell: "BUY" | "SELL";
-  amount: number;
-  currency: string;
-  trade_date: string;
-  settlement_date: string;
+  buy_currency: string;
+  buy_amount: number | null;
+  sell_currency: string;
+  sell_amount: number | null;
+  trade_date: string | null;
+  settlement_date: string | null;
   cost_centre: string;
 }

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +11,12 @@ const defaultRow: HedgeRequestRow = {
   instrument: "",
   counterparty: "",
   counterparty_name: "",
-  buy_sell: "BUY",
-  amount: 0,
-  currency: "",
-  trade_date: new Date().toISOString().split('T')[0],
-  settlement_date: "",
+  buy_currency: "",
+  buy_amount: null,
+  sell_currency: "",
+  sell_amount: null,
+  trade_date: null,
+  settlement_date: null,
   cost_centre: ""
 };
 
@@ -59,9 +59,9 @@ export const useHedgeRequestData = () => {
             instrument: row.instrument,
             counterparty: row.counterparty,
             counterparty_name: row.counterparty_name,
-            ccy_1: row.currency,
-            ccy_1_amount: row.buy_sell === 'BUY' ? row.amount : null,
-            ccy_2_amount: row.buy_sell === 'SELL' ? row.amount : null,
+            ccy_1: row.buy_currency,
+            ccy_1_amount: row.buy_amount,
+            ccy_2_amount: row.sell_amount,
             trade_date: row.trade_date,
             settlement_date: row.settlement_date,
             cost_centre: row.cost_centre,
