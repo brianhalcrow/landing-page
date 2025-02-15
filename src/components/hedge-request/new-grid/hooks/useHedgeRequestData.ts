@@ -61,13 +61,19 @@ export const useHedgeRequestData = () => {
     setRowData(currentRows => {
       const newData = [...currentRows];
       const currentRow = newData[rowIndex];
-      const isSwap = currentRow.instrument?.toLowerCase() === 'swap';
       
-      // Update the current row
-      newData[rowIndex] = {
+      // First, create the updated row by merging current values with updates
+      const updatedRow = {
         ...currentRow,
         ...updates
       };
+      
+      // Check if this is a swap instrument based on the updates or current instrument
+      const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
+      console.log('Checking for SWAP:', { isSwap, updateInstrument: updates.instrument, currentInstrument: currentRow.instrument });
+
+      // Update the current row
+      newData[rowIndex] = updatedRow;
 
       // Handle currency mirroring for swap legs if currencies are being updated
       if (isSwap && (updates.buy_currency || updates.sell_currency)) {
@@ -88,36 +94,38 @@ export const useHedgeRequestData = () => {
         }
       }
 
-      // Handle SWAP-specific logic for other updates
+      // Handle SWAP-specific logic
       if (isSwap) {
-        // If this is the first row or there's no second row yet
+        // If this is the last row, add a new row for the second leg
         if (rowIndex === newData.length - 1) {
           console.log('Adding new row for SWAP second leg');
-          // Add a new row with copied values
           newData.push({
             ...defaultRow,
-            entity_id: newData[rowIndex].entity_id,
-            entity_name: newData[rowIndex].entity_name,
-            strategy_name: newData[rowIndex].strategy_name,
-            instrument: newData[rowIndex].instrument,
-            counterparty_name: newData[rowIndex].counterparty_name,
-            cost_centre: newData[rowIndex].cost_centre,
+            entity_id: updatedRow.entity_id,
+            entity_name: updatedRow.entity_name,
+            strategy_name: updatedRow.strategy_name,
+            instrument: updatedRow.instrument,
+            counterparty_name: updatedRow.counterparty_name,
+            cost_centre: updatedRow.cost_centre,
             // Mirror currencies if they exist
-            buy_currency: newData[rowIndex].sell_currency,
-            sell_currency: newData[rowIndex].buy_currency
+            buy_currency: updatedRow.sell_currency,
+            sell_currency: updatedRow.buy_currency
           });
         } else {
+          // Update existing second leg row
           console.log('Updating existing second leg row');
-          // Update the next row with the same values
           const existingNextRow = newData[rowIndex + 1];
           newData[rowIndex + 1] = {
             ...existingNextRow,
-            entity_id: newData[rowIndex].entity_id,
-            entity_name: newData[rowIndex].entity_name,
-            strategy_name: newData[rowIndex].strategy_name,
-            instrument: newData[rowIndex].instrument,
-            counterparty_name: updates.counterparty_name || newData[rowIndex].counterparty_name,
-            cost_centre: updates.cost_centre || newData[rowIndex].cost_centre
+            entity_id: updatedRow.entity_id,
+            entity_name: updatedRow.entity_name,
+            strategy_name: updatedRow.strategy_name,
+            instrument: updatedRow.instrument,
+            counterparty_name: updates.counterparty_name || updatedRow.counterparty_name,
+            cost_centre: updates.cost_centre || updatedRow.cost_centre,
+            // Ensure currencies stay mirrored
+            buy_currency: existingNextRow.buy_currency || updatedRow.sell_currency,
+            sell_currency: existingNextRow.sell_currency || updatedRow.buy_currency
           };
         }
       }
