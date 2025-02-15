@@ -56,25 +56,16 @@ export const CostCentreSelector = ({ value, data, node, field, context }: CostCe
   });
 
   useEffect(() => {
-    // Only auto-select if there's exactly one cost centre
-    if (
-      costCentres?.length === 1 && 
-      !value && 
-      context?.updateRowData && 
-      !hasAttemptedAutoSelect.current &&
-      data.entity_id && 
-      data.entity_id !== lastAttemptedEntityId
-    ) {
+    if (!hasAttemptedAutoSelect.current && data.entity_id && data.entity_id !== lastAttemptedEntityId) {
       hasAttemptedAutoSelect.current = true;
       setLastAttemptedEntityId(data.entity_id);
-      context.updateRowData(node.rowIndex, {
-        cost_centre: costCentres[0]
-      });
-    } else if (costCentres?.length > 1 && value && data.entity_id !== lastAttemptedEntityId) {
-      // Clear the cost centre if there are multiple options and the entity has changed
-      context?.updateRowData?.(node.rowIndex, {
-        cost_centre: ''
-      });
+      
+      // Only set a value if there's exactly one cost centre
+      if (costCentres?.length === 1 && !value && context?.updateRowData) {
+        context.updateRowData(node.rowIndex, {
+          cost_centre: costCentres[0]
+        });
+      }
     }
   }, [costCentres, value, context, node.rowIndex, data.entity_id, lastAttemptedEntityId]);
 
