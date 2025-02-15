@@ -31,19 +31,30 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         return [];
       }
 
-      return [...new Set(centresData.map(item => item.cost_centre))].sort();
+      // Ensure we remove any null or undefined values and sort the array
+      const validCentres = centresData
+        .map(item => item.cost_centre)
+        .filter(Boolean)
+        .sort();
+
+      return [...new Set(validCentres)];
     },
     enabled: !!data.entity_id,
-    staleTime: 0
+    staleTime: 0,
+    retry: 1
   });
 
   useEffect(() => {
-    // Only proceed if we have cost centres data and the context
-    if (!isLoading && costCentres && costCentres.length === 1 && !value && context?.updateRowData) {
-      // Auto-select the only available cost centre
-      context.updateRowData(node.rowIndex, {
-        cost_centre: costCentres[0]
-      });
+    // Only proceed if we have cost centres data, no current value, and the context
+    if (!isLoading && costCentres?.length === 1 && !value && context?.updateRowData) {
+      // Add a small delay to ensure all other state updates have completed
+      const timer = setTimeout(() => {
+        context.updateRowData(node.rowIndex, {
+          cost_centre: costCentres[0]
+        });
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [costCentres, value, context, node.rowIndex, isLoading]);
 
