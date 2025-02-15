@@ -1,6 +1,7 @@
 
 export interface TradeRequest {
   request_no: number;
+  status: 'Submitted' | 'Reviewed' | 'Approved';
   entity_id: string;
   entity_name: string;
   strategy_name: string;
@@ -15,8 +16,10 @@ export interface TradeRequest {
   ccy_pair: string;
   cost_centre: string;
   counterparty_name: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  swap_reference?: string | null;
+  submitted_by: string;
+  submitted_at: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
 }
