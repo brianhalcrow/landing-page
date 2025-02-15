@@ -31,25 +31,27 @@ export const useCellHandlers = (
   };
 
   const handleCellValueChanged = (e: CellValueChangedEvent<HedgeRequestDraftTrade>) => {
-    const newData = { ...e.data };
     const field = e.column.getColId();
     const api = e.api;
     const rowIndex = e.rowIndex;
 
+    // Create a new data object without modifying the original yet
+    const newData = { ...e.data };
+
     // Handle currency changes
     if (field === 'buy_currency' || field === 'sell_currency') {
       const newCurrencyType = field === 'buy_currency' ? 'buy' : 'sell';
-      lastSelectedCurrency.current = newCurrencyType;
-      setLastSelectedCurrency?.(newCurrencyType);
       
-      // Clear amounts when currencies change
-      newData.buy_amount = null;
-      newData.sell_amount = null;
+      // Only update if the new value is different
+      if (e.newValue !== e.oldValue) {
+        lastSelectedCurrency.current = newCurrencyType;
+        setLastSelectedCurrency?.(newCurrencyType);
 
-      // Validate currencies are different
-      if (newData.buy_currency && newData.sell_currency) {
-        if (newData.buy_currency === newData.sell_currency) {
+        // Validate currencies are different before clearing amounts
+        if (newData.buy_currency && newData.sell_currency && 
+            newData.buy_currency === newData.sell_currency) {
           toast.error('Buy and sell currencies must be different');
+          // Only clear the currency that was just changed
           if (field === 'buy_currency') {
             newData.buy_currency = null;
           } else {
@@ -58,13 +60,14 @@ export const useCellHandlers = (
           lastSelectedCurrency.current = null;
           setLastSelectedCurrency?.(null);
         } else {
-          // Focus the corresponding amount field based on which currency was selected last
+          // Clear amounts only if currencies are valid
+          newData.buy_amount = null;
+          newData.sell_amount = null;
+          
+          // Focus the corresponding amount field
           setTimeout(() => {
-            const amountField = lastSelectedCurrency.current === 'buy' ? 'sell_amount' : 'buy_amount';
-            const columnToFocus = api.getColumnDef(amountField);
-            if (columnToFocus) {
-              api.setFocusedCell(rowIndex, amountField);
-            }
+            const amountField = newCurrencyType === 'buy' ? 'sell_amount' : 'buy_amount';
+            api.setFocusedCell(rowIndex, amountField);
           }, 0);
         }
       }
@@ -86,10 +89,12 @@ export const useCellHandlers = (
       }
     }
 
-    // Update the grid data
-    const rowNode = e.api.getRowNode(e.rowIndex.toString());
-    if (rowNode) {
-      rowNode.setData(newData);
+    // Update the grid data only if there were changes
+    if (JSON.stringify(newData) !== JSON.stringify(e.data)) {
+      const rowNode = api.getRowNode(rowIndex.toString());
+      if (rowNode) {
+        rowNode.setData(newData);
+      }
     }
   };
 

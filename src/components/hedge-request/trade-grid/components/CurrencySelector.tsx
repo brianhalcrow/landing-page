@@ -1,3 +1,4 @@
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,13 +31,13 @@ export const CurrencySelector = ({ value, setValue }: CurrencySelectorProps) => 
 
   return (
     <Select
-      value={value}
+      value={value || ''}
       onValueChange={setValue}
     >
       <SelectTrigger className="h-8 w-full border-0 bg-transparent focus:ring-0">
         <SelectValue placeholder="Select currency" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="z-50 bg-white">
         {currencies?.map((currency) => (
           <SelectItem key={currency} value={currency}>
             {currency}
