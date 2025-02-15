@@ -2,25 +2,33 @@
 import { AgGridReact } from 'ag-grid-react';
 import { useTradeColumns } from '../hooks/useTradeColumns';
 import { GridStyles } from '../../grid/components/GridStyles';
-import { useRef, useState } from 'react';
+import { useRef, useState, Dispatch, SetStateAction } from 'react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useCellHandlers } from '../hooks/useCellHandlers';
 import { CellEditingStartedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
 import { CurrencyEditorState } from '../components/CurrencyCellEditor';
-import { useTradeData } from '../hooks/useTradeData';
 
 interface TradeDataGridProps {
   entityId?: string | null;
   entityName?: string | null;
+  rowData: HedgeRequestDraftTrade[];
+  onRowDataChange: Dispatch<SetStateAction<HedgeRequestDraftTrade[]>>;
 }
 
-const TradeDataGrid = ({ entityId, entityName }: TradeDataGridProps) => {
+const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: TradeDataGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
   const [lastSelectedCurrency, setLastSelectedCurrency] = useState<'buy' | 'sell' | null>(null);
-  
-  const { rowData, updateRow, handleSave, addRow } = useTradeData();
+
+  const updateRow = (index: number, updates: Partial<HedgeRequestDraftTrade>) => {
+    onRowDataChange(prevData => {
+      const newData = [...prevData];
+      newData[index] = { ...newData[index], ...updates };
+      return newData;
+    });
+  };
+
   const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(updateRow, setLastSelectedCurrency);
   const columnDefs = useTradeColumns(updateRow, lastSelectedCurrency);
 

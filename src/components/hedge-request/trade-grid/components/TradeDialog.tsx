@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,6 @@ interface TradeDialogProps {
 }
 
 const TradeDialog = ({ isOpen, onClose, draftId }: TradeDialogProps) => {
-  // Fetch the draft details to get entity information
   const { data: draftDetails } = useQuery({
     queryKey: ['draft-details', draftId],
     queryFn: async () => {
@@ -31,18 +31,8 @@ const TradeDialog = ({ isOpen, onClose, draftId }: TradeDialogProps) => {
 
   const emptyRow: Partial<HedgeRequestDraftTrade> = {
     draft_id: draftId.toString(),
-    buy_currency: null,
-    sell_currency: null,
-    trade_date: null,
-    settlement_date: null,
-    buy_amount: null,
-    sell_amount: null,
     entity_id: draftDetails?.entity_id || null,
-    entity_name: draftDetails?.entity_name || null,
-    created_at: null,
-    updated_at: null,
-    spot_rate: null,
-    contract_rate: null
+    entity_name: draftDetails?.entity_name || null
   };
 
   const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([emptyRow as HedgeRequestDraftTrade]);

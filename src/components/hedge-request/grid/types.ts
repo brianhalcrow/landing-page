@@ -1,4 +1,3 @@
-
 export interface HedgeRequestDraft {
   id: number;
   entity_id: string | null;
@@ -31,6 +30,9 @@ export interface HedgeRequestDraftTrade {
   entity_name: string | null;
   spot_rate: number | null;
   contract_rate: number | null;
+  instrument: string | null;
+  leg_number: number | null;
+  swap_reference: string | null;
 }
 
 export interface ValidEntity {
