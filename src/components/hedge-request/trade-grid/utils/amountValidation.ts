@@ -1,6 +1,7 @@
 
 import { CellKeyDownEvent, CellValueChangedEvent, ICellEditorParams, EditableCallbackParams, CellClassParams, SuppressKeyboardEventParams, CellEditingStartedEvent } from 'ag-grid-community';
 import { HedgeRequestDraftTrade } from '../../grid/types';
+import { toast } from 'sonner';
 
 type GridParams = 
   | ICellEditorParams 
@@ -11,6 +12,14 @@ type GridParams =
   | SuppressKeyboardEventParams
   | CellEditingStartedEvent;
 
+export const validateCurrencies = (data: HedgeRequestDraftTrade): boolean => {
+  if (!data.buy_currency || !data.sell_currency) {
+    toast.error('Both buy and sell currencies must be specified');
+    return false;
+  }
+  return true;
+};
+
 export const shouldAllowAmountEdit = (
   params: GridParams,
   field: 'buy' | 'sell',
@@ -19,7 +28,7 @@ export const shouldAllowAmountEdit = (
   const data = params.data as HedgeRequestDraftTrade;
   
   // Both currencies must be selected
-  if (!data.buy_currency || !data.sell_currency) {
+  if (!validateCurrencies(data)) {
     return false;
   }
 

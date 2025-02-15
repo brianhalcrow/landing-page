@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { validateCurrencies } from '../utils/amountValidation';
 
 export interface CurrencyEditorState {
   lastSelectedCurrency: 'buy' | 'sell' | null;
@@ -60,8 +61,13 @@ export const CurrencyCellEditor = forwardRef((props: ICellEditorParams, ref) => 
 
   const validateCurrencySelection = (newValue: string) => {
     const rowData = props.node.data;
-    const otherCurrency = isBuyCurrency ? rowData.sell_currency : rowData.buy_currency;
+    const updatedData = {
+      ...rowData,
+      [isBuyCurrency ? 'buy_currency' : 'sell_currency']: newValue
+    };
     
+    // Check if both currencies would be the same
+    const otherCurrency = isBuyCurrency ? updatedData.sell_currency : updatedData.buy_currency;
     if (otherCurrency && newValue === otherCurrency) {
       toast.error('Buy and sell currencies must be different');
       return false;
