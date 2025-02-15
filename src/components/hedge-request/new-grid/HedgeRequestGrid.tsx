@@ -39,7 +39,7 @@ const HedgeRequestGrid = () => {
             resizable: true,
             suppressSizeToFit: false
           }}
-          getRowId={(params) => params.data.id || params.index.toString()}
+          getRowId={(params) => params.data.id || params.node.rowIndex.toString()}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
