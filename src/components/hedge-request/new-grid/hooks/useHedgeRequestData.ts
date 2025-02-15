@@ -66,7 +66,7 @@ export const useHedgeRequestData = () => {
       };
 
       // Check if this is a swap instrument and handle second leg
-      if (updates.instrument === 'SWA') {
+      if (updates.instrument === 'SWAP') {
         // If this is the first row or there's no second row yet
         if (rowIndex === newData.length - 1) {
           // Add a new row with copied values
