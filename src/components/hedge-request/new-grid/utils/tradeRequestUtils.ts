@@ -31,7 +31,6 @@ interface TradeRequest {
   cost_centre: string;
   ccy_pair: string | null;
   counterparty_name: string | null;
-  leg_number: number | null;
   swap_reference?: string | null;
 }
 
@@ -148,8 +147,7 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         ccy_2_amount: firstLegSellAmount,
         cost_centre: data.cost_centre,
         ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
-        counterparty_name: data.counterparty_name,
-        leg_number: 1,
+        counterparty_name: data.counterparty_name
       },
       {
         entity_id: data.entity_id,
@@ -164,12 +162,10 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         ccy_2_amount: firstLegBuyAmount,
         cost_centre: data.cost_centre,
         ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
-        counterparty_name: data.counterparty_name,
-        leg_number: 2,
+        counterparty_name: data.counterparty_name
       }
     ];
 
-    console.log("Transformed swap legs:", swapLegs);
     return swapLegs;
   }
 
@@ -190,10 +186,8 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
     ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
     cost_centre: data.cost_centre,
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
-    counterparty_name: data.counterparty_name,
-    leg_number: null
+    counterparty_name: data.counterparty_name
   };
 
-  console.log("Transformed trade request:", transformed);
   return transformed;
-};
+}
