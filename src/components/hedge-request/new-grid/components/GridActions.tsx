@@ -21,6 +21,12 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         row.sell_currency
       );
 
+      console.log("Attempting to save rows:", {
+        totalRows: rowData.length,
+        validRowsCount: validRows.length,
+        validRows
+      });
+
       if (validRows.length === 0) {
         toast.error("No valid trades to save");
         return;

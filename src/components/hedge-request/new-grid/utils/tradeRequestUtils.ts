@@ -16,26 +16,30 @@ interface TradeRequestInput {
 }
 
 export const validateTradeRequest = (data: any): boolean => {
-  console.log("Validating trade request data:", data);
-
+  console.log("Starting validation for trade request data:", data);
+  
   // Handle strategy field mapping
   const strategy = data.strategy_description || data.strategy;
   if (!data.entity_id || !data.entity_name) {
+    console.log("Validation failed: Missing entity information", { entity_id: data.entity_id, entity_name: data.entity_name });
     toast.error("Entity information is required");
     return false;
   }
 
   if (!strategy) {
+    console.log("Validation failed: Missing strategy");
     toast.error("Strategy is required");
     return false;
   }
 
   if (!data.instrument) {
+    console.log("Validation failed: Missing instrument");
     toast.error("Instrument is required");
     return false;
   }
 
   if (!data.cost_centre) {
+    console.log("Validation failed: Missing cost centre");
     toast.error("Cost Centre is required");
     return false;
   }
@@ -46,8 +50,16 @@ export const validateTradeRequest = (data: any): boolean => {
   const buyAmount = data.buy_amount || data.ccy_1_amount;
   const sellAmount = data.sell_amount || data.ccy_2_amount;
 
+  console.log("Currency validation values:", {
+    buyCurrency,
+    sellCurrency,
+    buyAmount,
+    sellAmount
+  });
+
   // Both currencies are required
   if (!buyCurrency || !sellCurrency) {
+    console.log("Validation failed: Missing currencies", { buyCurrency, sellCurrency });
     toast.error("Both buy and sell currencies are required");
     return false;
   }
@@ -56,21 +68,32 @@ export const validateTradeRequest = (data: any): boolean => {
   const hasBuyAmount = buyAmount && buyAmount !== "0";
   const hasSellAmount = sellAmount && sellAmount !== "0";
 
+  console.log("Amount validation:", {
+    hasBuyAmount,
+    hasSellAmount,
+    buyAmount,
+    sellAmount
+  });
+
   if (!hasBuyAmount && !hasSellAmount) {
+    console.log("Validation failed: No valid amount specified");
     toast.error("Either buy amount or sell amount must be specified");
     return false;
   }
 
   if (!data.trade_date) {
+    console.log("Validation failed: Missing trade date");
     toast.error("Trade date is required");
     return false;
   }
 
   if (!data.settlement_date) {
+    console.log("Validation failed: Missing settlement date");
     toast.error("Settlement date is required");
     return false;
   }
 
+  console.log("Validation passed successfully");
   return true;
 };
 
