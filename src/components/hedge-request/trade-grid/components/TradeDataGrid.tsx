@@ -1,8 +1,10 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { useTradeColumns } from '../hooks/useTradeColumns';
 import { GridStyles } from '../../grid/components/GridStyles';
 import { useRef } from 'react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
+import { useCellHandlers } from '../hooks/useCellHandlers';
 
 interface TradeDataGridProps {
   rowData: HedgeRequestDraftTrade[];
@@ -14,6 +16,7 @@ interface TradeDataGridProps {
 const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: TradeDataGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
   const columnDefs = useTradeColumns();
+  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers();
 
   return (
     <div className="w-full h-[300px] ag-theme-alpine">
@@ -31,13 +34,14 @@ const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: Trade
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        onCellKeyDown={handleCellKeyDown}
         onCellValueChanged={(event) => {
+          handleCellValueChanged(event);
           const newData = [...rowData];
           newData[event.rowIndex] = { 
-            ...newData[event.rowIndex], 
-            [event.colDef.field]: event.newValue,
-            entity_id: entityId || newData[event.rowIndex].entity_id,
-            entity_name: entityName || newData[event.rowIndex].entity_name
+            ...event.data, 
+            entity_id: entityId || event.data.entity_id,
+            entity_name: entityName || event.data.entity_name
           };
           onRowDataChange(newData);
         }}
