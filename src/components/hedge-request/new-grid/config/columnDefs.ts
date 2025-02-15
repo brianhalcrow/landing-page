@@ -1,6 +1,12 @@
 
-import { ColDef, GridApi } from "ag-grid-community";
-import { ValidHedgeConfig } from "../types/hedgeRequest.types";
+import { GridApi } from "ag-grid-community";
+import { EntitySelector } from "../selectors/EntitySelector";
+import { StrategySelector } from "../selectors/StrategySelector";
+import { CounterpartySelector } from "../selectors/CounterpartySelector";
+import { CostCentreSelector } from "../selectors/CostCentreSelector";
+import { CurrencySelector } from "../selectors/CurrencySelector";
+import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
+import { DateCell } from "../components/DateCell";
 
 interface Context {
   validConfigs?: ValidHedgeConfig[];
@@ -11,124 +17,65 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
     headerName: "Entity Name",
     field: "entity_name",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: {
-      values: Array.from(new Set(context.validConfigs?.map(c => c.entity_name) || [])),
-      cellRenderer: (params: any) => params.value || ''
+    cellRenderer: EntitySelector,
+    cellRendererParams: {
+      context
     },
-    minWidth: 200,
-    valueSetter: (params: any) => {
-      const { data, newValue } = params;
-      const config = context.validConfigs?.find(c => c.entity_name === newValue);
-      if (config && context?.updateRowData) {
-        context.updateRowData(params.node.rowIndex, {
-          entity_name: newValue,
-          entity_id: config.entity_id,
-          // Clear dependent fields
-          strategy_name: '',
-          instrument: '',
-          counterparty_name: '',
-          cost_centre: ''
-        });
-      }
-      return true;
-    }
+    minWidth: 200
   },
   {
     headerName: "Entity ID",
     field: "entity_id",
-    editable: false,
+    cellRenderer: EntitySelector,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   },
   {
     headerName: "Cost Centre",
     field: "cost_centre",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: (params: any) => {
-      if (!params.data?.entity_id) return { values: [] };
-      const costCentres = Array.from(new Set(
-        context.validConfigs
-          ?.filter(c => c.entity_id === params.data.entity_id)
-          .map(c => c.cost_centre)
-      ));
-      return {
-        values: costCentres,
-        cellRenderer: (params: any) => params.value || ''
-      };
+    cellRenderer: CostCentreSelector,
+    cellRendererParams: {
+      context
     },
     minWidth: 150
   },
   {
     headerName: "Strategy",
     field: "strategy_name",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: (params: any) => {
-      if (!params.data?.entity_id) return { values: [] };
-      const strategies = Array.from(new Set(
-        context.validConfigs
-          ?.filter(c => c.entity_id === params.data.entity_id)
-          .map(c => c.strategy_name)
-      ));
-      return {
-        values: strategies,
-        cellRenderer: (params: any) => params.value || ''
-      };
+    cellRenderer: StrategySelector,
+    cellRendererParams: {
+      context
     },
-    minWidth: 200,
-    valueSetter: (params: any) => {
-      const { data, newValue } = params;
-      const config = context.validConfigs?.find(
-        c => c.entity_id === data.entity_id && c.strategy_name === newValue
-      );
-      if (config && context?.updateRowData) {
-        context.updateRowData(params.node.rowIndex, {
-          strategy_name: newValue,
-          instrument: config.instrument,
-          counterparty_name: '' // Clear counterparty when strategy changes
-        });
-      }
-      return true;
-    }
+    minWidth: 200
   },
   {
     headerName: "Instrument",
     field: "instrument",
-    editable: false,
     minWidth: 150
   },
   {
     headerName: "Counterparty",
     field: "counterparty_name",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: (params: any) => {
-      if (!params.data?.entity_id || !params.data?.strategy_name) return { values: [] };
-      const counterparties = Array.from(new Set(
-        context.validConfigs
-          ?.filter(c => 
-            c.entity_id === params.data.entity_id && 
-            c.strategy_name === params.data.strategy_name
-          )
-          .map(c => c.counterparty_name)
-      ));
-      return {
-        values: counterparties,
-        cellRenderer: (params: any) => params.value || ''
-      };
+    cellRenderer: CounterpartySelector,
+    cellRendererParams: {
+      context
     },
     minWidth: 200
   },
   {
     headerName: "Buy Currency",
     field: "buy_currency",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: {
-      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
-      cellRenderer: (params: any) => params.value || ''
+    cellRenderer: CurrencySelector,
+    valueGetter: (params: any) => params.data?.buy_currency || '',
+    valueSetter: (params: any) => {
+      const newValue = params.newValue || '';
+      params.data.buy_currency = newValue;
+      return true;
+    },
+    cellRendererParams: {
+      context
     },
     minWidth: 150
   },
@@ -136,17 +83,20 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Buy Amount",
     field: "buy_amount",
     editable: true,
-    type: 'numericColumn',
     minWidth: 150
   },
   {
     headerName: "Sell Currency",
     field: "sell_currency",
-    editable: true,
-    cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: {
-      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
-      cellRenderer: (params: any) => params.value || ''
+    cellRenderer: CurrencySelector,
+    valueGetter: (params: any) => params.data?.sell_currency || '',
+    valueSetter: (params: any) => {
+      const newValue = params.newValue || '';
+      params.data.sell_currency = newValue;
+      return true;
+    },
+    cellRendererParams: {
+      context
     },
     minWidth: 150
   },
@@ -154,21 +104,24 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Sell Amount",
     field: "sell_amount",
     editable: true,
-    type: 'numericColumn',
     minWidth: 150
   },
   {
     headerName: "Trade Date",
     field: "trade_date",
-    editable: true,
-    cellEditor: 'agDateCellEditor',
+    cellRenderer: DateCell,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   },
   {
     headerName: "Settlement Date",
     field: "settlement_date",
-    editable: true,
-    cellEditor: 'agDateCellEditor',
+    cellRenderer: DateCell,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   }
 ];

@@ -5,7 +5,6 @@ import { useHedgeRequestData } from './hooks/useHedgeRequestData';
 import { GridActions } from './components/GridActions';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import 'ag-grid-enterprise';
 import { useCallback, useRef } from 'react';
 
 const HedgeRequestGrid = () => {
@@ -36,25 +35,22 @@ const HedgeRequestGrid = () => {
           })}
           defaultColDef={{
             sortable: true,
-            filter: false, // Removed filter
+            filter: true,
             resizable: true,
             suppressSizeToFit: false
           }}
-          suppressRowClickSelection={true}
-          enableRangeSelection={true}
-          enableFillHandle={true}
-          undoRedoCellEditing={true}
-          undoRedoCellEditingLimit={20}
-          stopEditingWhenCellsLoseFocus={true}
           getRowId={(params) => {
+            // First try to use the id from data
             if (params.data?.id) {
               return params.data.id.toString();
             }
+            // Fall back to a generated id if no id exists
             return `generated-${Date.now()}-${Math.random()}`;
           }}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
+          stopEditingWhenCellsLoseFocus={true}
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
         />
