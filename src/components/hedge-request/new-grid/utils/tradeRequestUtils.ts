@@ -76,11 +76,30 @@ export const validateTradeRequest = (data: any): boolean => {
     sellAmount
   });
 
-  // For swaps, validate only that both currencies are specified
+  // For swaps, validate currencies and amounts
   if (data.instrument === 'Swap') {
+    // Both currencies must be specified
     if (!buyCurrency || !sellCurrency) {
       console.log("Validation failed: Swap requires both currencies");
       toast.error("Swaps require both buy and sell currencies to be specified");
+      return false;
+    }
+
+    // Exactly one amount must be specified (not both)
+    const hasAmount = (buyAmount !== null && buyAmount !== undefined) || 
+                     (sellAmount !== null && sellAmount !== undefined);
+    const hasBothAmounts = (buyAmount !== null && buyAmount !== undefined) && 
+                          (sellAmount !== null && sellAmount !== undefined);
+
+    if (!hasAmount) {
+      console.log("Validation failed: Swap requires one amount");
+      toast.error("Please specify either buy amount or sell amount");
+      return false;
+    }
+
+    if (hasBothAmounts) {
+      console.log("Validation failed: Swap can only have one amount per leg");
+      toast.error("Please specify only one amount (either buy or sell) per leg");
       return false;
     }
   } else {
@@ -126,6 +145,11 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
   // If it's a swap, we need to create both legs
   if (data.instrument === 'Swap') {
     const swapReference = crypto.randomUUID();
+    
+    // Determine which leg has the amount and set up the reverse for the other leg
+    const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
+    const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
+    
     // Create an array to hold both legs
     const swapLegs: TradeRequest[] = [
       // First leg (leg 1)
@@ -138,8 +162,8 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
         ccy_1: data.buy_currency,
         ccy_2: data.sell_currency,
-        ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
-        ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
+        ccy_1_amount: firstLegBuyAmount,
+        ccy_2_amount: firstLegSellAmount,
         cost_centre: data.cost_centre,
         ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
         counterparty_name: data.counterparty_name,
@@ -154,10 +178,10 @@ export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] 
         instrument: data.instrument,
         trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
         settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
-        ccy_1: data.sell_currency,
+        ccy_1: data.sell_currency, // Reversed currencies
         ccy_2: data.buy_currency,
-        ccy_1_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
-        ccy_2_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
+        ccy_1_amount: firstLegSellAmount, // Reversed amounts
+        ccy_2_amount: firstLegBuyAmount,
         cost_centre: data.cost_centre,
         ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
         counterparty_name: data.counterparty_name,
