@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -31,7 +30,6 @@ interface TradeRequest {
   cost_centre: string;
   ccy_pair: string | null;
   counterparty_name: string | null;
-  swap_reference?: string | null;
 }
 
 export const validateTradeRequest = (data: any): boolean => {
@@ -116,63 +114,11 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
   }
 };
 
-export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] => {
-  // If it's a swap, we need to create both legs
-  if (data.instrument === 'Swap') {
-    const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
-    const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
-    
-    const firstLegBuyAmount = data.buy_amount ? parseFloat(data.buy_amount) : null;
-    const firstLegSellAmount = data.sell_amount ? parseFloat(data.sell_amount) : null;
-    
-    // Check if we have either buy or sell amount (but not both) for the first leg
-    const hasFirstLegBuyAmount = firstLegBuyAmount !== null;
-    const hasFirstLegSellAmount = firstLegSellAmount !== null;
-    
-    if (hasFirstLegBuyAmount && hasFirstLegSellAmount) {
-      console.warn("First leg has both buy and sell amounts");
-    }
-    
-    const swapLegs: TradeRequest[] = [
-      {
-        entity_id: data.entity_id,
-        entity_name: data.entity_name,
-        strategy_name: data.strategy_name,
-        instrument: data.instrument,
-        trade_date: parsedTradeDate,
-        settlement_date: parsedSettlementDate!,
-        ccy_1: data.buy_currency,
-        ccy_2: data.sell_currency,
-        ccy_1_amount: firstLegBuyAmount,
-        ccy_2_amount: firstLegSellAmount,
-        cost_centre: data.cost_centre,
-        ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
-        counterparty_name: data.counterparty_name
-      },
-      {
-        entity_id: data.entity_id,
-        entity_name: data.entity_name,
-        strategy_name: data.strategy_name,
-        instrument: data.instrument,
-        trade_date: parsedTradeDate,
-        settlement_date: parsedSettlementDate!,
-        ccy_1: data.sell_currency,
-        ccy_2: data.buy_currency,
-        ccy_1_amount: firstLegSellAmount,
-        ccy_2_amount: firstLegBuyAmount,
-        cost_centre: data.cost_centre,
-        ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
-        counterparty_name: data.counterparty_name
-      }
-    ];
-
-    return swapLegs;
-  }
-
-  // For non-swap trades, return a single transformed trade
+export const transformTradeRequest = (data: any): TradeRequest => {
   const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
   const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
   
+  // Transform a single row into the database format
   const transformed: TradeRequest = {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
