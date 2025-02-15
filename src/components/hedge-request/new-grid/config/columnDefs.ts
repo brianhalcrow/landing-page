@@ -1,12 +1,7 @@
 
-import { GridApi } from "ag-grid-community";
-import { EntitySelector } from "../selectors/EntitySelector";
-import { StrategySelector } from "../selectors/StrategySelector";
-import { CounterpartySelector } from "../selectors/CounterpartySelector";
-import { CostCentreSelector } from "../selectors/CostCentreSelector";
-import { CurrencySelector } from "../selectors/CurrencySelector";
-import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
+import { ColDef, GridApi } from "ag-grid-community";
 import { DateCell } from "../components/DateCell";
+import { ValidHedgeConfig } from "../types/hedgeRequest.types";
 
 interface Context {
   validConfigs?: ValidHedgeConfig[];
@@ -17,110 +12,168 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
     headerName: "Entity Name",
     field: "entity_name",
-    cellRenderer: EntitySelector,
-    cellRendererParams: {
-      context
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: {
+      values: Array.from(new Set(context.validConfigs?.map(c => c.entity_name) || [])),
+      cellRenderer: (params: any) => params.value || ''
     },
+    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
     headerName: "Entity ID",
     field: "entity_id",
-    cellRenderer: EntitySelector,
-    cellRendererParams: {
-      context
-    },
-    minWidth: 150
+    editable: false,
+    minWidth: 150,
+    valueGetter: (params: any) => {
+      const config = context.validConfigs?.find(c => c.entity_name === params.data?.entity_name);
+      return config?.entity_id || '';
+    }
   },
   {
     headerName: "Cost Centre",
     field: "cost_centre",
-    cellRenderer: CostCentreSelector,
-    cellRendererParams: {
-      context
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: {
+      values: Array.from(new Set(context.validConfigs?.map(c => c.cost_centre).filter(Boolean) || [])),
+      cellRenderer: (params: any) => params.value || ''
     },
+    filter: 'agSetColumnFilter',
     minWidth: 150
   },
   {
     headerName: "Strategy",
     field: "strategy_name",
-    cellRenderer: StrategySelector,
-    cellRendererParams: {
-      context
-    },
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: (params: any) => ({
+      values: Array.from(new Set(
+        context.validConfigs
+          ?.filter(c => c.entity_id === params.data?.entity_id)
+          .map(c => c.strategy_name) || []
+      )),
+      cellRenderer: (params: any) => params.value || ''
+    }),
+    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
     headerName: "Instrument",
     field: "instrument",
-    minWidth: 150
+    editable: false,
+    minWidth: 150,
+    valueGetter: (params: any) => {
+      const config = context.validConfigs?.find(
+        c => c.entity_id === params.data?.entity_id && 
+             c.strategy_name === params.data?.strategy_name
+      );
+      return config?.instrument || '';
+    }
   },
   {
     headerName: "Counterparty",
     field: "counterparty_name",
-    cellRenderer: CounterpartySelector,
-    cellRendererParams: {
-      context
-    },
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: (params: any) => ({
+      values: Array.from(new Set(
+        context.validConfigs
+          ?.filter(c => 
+            c.entity_id === params.data?.entity_id && 
+            c.strategy_name === params.data?.strategy_name
+          )
+          .map(c => c.counterparty_name) || []
+      )),
+      cellRenderer: (params: any) => params.value || ''
+    }),
+    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
     headerName: "Buy Currency",
     field: "buy_currency",
-    cellRenderer: CurrencySelector,
-    valueGetter: (params: any) => params.data?.buy_currency || '',
-    valueSetter: (params: any) => {
-      const newValue = params.newValue || '';
-      params.data.buy_currency = newValue;
-      return true;
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: {
+      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
+      cellRenderer: (params: any) => params.value || ''
     },
-    cellRendererParams: {
-      context
-    },
+    filter: 'agSetColumnFilter',
     minWidth: 150
   },
   {
     headerName: "Buy Amount",
     field: "buy_amount",
     editable: true,
+    type: 'numericColumn',
+    filter: 'agNumberColumnFilter',
     minWidth: 150
   },
   {
     headerName: "Sell Currency",
     field: "sell_currency",
-    cellRenderer: CurrencySelector,
-    valueGetter: (params: any) => params.data?.sell_currency || '',
-    valueSetter: (params: any) => {
-      const newValue = params.newValue || '';
-      params.data.sell_currency = newValue;
-      return true;
+    editable: true,
+    cellEditor: 'agRichSelectCellEditor',
+    cellEditorParams: {
+      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
+      cellRenderer: (params: any) => params.value || ''
     },
-    cellRendererParams: {
-      context
-    },
+    filter: 'agSetColumnFilter',
     minWidth: 150
   },
   {
     headerName: "Sell Amount",
     field: "sell_amount",
     editable: true,
+    type: 'numericColumn',
+    filter: 'agNumberColumnFilter',
     minWidth: 150
   },
   {
     headerName: "Trade Date",
     field: "trade_date",
-    cellRenderer: DateCell,
-    cellRendererParams: {
-      context
+    editable: true,
+    cellEditor: 'agDateCellEditor',
+    filter: 'agDateColumnFilter',
+    filterParams: {
+      comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
+        const cellDate = new Date(cellValue);
+        if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
+          return 0;
+        }
+        if (cellDate < filterLocalDateAtMidnight) {
+          return -1;
+        }
+        if (cellDate > filterLocalDateAtMidnight) {
+          return 1;
+        }
+        return 0;
+      }
     },
     minWidth: 150
   },
   {
     headerName: "Settlement Date",
     field: "settlement_date",
-    cellRenderer: DateCell,
-    cellRendererParams: {
-      context
+    editable: true,
+    cellEditor: 'agDateCellEditor',
+    filter: 'agDateColumnFilter',
+    filterParams: {
+      comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
+        const cellDate = new Date(cellValue);
+        if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
+          return 0;
+        }
+        if (cellDate < filterLocalDateAtMidnight) {
+          return -1;
+        }
+        if (cellDate > filterLocalDateAtMidnight) {
+          return 1;
+        }
+        return 0;
+      }
     },
     minWidth: 150
   }
