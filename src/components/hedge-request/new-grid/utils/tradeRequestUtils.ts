@@ -7,7 +7,7 @@ interface TradeRequestInput {
   strategy_description: string;
   instrument: string;
   trade_date: Date | null;
-  settlement_date: Date | null;
+  settlement_date: Date;  // Changed to non-nullable
   buy_currency: string;
   sell_currency: string;
   buy_amount: number | string | null;
@@ -81,11 +81,7 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  if (!data.trade_date) {
-    console.log("Validation failed: Missing trade date");
-    toast.error("Trade date is required");
-    return false;
-  }
+  // Trade date is optional, no validation needed
 
   if (!data.settlement_date) {
     console.log("Validation failed: Missing settlement date");
@@ -111,7 +107,7 @@ export const transformTradeRequest = (data: any) => {
     entity_name: data.entity_name,
     strategy,
     instrument: data.instrument,
-    trade_date: data.trade_date,
+    trade_date: data.trade_date || null,  // Explicitly handle null trade date
     settlement_date: data.settlement_date,
     ccy_1: buyCurrency,
     ccy_2: sellCurrency,
