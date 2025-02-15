@@ -27,9 +27,13 @@ export const CostCentreSelector = ({ value, data, node }: CostCentreSelectorProp
         return [];
       }
 
+      console.log('Fetched cost centres:', centresData); // Debug log
       return [...new Set(centresData.map(item => item.cost_centre))].sort();
     },
-    enabled: !!data.entity_id
+    enabled: !!data.entity_id,
+    staleTime: 0, // Consider data stale immediately
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true // Refetch when window gains focus
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
