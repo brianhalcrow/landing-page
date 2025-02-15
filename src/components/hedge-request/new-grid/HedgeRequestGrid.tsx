@@ -39,7 +39,14 @@ const HedgeRequestGrid = () => {
             resizable: true,
             suppressSizeToFit: false
           }}
-          getRowId={(params) => params.data.id || params.node.rowIndex.toString()}
+          getRowId={(params) => {
+            // First try to use the id from data
+            if (params.data?.id) {
+              return params.data.id.toString();
+            }
+            // Fall back to a generated id if no id exists
+            return `generated-${Date.now()}-${Math.random()}`;
+          }}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
