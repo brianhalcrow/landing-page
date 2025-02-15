@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
+import { useEffect } from "react";
 
 interface CostCentreSelectorProps {
   value: string;
@@ -14,7 +15,7 @@ interface CostCentreSelectorProps {
 }
 
 export const CostCentreSelector = ({ value, data, node, context }: CostCentreSelectorProps) => {
-  const { data: costCentres } = useQuery({
+  const { data: costCentres, isLoading } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
       if (!data.entity_id) return [];
@@ -36,14 +37,15 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
     staleTime: 0
   });
 
-  // If only one cost centre exists and no value is selected, set it automatically
-  if (costCentres?.length === 1 && !value && context?.updateRowData) {
-    setTimeout(() => {
+  useEffect(() => {
+    // Only proceed if we have cost centres data and the context
+    if (!isLoading && costCentres && costCentres.length === 1 && !value && context?.updateRowData) {
+      // Auto-select the only available cost centre
       context.updateRowData(node.rowIndex, {
         cost_centre: costCentres[0]
       });
-    }, 0);
-  }
+    }
+  }, [costCentres, value, context, node.rowIndex, isLoading]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {
