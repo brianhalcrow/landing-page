@@ -1,7 +1,7 @@
-
 import { ColDef } from 'ag-grid-community';
 import { CurrencySelector } from '../components/CurrencySelector';
 import ActionsCellRenderer from '../components/ActionsCellRenderer';
+import { shouldAllowAmountEdit } from '../utils/amountValidation';
 
 const formatNumber = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -10,7 +10,10 @@ const formatNumber = (value: number) => {
   }).format(value);
 };
 
-export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
+export const useTradeColumns = (
+  rates?: Map<string, number>,
+  lastSelectedCurrency?: 'buy' | 'sell' | null
+): ColDef[] => {
   return [
     {
       field: 'buy_currency',
@@ -23,22 +26,28 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     {
       field: 'buy_amount',
       headerName: 'Buy Amount',
-      editable: true,
+      editable: (params) => shouldAllowAmountEdit(params, 'buy', lastSelectedCurrency),
       cellDataType: 'number',
       valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
       valueFormatter: (params) => params.value ? formatNumber(params.value) : '',
       cellStyle: (params) => {
+        const isEditable = shouldAllowAmountEdit(params, 'buy', lastSelectedCurrency);
         if (params.data?.buy_currency) {
           return { 
             backgroundColor: 'rgba(234, 179, 8, 0.1)',
             border: '1px dashed rgb(234, 179, 8)',
-            transition: 'all 0.2s ease-in-out'
+            transition: 'all 0.2s ease-in-out',
+            cursor: isEditable ? 'pointer' : 'not-allowed',
+            opacity: isEditable ? 1 : 0.7
           };
         }
         return {};
       },
       cellClass: (params) => {
         return params.data?.buy_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
+      },
+      suppressKeyboardEvent: (params) => {
+        return !shouldAllowAmountEdit(params, 'buy', lastSelectedCurrency);
       }
     },
     {
@@ -52,22 +61,28 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
     {
       field: 'sell_amount',
       headerName: 'Sell Amount',
-      editable: true,
+      editable: (params) => shouldAllowAmountEdit(params, 'sell', lastSelectedCurrency),
       cellDataType: 'number',
       valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
       valueFormatter: (params) => params.value ? formatNumber(params.value) : '',
       cellStyle: (params) => {
+        const isEditable = shouldAllowAmountEdit(params, 'sell', lastSelectedCurrency);
         if (params.data?.sell_currency) {
           return { 
             backgroundColor: 'rgba(234, 179, 8, 0.1)',
             border: '1px dashed rgb(234, 179, 8)',
-            transition: 'all 0.2s ease-in-out'
+            transition: 'all 0.2s ease-in-out',
+            cursor: isEditable ? 'pointer' : 'not-allowed',
+            opacity: isEditable ? 1 : 0.7
           };
         }
         return {};
       },
       cellClass: (params) => {
         return params.data?.sell_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
+      },
+      suppressKeyboardEvent: (params) => {
+        return !shouldAllowAmountEdit(params, 'sell', lastSelectedCurrency);
       }
     },
     {
