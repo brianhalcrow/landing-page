@@ -37,6 +37,7 @@ export const StrategySelector = (props: StrategySelectorProps) => {
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
         instrument: selectedStrategy.instrument,
+        // Clear counterparty when strategy changes
         counterparty_name: ''
       });
     }
@@ -53,7 +54,7 @@ export const StrategySelector = (props: StrategySelectorProps) => {
         <option value=""></option>
         {strategies.map(strategy => (
           <option key={strategy.name} value={strategy.name}>
-            {strategy.name}
+            {strategy.description || strategy.name}
           </option>
         ))}
       </select>
