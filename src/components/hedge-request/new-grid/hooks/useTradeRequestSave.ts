@@ -17,7 +17,6 @@ interface TradeRequest {
   cost_centre: string;
   ccy_pair: string | null;
   counterparty_name: string | null;
-  leg_number: number | null;
   swap_reference?: string | null;
 }
 
