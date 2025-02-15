@@ -47,9 +47,18 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         return;
       }
 
-      // Save each row
+      // Save each row, handling both single trades and swap legs
       for (const row of validRows) {
-        await saveMutation.mutateAsync(row);
+        const transformedData = transformTradeRequest(row);
+        if (Array.isArray(transformedData)) {
+          // For swaps, save both legs
+          for (const leg of transformedData) {
+            await saveMutation.mutateAsync(leg);
+          }
+        } else {
+          // For single trades
+          await saveMutation.mutateAsync(transformedData);
+        }
       }
     } catch (error) {
       console.error("Error in save handler:", error);

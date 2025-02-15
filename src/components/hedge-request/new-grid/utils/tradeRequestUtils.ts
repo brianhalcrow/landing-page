@@ -101,6 +101,51 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
 };
 
 export const transformTradeRequest = (data: any) => {
+  // If it's a swap, we need to create both legs
+  if (data.instrument === 'Swap') {
+    // Create an array to hold both legs
+    const swapLegs = [
+      // First leg (leg 1)
+      {
+        entity_id: data.entity_id,
+        entity_name: data.entity_name,
+        strategy_name: data.strategy_name,
+        instrument: data.instrument,
+        trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
+        settlement_date: parseDateToYYYYMMDD(data.settlement_date),
+        ccy_1: data.buy_currency,
+        ccy_2: data.sell_currency,
+        ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
+        ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
+        cost_centre: data.cost_centre,
+        ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
+        counterparty_name: data.counterparty_name,
+        leg_number: 1
+      },
+      // Second leg (leg 2) - with reversed currencies and amounts
+      {
+        entity_id: data.entity_id,
+        entity_name: data.entity_name,
+        strategy_name: data.strategy_name,
+        instrument: data.instrument,
+        trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
+        settlement_date: parseDateToYYYYMMDD(data.settlement_date),
+        ccy_1: data.sell_currency, // Reversed from leg 1
+        ccy_2: data.buy_currency, // Reversed from leg 1
+        ccy_1_amount: data.sell_amount ? parseFloat(data.sell_amount) : null, // Reversed from leg 1
+        ccy_2_amount: data.buy_amount ? parseFloat(data.buy_amount) : null, // Reversed from leg 1
+        cost_centre: data.cost_centre,
+        ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
+        counterparty_name: data.counterparty_name,
+        leg_number: 2
+      }
+    ];
+
+    console.log("Transformed swap legs:", swapLegs);
+    return swapLegs;
+  }
+
+  // For non-swap trades, return a single transformed trade
   const transformed = {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
@@ -115,7 +160,7 @@ export const transformTradeRequest = (data: any) => {
     cost_centre: data.cost_centre,
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
     counterparty_name: data.counterparty_name,
-    leg_number: data.instrument === 'Swap' ? 1 : null // Set leg_number to 1 for Swaps
+    leg_number: null
   };
 
   console.log("Transformed trade request:", transformed);
