@@ -15,11 +15,11 @@ export const useTradeRequestSave = () => {
       
       console.log("Saving trade request:", transformedData);
 
-      // Convert dates to ISO string format
+      // Dates are already in YYYY-MM-DD format from transformTradeRequest
       const dataToSave = {
         ...transformedData,
-        trade_date: transformedData.trade_date?.toISOString().split('T')[0],
-        settlement_date: transformedData.settlement_date?.toISOString().split('T')[0],
+        trade_date: transformedData.trade_date,
+        settlement_date: transformedData.settlement_date,
       };
 
       const { data, error } = await supabase
