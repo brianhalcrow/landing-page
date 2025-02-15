@@ -40,12 +40,6 @@ export const useCounterpartiesGrid = () => {
 
       if (relationshipsError) throw relationshipsError;
 
-      const { data: hedgeAssignments, error: hedgeError } = await supabase
-        .from("hedge_strategy_assignment")
-        .select("*");
-
-      if (hedgeError) throw hedgeError;
-
       return entities.map((entity) => ({
         ...entity,
         relationships: relationships
@@ -53,13 +47,7 @@ export const useCounterpartiesGrid = () => {
           .reduce((acc, rel) => ({
             ...acc,
             [rel.counterparty_id]: true,
-          }), {}),
-        hedgeAssignments: hedgeAssignments
-          .filter((assignment) => assignment.entity_id === entity.entity_id)
-          .reduce((acc, assignment) => ({
-            ...acc,
-            [assignment.counterparty_id]: assignment.hedge_strategy_id,
-          }), {}),
+          }), {})
       }));
     },
   });
@@ -72,18 +60,6 @@ export const useCounterpartiesGrid = () => {
       entityId: string; 
       changes: Record<string, boolean>;
     }) => {
-      const removedCounterparties = Object.keys(changes).filter(id => !changes[id]);
-      
-      if (removedCounterparties.length > 0) {
-        const { error: deleteHedgeError } = await supabase
-          .from("hedge_strategy_assignment")
-          .delete()
-          .eq("entity_id", entityId)
-          .in("counterparty_id", removedCounterparties);
-
-        if (deleteHedgeError) throw deleteHedgeError;
-      }
-
       const { error: deleteError } = await supabase
         .from("entity_counterparty")
         .delete()
