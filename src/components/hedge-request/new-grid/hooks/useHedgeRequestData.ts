@@ -90,6 +90,32 @@ export const useHedgeRequestData = () => {
       // Update the current row
       newData[rowIndex] = updatedRow;
 
+      // If this is a currency update for a swap
+      if (isSwap && (updates.buy_currency !== undefined || updates.sell_currency !== undefined)) {
+        // For first leg, update second leg's currencies
+        if (rowIndex % 2 === 0) {
+          const nextRowIndex = rowIndex + 1;
+          if (newData[nextRowIndex]) {
+            newData[nextRowIndex] = {
+              ...newData[nextRowIndex],
+              buy_currency: updatedRow.sell_currency,
+              sell_currency: updatedRow.buy_currency
+            };
+          }
+        }
+        // For second leg, update first leg's currencies
+        else {
+          const prevRowIndex = rowIndex - 1;
+          if (newData[prevRowIndex]) {
+            newData[prevRowIndex] = {
+              ...newData[prevRowIndex],
+              buy_currency: updatedRow.sell_currency,
+              sell_currency: updatedRow.buy_currency
+            };
+          }
+        }
+      }
+
       // Only add a new row if this is the first time the instrument is being set to swap
       if (isNewSwap && rowIndex === newData.length - 1) {
         console.log('Adding new row for SWAP second leg');
