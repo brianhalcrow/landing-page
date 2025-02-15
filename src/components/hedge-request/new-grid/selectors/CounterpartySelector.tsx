@@ -1,5 +1,6 @@
 
 import { ValidHedgeConfig } from '../types/hedgeRequest.types';
+import { ChevronDown } from "lucide-react";
 
 interface CounterpartySelectorProps {
   value: string;
@@ -42,18 +43,21 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   };
 
   return (
-    <select
-      value={props.value}
-      onChange={handleChange}
-      className="w-full h-full border-0 outline-none bg-transparent"
-      disabled={!props.data.strategy}
-    >
-      <option value="">Select Counterparty</option>
-      {counterparties.map(cp => (
-        <option key={cp.id} value={cp.id}>
-          {cp.name}
-        </option>
-      ))}
-    </select>
+    <div className="relative w-full">
+      <select
+        value={props.value || ''}
+        onChange={handleChange}
+        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
+        disabled={!props.data.strategy}
+      >
+        <option value=""></option>
+        {counterparties.map(cp => (
+          <option key={cp.id} value={cp.id}>
+            {cp.name}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
+    </div>
   );
 };

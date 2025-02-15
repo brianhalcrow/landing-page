@@ -33,16 +33,16 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       return [...new Set(centresData.map(item => item.cost_centre))].sort();
     },
     enabled: !!data.entity_id,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true
+    staleTime: 0
   });
 
   // If only one cost centre exists and no value is selected, set it automatically
   if (costCentres?.length === 1 && !value && context?.updateRowData) {
-    context.updateRowData(node.rowIndex, {
-      cost_centre: costCentres[0]
-    });
+    setTimeout(() => {
+      context.updateRowData(node.rowIndex, {
+        cost_centre: costCentres[0]
+      });
+    }, 0);
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -61,7 +61,7 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!data.entity_id}
       >
-        <option value="">Select Cost Centre</option>
+        <option value=""></option>
         {(costCentres || []).map((cc: string) => (
           <option key={cc} value={cc}>{cc}</option>
         ))}

@@ -1,5 +1,6 @@
 
 import { ValidHedgeConfig } from '../types/hedgeRequest.types';
+import { ChevronDown } from "lucide-react";
 
 interface StrategySelectorProps {
   value: string;
@@ -43,18 +44,21 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   };
 
   return (
-    <select
-      value={props.value}
-      onChange={handleChange}
-      className="w-full h-full border-0 outline-none bg-transparent"
-      disabled={!props.data.entity_id}
-    >
-      <option value="">Select Strategy</option>
-      {strategies.map(strategy => (
-        <option key={strategy.id} value={strategy.id}>
-          {strategy.description}
-        </option>
-      ))}
-    </select>
+    <div className="relative w-full">
+      <select
+        value={props.value || ''}
+        onChange={handleChange}
+        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
+        disabled={!props.data.entity_id}
+      >
+        <option value=""></option>
+        {strategies.map(strategy => (
+          <option key={strategy.id} value={strategy.id}>
+            {strategy.description}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
+    </div>
   );
 };

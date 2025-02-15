@@ -1,5 +1,7 @@
+
 import { ValidHedgeConfig } from '../types/hedgeRequest.types';
 import { supabase } from "@/integrations/supabase/client";
+import { ChevronDown } from "lucide-react";
 
 interface EntitySelectorProps {
   value: string;
@@ -38,7 +40,6 @@ export const EntitySelector = (props: EntitySelectorProps) => {
     const selectedValue = event.target.value;
     let selectedEntity: Entity | undefined;
     
-    // Find entity based on whether we're selecting by ID or name
     if (fieldName === 'entity_id') {
       selectedEntity = entities.find(e => e.id === selectedValue);
     } else {
@@ -46,20 +47,17 @@ export const EntitySelector = (props: EntitySelectorProps) => {
     }
 
     if (selectedEntity && props.context?.updateRowData) {
-      // Create updates object with correct typing
       const updates: Record<string, any> = {
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name
       };
 
-      // Get cost centres for this entity
       try {
         const { data: costCentres } = await supabase
           .from('management_structure')
           .select('cost_centre')
           .eq('entity_id', selectedEntity.id);
 
-        // If there's exactly one cost centre, add it to the updates
         if (costCentres && costCentres.length === 1) {
           updates.cost_centre = costCentres[0].cost_centre;
         }
@@ -71,7 +69,6 @@ export const EntitySelector = (props: EntitySelectorProps) => {
     }
   };
 
-  // Select options based on which field we're displaying
   const value = props.value || '';
   const options = entities.map(entity => ({
     value: fieldName === 'entity_id' ? entity.id : entity.name,
@@ -79,17 +76,20 @@ export const EntitySelector = (props: EntitySelectorProps) => {
   }));
 
   return (
-    <select
-      value={value}
-      onChange={handleChange}
-      className="w-full h-full border-0 outline-none bg-transparent"
-    >
-      <option value="">Select {fieldName === 'entity_id' ? 'Entity ID' : 'Entity Name'}</option>
-      {options.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative w-full">
+      <select
+        value={value}
+        onChange={handleChange}
+        className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
+      >
+        <option value=""></option>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
+    </div>
   );
 };
