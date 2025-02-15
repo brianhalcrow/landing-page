@@ -36,7 +36,7 @@ export const createColumnDefs = (): ColDef[] => [
     cellEditorPopup: false
   },
   {
-    field: 'strategy_id',
+    field: 'strategy_name',
     headerName: 'Strategy',
     minWidth: 160,
     flex: 1.5,
@@ -45,14 +45,6 @@ export const createColumnDefs = (): ColDef[] => [
     cellRenderer: StrategySelector,
     cellEditor: StrategySelector,
     cellEditorPopup: false
-  },
-  {
-    field: 'strategy_name',
-    headerName: 'Strategy Name',
-    minWidth: 160,
-    flex: 1.5,
-    headerClass: 'ag-header-center',
-    editable: false
   },
   {
     field: 'instrument',
