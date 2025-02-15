@@ -3051,8 +3051,8 @@ export type Database = {
           functional_currency: string | null
           instrument: string | null
           strategy: string | null
-          strategy_description: string | null
           strategy_id: number | null
+          strategy_name: string | null
         }
         Relationships: [
           {
