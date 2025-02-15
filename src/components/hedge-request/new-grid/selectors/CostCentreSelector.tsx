@@ -63,8 +63,8 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       }
     },
     enabled: !!data.entity_id,
-    staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache the data
+    staleTime: 0,
+    gcTime: 0,
     refetchOnWindowFocus: false,
     retry: 2,
     retryDelay: 1000
