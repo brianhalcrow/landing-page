@@ -17,7 +17,6 @@ export interface HedgeRequestRow {
   strategy_id: string;
   strategy_name: string;
   instrument: string;
-  counterparty_id: string;
   counterparty_name: string;
   buy_currency: string;
   buy_amount: number | null;

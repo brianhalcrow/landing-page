@@ -22,12 +22,11 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
     validConfigs
       .filter(c => 
         c.entity_id === props.data.entity_id && 
-        c.strategy_id.toString() === props.data.strategy
+        c.strategy_id.toString() === props.data.strategy_id
       )
       .map(c => [
-        c.counterparty_id,
+        c.counterparty_name,
         {
-          id: c.counterparty_id,
           name: c.counterparty_name
         }
       ])
@@ -38,17 +37,15 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
     if (counterparties.length === 1 && !props.value && props.context?.updateRowData) {
       const counterparty = counterparties[0];
       props.context.updateRowData(props.node.rowIndex, {
-        counterparty: counterparty.id,
         counterparty_name: counterparty.name
       });
     }
-  }, [counterparties, props.value, props.context, props.node.rowIndex, props.data.strategy]);
+  }, [counterparties, props.value, props.context, props.node.rowIndex, props.data.strategy_id]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
+    const selectedCounterparty = counterparties.find(c => c.name === event.target.value);
     if (selectedCounterparty && props.context?.updateRowData) {
       props.context.updateRowData(props.node.rowIndex, {
-        counterparty: selectedCounterparty.id,
         counterparty_name: selectedCounterparty.name
       });
     }
@@ -60,11 +57,11 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
         value={props.value || ''}
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-        disabled={!props.data.strategy}
+        disabled={!props.data.strategy_id}
       >
         <option value=""></option>
         {counterparties.map(cp => (
-          <option key={cp.id} value={cp.id}>
+          <option key={cp.name} value={cp.name}>
             {cp.name}
           </option>
         ))}
