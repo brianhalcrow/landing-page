@@ -15,16 +15,9 @@ export const useTradeRequestSave = () => {
       
       console.log("Saving trade request:", transformedData);
 
-      // Dates are already in YYYY-MM-DD format from transformTradeRequest
-      const dataToSave = {
-        ...transformedData,
-        trade_date: transformedData.trade_date,
-        settlement_date: transformedData.settlement_date,
-      };
-
       const { data, error } = await supabase
         .from('trade_requests')
-        .insert([dataToSave])
+        .insert([transformedData])
         .select();
 
       if (error) {

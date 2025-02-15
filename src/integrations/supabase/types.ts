@@ -2724,6 +2724,7 @@ export type Database = {
           request_no: number
           settlement_date: string | null
           strategy_id: string | null
+          strategy_name: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2743,6 +2744,7 @@ export type Database = {
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2762,6 +2764,7 @@ export type Database = {
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }

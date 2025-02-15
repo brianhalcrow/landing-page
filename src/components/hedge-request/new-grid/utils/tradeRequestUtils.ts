@@ -5,7 +5,7 @@ import { parse, format } from "date-fns";
 interface TradeRequestInput {
   entity_id: string;
   entity_name: string;
-  strategy_description: string;
+  strategy_name: string;  // Updated to use strategy_name consistently
   instrument: string;
   trade_date: string | null;
   settlement_date: string;
@@ -19,15 +19,13 @@ interface TradeRequestInput {
 export const validateTradeRequest = (data: any): boolean => {
   console.log("Starting validation for trade request data:", data);
   
-  // Handle strategy field mapping
-  const strategy = data.strategy_description || data.strategy;
   if (!data.entity_id || !data.entity_name) {
     console.log("Validation failed: Missing entity information", { entity_id: data.entity_id, entity_name: data.entity_name });
     toast.error("Entity information is required");
     return false;
   }
 
-  if (!strategy) {
+  if (!data.strategy_name) {  // Updated to check strategy_name
     console.log("Validation failed: Missing strategy");
     toast.error("Strategy is required");
     return false;
@@ -82,8 +80,6 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  // Trade date is optional, no validation needed
-
   if (!data.settlement_date) {
     console.log("Validation failed: Missing settlement date");
     toast.error("Settlement date is required");
@@ -108,29 +104,19 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
 };
 
 export const transformTradeRequest = (data: any) => {
-  // Handle strategy field mapping
-  const strategy = data.strategy_description || data.strategy;
-  // Handle currency fields mapping
-  const buyCurrency = data.buy_currency || data.ccy_1;
-  const sellCurrency = data.sell_currency || data.ccy_2;
-  const buyAmount = data.buy_amount || data.ccy_1_amount ? parseFloat(data.buy_amount || data.ccy_1_amount) : null;
-  const sellAmount = data.sell_amount || data.ccy_2_amount ? parseFloat(data.sell_amount || data.ccy_2_amount) : null;
-
   return {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
-    strategy,
+    strategy_name: data.strategy_name,  // Using strategy_name consistently
     instrument: data.instrument,
     trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
     settlement_date: parseDateToYYYYMMDD(data.settlement_date),
-    ccy_1: buyCurrency,
-    ccy_2: sellCurrency,
-    ccy_1_amount: buyAmount,
-    ccy_2_amount: sellAmount,
+    ccy_1: data.buy_currency,
+    ccy_2: data.sell_currency,
+    ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
+    ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
     cost_centre: data.cost_centre,
-    ccy_pair: `${buyCurrency}${sellCurrency}`,
-    counterparty: data.counterparty,
-    counterparty_name: data.counterparty_name,
-    strategy_name: data.strategy_name
+    ccy_pair: `${data.buy_currency}${data.sell_currency}`,
+    counterparty_name: data.counterparty_name
   };
 };
