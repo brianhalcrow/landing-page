@@ -28,7 +28,17 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
           {value ? format(new Date(value), 'dd/MM/yyyy') : 'Select date'}
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-auto p-0" sideOffset={5}>
+      <HoverCardContent 
+        className="w-auto p-0" 
+        sideOffset={5}
+        align="start"
+        side="bottom"
+        alignOffset={-50}
+        style={{
+          position: 'absolute',
+          zIndex: 1000
+        }}
+      >
         <Calendar
           mode="single"
           selected={value ? new Date(value) : undefined}
