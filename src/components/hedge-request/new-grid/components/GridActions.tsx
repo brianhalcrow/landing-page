@@ -82,26 +82,14 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         return;
       }
 
-      // Save valid rows
-      for (const row of validRows) {
+      // Transform all rows and collect swap legs
+      const tradesToSave = validRows.flatMap(row => {
         const transformedData = transformTradeRequest(row);
-        
-        if (Array.isArray(transformedData)) {
-          // For swaps, save legs sequentially
-          const [leg1, leg2] = transformedData;
-          
-          // Save leg 1 first
-          console.log("Saving swap leg 1:", leg1);
-          await saveMutation.mutateAsync(leg1);
-          
-          // Then save leg 2
-          console.log("Saving swap leg 2:", leg2);
-          await saveMutation.mutateAsync(leg2);
-        } else {
-          // For single trades
-          await saveMutation.mutateAsync(transformedData);
-        }
-      }
+        return Array.isArray(transformedData) ? transformedData : [transformedData];
+      });
+
+      // Save all trades in a single batch
+      await saveMutation.mutateAsync(tradesToSave);
 
       toast.success(`Successfully saved ${validRows.length} trade request(s)`);
     } catch (error) {

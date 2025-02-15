@@ -23,12 +23,15 @@ interface TradeRequest {
 
 export const useTradeRequestSave = () => {
   return useMutation({
-    mutationFn: async (data: TradeRequest) => {
-      console.log("Saving trade request:", data);
+    mutationFn: async (data: TradeRequest | TradeRequest[]) => {
+      console.log("Saving trade request(s):", data);
+      
+      // If it's a single request, wrap it in an array
+      const requests = Array.isArray(data) ? data : [data];
       
       const { error } = await supabase
         .from('trade_requests')
-        .insert([data]);
+        .insert(requests);
 
       if (error) {
         console.error("Error saving trade request:", error);
