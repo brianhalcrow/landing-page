@@ -10,8 +10,8 @@ interface TradeRequestInput {
   settlement_date: Date | null;
   buy_currency: string;
   sell_currency: string;
-  buy_amount: number | null;
-  sell_amount: number | null;
+  buy_amount: number | string | null;
+  sell_amount: number | string | null;
   cost_centre: string;
 }
 
@@ -51,13 +51,23 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  if (!buyAmount || !sellAmount) {
-    toast.error("Currency amounts are required");
+  if (!buyAmount || buyAmount === "0") {
+    toast.error("Buy amount is required and must be greater than 0");
     return false;
   }
 
-  if (!data.trade_date || !data.settlement_date) {
-    toast.error("Trade and settlement dates are required");
+  if (!sellAmount || sellAmount === "0") {
+    toast.error("Sell amount is required and must be greater than 0");
+    return false;
+  }
+
+  if (!data.trade_date) {
+    toast.error("Trade date is required");
+    return false;
+  }
+
+  if (!data.settlement_date) {
+    toast.error("Settlement date is required");
     return false;
   }
 
@@ -70,8 +80,8 @@ export const transformTradeRequest = (data: any) => {
   // Handle currency fields mapping
   const buyCurrency = data.buy_currency || data.ccy_1;
   const sellCurrency = data.sell_currency || data.ccy_2;
-  const buyAmount = data.buy_amount || data.ccy_1_amount;
-  const sellAmount = data.sell_amount || data.ccy_2_amount;
+  const buyAmount = parseFloat(data.buy_amount || data.ccy_1_amount);
+  const sellAmount = parseFloat(data.sell_amount || data.ccy_2_amount);
 
   return {
     entity_id: data.entity_id,
@@ -86,5 +96,8 @@ export const transformTradeRequest = (data: any) => {
     ccy_2_amount: sellAmount,
     cost_centre: data.cost_centre,
     ccy_pair: `${buyCurrency}${sellCurrency}`,
+    counterparty: data.counterparty,
+    counterparty_name: data.counterparty_name,
+    strategy_name: data.strategy_name
   };
 };
