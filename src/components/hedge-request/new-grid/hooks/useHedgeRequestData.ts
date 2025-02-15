@@ -72,6 +72,35 @@ export const useHedgeRequestData = () => {
       const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
       console.log('Checking for SWAP:', { isSwap, updateInstrument: updates.instrument, currentInstrument: currentRow.instrument });
 
+      // Handle amount validation for SWAP trades
+      if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
+        // For first leg
+        if (rowIndex % 2 === 0) {
+          if (updates.buy_amount !== null && currentRow.sell_amount !== null) {
+            toast.error('First leg can only have either buy or sell amount');
+            return newData;
+          }
+          if (updates.sell_amount !== null && currentRow.buy_amount !== null) {
+            toast.error('First leg can only have either buy or sell amount');
+            return newData;
+          }
+        }
+        // For second leg
+        else {
+          const firstLeg = newData[rowIndex - 1];
+          // If first leg has buy amount, second leg must have sell amount
+          if (firstLeg.buy_amount !== null && updates.sell_amount === null) {
+            toast.error('Second leg must have sell amount when first leg has buy amount');
+            return newData;
+          }
+          // If first leg has sell amount, second leg must have buy amount
+          if (firstLeg.sell_amount !== null && updates.buy_amount === null) {
+            toast.error('Second leg must have buy amount when first leg has sell amount');
+            return newData;
+          }
+        }
+      }
+
       // Update the current row
       newData[rowIndex] = updatedRow;
 
