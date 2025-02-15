@@ -11,14 +11,11 @@ export const useHedgeStrategyData = () => {
     queryKey: ['hedge-strategy-config'],
     queryFn: async () => {
       const { data: configurations, error } = await supabase
-        .from('v_hedge_request_config')
+        .from('hedge_strategy')
         .select(`
-          entity_id,
-          entity_name,
+          id,
           strategy_name,
-          instrument,
-          counterparty_id,
-          counterparty_name
+          instrument
         `);
 
       if (error) {
@@ -29,12 +26,12 @@ export const useHedgeStrategyData = () => {
       console.log('Fetched configurations:', configurations);
 
       const gridRows: HedgeStrategyGridRow[] = configurations.map(config => ({
-        entity_id: config.entity_id,
-        entity_name: config.entity_name,
+        entity_id: '',  // These will be populated when assigned to an entity
+        entity_name: '',
         strategy_name: config.strategy_name,
         instrument: config.instrument,
-        counterparty_id: config.counterparty_id,
-        counterparty_name: config.counterparty_name
+        counterparty_id: '',
+        counterparty_name: ''
       }));
 
       console.log('Generated grid rows:', gridRows);

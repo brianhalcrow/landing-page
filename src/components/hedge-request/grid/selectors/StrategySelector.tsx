@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,7 +18,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       
       const { data: strategyData, error } = await supabase
         .from('hedge_strategy')
-        .select('strategy, strategy_description')
+        .select('strategy_name')
         .eq('exposure_category_l2', data.exposure_category_l2);
 
       if (error) {
@@ -32,8 +33,8 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
   });
 
   const uniqueStrategies = Array.from(new Set(strategies?.map(s => ({
-    strategy: s.strategy,
-    description: s.strategy_description
+    strategy: s.strategy_name,
+    description: s.strategy_name
   })) || []));
 
   // Only update if we have data and the current value doesn't match
@@ -42,7 +43,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
       if (node && node.setData) {
         node.setData({
           ...data,
-          strategy_description: uniqueStrategies[0].description,
+          strategy_name: uniqueStrategies[0].description,
           instrument: '' // Clear instrument when strategy changes
         });
       }
@@ -64,7 +65,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
           if (node && node.setData) {
             node.setData({
               ...data,
-              strategy_description: newValue,
+              strategy_name: newValue,
               instrument: '' // Clear instrument when strategy changes
             });
           }
