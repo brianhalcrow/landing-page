@@ -20,6 +20,7 @@ interface TradeDataGridProps {
 const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: TradeDataGridProps) => {
   const gridRef = useRef<AgGridReact>(null);
   const [lastSelectedCurrency, setLastSelectedCurrency] = useState<'buy' | 'sell' | null>(null);
+  const [rates] = useState<Map<string, number>>(new Map()); // Initialize empty rates map
 
   const updateRow = (index: number, updates: Partial<HedgeRequestDraftTrade>) => {
     onRowDataChange(prevData => {
@@ -29,8 +30,8 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
     });
   };
 
-  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(updateRow, setLastSelectedCurrency);
-  const columnDefs = useTradeColumns(updateRow, lastSelectedCurrency);
+  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(rates, setLastSelectedCurrency);
+  const columnDefs = useTradeColumns(rates, lastSelectedCurrency);
 
   const initialEditorState: CurrencyEditorState = {
     lastSelectedCurrency: null,
@@ -74,7 +75,8 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
           suppressSizeToFit: false
         }}
         context={{
-          editorState: initialEditorState
+          editorState: initialEditorState,
+          updateRow // Add updateRow to context for cell renderers
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}
