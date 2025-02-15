@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface CostCentreSelectorProps {
   value: string;
@@ -15,10 +15,17 @@ interface CostCentreSelectorProps {
 }
 
 export const CostCentreSelector = ({ value, data, node, context }: CostCentreSelectorProps) => {
-  const { data: costCentres, isLoading } = useQuery({
+  const hasAttemptedAutoSelect = useRef(false);
+
+  const { data: costCentres, isLoading, error } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
-      if (!data.entity_id) return [];
+      console.log('Fetching cost centres for entity:', data.entity_id);
+      
+      if (!data.entity_id) {
+        console.log('No entity_id provided, returning empty array');
+        return [];
+      }
       
       const { data: centresData, error } = await supabase
         .from('management_structure')
@@ -31,40 +38,69 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         return [];
       }
 
+      console.log('Raw cost centre data:', centresData);
+
       // Ensure we remove any null or undefined values and sort the array
       const validCentres = centresData
         .map(item => item.cost_centre)
         .filter(Boolean)
         .sort();
 
+      console.log('Processed cost centres:', validCentres);
       return [...new Set(validCentres)];
     },
     enabled: !!data.entity_id,
     staleTime: 0,
-    retry: 1
+    retry: 2,
+    retryDelay: 1000
   });
 
   useEffect(() => {
-    // Only proceed if we have cost centres data, no current value, and the context
-    if (!isLoading && costCentres?.length === 1 && !value && context?.updateRowData) {
-      // Add a small delay to ensure all other state updates have completed
-      const timer = setTimeout(() => {
+    if (
+      !isLoading && 
+      costCentres?.length === 1 && 
+      !value && 
+      context?.updateRowData && 
+      !hasAttemptedAutoSelect.current &&
+      data.entity_id // Ensure we have an entity_id
+    ) {
+      console.log('Attempting to auto-select cost centre:', {
+        costCentres,
+        currentValue: value,
+        entityId: data.entity_id,
+        rowIndex: node.rowIndex
+      });
+
+      hasAttemptedAutoSelect.current = true;
+
+      // Use requestAnimationFrame to ensure DOM updates have completed
+      requestAnimationFrame(() => {
         context.updateRowData(node.rowIndex, {
           cost_centre: costCentres[0]
         });
-      }, 100);
-
-      return () => clearTimeout(timer);
+        console.log('Auto-selected cost centre:', costCentres[0]);
+      });
     }
-  }, [costCentres, value, context, node.rowIndex, isLoading]);
+  }, [costCentres, value, context, node.rowIndex, isLoading, data.entity_id]);
+
+  // Reset the auto-select flag when the entity changes
+  useEffect(() => {
+    hasAttemptedAutoSelect.current = false;
+  }, [data.entity_id]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {
+      const newValue = event.target.value;
+      console.log('Manual cost centre selection:', newValue);
       context.updateRowData(node.rowIndex, {
-        cost_centre: event.target.value
+        cost_centre: newValue
       });
     }
   };
+
+  if (error) {
+    console.error('Cost centre query error:', error);
+  }
 
   return (
     <div className="relative w-full">
@@ -72,7 +108,7 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
         value={value || ''} 
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-        disabled={!data.entity_id}
+        disabled={!data.entity_id || isLoading}
       >
         <option value=""></option>
         {(costCentres || []).map((cc: string) => (
