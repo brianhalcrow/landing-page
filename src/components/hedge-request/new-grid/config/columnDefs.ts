@@ -4,6 +4,7 @@ import { EntitySelector } from "../selectors/EntitySelector";
 import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CostCentreSelector } from "../selectors/CostCentreSelector";
+import { CurrencySelector } from "../selectors/CurrencySelector";
 import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
 
 interface Context {
@@ -65,7 +66,10 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
     headerName: "Buy Currency",
     field: "buy_currency",
-    editable: true,
+    cellRenderer: CurrencySelector,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   },
   {
@@ -77,7 +81,10 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
     headerName: "Sell Currency",
     field: "sell_currency",
-    editable: true,
+    cellRenderer: CurrencySelector,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   },
   {
