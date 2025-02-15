@@ -24,7 +24,7 @@ export const StrategySelector = (props: StrategySelectorProps) => {
         c.strategy_id,
         {
           id: c.strategy_id,
-          name: c.strategy,
+          name: c.strategy_name,
           description: c.strategy_description,
           instrument: c.instrument
         }
@@ -35,7 +35,7 @@ export const StrategySelector = (props: StrategySelectorProps) => {
     const selectedStrategy = strategies.find(s => s.id.toString() === event.target.value);
     if (selectedStrategy && props.context?.updateRowData) {
       props.context.updateRowData(props.node.rowIndex, {
-        strategy: selectedStrategy.id.toString(),
+        strategy_id: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
         instrument: selectedStrategy.instrument

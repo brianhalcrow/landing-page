@@ -12,8 +12,10 @@ export interface TradeRegister {
   currency_pair: string;
   spot_rate: number;
   contract_rate: number;
-  counterparty: string;
-  strategy: string;
+  counterparty_id: string;
+  counterparty_name: string;
+  strategy_id: string;
+  strategy_name: string;
   instrument: string;
   created_by: string;
   created_at: string;

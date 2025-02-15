@@ -4,7 +4,7 @@ export interface ValidHedgeConfig {
   entity_name: string;
   functional_currency: string;
   strategy_id: number;
-  strategy: string;
+  strategy_name: string;
   strategy_description: string;
   instrument: string;
   counterparty_id: string;
@@ -14,9 +14,10 @@ export interface ValidHedgeConfig {
 export interface HedgeRequestRow {
   entity_id: string;
   entity_name: string;
-  strategy: string;
+  strategy_id: string;
+  strategy_name: string;
   instrument: string;
-  counterparty: string;
+  counterparty_id: string;
   counterparty_name: string;
   buy_currency: string;
   buy_amount: number | null;

@@ -2715,7 +2715,7 @@ export type Database = {
           ccy_2_amount: number | null
           ccy_pair: string | null
           cost_centre: string | null
-          counterparty: string | null
+          counterparty_name: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -2723,7 +2723,7 @@ export type Database = {
           instrument: string | null
           request_no: number
           settlement_date: string | null
-          strategy: string | null
+          strategy_id: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2734,7 +2734,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -2742,7 +2742,7 @@ export type Database = {
           instrument?: string | null
           request_no?: number
           settlement_date?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2753,7 +2753,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -2761,7 +2761,7 @@ export type Database = {
           instrument?: string | null
           request_no?: number
           settlement_date?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
