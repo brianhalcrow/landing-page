@@ -76,11 +76,11 @@ export const validateTradeRequest = (data: any): boolean => {
     sellAmount
   });
 
-  // For swaps, validate that both sides (buy and sell) are complete
+  // For swaps, validate only that both currencies are specified
   if (data.instrument === 'Swap') {
-    if (!buyCurrency || !sellCurrency || !buyAmount || !sellAmount) {
-      console.log("Validation failed: Swap requires both buy and sell sides");
-      toast.error("Swaps require both buy and sell currencies and amounts");
+    if (!buyCurrency || !sellCurrency) {
+      console.log("Validation failed: Swap requires both currencies");
+      toast.error("Swaps require both buy and sell currencies to be specified");
       return false;
     }
   } else {
