@@ -36,8 +36,13 @@ export const useHedgeRequestData = () => {
         return [];
       }
 
+      console.log('Fetched configurations:', data); // Debug log
       return data as ValidHedgeConfig[];
-    }
+    },
+    // Set staleTime to 0 to always fetch fresh data
+    staleTime: 0,
+    // Disable caching to ensure we always get fresh data
+    cacheTime: 0
   });
 
   const handleSave = async () => {
