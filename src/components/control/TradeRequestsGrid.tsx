@@ -11,7 +11,8 @@ interface TradeRequest {
   request_no: number;
   entity_id: string;
   entity_name: string;
-  strategy: string;
+  strategy_id: string;
+  strategy_name: string;
   ccy_pair: string;
   ccy_1: string;
   ccy_2: string;
@@ -38,7 +39,13 @@ const TradeRequestsGrid = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as TradeRequest[];
+      
+      // Transform the data to match TradeRequest type
+      return (data as any[]).map(request => ({
+        ...request,
+        strategy_id: request.strategy_id || '',
+        strategy_name: request.strategy_name || ''
+      })) as TradeRequest[];
     }
   });
 
@@ -146,7 +153,14 @@ const TradeRequestsGrid = () => {
       suppressSizeToFit: true
     },
     { 
-      field: 'strategy', 
+      field: 'strategy_id', 
+      headerName: 'Strategy ID', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'strategy_name', 
       headerName: 'Strategy', 
       filter: true,
       width: 130,

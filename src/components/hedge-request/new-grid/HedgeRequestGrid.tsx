@@ -1,46 +1,65 @@
 
 import { AgGridReact } from 'ag-grid-react';
-import { GridStyles } from '../grid/components/GridStyles';
 import { createColumnDefs } from './config/columnDefs';
 import { useHedgeRequestData } from './hooks/useHedgeRequestData';
 import { GridActions } from './components/GridActions';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { useCallback, useRef } from 'react';
 
 const HedgeRequestGrid = () => {
+  const gridRef = useRef<AgGridReact>(null);
   const {
     rowData,
     validConfigs,
-    handleSave,
     addNewRow,
     updateRowData
   } = useHedgeRequestData();
 
+  const handleCellValueChanged = useCallback((event: any) => {
+    const { rowIndex, colDef, newValue } = event;
+    if (colDef.field) {
+      updateRowData(rowIndex, { [colDef.field]: newValue });
+    }
+  }, [updateRowData]);
+
   return (
     <div className="space-y-4">
       <div className="w-full h-[400px] ag-theme-alpine">
-        <GridStyles />
         <AgGridReact
+          ref={gridRef}
           rowData={rowData}
-          columnDefs={createColumnDefs()}
+          columnDefs={createColumnDefs(gridRef.current?.api || null, { 
+            validConfigs,
+            updateRowData 
+          })}
           defaultColDef={{
             sortable: true,
             filter: true,
             resizable: true,
             suppressSizeToFit: false
           }}
-          context={{ validConfigs }}
+          getRowId={(params) => {
+            // First try to use the id from data
+            if (params.data?.id) {
+              return params.data.id.toString();
+            }
+            // Fall back to a generated id if no id exists
+            return `generated-${Date.now()}-${Math.random()}`;
+          }}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
-          onCellValueChanged={(event) => {
-            updateRowData(event.rowIndex, event.colDef.field!, event.newValue);
-          }}
           stopEditingWhenCellsLoseFocus={true}
+          onCellValueChanged={handleCellValueChanged}
+          suppressMoveWhenRowDragging={true}
         />
       </div>
 
-      <GridActions onAddRow={addNewRow} onSave={handleSave} />
+      <GridActions 
+        onAddRow={addNewRow}
+        rowData={rowData}
+      />
     </div>
   );
 };

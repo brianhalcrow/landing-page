@@ -8,15 +8,15 @@ import type { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.ty
 const defaultRow: HedgeRequestRow = {
   entity_id: "",
   entity_name: "",
-  strategy: "",
+  strategy_name: "",
   instrument: "",
-  counterparty: "",
   counterparty_name: "",
-  buy_sell: "BUY",
-  amount: 0,
-  currency: "",
-  trade_date: new Date().toISOString().split('T')[0],
-  settlement_date: "",
+  buy_currency: "",
+  buy_amount: null,
+  sell_currency: "",
+  sell_amount: null,
+  trade_date: null,
+  settlement_date: null,
   cost_centre: ""
 };
 
@@ -28,7 +28,15 @@ export const useHedgeRequestData = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('v_hedge_request_config')
-        .select('*');
+        .select(`
+          entity_id,
+          entity_name,
+          strategy_id,
+          strategy_name,
+          instrument,
+          counterparty_name,
+          functional_currency
+        `);
       
       if (error) {
         console.error('Error fetching valid configurations:', error);
@@ -36,9 +44,27 @@ export const useHedgeRequestData = () => {
         return [];
       }
 
-      return data as ValidHedgeConfig[];
-    }
+      console.log('Fetched configurations:', data);
+      return (data as any[]).map(config => ({
+        ...config,
+        strategy_description: config.strategy_name // Using strategy_name as description temporarily
+      })) as ValidHedgeConfig[];
+    },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: true
   });
+
+  const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
+    setRowData(currentRows => {
+      const newData = [...currentRows];
+      newData[rowIndex] = {
+        ...newData[rowIndex],
+        ...updates
+      };
+      return newData;
+    });
+  };
 
   const handleSave = async () => {
     try {
@@ -48,20 +74,19 @@ export const useHedgeRequestData = () => {
           rowData.map(row => ({
             entity_id: row.entity_id,
             entity_name: row.entity_name,
-            strategy: row.strategy,
+            strategy_name: row.strategy_name,
             instrument: row.instrument,
-            counterparty: row.counterparty,
             counterparty_name: row.counterparty_name,
-            ccy_1: row.currency,
-            ccy_1_amount: row.buy_sell === 'BUY' ? row.amount : null,
-            ccy_2_amount: row.buy_sell === 'SELL' ? row.amount : null,
+            ccy_1: row.buy_currency,
+            ccy_1_amount: row.buy_amount,
+            ccy_2: row.sell_currency,
+            ccy_2_amount: row.sell_amount,
             trade_date: row.trade_date,
             settlement_date: row.settlement_date,
             cost_centre: row.cost_centre,
             created_at: new Date().toISOString()
           }))
-        )
-        .select();
+        );
 
       if (error) throw error;
       toast.success('Trade request saved successfully');
@@ -73,15 +98,6 @@ export const useHedgeRequestData = () => {
 
   const addNewRow = () => {
     setRowData([...rowData, { ...defaultRow }]);
-  };
-
-  const updateRowData = (rowIndex: number, field: string, value: any) => {
-    const newData = [...rowData];
-    newData[rowIndex] = { 
-      ...newData[rowIndex], 
-      [field]: value 
-    };
-    setRowData(newData);
   };
 
   return {

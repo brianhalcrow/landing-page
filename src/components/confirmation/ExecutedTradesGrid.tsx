@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +22,15 @@ const ExecutedTradesGrid = () => {
         .order('trade_date', { ascending: false });
       
       if (error) throw error;
-      return data as TradeRegister[];
+      
+      // Transform the data to match TradeRegister type
+      return (data as any[]).map(trade => ({
+        ...trade,
+        counterparty_id: trade.counterparty_id || '',
+        counterparty_name: trade.counterparty_name || '',
+        strategy_id: trade.strategy_id || '',
+        strategy_name: trade.strategy_name || ''
+      })) as TradeRegister[];
     }
   });
 
@@ -122,7 +131,14 @@ const ExecutedTradesGrid = () => {
       suppressSizeToFit: true
     },
     { 
-      field: 'counterparty', 
+      field: 'counterparty_id', 
+      headerName: 'Counterparty ID', 
+      filter: true,
+      width: 150,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'counterparty_name', 
       headerName: 'Counterparty', 
       filter: true,
       width: 150,
@@ -143,7 +159,14 @@ const ExecutedTradesGrid = () => {
       suppressSizeToFit: true
     },
     { 
-      field: 'strategy', 
+      field: 'strategy_id', 
+      headerName: 'Strategy ID', 
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true
+    },
+    { 
+      field: 'strategy_name', 
       headerName: 'Strategy', 
       filter: true,
       width: 130,

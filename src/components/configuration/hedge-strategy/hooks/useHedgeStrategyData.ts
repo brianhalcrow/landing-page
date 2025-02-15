@@ -8,13 +8,15 @@ export const useHedgeStrategyData = () => {
   const [rowData, setRowData] = useState<HedgeStrategyGridRow[]>([]);
 
   const { isLoading } = useQuery({
-    queryKey: ['hedge-strategy-assignments'],
+    queryKey: ['hedge-strategy-config'],
     queryFn: async () => {
-      console.log('Fetching hedge strategy assignments from view');
-      
       const { data: configurations, error } = await supabase
-        .from('v_valid_hedge_configurations')
-        .select('*');
+        .from('hedge_strategy')
+        .select(`
+          id,
+          strategy_name,
+          instrument
+        `);
 
       if (error) {
         console.error('Error fetching configurations:', error);
@@ -24,17 +26,12 @@ export const useHedgeStrategyData = () => {
       console.log('Fetched configurations:', configurations);
 
       const gridRows: HedgeStrategyGridRow[] = configurations.map(config => ({
-        entity_id: config.entity_id,
-        entity_name: config.entity_name,
-        exposure_category_l2: config.exposure_category_l2,
-        strategy: config.strategy_id.toString(),
-        strategy_name: config.strategy,
-        strategy_description: config.strategy_description,
+        entity_id: '',  // These will be populated when assigned to an entity
+        entity_name: '',
+        strategy_name: config.strategy_name,
         instrument: config.instrument,
-        counterparty_id: config.counterparty_id,
-        counterparty_name: config.counterparty_name,
-        isAssigned: config.is_assigned,
-        assignmentId: config.assignment_id
+        counterparty_id: '',
+        counterparty_name: ''
       }));
 
       console.log('Generated grid rows:', gridRows);

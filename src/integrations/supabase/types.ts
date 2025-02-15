@@ -1336,105 +1336,24 @@ export type Database = {
           exposure_category_l2: string | null
           id: number
           instrument: string | null
-          strategy: string | null
-          strategy_description: string | null
+          strategy_id: string | null
+          strategy_name: string | null
         }
         Insert: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
-          strategy?: string | null
-          strategy_description?: string | null
+          strategy_id?: string | null
+          strategy_name?: string | null
         }
         Update: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
-          strategy?: string | null
-          strategy_description?: string | null
+          strategy_id?: string | null
+          strategy_name?: string | null
         }
         Relationships: []
-      }
-      hedge_strategy_assignment: {
-        Row: {
-          counterparty_id: string
-          created_at: string | null
-          entity_id: string
-          hedge_strategy_id: number
-          id: string
-        }
-        Insert: {
-          counterparty_id: string
-          created_at?: string | null
-          entity_id: string
-          hedge_strategy_id: number
-          id?: string
-        }
-        Update: {
-          counterparty_id?: string
-          created_at?: string | null
-          entity_id?: string
-          hedge_strategy_id?: number
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "counterparty"
-            referencedColumns: ["counterparty_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "erp_legal_entity"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_legal_entity"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
-            columns: ["hedge_strategy_id"]
-            isOneToOne: false
-            referencedRelation: "hedge_strategy"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
-            columns: ["hedge_strategy_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["strategy_id"]
-          },
-          {
-            foreignKeyName: "hedge_strategy_assignment_hedge_strategy_id_fkey"
-            columns: ["hedge_strategy_id"]
-            isOneToOne: false
-            referencedRelation: "v_valid_hedge_configurations"
-            referencedColumns: ["strategy_id"]
-          },
-        ]
       }
       im_actual: {
         Row: {}
@@ -1491,13 +1410,6 @@ export type Database = {
             columns: ["entity_id"]
             isOneToOne: false
             referencedRelation: "entities"
-            referencedColumns: ["entity_id"]
-          },
-          {
-            foreignKeyName: "management_structure_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "v_valid_hedge_configurations"
             referencedColumns: ["entity_id"]
           },
         ]
@@ -2735,7 +2647,7 @@ export type Database = {
           ccy_pair: string | null
           contract_rate: number | null
           cost_centre: string | null
-          counterparty: string | null
+          counterparty_name: string | null
           created_at: string | null
           created_by: string | null
           currency_pair: string | null
@@ -2745,7 +2657,7 @@ export type Database = {
           instrument: string | null
           settlement_date: string | null
           spot_rate: number | null
-          strategy: string | null
+          strategy_name: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2757,7 +2669,7 @@ export type Database = {
           ccy_pair?: string | null
           contract_rate?: number | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           currency_pair?: string | null
@@ -2767,7 +2679,7 @@ export type Database = {
           instrument?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
-          strategy?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2779,7 +2691,7 @@ export type Database = {
           ccy_pair?: string | null
           contract_rate?: number | null
           cost_centre?: string | null
-          counterparty?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           currency_pair?: string | null
@@ -2789,7 +2701,7 @@ export type Database = {
           instrument?: string | null
           settlement_date?: string | null
           spot_rate?: number | null
-          strategy?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2803,8 +2715,7 @@ export type Database = {
           ccy_2_amount: number | null
           ccy_pair: string | null
           cost_centre: string | null
-          counterparty: string | null
-          counterparty_type: string | null
+          counterparty_name: string | null
           created_at: string | null
           created_by: string | null
           entity_id: string | null
@@ -2812,7 +2723,8 @@ export type Database = {
           instrument: string | null
           request_no: number
           settlement_date: string | null
-          strategy: string | null
+          strategy_id: string | null
+          strategy_name: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2823,8 +2735,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
-          counterparty?: string | null
-          counterparty_type?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -2832,7 +2743,8 @@ export type Database = {
           instrument?: string | null
           request_no?: number
           settlement_date?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2843,8 +2755,7 @@ export type Database = {
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
-          counterparty?: string | null
-          counterparty_type?: string | null
+          counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
           entity_id?: string | null
@@ -2852,7 +2763,8 @@ export type Database = {
           instrument?: string | null
           request_no?: number
           settlement_date?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
+          strategy_name?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -3103,6 +3015,13 @@ export type Database = {
         }
         Relationships: []
       }
+      v_currency_list: {
+        Row: {
+          currency: string | null
+          priority_order: number | null
+        }
+        Relationships: []
+      }
       v_fx_forward_points_detailed: {
         Row: {
           ccy_1: string | null
@@ -3138,13 +3057,22 @@ export type Database = {
           counterparty_name: string | null
           entity_id: string | null
           entity_name: string | null
+          exposure_type_id: number | null
           functional_currency: string | null
           instrument: string | null
           strategy: string | null
-          strategy_description: string | null
           strategy_id: number | null
+          strategy_name: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "entity_exposure_config_exposure_type_id_fkey"
+            columns: ["exposure_type_id"]
+            isOneToOne: false
+            referencedRelation: "exposure_types"
+            referencedColumns: ["exposure_type_id"]
+          },
+        ]
       }
       v_legal_entity: {
         Row: {
@@ -3218,41 +3146,6 @@ export type Database = {
           year_period: string | null
         }
         Relationships: []
-      }
-      v_valid_hedge_configurations: {
-        Row: {
-          assignment_id: string | null
-          counterparty_id: string | null
-          counterparty_name: string | null
-          entity_id: string | null
-          entity_name: string | null
-          exposure_category_l1: string | null
-          exposure_category_l2: string | null
-          exposure_category_l3: string | null
-          functional_currency: string | null
-          instrument: string | null
-          is_assigned: boolean | null
-          strategy: string | null
-          strategy_description: string | null
-          strategy_id: number | null
-          subsystem: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "counterparty"
-            referencedColumns: ["counterparty_id"]
-          },
-          {
-            foreignKeyName: "counterparty_instrument_counterparty_id_fkey"
-            columns: ["counterparty_id"]
-            isOneToOne: false
-            referencedRelation: "v_hedge_request_config"
-            referencedColumns: ["counterparty_id"]
-          },
-        ]
       }
     }
     Functions: {

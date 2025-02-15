@@ -4,7 +4,7 @@ export interface ValidHedgeConfig {
   entity_name: string;
   functional_currency: string;
   strategy_id: number;
-  strategy: string;
+  strategy_name: string;
   strategy_description: string;
   instrument: string;
   counterparty_id: string;
@@ -14,14 +14,14 @@ export interface ValidHedgeConfig {
 export interface HedgeRequestRow {
   entity_id: string;
   entity_name: string;
-  strategy: string;
+  strategy_name: string;
   instrument: string;
-  counterparty: string;
   counterparty_name: string;
-  buy_sell: "BUY" | "SELL";
-  amount: number;
-  currency: string;
-  trade_date: string;
-  settlement_date: string;
+  buy_currency: string;
+  buy_amount: number | null;
+  sell_currency: string;
+  sell_amount: number | null;
+  trade_date: string | null;
+  settlement_date: string | null;
   cost_centre: string;
 }

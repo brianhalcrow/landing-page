@@ -1,3 +1,4 @@
+
 import { ColDef } from 'ag-grid-community';
 import { CurrencySelector } from '../components/CurrencySelector';
 import ActionsCellRenderer from '../components/ActionsCellRenderer';
@@ -25,7 +26,20 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       cellDataType: 'number',
       valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
-      valueFormatter: (params) => params.value ? formatNumber(params.value) : ''
+      valueFormatter: (params) => params.value ? formatNumber(params.value) : '',
+      cellStyle: (params) => {
+        if (params.data?.buy_currency) {
+          return { 
+            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+            border: '1px dashed rgb(234, 179, 8)',
+            transition: 'all 0.2s ease-in-out'
+          };
+        }
+        return {};
+      },
+      cellClass: (params) => {
+        return params.data?.buy_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
+      }
     },
     {
       field: 'sell_currency',
@@ -41,7 +55,20 @@ export const useTradeColumns = (rates?: Map<string, number>): ColDef[] => {
       editable: true,
       cellDataType: 'number',
       valueParser: (params) => params.newValue === "" ? null : Number(params.newValue),
-      valueFormatter: (params) => params.value ? formatNumber(params.value) : ''
+      valueFormatter: (params) => params.value ? formatNumber(params.value) : '',
+      cellStyle: (params) => {
+        if (params.data?.sell_currency) {
+          return { 
+            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+            border: '1px dashed rgb(234, 179, 8)',
+            transition: 'all 0.2s ease-in-out'
+          };
+        }
+        return {};
+      },
+      cellClass: (params) => {
+        return params.data?.sell_currency ? 'cursor-pointer hover:bg-yellow-100' : '';
+      }
     },
     {
       field: 'rate',
