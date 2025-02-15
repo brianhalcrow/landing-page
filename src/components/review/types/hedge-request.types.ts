@@ -18,6 +18,5 @@ export interface TradeRequest {
   created_by: string;
   created_at: string;
   updated_at: string;
-  leg_number?: number | null;
   swap_reference?: string | null;
 }
