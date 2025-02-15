@@ -45,11 +45,11 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
             nav_button_previous: "absolute left-1",
             nav_button_next: "absolute right-1",
             table: "w-full border-collapse space-y-1",
-            head_row: "flex",
-            head_cell: "text-muted-foreground rounded-md w-7 font-normal text-[0.75rem]",
-            row: "flex w-full mt-1",
-            cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary/20 [&:has([aria-selected].day-outside)]:bg-primary/10 [&:has([aria-selected].day-range-end)]:rounded-r-md",
-            day: "h-6 w-6 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/20 hover:text-primary rounded-md text-sm",
+            head_row: "flex justify-center",
+            head_cell: "text-muted-foreground w-7 font-bold text-center text-[0.75rem]",
+            row: "flex w-full mt-1 justify-center",
+            cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary/20",
+            day: "h-6 w-6 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/20 hover:text-primary text-sm",
             day_range_end: "day-range-end",
             day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
             day_today: "bg-accent text-accent-foreground font-semibold",
@@ -58,6 +58,7 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
             day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
             day_hidden: "invisible",
           }}
+          weekStartsOn={1}
         />
       </HoverCardContent>
     </HoverCard>
