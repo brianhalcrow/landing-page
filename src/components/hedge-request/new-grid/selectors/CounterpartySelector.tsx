@@ -34,13 +34,13 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
 
   useEffect(() => {
     // Auto-select if there's only one counterparty and none is selected
-    if (counterparties.length === 1 && !props.value && props.context?.updateRowData) {
+    if (counterparties.length === 1 && !props.data.counterparty_name && props.context?.updateRowData) {
       const counterparty = counterparties[0];
       props.context.updateRowData(props.node.rowIndex, {
         counterparty_name: counterparty.name
       });
     }
-  }, [counterparties, props.value, props.context, props.node.rowIndex, props.data.strategy_id]);
+  }, [counterparties, props.data.counterparty_name, props.context, props.node.rowIndex, props.data.strategy_id]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.name === event.target.value);
@@ -54,7 +54,7 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   return (
     <div className="relative w-full">
       <select
-        value={props.value || ''}
+        value={props.data.counterparty_name || ''}
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!props.data.strategy_id}

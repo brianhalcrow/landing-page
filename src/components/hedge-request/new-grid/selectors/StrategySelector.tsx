@@ -38,7 +38,9 @@ export const StrategySelector = (props: StrategySelectorProps) => {
         strategy_id: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
-        instrument: selectedStrategy.instrument
+        instrument: selectedStrategy.instrument,
+        // Clear counterparty when strategy changes
+        counterparty_name: ''
       });
     }
   };
@@ -46,7 +48,7 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   return (
     <div className="relative w-full">
       <select
-        value={props.value || ''}
+        value={props.data.strategy_id || ''}
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!props.data.entity_id}
