@@ -22,7 +22,7 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
     validConfigs
       .filter(c => 
         c.entity_id === props.data.entity_id && 
-        c.strategy_id.toString() === props.data.strategy_id
+        c.strategy_name === props.data.strategy_name
       )
       .map(c => [
         c.counterparty_name,
@@ -40,7 +40,7 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
         counterparty_name: counterparty.name
       });
     }
-  }, [counterparties, props.data.counterparty_name, props.context, props.node.rowIndex, props.data.strategy_id]);
+  }, [counterparties, props.data.counterparty_name, props.context, props.node.rowIndex, props.data.strategy_name]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.name === event.target.value);
@@ -57,7 +57,7 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
         value={props.data.counterparty_name || ''}
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
-        disabled={!props.data.strategy_id}
+        disabled={!props.data.strategy_name}
       >
         <option value=""></option>
         {counterparties.map(cp => (

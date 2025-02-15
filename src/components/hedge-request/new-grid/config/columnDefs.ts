@@ -1,158 +1,92 @@
 
-import { ColDef } from 'ag-grid-community';
-import { EntitySelector } from '../selectors/EntitySelector';
-import { StrategySelector } from '../selectors/StrategySelector';
-import { CounterpartySelector } from '../selectors/CounterpartySelector';
-import { CostCentreSelector } from '../selectors/CostCentreSelector';
-import { format } from 'date-fns';
+import { GridApi } from "ag-grid-community";
+import { EntitySelector } from "../selectors/EntitySelector";
+import { StrategySelector } from "../selectors/StrategySelector";
+import { CounterpartySelector } from "../selectors/CounterpartySelector";
+import { CostCentreSelector } from "../selectors/CostCentreSelector";
+import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
 
-export const createColumnDefs = (): ColDef[] => [
+interface Context {
+  validConfigs?: ValidHedgeConfig[];
+  updateRowData?: (rowIndex: number, updates: any) => void;
+}
+
+export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
-    field: 'entity_id',
-    headerName: 'Entity ID',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    cellRenderer: EntitySelector
+    headerName: "Entity Name",
+    field: "entity_name",
+    cellRenderer: EntitySelector,
+    cellRendererParams: {
+      context
+    },
+    minWidth: 200
   },
   {
-    field: 'entity_name',
-    headerName: 'Entity Name',
-    minWidth: 180,
-    flex: 2,
-    headerClass: 'ag-header-center',
-    editable: false
-  },
-  {
-    field: 'cost_centre',
-    headerName: 'Cost Centre*',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
+    headerName: "Cost Centre",
+    field: "cost_centre",
     cellRenderer: CostCentreSelector,
-    cellEditor: CostCentreSelector,
-    cellEditorPopup: false
+    cellRendererParams: {
+      context
+    },
+    minWidth: 150
   },
   {
-    field: 'strategy_name',
-    headerName: 'Strategy',
-    minWidth: 160,
-    flex: 1.5,
-    headerClass: 'ag-header-center',
-    editable: true,
+    headerName: "Strategy",
+    field: "strategy_name",
     cellRenderer: StrategySelector,
-    cellEditor: StrategySelector,
-    cellEditorPopup: false
+    cellRendererParams: {
+      context
+    },
+    minWidth: 200
   },
   {
-    field: 'instrument',
-    headerName: 'Instrument',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: false
+    headerName: "Instrument",
+    field: "instrument",
+    minWidth: 150
   },
   {
-    field: 'counterparty_name',
-    headerName: 'Counterparty',
-    minWidth: 160,
-    flex: 1.5,
-    headerClass: 'ag-header-center',
-    editable: true,
+    headerName: "Counterparty",
+    field: "counterparty_name",
     cellRenderer: CounterpartySelector,
-    cellEditor: CounterpartySelector,
-    cellEditorPopup: false
-  },
-  {
-    field: 'buy_currency',
-    headerName: 'Buy CCY',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: {
-      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD']
-    }
-  },
-  {
-    field: 'buy_amount',
-    headerName: 'Buy Amount',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    type: 'numericColumn',
-    valueFormatter: (params) => {
-      if (!params.value) return '';
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(params.value);
-    }
-  },
-  {
-    field: 'sell_currency',
-    headerName: 'Sell CCY',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: {
-      values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD']
-    }
-  },
-  {
-    field: 'sell_amount',
-    headerName: 'Sell Amount',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    type: 'numericColumn',
-    valueFormatter: (params) => {
-      if (!params.value) return '';
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(params.value);
-    }
-  },
-  {
-    field: 'trade_date',
-    headerName: 'Trade Date',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      useCellRendererInPopup: true
+    cellRendererParams: {
+      context
     },
-    valueFormatter: (params) => {
-      if (!params.value) return '';
-      const date = new Date(params.value);
-      return format(date, 'dd/MM/yyyy');
-    }
+    minWidth: 200
   },
   {
-    field: 'settlement_date',
-    headerName: 'Settlement Date',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
+    headerName: "Buy Currency",
+    field: "buy_currency",
     editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      useCellRendererInPopup: true
-    },
-    valueFormatter: (params) => {
-      if (!params.value) return '';
-      const date = new Date(params.value);
-      return format(date, 'dd/MM/yyyy');
-    }
+    minWidth: 150
+  },
+  {
+    headerName: "Buy Amount",
+    field: "buy_amount",
+    editable: true,
+    minWidth: 150
+  },
+  {
+    headerName: "Sell Currency",
+    field: "sell_currency",
+    editable: true,
+    minWidth: 150
+  },
+  {
+    headerName: "Sell Amount",
+    field: "sell_amount",
+    editable: true,
+    minWidth: 150
+  },
+  {
+    headerName: "Trade Date",
+    field: "trade_date",
+    editable: true,
+    minWidth: 150
+  },
+  {
+    headerName: "Settlement Date",
+    field: "settlement_date",
+    editable: true,
+    minWidth: 150
   }
 ];

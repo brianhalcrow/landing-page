@@ -54,7 +54,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
 
       try {
         const { data: costCentres } = await supabase
-          .from('management_structure')
+          .from('erp_mgmt_structure')
           .select('cost_centre')
           .eq('entity_id', selectedEntity.id);
 
