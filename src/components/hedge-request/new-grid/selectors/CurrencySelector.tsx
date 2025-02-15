@@ -1,21 +1,21 @@
 
 import { ChevronDown } from "lucide-react";
-import { memo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CurrencySelectorProps {
   value: string;
-  field: string;
+  api: any;
   data: any;
+  column: any;
   node: any;
   context?: {
     updateRowData?: (rowIndex: number, updates: any) => void;
   };
 }
 
-export const CurrencySelector = memo(({ value, field, data, node, context }: CurrencySelectorProps) => {
-  const { data: currencyData, isLoading } = useQuery({
+export const CurrencySelector = ({ value, node, column, context }: CurrencySelectorProps) => {
+  const { data: currencies, isLoading } = useQuery({
     queryKey: ['currencies'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,18 +32,13 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
     }
   });
 
-  const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = event.target.value;
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (context?.updateRowData) {
-      const updates = { [field]: newValue };
-      context.updateRowData(node.rowIndex, updates);
-      
-      // Force grid to refresh the cell value
-      if (node.setDataValue) {
-        node.setDataValue(field, newValue);
-      }
+      context.updateRowData(node.rowIndex, {
+        [column.colDef.field]: event.target.value
+      });
     }
-  }, [context, node, field]);
+  };
 
   if (isLoading) {
     return <div className="w-full h-full flex items-center justify-center">Loading...</div>;
@@ -57,7 +52,7 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
       >
         <option value=""></option>
-        {currencyData?.map(currency => (
+        {currencies?.map(currency => (
           <option key={currency} value={currency}>
             {currency}
           </option>
@@ -66,6 +61,4 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none h-4 w-4" />
     </div>
   );
-});
-
-CurrencySelector.displayName = 'CurrencySelector';
+};
