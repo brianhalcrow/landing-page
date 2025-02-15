@@ -62,31 +62,25 @@ export const useHedgeRequestData = () => {
       const newData = [...currentRows];
       const currentRow = newData[rowIndex];
       
-      // First, create the updated row by merging current values with updates
+      // Calculate the final state after updates
       const updatedRow = {
         ...currentRow,
         ...updates
       };
       
-      // Check if this is a swap instrument based on the updates or current instrument
       const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
       const isNewSwap = updates.instrument?.toLowerCase() === 'swap' && currentRow.instrument?.toLowerCase() !== 'swap';
-      console.log('Checking for SWAP:', { isSwap, isNewSwap, updateInstrument: updates.instrument, currentInstrument: currentRow.instrument });
-
+      
       // Handle amount validation for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
         // For first leg
         if (rowIndex % 2 === 0) {
-          // Only validate if trying to add a second amount
-          if (updates.buy_amount !== null && updates.sell_amount !== null) {
-            toast.error('First leg can only have either buy or sell amount');
-            return newData;
-          }
-          if (currentRow.buy_amount !== null && updates.sell_amount !== null) {
-            toast.error('First leg can only have either buy or sell amount');
-            return newData;
-          }
-          if (currentRow.sell_amount !== null && updates.buy_amount !== null) {
+          // Calculate the final state after this update
+          const finalBuyAmount = updates.buy_amount ?? currentRow.buy_amount;
+          const finalSellAmount = updates.sell_amount ?? currentRow.sell_amount;
+          
+          // Only validate if we would end up with both amounts
+          if (finalBuyAmount !== null && finalSellAmount !== null) {
             toast.error('First leg can only have either buy or sell amount');
             return newData;
           }
@@ -94,15 +88,24 @@ export const useHedgeRequestData = () => {
         // For second leg
         else {
           const firstLeg = newData[rowIndex - 1];
-          // If first leg has buy amount, second leg must have sell amount
-          if (firstLeg.buy_amount !== null && updates.buy_amount !== null) {
-            toast.error('Second leg must have sell amount when first leg has buy amount');
-            return newData;
-          }
-          // If first leg has sell amount, second leg must have buy amount
-          if (firstLeg.sell_amount !== null && updates.sell_amount !== null) {
-            toast.error('Second leg must have buy amount when first leg has sell amount');
-            return newData;
+          const firstLegBuyAmount = firstLeg.buy_amount;
+          const firstLegSellAmount = firstLeg.sell_amount;
+          
+          // Only validate when trying to enter an amount in the second leg
+          if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
+            if (firstLegBuyAmount !== null) {
+              // If first leg has buy amount, second leg must have sell amount
+              if (updates.buy_amount !== null) {
+                toast.error('Second leg must have sell amount when first leg has buy amount');
+                return newData;
+              }
+            } else if (firstLegSellAmount !== null) {
+              // If first leg has sell amount, second leg must have buy amount
+              if (updates.sell_amount !== null) {
+                toast.error('Second leg must have buy amount when first leg has sell amount');
+                return newData;
+              }
+            }
           }
         }
       }
@@ -140,12 +143,11 @@ export const useHedgeRequestData = () => {
           instrument: updatedRow.instrument,
           counterparty_name: updatedRow.counterparty_name,
           cost_centre: updatedRow.cost_centre,
-          // Mirror currencies if they exist
           buy_currency: updatedRow.sell_currency,
           sell_currency: updatedRow.buy_currency
         });
       } else if (isSwap && rowIndex % 2 === 0) {
-        // Just update the second leg row with any changes from the first leg
+        // Update the second leg row with any changes from the first leg
         const existingNextRow = newData[rowIndex + 1];
         if (existingNextRow) {
           newData[rowIndex + 1] = {
