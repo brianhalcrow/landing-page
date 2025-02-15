@@ -1,9 +1,17 @@
 
-import { ICellEditorParams } from 'ag-grid-community';
+import { CellKeyDownEvent, CellValueChangedEvent, ICellEditorParams, EditableCallbackParams, CellClassParams, SuppressKeyboardEventParams } from 'ag-grid-community';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 
+type GridParams = 
+  | ICellEditorParams 
+  | CellKeyDownEvent 
+  | CellValueChangedEvent 
+  | EditableCallbackParams 
+  | CellClassParams 
+  | SuppressKeyboardEventParams;
+
 export const shouldAllowAmountEdit = (
-  params: ICellEditorParams,
+  params: GridParams,
   field: 'buy' | 'sell',
   lastSelectedCurrency: 'buy' | 'sell' | null
 ): boolean => {
