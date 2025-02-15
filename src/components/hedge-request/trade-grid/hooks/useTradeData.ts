@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { HedgeRequestDraftTrade } from "../../grid/types";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,56 +61,14 @@ export const useTradeData = () => {
         return;
       }
 
-      // Group trades by pairs for swaps
-      const swapPairs: HedgeRequestDraftTrade[][] = [];
-      const nonSwapTrades: HedgeRequestDraftTrade[] = [];
+      const { error } = await supabase
+        .from('trade_requests')
+        .insert(rowData.map(row => ({
+          ...row,
+          created_at: new Date().toISOString()
+        })));
 
-      for (let i = 0; i < rowData.length; i++) {
-        const trade = rowData[i];
-        if (trade.instrument === 'Swap') {
-          if (i % 2 === 0) { // Start of a new pair
-            swapPairs.push([trade, rowData[i + 1]]);
-          }
-        } else {
-          nonSwapTrades.push(trade);
-        }
-      }
-
-      // Insert swap pairs sequentially
-      for (const [leg1, leg2] of swapPairs) {
-        // Insert leg 1 first
-        const { data: leg1Data, error: leg1Error } = await supabase
-          .from('trade_requests')
-          .insert([{
-            ...leg1,
-            created_at: new Date().toISOString()
-          }]);
-
-        if (leg1Error) throw leg1Error;
-
-        // Then insert leg 2 using the same swap_reference
-        const { error: leg2Error } = await supabase
-          .from('trade_requests')
-          .insert([{
-            ...leg2,
-            created_at: new Date().toISOString(),
-            swap_reference: leg1Data?.[0]?.swap_reference
-          }]);
-
-        if (leg2Error) throw leg2Error;
-      }
-
-      // Insert non-swap trades
-      if (nonSwapTrades.length > 0) {
-        const { error: nonSwapError } = await supabase
-          .from('trade_requests')
-          .insert(nonSwapTrades.map(trade => ({
-            ...trade,
-            created_at: new Date().toISOString()
-          })));
-
-        if (nonSwapError) throw nonSwapError;
-      }
+      if (error) throw error;
       
       toast.success('Trades saved successfully');
       setRowData([]); // Clear the grid after successful save
