@@ -1,17 +1,16 @@
 
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ModuleRegistry } from 'ag-grid-community';
-import { ClientSideRowModelModule, RowGroupingModule, AllEnterpriseModule } from 'ag-grid-enterprise';
+import { ModuleRegistry } from 'ag-grid-enterprise';
+import { AllEnterpriseModule, RowGroupingModule } from 'ag-grid-enterprise';
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from './components/ThemeProvider'
 
 // Register AG Grid Enterprise modules
 ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  RowGroupingModule,
-  AllEnterpriseModule
+  AllEnterpriseModule,
+  RowGroupingModule
 ]);
 
 const queryClient = new QueryClient({

@@ -22,8 +22,7 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: [
       'ag-charts-enterprise',
-      'ag-charts-react'
-    ],
-    exclude: ['ag-charts-community']
+      'ag-grid-react'
+    ]
   },
 }));

@@ -1,6 +1,7 @@
+
 import React, { useEffect, useRef } from 'react';
-import { AgCharts } from 'ag-charts-community';
-import type { AgChartOptions } from 'ag-charts-community';
+import { AgCharts } from 'ag-charts-enterprise';
+import type { AgChartOptions } from 'ag-charts-enterprise';
 
 const TestAgChart = () => {
   const chartRef = useRef<HTMLDivElement>(null);
