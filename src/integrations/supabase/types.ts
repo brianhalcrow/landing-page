@@ -2557,12 +2557,11 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           instrument: string | null
-          leg_number: number | null
+          related_trade_id: number | null
           request_no: number
           settlement_date: string | null
           strategy_id: string | null
           strategy_name: string | null
-          swap_reference: string | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2579,12 +2578,11 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
-          leg_number?: number | null
+          related_trade_id?: number | null
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
-          swap_reference?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2601,16 +2599,23 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
-          leg_number?: number | null
+          related_trade_id?: number | null
           request_no?: number
           settlement_date?: string | null
           strategy_id?: string | null
           strategy_name?: string | null
-          swap_reference?: string | null
           trade_date?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trade_requests_related_trade_id_fkey"
+            columns: ["related_trade_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["request_no"]
+          },
+        ]
       }
       trade_settlement_instruction: {
         Row: {

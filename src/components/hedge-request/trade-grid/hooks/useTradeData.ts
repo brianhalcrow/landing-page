@@ -37,10 +37,6 @@ export const useTradeData = () => {
         return false;
       }
 
-      // Set leg numbers
-      leg1.leg_number = 1;
-      leg2.leg_number = 2;
-
       // Only validate amounts if they are present
       if (leg1.buy_amount !== null && leg2.sell_amount === null) {
         toast.error('Second leg must have sell amount when first leg has buy amount');
@@ -62,14 +58,27 @@ export const useTradeData = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from('trade_requests')
-        .insert(rowData.map(row => ({
-          ...row,
-          created_at: new Date().toISOString()
-        })));
+      // Save trades one by one to establish relationships for swaps
+      for (let i = 0; i < rowData.length; i++) {
+        const row = rowData[i];
+        const { data, error } = await supabase
+          .from('trade_requests')
+          .insert({
+            ...row,
+            created_at: new Date().toISOString(),
+            // For swaps, link second leg to first leg
+            related_trade_id: row.instrument === 'Swap' && i % 2 === 1 ? 
+              rowData[i - 1].request_no : null
+          })
+          .select();
 
-      if (error) throw error;
+        if (error) throw error;
+
+        // Update the request_no in our rowData for the next iteration
+        if (data?.[0]) {
+          rowData[i].request_no = data[0].request_no;
+        }
+      }
       
       toast.success('Trades saved successfully');
       setRowData([]); // Clear the grid after successful save
@@ -89,36 +98,10 @@ export const useTradeData = () => {
   const updateRow = (index: number, updates: Partial<HedgeRequestDraftTrade>) => {
     const newData = [...rowData];
     const currentRow = newData[index];
-    const wasSwapBefore = currentRow.instrument === 'Swap';
-    const isSwapNow = updates.instrument === 'Swap';
     
-    // Update the current row
+    // Basic update without automatic leg creation
     newData[index] = { ...currentRow, ...updates };
-
-    // Only handle swap pairing if this is a new swap or we're updating an existing swap
-    if (isSwapNow) {
-      const isFirstLeg = index % 2 === 0;
-      const hasSecondLeg = newData[index + 1]?.instrument === 'Swap';
-
-      // Add second leg only if this is first leg and there's no second leg yet
-      if (isFirstLeg && !hasSecondLeg && !wasSwapBefore) {
-        newData[index + 1] = {
-          ...newData[index],
-          buy_currency: newData[index].sell_currency,
-          sell_currency: newData[index].buy_currency,
-          buy_amount: newData[index].sell_amount,
-          sell_amount: newData[index].buy_amount,
-          leg_number: 2,
-          instrument: 'Swap'
-        };
-      }
-      // If this is second leg, just update currencies to match first leg
-      else if (!isFirstLeg) {
-        newData[index].buy_currency = newData[index - 1].sell_currency;
-        newData[index].sell_currency = newData[index - 1].buy_currency;
-      }
-    }
-
+    
     setRowData(newData);
   };
 
