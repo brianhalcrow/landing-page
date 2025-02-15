@@ -35,7 +35,7 @@ export const StrategySelector = ({ data, value, node }: StrategySelectorProps) =
   const uniqueStrategies = Array.from(new Set(strategies?.map(s => ({
     strategy: s.strategy_name,
     description: s.strategy_name
-  })) || []));
+  })) || [])).sort((a, b) => a.description.localeCompare(b.description)); // Sort alphabetically by description
 
   // Only update if we have data and the current value doesn't match
   if (!isLoading && uniqueStrategies.length === 1 && !value) {
