@@ -10,7 +10,6 @@ const HedgeRequestGrid = () => {
   const {
     rowData,
     validConfigs,
-    handleSave,
     addNewRow,
     updateRowData
   } = useHedgeRequestData();
@@ -38,7 +37,10 @@ const HedgeRequestGrid = () => {
         />
       </div>
 
-      <GridActions onAddRow={addNewRow} onSave={handleSave} />
+      <GridActions 
+        onAddRow={addNewRow}
+        rowData={rowData}
+      />
     </div>
   );
 };
