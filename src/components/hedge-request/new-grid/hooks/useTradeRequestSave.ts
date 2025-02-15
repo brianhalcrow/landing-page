@@ -26,17 +26,16 @@ export const useTradeRequestSave = () => {
     mutationFn: async (data: TradeRequest) => {
       console.log("Saving trade request:", data);
       
-      const { data: result, error } = await supabase
+      const { error } = await supabase
         .from('trade_requests')
-        .insert([data])
-        .select();
+        .insert([data]);
 
       if (error) {
         console.error("Error saving trade request:", error);
         throw error;
       }
 
-      return result;
+      return true;
     }
   });
 };
