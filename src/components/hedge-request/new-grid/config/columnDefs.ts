@@ -1,5 +1,5 @@
 
-import { GridApi } from "ag-grid-community";
+import { GridApi, ColDef } from "ag-grid-community";
 import { EntitySelector } from "../selectors/EntitySelector";
 import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
@@ -11,7 +11,7 @@ interface Context {
   updateRowData?: (rowIndex: number, updates: any) => void;
 }
 
-export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
+export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef<HedgeRequestRow>[] => [
   {
     headerName: "Entity Name",
     field: "entity_name",
