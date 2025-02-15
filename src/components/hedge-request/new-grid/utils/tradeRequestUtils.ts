@@ -8,8 +8,8 @@ interface TradeRequestInput {
   instrument: string;
   trade_date: Date | null;
   settlement_date: Date | null;
-  buy_currency: string | null;
-  sell_currency: string | null;
+  buy_currency: string;
+  sell_currency: string;
   buy_amount: number | string | null;
   sell_amount: number | string | null;
   cost_centre: string;
@@ -46,12 +46,18 @@ export const validateTradeRequest = (data: any): boolean => {
   const buyAmount = data.buy_amount || data.ccy_1_amount;
   const sellAmount = data.sell_amount || data.ccy_2_amount;
 
-  // Check if at least one side (buy or sell) has both currency and amount
-  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
-  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
+  // Both currencies are required
+  if (!buyCurrency || !sellCurrency) {
+    toast.error("Both buy and sell currencies are required");
+    return false;
+  }
 
-  if (!hasBuySide && !hasSellSide) {
-    toast.error("At least one side (buy or sell) must have both currency and amount");
+  // Either buy amount or sell amount must be present, but not both null
+  const hasBuyAmount = buyAmount && buyAmount !== "0";
+  const hasSellAmount = sellAmount && sellAmount !== "0";
+
+  if (!hasBuyAmount && !hasSellAmount) {
+    toast.error("Either buy amount or sell amount must be specified");
     return false;
   }
 
@@ -89,7 +95,7 @@ export const transformTradeRequest = (data: any) => {
     ccy_1_amount: buyAmount,
     ccy_2_amount: sellAmount,
     cost_centre: data.cost_centre,
-    ccy_pair: buyCurrency && sellCurrency ? `${buyCurrency}${sellCurrency}` : null,
+    ccy_pair: `${buyCurrency}${sellCurrency}`,
     counterparty: data.counterparty,
     counterparty_name: data.counterparty_name,
     strategy_name: data.strategy_name
