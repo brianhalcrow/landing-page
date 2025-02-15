@@ -14,7 +14,6 @@ export interface ValidHedgeConfig {
 export interface HedgeRequestRow {
   entity_id: string;
   entity_name: string;
-  strategy_id: string;
   strategy_name: string;
   instrument: string;
   counterparty_name: string;

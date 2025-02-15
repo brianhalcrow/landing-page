@@ -21,9 +21,8 @@ export const StrategySelector = (props: StrategySelectorProps) => {
     validConfigs
       .filter(c => c.entity_id === props.data.entity_id)
       .map(c => [
-        c.strategy_id,
+        c.strategy_name,
         {
-          id: c.strategy_id,
           name: c.strategy_name,
           description: c.strategy_description,
           instrument: c.instrument
@@ -32,10 +31,9 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   ).values());
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedStrategy = strategies.find(s => s.id.toString() === event.target.value);
+    const selectedStrategy = strategies.find(s => s.name === event.target.value);
     if (selectedStrategy && props.context?.updateRowData) {
       props.context.updateRowData(props.node.rowIndex, {
-        strategy_id: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
         instrument: selectedStrategy.instrument,
@@ -48,15 +46,15 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   return (
     <div className="relative w-full">
       <select
-        value={props.data.strategy_id || ''}
+        value={props.data.strategy_name || ''}
         onChange={handleChange}
         className="w-full h-full border-0 outline-none bg-transparent appearance-none pr-8"
         disabled={!props.data.entity_id}
       >
         <option value=""></option>
         {strategies.map(strategy => (
-          <option key={strategy.id} value={strategy.id}>
-            {strategy.description}
+          <option key={strategy.name} value={strategy.name}>
+            {strategy.description || strategy.name}
           </option>
         ))}
       </select>

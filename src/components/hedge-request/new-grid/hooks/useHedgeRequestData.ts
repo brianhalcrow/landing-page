@@ -8,7 +8,6 @@ import type { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.ty
 const defaultRow: HedgeRequestRow = {
   entity_id: "",
   entity_name: "",
-  strategy_id: "",
   strategy_name: "",
   instrument: "",
   counterparty_name: "",
@@ -75,7 +74,6 @@ export const useHedgeRequestData = () => {
           rowData.map(row => ({
             entity_id: row.entity_id,
             entity_name: row.entity_name,
-            strategy_id: row.strategy_id,
             strategy_name: row.strategy_name,
             instrument: row.instrument,
             counterparty_name: row.counterparty_name,
