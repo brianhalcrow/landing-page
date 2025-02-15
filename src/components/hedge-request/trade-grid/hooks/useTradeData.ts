@@ -88,23 +88,32 @@ export const useTradeData = () => {
 
   const updateRow = (index: number, updates: Partial<HedgeRequestDraftTrade>) => {
     const newData = [...rowData];
-    newData[index] = { ...newData[index], ...updates };
+    const currentRow = newData[index];
+    const wasSwapBefore = currentRow.instrument === 'Swap';
+    const isSwapNow = updates.instrument === 'Swap';
+    
+    // Update the current row
+    newData[index] = { ...currentRow, ...updates };
 
-    // If this is a swap, update the paired row
-    if (updates.instrument === 'Swap') {
-      // If this is the first leg, add a second leg
-      if (index % 2 === 0 && !newData[index + 1]) {
+    // Only handle swap pairing if this is a new swap or we're updating an existing swap
+    if (isSwapNow) {
+      const isFirstLeg = index % 2 === 0;
+      const hasSecondLeg = newData[index + 1]?.instrument === 'Swap';
+
+      // Add second leg only if this is first leg and there's no second leg yet
+      if (isFirstLeg && !hasSecondLeg && !wasSwapBefore) {
         newData[index + 1] = {
           ...newData[index],
           buy_currency: newData[index].sell_currency,
           sell_currency: newData[index].buy_currency,
           buy_amount: newData[index].sell_amount,
           sell_amount: newData[index].buy_amount,
-          leg_number: 2
+          leg_number: 2,
+          instrument: 'Swap'
         };
       }
-      // If this is the second leg, update currencies to match first leg
-      else if (index % 2 === 1) {
+      // If this is second leg, just update currencies to match first leg
+      else if (!isFirstLeg) {
         newData[index].buy_currency = newData[index - 1].sell_currency;
         newData[index].sell_currency = newData[index - 1].buy_currency;
       }
