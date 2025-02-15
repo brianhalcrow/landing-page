@@ -8,10 +8,8 @@ export const useHedgeStrategyData = () => {
   const [rowData, setRowData] = useState<HedgeStrategyGridRow[]>([]);
 
   const { isLoading } = useQuery({
-    queryKey: ['hedge-strategy-assignments'],
+    queryKey: ['hedge-strategy-config'],
     queryFn: async () => {
-      console.log('Fetching hedge strategy assignments from view');
-      
       const { data: configurations, error } = await supabase
         .from('v_hedge_request_config')
         .select(`
@@ -40,9 +38,7 @@ export const useHedgeStrategyData = () => {
         strategy_description: config.strategy_description,
         instrument: config.instrument,
         counterparty_id: config.counterparty_id,
-        counterparty_name: config.counterparty_name,
-        isAssigned: true, // All rows from the view are valid configurations
-        assignmentId: undefined // No longer tracking assignments
+        counterparty_name: config.counterparty_name
       }));
 
       console.log('Generated grid rows:', gridRows);

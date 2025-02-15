@@ -1,21 +1,11 @@
 
 import { ColDef } from 'ag-grid-community';
-import CheckboxCellRenderer from '../../grid/cellRenderers/CheckboxCellRenderer';
 import { HedgeStrategyGridRow } from '../types/hedgeStrategy.types';
 
-export const createColumnDefs = (
-  handleAssignmentChange: (checked: boolean, data: HedgeStrategyGridRow) => void
-): ColDef[] => [
+export const createColumnDefs = (): ColDef[] => [
   {
     field: 'entity_name',
     headerName: 'Entity',
-    width: 150,
-    rowGroup: true,
-    hide: true
-  },
-  {
-    field: 'exposure_category_l2',
-    headerName: 'Exposure Category',
     width: 150,
     rowGroup: true,
     hide: true
@@ -39,14 +29,5 @@ export const createColumnDefs = (
     field: 'counterparty_name',
     headerName: 'Counterparty',
     width: 150
-  },
-  {
-    field: 'isAssigned',
-    headerName: 'Assigned',
-    width: 100,
-    cellRenderer: CheckboxCellRenderer,
-    cellRendererParams: {
-      onChange: handleAssignmentChange
-    }
   }
 ];
