@@ -41,8 +41,10 @@ export const useHedgeRequestData = () => {
     },
     // Set staleTime to 0 to always fetch fresh data
     staleTime: 0,
-    // Disable caching to ensure we always get fresh data
-    cacheTime: 0
+    // Set gcTime (previously cacheTime) to 0 to disable caching
+    gcTime: 0,
+    // Refetch on window focus to ensure fresh data
+    refetchOnWindowFocus: true
   });
 
   const handleSave = async () => {
