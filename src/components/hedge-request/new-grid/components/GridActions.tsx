@@ -88,8 +88,18 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
         return Array.isArray(transformedData) ? transformedData : [transformedData];
       });
 
+      // Sort trades so that for swaps, leg 1 always comes before leg 2
+      const sortedTrades = tradesToSave.sort((a, b) => {
+        if (a.instrument === 'Swap' && b.instrument === 'Swap' && a.swap_reference === b.swap_reference) {
+          return (a.leg_number || 0) - (b.leg_number || 0);
+        }
+        return 0;
+      });
+
+      console.log("Saving sorted trades:", sortedTrades);
+
       // Save all trades in a single batch
-      await saveMutation.mutateAsync(tradesToSave);
+      await saveMutation.mutateAsync(sortedTrades);
 
       toast.success(`Successfully saved ${validRows.length} trade request(s)`);
     } catch (error) {
