@@ -49,7 +49,7 @@ export const GridActions = ({ onAddRow, rowData }: GridActionsProps) => {
       for (const row of validRows) {
         const transformedData = transformTradeRequest(row);
         if (Array.isArray(transformedData)) {
-          // For swaps, save both legs
+          // For swaps, save both legs sequentially
           for (const leg of transformedData) {
             await saveMutation.mutateAsync(leg);
           }

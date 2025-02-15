@@ -2,25 +2,33 @@
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
+
+interface TradeRequest {
+  entity_id: string;
+  entity_name: string;
+  strategy_name: string;
+  instrument: string;
+  trade_date: string | null;
+  settlement_date: string;
+  ccy_1: string | null;
+  ccy_2: string | null;
+  ccy_1_amount: number | null;
+  ccy_2_amount: number | null;
+  cost_centre: string;
+  ccy_pair: string | null;
+  counterparty_name: string | null;
+  leg_number: number | null;
+  swap_reference?: string | null;
+}
 
 export const useTradeRequestSave = () => {
-  const saveMutation = useMutation({
-    mutationFn: async (rowData: any) => {
-      console.log("Validating trade request data:", rowData);
+  return useMutation({
+    mutationFn: async (data: TradeRequest) => {
+      console.log("Saving trade request:", data);
       
-      if (!validateTradeRequest(rowData)) {
-        console.error("Trade request validation failed for data:", rowData);
-        throw new Error("Validation failed");
-      }
-
-      const transformedData = transformTradeRequest(rowData);
-      
-      console.log("Saving trade request:", transformedData);
-
-      const { data, error } = await supabase
+      const { data: result, error } = await supabase
         .from('trade_requests')
-        .insert([transformedData])
+        .insert([data])
         .select();
 
       if (error) {
@@ -28,15 +36,7 @@ export const useTradeRequestSave = () => {
         throw error;
       }
 
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Trade request saved successfully");
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to save trade request: ${error.message}`);
+      return result;
     }
   });
-
-  return saveMutation;
 };

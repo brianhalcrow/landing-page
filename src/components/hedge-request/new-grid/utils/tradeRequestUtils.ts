@@ -17,6 +17,24 @@ interface TradeRequestInput {
   counterparty_name: string;
 }
 
+interface TradeRequest {
+  entity_id: string;
+  entity_name: string;
+  strategy_name: string;
+  instrument: string;
+  trade_date: string | null;
+  settlement_date: string;
+  ccy_1: string | null;
+  ccy_2: string | null;
+  ccy_1_amount: number | null;
+  ccy_2_amount: number | null;
+  cost_centre: string;
+  ccy_pair: string | null;
+  counterparty_name: string | null;
+  leg_number: number | null;
+  swap_reference?: string | null;
+}
+
 export const validateTradeRequest = (data: any): boolean => {
   console.log("Starting validation for trade request data:", data);
   
@@ -104,11 +122,12 @@ const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
   }
 };
 
-export const transformTradeRequest = (data: any) => {
+export const transformTradeRequest = (data: any): TradeRequest | TradeRequest[] => {
   // If it's a swap, we need to create both legs
   if (data.instrument === 'Swap') {
+    const swapReference = crypto.randomUUID();
     // Create an array to hold both legs
-    const swapLegs = [
+    const swapLegs: TradeRequest[] = [
       // First leg (leg 1)
       {
         entity_id: data.entity_id,
@@ -116,7 +135,7 @@ export const transformTradeRequest = (data: any) => {
         strategy_name: data.strategy_name,
         instrument: data.instrument,
         trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-        settlement_date: parseDateToYYYYMMDD(data.settlement_date),
+        settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
         ccy_1: data.buy_currency,
         ccy_2: data.sell_currency,
         ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
@@ -124,7 +143,8 @@ export const transformTradeRequest = (data: any) => {
         cost_centre: data.cost_centre,
         ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
         counterparty_name: data.counterparty_name,
-        leg_number: 1
+        leg_number: 1,
+        swap_reference: swapReference
       },
       // Second leg (leg 2) - with reversed currencies and amounts
       {
@@ -133,15 +153,16 @@ export const transformTradeRequest = (data: any) => {
         strategy_name: data.strategy_name,
         instrument: data.instrument,
         trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-        settlement_date: parseDateToYYYYMMDD(data.settlement_date),
-        ccy_1: data.sell_currency, // Reversed from leg 1
-        ccy_2: data.buy_currency, // Reversed from leg 1
-        ccy_1_amount: data.sell_amount ? parseFloat(data.sell_amount) : null, // Reversed from leg 1
-        ccy_2_amount: data.buy_amount ? parseFloat(data.buy_amount) : null, // Reversed from leg 1
+        settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
+        ccy_1: data.sell_currency,
+        ccy_2: data.buy_currency,
+        ccy_1_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
+        ccy_2_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
         cost_centre: data.cost_centre,
         ccy_pair: data.sell_currency && data.buy_currency ? `${data.sell_currency}${data.buy_currency}` : null,
         counterparty_name: data.counterparty_name,
-        leg_number: 2
+        leg_number: 2,
+        swap_reference: swapReference
       }
     ];
 
@@ -150,13 +171,13 @@ export const transformTradeRequest = (data: any) => {
   }
 
   // For non-swap trades, return a single transformed trade
-  const transformed = {
+  const transformed: TradeRequest = {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
     strategy_name: data.strategy_name,
     instrument: data.instrument,
     trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
-    settlement_date: parseDateToYYYYMMDD(data.settlement_date),
+    settlement_date: parseDateToYYYYMMDD(data.settlement_date) || '',
     ccy_1: data.buy_currency,
     ccy_2: data.sell_currency,
     ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
