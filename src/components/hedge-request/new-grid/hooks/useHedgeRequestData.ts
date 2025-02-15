@@ -70,7 +70,8 @@ export const useHedgeRequestData = () => {
       
       // Check if this is a swap instrument based on the updates or current instrument
       const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
-      console.log('Checking for SWAP:', { isSwap, updateInstrument: updates.instrument, currentInstrument: currentRow.instrument });
+      const isNewSwap = updates.instrument?.toLowerCase() === 'swap' && currentRow.instrument?.toLowerCase() !== 'swap';
+      console.log('Checking for SWAP:', { isSwap, isNewSwap, updateInstrument: updates.instrument, currentInstrument: currentRow.instrument });
 
       // Handle amount validation for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
@@ -123,27 +124,25 @@ export const useHedgeRequestData = () => {
         }
       }
 
-      // Handle SWAP-specific logic
-      if (isSwap) {
-        // If this is the last row, add a new row for the second leg
-        if (rowIndex === newData.length - 1) {
-          console.log('Adding new row for SWAP second leg');
-          newData.push({
-            ...defaultRow,
-            entity_id: updatedRow.entity_id,
-            entity_name: updatedRow.entity_name,
-            strategy_name: updatedRow.strategy_name,
-            instrument: updatedRow.instrument,
-            counterparty_name: updatedRow.counterparty_name,
-            cost_centre: updatedRow.cost_centre,
-            // Mirror currencies if they exist
-            buy_currency: updatedRow.sell_currency,
-            sell_currency: updatedRow.buy_currency
-          });
-        } else {
-          // Update existing second leg row
-          console.log('Updating existing second leg row');
-          const existingNextRow = newData[rowIndex + 1];
+      // Only add a new row if this is the first time the instrument is being set to swap
+      if (isNewSwap && rowIndex === newData.length - 1) {
+        console.log('Adding new row for SWAP second leg');
+        newData.push({
+          ...defaultRow,
+          entity_id: updatedRow.entity_id,
+          entity_name: updatedRow.entity_name,
+          strategy_name: updatedRow.strategy_name,
+          instrument: updatedRow.instrument,
+          counterparty_name: updatedRow.counterparty_name,
+          cost_centre: updatedRow.cost_centre,
+          // Mirror currencies if they exist
+          buy_currency: updatedRow.sell_currency,
+          sell_currency: updatedRow.buy_currency
+        });
+      } else if (isSwap && rowIndex % 2 === 0) {
+        // Just update the second leg row with any changes from the first leg
+        const existingNextRow = newData[rowIndex + 1];
+        if (existingNextRow) {
           newData[rowIndex + 1] = {
             ...existingNextRow,
             entity_id: updatedRow.entity_id,
@@ -152,9 +151,6 @@ export const useHedgeRequestData = () => {
             instrument: updatedRow.instrument,
             counterparty_name: updates.counterparty_name || updatedRow.counterparty_name,
             cost_centre: updates.cost_centre || updatedRow.cost_centre,
-            // Ensure currencies stay mirrored
-            buy_currency: existingNextRow.buy_currency || updatedRow.sell_currency,
-            sell_currency: existingNextRow.sell_currency || updatedRow.buy_currency
           };
         }
       }
