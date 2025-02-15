@@ -30,26 +30,9 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       }
       
       try {
-        // First, let's check what data exists for this entity
-        const { data: checkData, error: checkError } = await supabase
-          .from('management_structure')
-          .select('*')
-          .eq('entity_id', data.entity_id.trim());
-
-        console.log('Checking existing data for entity:', {
-          entityId: data.entity_id,
-          foundData: checkData,
-          error: checkError
-        });
-
-        if (checkError) {
-          console.error('Error checking entity data:', checkError);
-          throw checkError;
-        }
-
-        // Now fetch the cost centres
+        // Now fetch the cost centres from erp_mgmt_structure
         const { data: centresData, error } = await supabase
-          .from('management_structure')
+          .from('erp_mgmt_structure')
           .select('cost_centre')
           .eq('entity_id', data.entity_id.trim());
 
