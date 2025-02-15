@@ -1,9 +1,11 @@
-
 import { CellKeyDownEvent, CellValueChangedEvent } from 'ag-grid-community';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { toast } from 'sonner';
+import { useRef } from 'react';
 
 export const useCellHandlers = (rates?: Map<string, number>) => {
+  const lastSelectedCurrency = useRef<'buy' | 'sell' | null>(null);
+
   const handleCellKeyDown = (e: CellKeyDownEvent) => {
     const data = e.data as HedgeRequestDraftTrade;
     const field = e.column.getColId();
@@ -19,6 +21,15 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
       // Check if trying to enter amount in wrong field based on currency selection order
       const isBuyAmount = field === 'buy_amount';
       const otherAmount = isBuyAmount ? data.sell_amount : data.buy_amount;
+
+      // Prevent entering amount if it's not the correct field based on selection order
+      if (lastSelectedCurrency.current && 
+          ((lastSelectedCurrency.current === 'sell' && isBuyAmount) || 
+           (lastSelectedCurrency.current === 'buy' && !isBuyAmount))) {
+        e.event.preventDefault();
+        toast.error(`Please enter amount in the ${lastSelectedCurrency.current === 'buy' ? 'sell' : 'buy'} field first`);
+        return;
+      }
 
       if (otherAmount !== null) {
         e.event.preventDefault();
@@ -36,6 +47,9 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
 
     // Handle currency changes
     if (field === 'buy_currency' || field === 'sell_currency') {
+      // Update the last selected currency
+      lastSelectedCurrency.current = field === 'buy_currency' ? 'buy' : 'sell';
+      
       // Clear amounts when currencies change
       newData.buy_amount = null;
       newData.sell_amount = null;
@@ -49,26 +63,31 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
           } else {
             newData.sell_currency = null;
           }
+          lastSelectedCurrency.current = null;
+        } else {
+          // Focus the corresponding amount field based on which currency was selected last
+          setTimeout(() => {
+            const amountField = lastSelectedCurrency.current === 'buy' ? 'buy_amount' : 'sell_amount';
+            const columnToFocus = api.getColumnDef(amountField);
+            if (columnToFocus) {
+              api.setFocusedCell(rowIndex, amountField);
+            }
+          }, 0);
         }
-      }
-
-      // Focus the corresponding amount field if both currencies are selected
-      if (newData.buy_currency && newData.sell_currency) {
-        setTimeout(() => {
-          const amountField = field === 'buy_currency' ? 'buy_amount' : 'sell_amount';
-          const columnToFocus = api.getColumnDef(amountField);
-          if (columnToFocus) {
-            api.setFocusedCell(rowIndex, amountField);
-          }
-        }, 0);
       }
     }
 
     // Handle amount changes
     if (field === 'buy_amount' && e.newValue !== null) {
       newData.sell_amount = null; // Clear sell amount when buy amount is entered
+      if (lastSelectedCurrency.current === 'sell') {
+        lastSelectedCurrency.current = 'buy'; // Update selection order if needed
+      }
     } else if (field === 'sell_amount' && e.newValue !== null) {
       newData.buy_amount = null; // Clear buy amount when sell amount is entered
+      if (lastSelectedCurrency.current === 'buy') {
+        lastSelectedCurrency.current = 'sell'; // Update selection order if needed
+      }
     }
 
     // Update the grid data
