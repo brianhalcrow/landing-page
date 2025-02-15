@@ -29,7 +29,15 @@ export const useHedgeRequestData = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('v_hedge_request_config')
-        .select('*');
+        .select(`
+          entity_id,
+          entity_name,
+          strategy_id,
+          strategy_name,
+          instrument,
+          counterparty_name,
+          functional_currency
+        `);
       
       if (error) {
         console.error('Error fetching valid configurations:', error);
@@ -73,14 +81,14 @@ export const useHedgeRequestData = () => {
             counterparty_name: row.counterparty_name,
             ccy_1: row.buy_currency,
             ccy_1_amount: row.buy_amount,
+            ccy_2: row.sell_currency,
             ccy_2_amount: row.sell_amount,
             trade_date: row.trade_date,
             settlement_date: row.settlement_date,
             cost_centre: row.cost_centre,
             created_at: new Date().toISOString()
           }))
-        )
-        .select();
+        );
 
       if (error) throw error;
       toast.success('Trade request saved successfully');
