@@ -67,6 +67,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Buy Currency",
     field: "buy_currency",
     cellRenderer: CurrencySelector,
+    valueGetter: (params: any) => params.data?.buy_currency || '',
+    valueSetter: (params: any) => {
+      const newValue = params.newValue || '';
+      params.data.buy_currency = newValue;
+      return true;
+    },
     cellRendererParams: {
       context
     },
@@ -82,6 +88,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Sell Currency",
     field: "sell_currency",
     cellRenderer: CurrencySelector,
+    valueGetter: (params: any) => params.data?.sell_currency || '',
+    valueSetter: (params: any) => {
+      const newValue = params.newValue || '';
+      params.data.sell_currency = newValue;
+      return true;
+    },
     cellRendererParams: {
       context
     },

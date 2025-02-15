@@ -18,9 +18,15 @@ export const CurrencySelector = memo(({ value, field, data, node, context }: Cur
   const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
     if (context?.updateRowData) {
-      context.updateRowData(node.rowIndex, { [field]: newValue });
+      const updates = { [field]: newValue };
+      context.updateRowData(node.rowIndex, updates);
+      
+      // Force grid to refresh the cell value
+      if (node.setDataValue) {
+        node.setDataValue(field, newValue);
+      }
     }
-  }, [context, node.rowIndex, field]);
+  }, [context, node, field]);
 
   return (
     <div className="relative w-full">
