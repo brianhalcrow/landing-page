@@ -6,6 +6,7 @@ import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CostCentreSelector } from "../selectors/CostCentreSelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
 import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
+import { DateCell } from "../components/DateCell";
 
 interface Context {
   validConfigs?: ValidHedgeConfig[];
@@ -108,13 +109,19 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
   {
     headerName: "Trade Date",
     field: "trade_date",
-    editable: true,
+    cellRenderer: DateCell,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   },
   {
     headerName: "Settlement Date",
     field: "settlement_date",
-    editable: true,
+    cellRenderer: DateCell,
+    cellRendererParams: {
+      context
+    },
     minWidth: 150
   }
 ];
