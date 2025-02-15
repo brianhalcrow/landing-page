@@ -7,7 +7,10 @@ import { validateTradeRequest, transformTradeRequest } from "../utils/tradeReque
 export const useTradeRequestSave = () => {
   const saveMutation = useMutation({
     mutationFn: async (rowData: any) => {
+      console.log("Validating trade request data:", rowData);
+      
       if (!validateTradeRequest(rowData)) {
+        console.error("Trade request validation failed for data:", rowData);
         throw new Error("Validation failed");
       }
 
