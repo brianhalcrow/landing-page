@@ -9,7 +9,7 @@ export interface ValidHedgeConfig {
   instrument: string;
   counterparty_id: string;
   counterparty_name: string;
-  cost_centre?: string; // Adding as optional since it might not always be present
+  cost_centre: string; // Made mandatory as it's a requirement
 }
 
 export interface HedgeRequestRow {

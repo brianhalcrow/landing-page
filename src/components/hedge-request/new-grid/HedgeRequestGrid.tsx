@@ -36,10 +36,9 @@ const HedgeRequestGrid = () => {
           })}
           defaultColDef={{
             sortable: true,
-            filter: true,
+            filter: false, // Removed filter
             resizable: true,
-            suppressSizeToFit: false,
-            floatingFilter: true
+            suppressSizeToFit: false
           }}
           suppressRowClickSelection={true}
           enableRangeSelection={true}

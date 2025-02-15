@@ -1,6 +1,5 @@
 
 import { ColDef, GridApi } from "ag-grid-community";
-import { DateCell } from "../components/DateCell";
 import { ValidHedgeConfig } from "../types/hedgeRequest.types";
 
 interface Context {
@@ -18,7 +17,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       values: Array.from(new Set(context.validConfigs?.map(c => c.entity_name) || [])),
       cellRenderer: (params: any) => params.value || ''
     },
-    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
@@ -36,12 +34,22 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     field: "cost_centre",
     editable: true,
     cellEditor: 'agRichSelectCellEditor',
-    cellEditorParams: {
-      values: Array.from(new Set(context.validConfigs?.map(c => c.cost_centre).filter(Boolean) || [])),
+    cellEditorParams: (params: any) => ({
+      values: Array.from(new Set(
+        context.validConfigs
+          ?.filter(c => c.entity_id === params.data?.entity_id)
+          .map(c => c.cost_centre) || []
+      )),
       cellRenderer: (params: any) => params.value || ''
-    },
-    filter: 'agSetColumnFilter',
-    minWidth: 150
+    }),
+    minWidth: 150,
+    valueSetter: (params: any) => {
+      const { data, newValue } = params;
+      if (context?.updateRowData) {
+        context.updateRowData(params.node.rowIndex, { cost_centre: newValue });
+      }
+      return true;
+    }
   },
   {
     headerName: "Strategy",
@@ -56,7 +64,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       )),
       cellRenderer: (params: any) => params.value || ''
     }),
-    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
@@ -88,7 +95,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       )),
       cellRenderer: (params: any) => params.value || ''
     }),
-    filter: 'agSetColumnFilter',
     minWidth: 200
   },
   {
@@ -100,7 +106,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
       cellRenderer: (params: any) => params.value || ''
     },
-    filter: 'agSetColumnFilter',
     minWidth: 150
   },
   {
@@ -108,7 +113,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     field: "buy_amount",
     editable: true,
     type: 'numericColumn',
-    filter: 'agNumberColumnFilter',
     minWidth: 150
   },
   {
@@ -120,7 +124,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD'],
       cellRenderer: (params: any) => params.value || ''
     },
-    filter: 'agSetColumnFilter',
     minWidth: 150
   },
   {
@@ -128,7 +131,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     field: "sell_amount",
     editable: true,
     type: 'numericColumn',
-    filter: 'agNumberColumnFilter',
     minWidth: 150
   },
   {
@@ -136,22 +138,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     field: "trade_date",
     editable: true,
     cellEditor: 'agDateCellEditor',
-    filter: 'agDateColumnFilter',
-    filterParams: {
-      comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-        const cellDate = new Date(cellValue);
-        if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
-          return 0;
-        }
-        if (cellDate < filterLocalDateAtMidnight) {
-          return -1;
-        }
-        if (cellDate > filterLocalDateAtMidnight) {
-          return 1;
-        }
-        return 0;
-      }
-    },
     minWidth: 150
   },
   {
@@ -159,22 +145,6 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     field: "settlement_date",
     editable: true,
     cellEditor: 'agDateCellEditor',
-    filter: 'agDateColumnFilter',
-    filterParams: {
-      comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-        const cellDate = new Date(cellValue);
-        if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
-          return 0;
-        }
-        if (cellDate < filterLocalDateAtMidnight) {
-          return -1;
-        }
-        if (cellDate > filterLocalDateAtMidnight) {
-          return 1;
-        }
-        return 0;
-      }
-    },
     minWidth: 150
   }
 ];
