@@ -98,11 +98,16 @@ export const CostCentreSelector = ({ value, data, node, context }: CostCentreSel
       hasAttemptedAutoSelect.current = true;
       setLastAttemptedEntityId(data.entity_id);
 
-      requestAnimationFrame(() => {
-        context.updateRowData(node.rowIndex, {
-          cost_centre: costCentres[0]
+      // Increased delay for auto-selection
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (context?.updateRowData) {
+            context.updateRowData(node.rowIndex, {
+              cost_centre: costCentres[0]
+            });
+          }
         });
-      });
+      }, 100); // Added a 100ms delay
     }
   }, [costCentres, value, context, node.rowIndex, isLoading, data.entity_id, lastAttemptedEntityId]);
 
