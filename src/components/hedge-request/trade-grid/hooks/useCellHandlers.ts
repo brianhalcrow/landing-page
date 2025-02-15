@@ -5,19 +5,20 @@ import { toast } from 'sonner';
 import { useRef } from 'react';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
 
-export const useCellHandlers = (rates?: Map<string, number>) => {
+export const useCellHandlers = (
+  rates?: Map<string, number>,
+  setLastSelectedCurrency?: (value: 'buy' | 'sell' | null) => void
+) => {
   const lastSelectedCurrency = useRef<'buy' | 'sell' | null>(null);
 
   const handleCellKeyDown = (e: CellKeyDownEvent) => {
     const data = e.data as HedgeRequestDraftTrade;
     const field = e.column.getColId();
     
-    // Additional keyboard handling for amount fields
     if (field.includes('amount')) {
       const isBuyAmount = field === 'buy_amount';
       if (!shouldAllowAmountEdit(e, isBuyAmount ? 'buy' : 'sell', lastSelectedCurrency.current)) {
         e.event.preventDefault();
-        // Show appropriate error message
         if (!data.buy_currency || !data.sell_currency) {
           toast.error('Please select both currencies before entering amounts');
         } else if (data.buy_currency === data.sell_currency) {
@@ -37,7 +38,9 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
 
     // Handle currency changes
     if (field === 'buy_currency' || field === 'sell_currency') {
-      lastSelectedCurrency.current = field === 'buy_currency' ? 'buy' : 'sell';
+      const newCurrencyType = field === 'buy_currency' ? 'buy' : 'sell';
+      lastSelectedCurrency.current = newCurrencyType;
+      setLastSelectedCurrency?.(newCurrencyType);
       
       // Clear amounts when currencies change
       newData.buy_amount = null;
@@ -53,6 +56,7 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
             newData.sell_currency = null;
           }
           lastSelectedCurrency.current = null;
+          setLastSelectedCurrency?.(null);
         } else {
           // Focus the corresponding amount field based on which currency was selected last
           setTimeout(() => {
@@ -70,13 +74,14 @@ export const useCellHandlers = (rates?: Map<string, number>) => {
     if ((field === 'buy_amount' || field === 'sell_amount') && e.newValue !== null) {
       const isBuyAmount = field === 'buy_amount';
       if (shouldAllowAmountEdit(e, isBuyAmount ? 'buy' : 'sell', lastSelectedCurrency.current)) {
-        // Clear the other amount
         if (isBuyAmount) {
           newData.sell_amount = null;
           lastSelectedCurrency.current = 'buy';
+          setLastSelectedCurrency?.('buy');
         } else {
           newData.buy_amount = null;
           lastSelectedCurrency.current = 'sell';
+          setLastSelectedCurrency?.('sell');
         }
       }
     }
