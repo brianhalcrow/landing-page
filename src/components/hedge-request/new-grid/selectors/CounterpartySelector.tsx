@@ -15,7 +15,6 @@ interface CounterpartySelectorProps {
 export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   
-  // Filter counterparties based on selected entity and strategy
   const counterparties = Array.from(new Map(
     validConfigs
       .filter(c => 
@@ -34,9 +33,8 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
     if (selectedCounterparty) {
-      // Only update counterparty-related fields
-      props.node.setData({
-        ...props.data,
+      const rowIndex = props.node.rowIndex;
+      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
         counterparty: selectedCounterparty.id,
         counterparty_name: selectedCounterparty.name
       });

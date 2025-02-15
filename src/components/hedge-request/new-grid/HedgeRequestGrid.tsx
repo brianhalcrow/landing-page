@@ -1,6 +1,5 @@
 
 import { AgGridReact } from 'ag-grid-react';
-import { GridStyles } from '../grid/components/GridStyles';
 import { createColumnDefs } from './config/columnDefs';
 import { useHedgeRequestData } from './hooks/useHedgeRequestData';
 import { GridActions } from './components/GridActions';
@@ -19,7 +18,6 @@ const HedgeRequestGrid = () => {
   return (
     <div className="space-y-4">
       <div className="w-full h-[400px] ag-theme-alpine">
-        <GridStyles />
         <AgGridReact
           rowData={rowData}
           columnDefs={createColumnDefs()}
@@ -29,13 +27,13 @@ const HedgeRequestGrid = () => {
             resizable: true,
             suppressSizeToFit: false
           }}
-          context={{ validConfigs }}
+          context={{ 
+            validConfigs,
+            updateRowData 
+          }}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
-          onCellValueChanged={(event) => {
-            updateRowData(event.rowIndex, event.colDef.field!, event.newValue);
-          }}
           stopEditingWhenCellsLoseFocus={true}
         />
       </div>

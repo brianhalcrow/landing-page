@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,16 +37,24 @@ export const useHedgeRequestData = () => {
         return [];
       }
 
-      console.log('Fetched configurations:', data); // Debug log
+      console.log('Fetched configurations:', data);
       return data as ValidHedgeConfig[];
     },
-    // Set staleTime to 0 to always fetch fresh data
     staleTime: 0,
-    // Set gcTime (previously cacheTime) to 0 to disable caching
     gcTime: 0,
-    // Refetch on window focus to ensure fresh data
     refetchOnWindowFocus: true
   });
+
+  const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
+    setRowData(currentRows => {
+      const newData = [...currentRows];
+      newData[rowIndex] = {
+        ...newData[rowIndex],
+        ...updates
+      };
+      return newData;
+    });
+  };
 
   const handleSave = async () => {
     try {
@@ -80,15 +89,6 @@ export const useHedgeRequestData = () => {
 
   const addNewRow = () => {
     setRowData([...rowData, { ...defaultRow }]);
-  };
-
-  const updateRowData = (rowIndex: number, field: string, value: any) => {
-    const newData = [...rowData];
-    newData[rowIndex] = { 
-      ...newData[rowIndex], 
-      [field]: value 
-    };
-    setRowData(newData);
   };
 
   return {

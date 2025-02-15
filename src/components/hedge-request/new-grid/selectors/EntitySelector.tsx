@@ -15,7 +15,6 @@ interface EntitySelectorProps {
 export const EntitySelector = (props: EntitySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   
-  // Get unique entities by entity_id
   const entities = Array.from(new Map(
     validConfigs.map(config => [
       config.entity_id,
@@ -30,11 +29,10 @@ export const EntitySelector = (props: EntitySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEntity = entities.find(e => e.id === event.target.value);
     if (selectedEntity) {
-      // Only update entity-related fields
-      props.node.setData({
-        ...props.data,
+      const rowIndex = props.node.rowIndex;
+      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
         entity_id: selectedEntity.id,
-        entity_name: selectedEntity.name,
+        entity_name: selectedEntity.name
       });
     }
   };

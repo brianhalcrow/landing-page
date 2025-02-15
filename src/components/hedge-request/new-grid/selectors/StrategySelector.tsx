@@ -15,7 +15,6 @@ interface StrategySelectorProps {
 export const StrategySelector = (props: StrategySelectorProps) => {
   const validConfigs = props.context?.validConfigs || [];
   
-  // Filter strategies based on selected entity
   const strategies = Array.from(new Map(
     validConfigs
       .filter(c => c.entity_id === props.data.entity_id)
@@ -33,13 +32,12 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedStrategy = strategies.find(s => s.id.toString() === event.target.value);
     if (selectedStrategy) {
-      // Only update strategy-related fields
-      props.node.setData({
-        ...props.data,
+      const rowIndex = props.node.rowIndex;
+      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
         strategy: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
-        instrument: selectedStrategy.instrument,
+        instrument: selectedStrategy.instrument
       });
     }
   };
