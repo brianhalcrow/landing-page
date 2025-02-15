@@ -47,7 +47,7 @@ export const useHedgeRequestData = () => {
       console.log('Fetched configurations:', data);
       return (data as any[]).map(config => ({
         ...config,
-        strategy_description: config.strategy_name // Using strategy_name as description temporarily
+        strategy_description: config.strategy_name
       })) as ValidHedgeConfig[];
     },
     staleTime: 0,
@@ -58,10 +58,39 @@ export const useHedgeRequestData = () => {
   const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
     setRowData(currentRows => {
       const newData = [...currentRows];
+      
+      // Update the current row
       newData[rowIndex] = {
         ...newData[rowIndex],
         ...updates
       };
+
+      // Check if this is a swap instrument and handle second leg
+      if (updates.instrument === 'SWA') {
+        // If this is the first row or there's no second row yet
+        if (rowIndex === newData.length - 1) {
+          // Add a new row with copied values
+          newData.push({
+            ...defaultRow,
+            entity_id: newData[rowIndex].entity_id,
+            entity_name: newData[rowIndex].entity_name,
+            strategy_name: newData[rowIndex].strategy_name,
+            instrument: newData[rowIndex].instrument,
+            counterparty_name: newData[rowIndex].counterparty_name,
+          });
+        } else {
+          // Update the next row with the same values
+          newData[rowIndex + 1] = {
+            ...newData[rowIndex + 1],
+            entity_id: newData[rowIndex].entity_id,
+            entity_name: newData[rowIndex].entity_name,
+            strategy_name: newData[rowIndex].strategy_name,
+            instrument: newData[rowIndex].instrument,
+            counterparty_name: newData[rowIndex].counterparty_name,
+          };
+        }
+      }
+
       return newData;
     });
   };
