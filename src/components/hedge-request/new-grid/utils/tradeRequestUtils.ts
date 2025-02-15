@@ -5,7 +5,7 @@ import { parse, format } from "date-fns";
 interface TradeRequestInput {
   entity_id: string;
   entity_name: string;
-  strategy_name: string;  // Updated to use strategy_name consistently
+  strategy_name: string;
   instrument: string;
   trade_date: string | null;
   settlement_date: string;
@@ -19,13 +19,14 @@ interface TradeRequestInput {
 export const validateTradeRequest = (data: any): boolean => {
   console.log("Starting validation for trade request data:", data);
   
+  // Basic required fields
   if (!data.entity_id || !data.entity_name) {
     console.log("Validation failed: Missing entity information", { entity_id: data.entity_id, entity_name: data.entity_name });
     toast.error("Entity information is required");
     return false;
   }
 
-  if (!data.strategy_name) {  // Updated to check strategy_name
+  if (!data.strategy_name) {
     console.log("Validation failed: Missing strategy");
     toast.error("Strategy is required");
     return false;
@@ -56,27 +57,19 @@ export const validateTradeRequest = (data: any): boolean => {
     sellAmount
   });
 
-  // Both currencies are required
-  if (!buyCurrency || !sellCurrency) {
-    console.log("Validation failed: Missing currencies", { buyCurrency, sellCurrency });
-    toast.error("Both buy and sell currencies are required");
-    return false;
-  }
+  // For swaps, validate that at least one side (buy or sell) is complete
+  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
+  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
 
-  // Either buy amount or sell amount must be present, but not both null
-  const hasBuyAmount = buyAmount && buyAmount !== "0";
-  const hasSellAmount = sellAmount && sellAmount !== "0";
-
-  console.log("Amount validation:", {
-    hasBuyAmount,
-    hasSellAmount,
-    buyAmount,
-    sellAmount
+  console.log("Side validation:", {
+    hasBuySide,
+    hasSellSide,
+    instrument: data.instrument
   });
 
-  if (!hasBuyAmount && !hasSellAmount) {
-    console.log("Validation failed: No valid amount specified");
-    toast.error("Either buy amount or sell amount must be specified");
+  if (!hasBuySide && !hasSellSide) {
+    console.log("Validation failed: No complete side specified");
+    toast.error("Please specify at least one complete side (currency and amount)");
     return false;
   }
 
@@ -93,9 +86,7 @@ export const validateTradeRequest = (data: any): boolean => {
 const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
   if (!dateStr) return null;
   try {
-    // Parse the DD/MM/YYYY format to a Date object
     const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
-    // Format to YYYY-MM-DD
     return format(parsedDate, 'yyyy-MM-dd');
   } catch (error) {
     console.error("Error parsing date:", error);
@@ -107,7 +98,7 @@ export const transformTradeRequest = (data: any) => {
   return {
     entity_id: data.entity_id,
     entity_name: data.entity_name,
-    strategy_name: data.strategy_name,  // Using strategy_name consistently
+    strategy_name: data.strategy_name,
     instrument: data.instrument,
     trade_date: data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null,
     settlement_date: parseDateToYYYYMMDD(data.settlement_date),
@@ -116,7 +107,7 @@ export const transformTradeRequest = (data: any) => {
     ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
     ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
     cost_centre: data.cost_centre,
-    ccy_pair: `${data.buy_currency}${data.sell_currency}`,
+    ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
     counterparty_name: data.counterparty_name
   };
 };
