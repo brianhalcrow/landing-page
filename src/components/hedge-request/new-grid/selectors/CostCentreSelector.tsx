@@ -8,16 +8,19 @@ interface CostCentreSelectorProps {
   value: string;
   data: any;
   node: any;
+  context?: {
+    updateRowData?: (rowIndex: number, updates: any) => void;
+  };
 }
 
-export const CostCentreSelector = ({ value, data, node }: CostCentreSelectorProps) => {
+export const CostCentreSelector = ({ value, data, node, context }: CostCentreSelectorProps) => {
   const { data: costCentres } = useQuery({
     queryKey: ['cost-centres', data.entity_id],
     queryFn: async () => {
       if (!data.entity_id) return [];
       
       const { data: centresData, error } = await supabase
-        .from('erp_mgmt_structure')
+        .from('management_structure')
         .select('cost_centre')
         .eq('entity_id', data.entity_id);
 
@@ -27,20 +30,27 @@ export const CostCentreSelector = ({ value, data, node }: CostCentreSelectorProp
         return [];
       }
 
-      console.log('Fetched cost centres:', centresData); // Debug log
       return [...new Set(centresData.map(item => item.cost_centre))].sort();
     },
     enabled: !!data.entity_id,
-    staleTime: 0, // Consider data stale immediately
-    refetchOnMount: true, // Refetch when component mounts
-    refetchOnWindowFocus: true // Refetch when window gains focus
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    node.setData({
-      ...data,
-      cost_centre: event.target.value
+  // If only one cost centre exists and no value is selected, set it automatically
+  if (costCentres?.length === 1 && !value && context?.updateRowData) {
+    context.updateRowData(node.rowIndex, {
+      cost_centre: costCentres[0]
     });
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (context?.updateRowData) {
+      context.updateRowData(node.rowIndex, {
+        cost_centre: event.target.value
+      });
+    }
   };
 
   return (

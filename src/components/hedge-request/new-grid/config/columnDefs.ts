@@ -1,4 +1,3 @@
-
 import { ColDef } from 'ag-grid-community';
 import { EntitySelector } from '../selectors/EntitySelector';
 import { StrategySelector } from '../selectors/StrategySelector';
@@ -9,14 +8,21 @@ import { format } from 'date-fns';
 export const createColumnDefs = (): ColDef[] => [
   {
     field: 'entity_id',
-    headerName: 'Entity',
+    headerName: 'Entity ID',
+    minWidth: 120,
+    flex: 1,
+    headerClass: 'ag-header-center',
+    editable: true,
+    cellRenderer: EntitySelector
+  },
+  {
+    field: 'entity_name',
+    headerName: 'Entity Name',
     minWidth: 180,
     flex: 2,
     headerClass: 'ag-header-center',
     editable: true,
-    cellRenderer: EntitySelector,
-    cellEditor: EntitySelector,
-    cellEditorPopup: false
+    cellRenderer: EntitySelector
   },
   {
     field: 'cost_centre',
@@ -28,15 +34,6 @@ export const createColumnDefs = (): ColDef[] => [
     cellRenderer: CostCentreSelector,
     cellEditor: CostCentreSelector,
     cellEditorPopup: false
-  },
-  {
-    field: 'entity_name',
-    headerName: 'Entity Name',
-    minWidth: 120,
-    flex: 1,
-    headerClass: 'ag-header-center',
-    editable: false,
-    hide: true
   },
   {
     field: 'strategy',
