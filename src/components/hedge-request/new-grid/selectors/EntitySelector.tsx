@@ -1,5 +1,5 @@
-
 import { ValidHedgeConfig } from '../types/hedgeRequest.types';
+import { supabase } from "@/integrations/supabase/client";
 
 interface EntitySelectorProps {
   value: string;
@@ -11,6 +11,12 @@ interface EntitySelectorProps {
     validConfigs?: ValidHedgeConfig[];
     updateRowData?: (rowIndex: number, updates: any) => void;
   };
+}
+
+interface Entity {
+  id: string;
+  name: string;
+  functional_currency: string;
 }
 
 export const EntitySelector = (props: EntitySelectorProps) => {
@@ -30,7 +36,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
 
   const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    let selectedEntity;
+    let selectedEntity: Entity | undefined;
     
     // Find entity based on whether we're selecting by ID or name
     if (fieldName === 'entity_id') {
@@ -40,15 +46,15 @@ export const EntitySelector = (props: EntitySelectorProps) => {
     }
 
     if (selectedEntity && props.context?.updateRowData) {
-      // Always update both ID and name together
-      const updates = {
+      // Create updates object with correct typing
+      const updates: Record<string, any> = {
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name
       };
 
       // Get cost centres for this entity
       try {
-        const { data: costCentres } = await props.api.supabase
+        const { data: costCentres } = await supabase
           .from('management_structure')
           .select('cost_centre')
           .eq('entity_id', selectedEntity.id);
@@ -66,6 +72,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
   };
 
   // Select options based on which field we're displaying
+  const value = props.value || '';
   const options = entities.map(entity => ({
     value: fieldName === 'entity_id' ? entity.id : entity.name,
     label: fieldName === 'entity_id' ? entity.id : entity.name
@@ -73,7 +80,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
 
   return (
     <select
-      value={props.value || ''}
+      value={value}
       onChange={handleChange}
       className="w-full h-full border-0 outline-none bg-transparent"
     >
