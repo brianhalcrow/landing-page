@@ -114,7 +114,8 @@ export const transformTradeRequest = (data: any) => {
     ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
     cost_centre: data.cost_centre,
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
-    counterparty_name: data.counterparty_name
+    counterparty_name: data.counterparty_name,
+    leg_number: data.instrument === 'Swap' ? 1 : null // Set leg_number to 1 for Swaps
   };
 
   console.log("Transformed trade request:", transformed);
