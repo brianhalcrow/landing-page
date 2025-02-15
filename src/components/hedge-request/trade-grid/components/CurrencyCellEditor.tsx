@@ -66,10 +66,18 @@ export const CurrencyCellEditor = forwardRef((props: ICellEditorParams, ref) => 
       [isBuyCurrency ? 'buy_currency' : 'sell_currency']: newValue
     };
     
-    // Check if both currencies would be the same
+    // Get the other currency field's value
     const otherCurrency = isBuyCurrency ? updatedData.sell_currency : updatedData.buy_currency;
+    
+    // Check if both currencies would be the same
     if (otherCurrency && newValue === otherCurrency) {
       toast.error('Buy and sell currencies must be different');
+      // Reset the other currency to null
+      props.api.startEditingCell({
+        rowIndex: props.rowIndex,
+        colKey: isBuyCurrency ? 'sell_currency' : 'buy_currency'
+      });
+      props.node.setDataValue(isBuyCurrency ? 'sell_currency' : 'buy_currency', null);
       return false;
     }
     
