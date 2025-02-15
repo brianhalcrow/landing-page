@@ -27,6 +27,21 @@ export const EntityNameSelector = ({ value, data, node, context, colDef }: Entit
   const isEntityId = colDef?.field === 'entity_id';
   
   const handleChange = (selectedValue: string) => {
+    if (!selectedValue) {
+      // Handle empty selection
+      node.setData({
+        ...data,
+        entity_name: '',
+        entity_id: '',
+        functional_currency: '',
+        cost_centre: '',
+        exposure_category_l1: '',
+        exposure_category_l2: '',
+        exposure_category_l3: '',
+      });
+      return;
+    }
+
     const selectedEntity = entities.find(
       (entity: ValidEntity) => isEntityId 
         ? entity.entity_id === selectedValue
@@ -59,6 +74,7 @@ export const EntityNameSelector = ({ value, data, node, context, colDef }: Entit
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
+          <SelectItem value="">Select</SelectItem>
           {entities.map((entity: ValidEntity) => (
             <SelectItem
               key={entity.entity_id}
