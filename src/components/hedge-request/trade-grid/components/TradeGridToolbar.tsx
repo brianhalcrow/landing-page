@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
@@ -52,10 +53,6 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
         toast.error('Swap legs must have matching currencies');
         return false;
       }
-
-      // Set leg numbers
-      leg1.leg_number = 1;
-      leg2.leg_number = 2;
     }
 
     return true;
