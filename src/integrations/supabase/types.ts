@@ -1336,21 +1336,21 @@ export type Database = {
           exposure_category_l2: string | null
           id: number
           instrument: string | null
-          strategy: string | null
+          strategy_id: string | null
           strategy_name: string | null
         }
         Insert: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
           strategy_name?: string | null
         }
         Update: {
           exposure_category_l2?: string | null
           id?: number
           instrument?: string | null
-          strategy?: string | null
+          strategy_id?: string | null
           strategy_name?: string | null
         }
         Relationships: []
