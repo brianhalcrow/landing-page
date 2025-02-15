@@ -9,6 +9,7 @@ interface CounterpartySelectorProps {
   node: any;
   context?: {
     validConfigs?: ValidHedgeConfig[];
+    updateRowData?: (rowIndex: number, updates: any) => void;
   };
 }
 
@@ -32,9 +33,8 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
-    if (selectedCounterparty) {
-      const rowIndex = props.node.rowIndex;
-      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
+    if (selectedCounterparty && props.context?.updateRowData) {
+      props.context.updateRowData(props.node.rowIndex, {
         counterparty: selectedCounterparty.id,
         counterparty_name: selectedCounterparty.name
       });

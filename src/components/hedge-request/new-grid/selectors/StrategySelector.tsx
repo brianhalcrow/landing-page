@@ -9,6 +9,7 @@ interface StrategySelectorProps {
   node: any;
   context?: {
     validConfigs?: ValidHedgeConfig[];
+    updateRowData?: (rowIndex: number, updates: any) => void;
   };
 }
 
@@ -31,9 +32,8 @@ export const StrategySelector = (props: StrategySelectorProps) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedStrategy = strategies.find(s => s.id.toString() === event.target.value);
-    if (selectedStrategy) {
-      const rowIndex = props.node.rowIndex;
-      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
+    if (selectedStrategy && props.context?.updateRowData) {
+      props.context.updateRowData(props.node.rowIndex, {
         strategy: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,

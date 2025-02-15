@@ -9,6 +9,7 @@ interface EntitySelectorProps {
   node: any;
   context?: {
     validConfigs?: ValidHedgeConfig[];
+    updateRowData?: (rowIndex: number, updates: any) => void;
   };
 }
 
@@ -28,9 +29,8 @@ export const EntitySelector = (props: EntitySelectorProps) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEntity = entities.find(e => e.id === event.target.value);
-    if (selectedEntity) {
-      const rowIndex = props.node.rowIndex;
-      props.api.gridOptionsWrapper.gridOptions.context.updateRowData(rowIndex, {
+    if (selectedEntity && props.context?.updateRowData) {
+      props.context.updateRowData(props.node.rowIndex, {
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name
       });
