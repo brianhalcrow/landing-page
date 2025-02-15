@@ -8,6 +8,7 @@ import { useCellHandlers } from '../hooks/useCellHandlers';
 import { CellEditingStartedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
 import { shouldAllowAmountEdit } from '../utils/amountValidation';
+import { CurrencyEditorState } from '../components/CurrencyCellEditor';
 
 interface TradeDataGridProps {
   rowData: HedgeRequestDraftTrade[];
@@ -23,6 +24,12 @@ const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: Trade
   const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(undefined, setLastSelectedCurrency);
   const columnDefs = useTradeColumns(undefined, lastSelectedCurrency);
 
+  const initialEditorState: CurrencyEditorState = {
+    lastSelectedCurrency: null,
+    buyAmount: null,
+    sellAmount: null
+  };
+
   const handleCellEditingStarted = (event: CellEditingStartedEvent) => {
     const field = event.column.getColId();
     
@@ -31,7 +38,6 @@ const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: Trade
       if (!shouldAllowAmountEdit(event, isBuyAmount ? 'buy' : 'sell', lastSelectedCurrency)) {
         event.api.stopEditing();
         
-        // Show appropriate error message
         const data = event.data as HedgeRequestDraftTrade;
         if (!data.buy_currency || !data.sell_currency) {
           toast.error('Please select both currencies before entering amounts');
@@ -58,6 +64,9 @@ const TradeDataGrid = ({ rowData, onRowDataChange, entityId, entityName }: Trade
           filter: true,
           resizable: true,
           suppressSizeToFit: false
+        }}
+        context={{
+          editorState: initialEditorState
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}

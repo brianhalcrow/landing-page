@@ -295,36 +295,6 @@ export type Database = {
         }
         Relationships: []
       }
-      entities: {
-        Row: {
-          created_at: string
-          description: string | null
-          entity_id: string
-          entity_name: string
-          functional_currency: string
-          is_active: boolean | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          entity_id: string
-          entity_name: string
-          functional_currency: string
-          is_active?: boolean | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          entity_id?: string
-          entity_name?: string
-          functional_currency?: string
-          is_active?: boolean | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       entity_counterparty: {
         Row: {
           counterparty_id: string
@@ -1381,38 +1351,6 @@ export type Database = {
           instrument?: string | null
         }
         Relationships: []
-      }
-      management_structure: {
-        Row: {
-          cost_centre: string
-          created_at: string | null
-          entity_id: string
-          id: number
-          updated_at: string | null
-        }
-        Insert: {
-          cost_centre: string
-          created_at?: string | null
-          entity_id: string
-          id?: number
-          updated_at?: string | null
-        }
-        Update: {
-          cost_centre?: string
-          created_at?: string | null
-          entity_id?: string
-          id?: number
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "management_structure_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "entities"
-            referencedColumns: ["entity_id"]
-          },
-        ]
       }
       newtable: {
         Row: {

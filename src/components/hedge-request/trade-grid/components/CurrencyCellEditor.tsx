@@ -4,11 +4,20 @@ import { forwardRef, useImperativeHandle, useState, useRef, useEffect } from 're
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+export interface CurrencyEditorState {
+  lastSelectedCurrency: 'buy' | 'sell' | null;
+  buyAmount: number | null;
+  sellAmount: number | null;
+}
 
 export const CurrencyCellEditor = forwardRef((props: ICellEditorParams, ref) => {
   const [value, setValue] = useState(props.value);
   const selectRef = useRef<HTMLButtonElement>(null);
-
+  const isBuyCurrency = props.column.getColId() === 'buy_currency';
+  const editorState = (props.api.getGridOption('context')?.editorState || {}) as CurrencyEditorState;
+  
   const { data: currencies } = useQuery({
     queryKey: ['currencies'],
     queryFn: async () => {
@@ -44,21 +53,49 @@ export const CurrencyCellEditor = forwardRef((props: ICellEditorParams, ref) => 
   });
 
   useEffect(() => {
-    // Focus the select trigger when the editor is initialized
     if (selectRef.current) {
       selectRef.current.click();
     }
   }, []);
 
+  const validateCurrencySelection = (newValue: string) => {
+    const rowData = props.node.data;
+    const otherCurrency = isBuyCurrency ? rowData.sell_currency : rowData.buy_currency;
+    
+    if (otherCurrency && newValue === otherCurrency) {
+      toast.error('Buy and sell currencies must be different');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleCurrencyChange = (newValue: string) => {
+    if (validateCurrencySelection(newValue)) {
+      setValue(newValue);
+      
+      // Update grid state
+      const context = props.api.getGridOption('context');
+      if (context) {
+        context.editorState = {
+          ...editorState,
+          lastSelectedCurrency: isBuyCurrency ? 'buy' : 'sell',
+          buyAmount: isBuyCurrency ? null : editorState.buyAmount,
+          sellAmount: isBuyCurrency ? editorState.sellAmount : null
+        };
+        props.api.setGridOption('context', context);
+      }
+
+      // Stop editing after selection
+      props.stopEditing();
+    }
+  };
+
   return (
     <div className="ag-cell-edit-wrapper">
       <Select
         value={value || ''}
-        onValueChange={(newValue) => {
-          setValue(newValue);
-          // Stop editing after selection
-          props.stopEditing();
-        }}
+        onValueChange={handleCurrencyChange}
         open={true}
       >
         <SelectTrigger ref={selectRef} className="h-8 w-full border-0 bg-white focus:ring-0">
