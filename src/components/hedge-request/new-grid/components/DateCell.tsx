@@ -1,7 +1,8 @@
 
+import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface DateCellProps {
   value: string;
@@ -13,31 +14,30 @@ interface DateCellProps {
 }
 
 export const DateCell = ({ value, node, column, context }: DateCellProps) => {
+  const [open, setOpen] = useState(false);
+
   const handleDateSelect = (date: Date | undefined) => {
     if (date && context?.updateRowData) {
       context.updateRowData(node.rowIndex, {
         [column.colDef.field]: format(date, 'yyyy-MM-dd')
       });
+      setOpen(false);
     }
   };
 
   return (
-    <HoverCard openDelay={0}>
-      <HoverCardTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <div className="w-full h-full px-2 py-1 cursor-pointer">
           {value ? format(new Date(value), 'dd/MM/yyyy') : 'Select date'}
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent 
+      </PopoverTrigger>
+      <PopoverContent 
         className="w-auto p-0" 
-        sideOffset={5}
         align="start"
         side="bottom"
-        alignOffset={-50}
-        style={{
-          position: 'absolute',
-          zIndex: 1000
-        }}
+        sideOffset={5}
+        avoidCollisions
       >
         <Calendar
           mode="single"
@@ -70,7 +70,7 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
           }}
           weekStartsOn={1}
         />
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverContent>
+    </Popover>
   );
 };
