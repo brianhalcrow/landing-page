@@ -71,7 +71,7 @@ export const useHedgeRequestData = () => {
       const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
       const isNewSwap = updates.instrument?.toLowerCase() === 'swap' && currentRow.instrument?.toLowerCase() !== 'swap';
       
-      // Handle amount validation for SWAP trades
+      // Handle amount validation and mirroring for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
         // For first leg
         if (rowIndex % 2 === 0) {
@@ -83,6 +83,23 @@ export const useHedgeRequestData = () => {
           if (finalBuyAmount !== null && finalSellAmount !== null) {
             toast.error('First leg can only have either buy or sell amount');
             return newData;
+          }
+
+          // Mirror the amount to the second leg with the opposite type
+          const nextRow = newData[rowIndex + 1];
+          if (nextRow && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
+            if (updates.buy_amount !== undefined) {
+              newData[rowIndex + 1] = {
+                ...nextRow,
+                sell_amount: updates.buy_amount // Set sell amount in second leg equal to buy amount in first leg
+              };
+            }
+            if (updates.sell_amount !== undefined) {
+              newData[rowIndex + 1] = {
+                ...nextRow,
+                buy_amount: updates.sell_amount // Set buy amount in second leg equal to sell amount in first leg
+              };
+            }
           }
         }
         // For second leg
