@@ -34,12 +34,12 @@ export const CounterpartySelector = (props: CounterpartySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCounterparty = counterparties.find(c => c.id === event.target.value);
     if (selectedCounterparty) {
-      const updatedData = {
+      // Only update counterparty-related fields
+      props.node.setData({
         ...props.data,
         counterparty: selectedCounterparty.id,
         counterparty_name: selectedCounterparty.name
-      };
-      props.node.setData(updatedData);
+      });
     }
   };
 

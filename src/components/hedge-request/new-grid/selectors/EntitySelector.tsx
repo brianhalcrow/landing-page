@@ -30,19 +30,12 @@ export const EntitySelector = (props: EntitySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEntity = entities.find(e => e.id === event.target.value);
     if (selectedEntity) {
-      const updatedData = {
+      // Only update entity-related fields
+      props.node.setData({
         ...props.data,
         entity_id: selectedEntity.id,
         entity_name: selectedEntity.name,
-        // Only clear strategy-related and cost centre fields
-        strategy: '',
-        strategy_name: '',
-        strategy_description: '',
-        instrument: '',
-        cost_centre: '',
-        // Preserve all other fields
-      };
-      props.node.setData(updatedData);
+      });
     }
   };
 

@@ -33,16 +33,14 @@ export const StrategySelector = (props: StrategySelectorProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedStrategy = strategies.find(s => s.id.toString() === event.target.value);
     if (selectedStrategy) {
-      const updatedData = {
+      // Only update strategy-related fields
+      props.node.setData({
         ...props.data,
         strategy: selectedStrategy.id.toString(),
         strategy_name: selectedStrategy.name,
         strategy_description: selectedStrategy.description,
         instrument: selectedStrategy.instrument,
-        counterparty: '',
-        counterparty_name: ''
-      };
-      props.node.setData(updatedData);
+      });
     }
   };
 
