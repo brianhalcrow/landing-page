@@ -56,6 +56,8 @@ export const useHedgeRequestData = () => {
   });
 
   const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
+    console.log('Updating row data:', { rowIndex, updates });
+    
     setRowData(currentRows => {
       const newData = [...currentRows];
       
@@ -66,9 +68,18 @@ export const useHedgeRequestData = () => {
       };
 
       // Check if this is a swap instrument and handle second leg
-      if (updates.instrument === 'SWAP') {
+      const isSwap = updates.instrument?.toLowerCase() === 'swap';
+      console.log('Checking for SWAP instrument:', { 
+        instrument: updates.instrument, 
+        isSwap,
+        rowIndex,
+        isLastRow: rowIndex === newData.length - 1 
+      });
+
+      if (isSwap) {
         // If this is the first row or there's no second row yet
         if (rowIndex === newData.length - 1) {
+          console.log('Adding new row for SWAP second leg');
           // Add a new row with copied values
           newData.push({
             ...defaultRow,
@@ -79,6 +90,7 @@ export const useHedgeRequestData = () => {
             counterparty_name: newData[rowIndex].counterparty_name,
           });
         } else {
+          console.log('Updating existing second leg row');
           // Update the next row with the same values
           newData[rowIndex + 1] = {
             ...newData[rowIndex + 1],

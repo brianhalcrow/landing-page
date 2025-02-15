@@ -32,6 +32,11 @@ export const StrategySelector = (props: StrategySelectorProps) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedStrategy = strategies.find(s => s.name === event.target.value);
+    console.log('Strategy selected:', { 
+      selectedStrategy,
+      rowIndex: props.node.rowIndex 
+    });
+    
     if (selectedStrategy && props.context?.updateRowData) {
       props.context.updateRowData(props.node.rowIndex, {
         strategy_name: selectedStrategy.name,
