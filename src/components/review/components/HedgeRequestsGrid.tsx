@@ -1,7 +1,6 @@
 
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-import { GridStyles } from "../../hedge-request/grid/components/GridStyles";
 import { TradeRequest } from '../types/hedge-request.types';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -20,11 +19,24 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'entity_id', 
-      headerName: 'Entity ID',
-      flex: 1,
+      field: 'status', 
+      headerName: 'Status',
+      flex: 0.8,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
+      cellRenderer: (params: any) => {
+        const status = params.value;
+        const colorMap = {
+          Submitted: 'bg-blue-100 text-blue-800',
+          Reviewed: 'bg-yellow-100 text-yellow-800',
+          Approved: 'bg-green-100 text-green-800'
+        };
+        return (
+          <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
+            {status}
+          </div>
+        );
+      }
     },
     { 
       field: 'entity_name', 
@@ -34,24 +46,10 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'cost_centre', 
-      headerName: 'Cost Centre',
+      field: 'strategy_name', 
+      headerName: 'Strategy',
       flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'ccy_1', 
-      headerName: 'Currency 1',
-      flex: 1,
-      minWidth: 100,
-      headerClass: 'ag-header-center header-wrap',
-    },
-    { 
-      field: 'ccy_2', 
-      headerName: 'Currency 2',
-      flex: 1,
-      minWidth: 100,
+      minWidth: 150,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
@@ -62,15 +60,22 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'created_by', 
-      headerName: 'Created By',
+      field: 'counterparty_name', 
+      headerName: 'Counterparty',
+      flex: 1,
+      minWidth: 150,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'submitted_by', 
+      headerName: 'Submitted By',
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
-      field: 'created_at', 
-      headerName: 'Created',
+      field: 'submitted_at', 
+      headerName: 'Submitted',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
@@ -79,8 +84,15 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       }
     },
     { 
-      field: 'updated_at', 
-      headerName: 'Updated',
+      field: 'reviewed_by', 
+      headerName: 'Reviewed By',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'reviewed_at', 
+      headerName: 'Reviewed',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
@@ -89,73 +101,37 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       }
     },
     { 
-      field: 'ccy_1_amount', 
-      headerName: 'Amount 1',
+      field: 'approved_by', 
+      headerName: 'Approved By',
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? params.value.toLocaleString() : '';
-      }
     },
     { 
-      field: 'ccy_2_amount', 
-      headerName: 'Amount 2',
+      field: 'approved_at', 
+      headerName: 'Approved',
       flex: 1,
-      minWidth: 120,
+      minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
       valueFormatter: (params) => {
-        return params.value ? params.value.toLocaleString() : '';
-      }
-    },
-    { 
-      field: 'trade_date', 
-      headerName: 'Trade Date',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleDateString() : '';
-      }
-    },
-    { 
-      field: 'settlement_date', 
-      headerName: 'Settlement Date',
-      flex: 1,
-      minWidth: 120,
-      headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleDateString() : '';
+        return params.value ? new Date(params.value).toLocaleString() : '';
       }
     }
   ];
 
   return (
-    <div className="ag-theme-alpine h-[600px] w-full">
-      <style>{`
-        .header-wrap .ag-header-cell-label {
-          white-space: normal !important;
-          line-height: 1.2 !important;
-        }
-        .ag-header-cell {
-          padding-top: 4px !important;
-          padding-bottom: 4px !important;
-        }
-      `}</style>
-      <GridStyles />
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={{
-          sortable: true,
-          filter: true,
-          resizable: true,
-          suppressSizeToFit: false
-        }}
-        animateRows={true}
-        suppressColumnVirtualisation={true}
-        enableCellTextSelection={true}
-      />
-    </div>
+    <AgGridReact
+      rowData={rowData}
+      columnDefs={columnDefs}
+      defaultColDef={{
+        sortable: true,
+        filter: true,
+        resizable: true,
+        suppressSizeToFit: false
+      }}
+      animateRows={true}
+      suppressColumnVirtualisation={true}
+      enableCellTextSelection={true}
+    />
   );
 };

@@ -4,13 +4,13 @@ import RealtimeSubscription from "./RealtimeSubscription";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { HedgeRequestsGrid } from "./components/HedgeRequestsGrid";
+import { GridStyles } from "../shared/grid/GridStyles";
 
 export const OverviewTab = () => {
   const [isMounted, setIsMounted] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: tradeRequests = [], refetch } = useQuery({
-    queryKey: ['trade-requests-overview'],
+  const { data: hedgeRequests = [], refetch } = useQuery({
+    queryKey: ['hedge-requests-overview'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('trade_requests')
@@ -40,13 +40,10 @@ export const OverviewTab = () => {
   return (
     <div className="space-y-4">
       <RealtimeSubscription onDataChange={refetch} />
-      {isLoading ? (
-        <div className="flex items-center justify-center p-4">
-          <span>Loading trade requests...</span>
-        </div>
-      ) : (
-        <HedgeRequestsGrid rowData={tradeRequests} />
-      )}
+      <div className="w-full h-[600px] ag-theme-alpine">
+        <GridStyles />
+        <HedgeRequestsGrid rowData={hedgeRequests} />
+      </div>
     </div>
   );
 };
