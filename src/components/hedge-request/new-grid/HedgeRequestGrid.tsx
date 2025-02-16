@@ -1,9 +1,14 @@
+
 import { AgGridReact } from "ag-grid-react";
 import { createColumnDefs } from "./config/columnDefs";
 import { useHedgeRequestData } from "./hooks/useHedgeRequestData";
 import { GridActions } from "./components/GridActions";
 import { useCallback, useRef } from "react";
 import { GridApi } from "ag-grid-enterprise";
+
+// Import AG Grid styles
+import "ag-grid-enterprise/styles/ag-grid.css";
+import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 const HedgeRequestGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -35,10 +40,21 @@ const HedgeRequestGrid = () => {
 
   const onGridReady = useCallback((params: { api: GridApi }) => {
     params.api.sizeColumnsToFit();
+    // Force a redraw after grid is ready
+    setTimeout(() => {
+      params.api.redrawRows();
+    }, 100);
   }, []);
 
+  if (!validConfigs) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="ag-theme-quartz" style={{ width: "100%", height: "auto" }}>
+    <div 
+      className="ag-theme-alpine" 
+      style={{ width: "100%", height: "600px" }}
+    >
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
@@ -47,13 +63,12 @@ const HedgeRequestGrid = () => {
           updateRowData,
         })}
         defaultColDef={{
-          sortable: false, // Disable sorting
-          filter: false, // Disable filtering
+          sortable: false,
+          filter: false,
           resizable: true,
           suppressSizeToFit: false,
           flex: 1,
-          autoHeight: false,
-          wrapText: false,
+          minWidth: 150,
         }}
         getRowId={(params) => {
           if (params.data?.id) {
@@ -71,10 +86,10 @@ const HedgeRequestGrid = () => {
         suppressMoveWhenRowDragging={true}
         getRowStyle={getRowStyle}
         onGridReady={onGridReady}
-        domLayout="autoHeight"
-        suppressHorizontalScroll={true}
+        suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
       />
+      <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>
   );
 };
