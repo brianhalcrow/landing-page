@@ -5,34 +5,62 @@ import "ag-grid-enterprise/styles/ag-grid.css";
 import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 const MultiBankTab = () => {
-  const columnDefs = [
-    { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'requestTime', headerName: 'Request Time', width: 180 },
-    { field: 'currencyPair', headerName: 'Currency Pair', width: 150 },
-    { field: 'direction', headerName: 'Direction', width: 120 },
-    { field: 'amount', headerName: 'Amount', width: 150 },
-    { field: 'status', headerName: 'Status', width: 120 },
-    { field: 'banks', headerName: 'Banks', width: 200 },
-    { field: 'bestRate', headerName: 'Best Rate', width: 150 },
-    { field: 'executedWith', headerName: 'Executed With', width: 150 }
-  ];
+  // Create 10 columns with no headers
+  const columnDefs = Array(10).fill(null).map((_, index) => ({
+    field: `col${index}`,
+    headerName: '',
+    width: 100,
+    suppressMenu: true,
+    sortable: false,
+    filter: false,
+    headerClass: 'hide-header'
+  }));
 
-  const rowData = []; // Empty for now, will be populated later
+  // Create 10x10 grid data
+  const rowData = Array(10).fill(null).map((_, rowIndex) => {
+    const row = {};
+    for (let colIndex = 0; colIndex < 10; colIndex++) {
+      row[`col${colIndex}`] = '';
+    }
+    return row;
+  });
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Multi-Bank RFQ</h2>
-      <div className="ag-theme-alpine h-[600px] w-full">
+      <div 
+        className="ag-theme-alpine" 
+        style={{ 
+          height: '1000px',
+          width: '1000px'
+        }}
+      >
         <GridStyles />
+        <style>
+          {`
+            .hide-header {
+              display: none;
+            }
+            .ag-root-wrapper {
+              border: none !important;
+            }
+            .ag-row {
+              border: 1px solid #ddd !important;
+            }
+            .ag-cell {
+              border-right: 1px solid #ddd !important;
+            }
+          `}
+        </style>
         <AgGridReact
           columnDefs={columnDefs}
           rowData={rowData}
-          defaultColDef={{
-            sortable: true,
-            filter: true,
-            resizable: true,
-          }}
-          animateRows={true}
+          suppressColumnVirtualisation={true}
+          suppressRowVirtualisation={true}
+          suppressMovableColumns={true}
+          suppressColumnMoveAnimation={true}
+          suppressRowHoverHighlight={true}
+          suppressCellSelection={true}
+          headerHeight={0}
         />
       </div>
     </div>
