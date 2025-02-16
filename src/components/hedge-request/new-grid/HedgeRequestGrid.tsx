@@ -81,7 +81,7 @@ const HedgeRequestGrid = () => {
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
-        stopEditingWhenCellsLoseFocus={true}
+        stopEditingWhenCellsLoseFocus={false}
         onCellValueChanged={handleCellValueChanged}
         suppressMoveWhenRowDragging={true}
         getRowStyle={getRowStyle}

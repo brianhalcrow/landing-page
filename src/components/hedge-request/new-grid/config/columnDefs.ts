@@ -1,6 +1,11 @@
 
 import { GridApi, ColDef } from "ag-grid-enterprise";
 import { ActionsRenderer } from "../components/ActionsRenderer";
+import { EntitySelector } from "../selectors/EntitySelector";
+import { CostCentreSelector } from "../selectors/CostCentreSelector";
+import { StrategySelector } from "../selectors/StrategySelector";
+import { CounterpartySelector } from "../selectors/CounterpartySelector";
+import { CurrencySelector } from "../selectors/CurrencySelector";
 
 interface Context {
   validConfigs?: any[];
@@ -14,15 +19,11 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Entity Name",
       field: "entity_name",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: {
-        values: Array.from(new Set(context.validConfigs?.map(config => config.entity_name) || [])),
-        cellHeight: 50,
-        searchDebounceDelay: 500
+      cellRenderer: EntitySelector,
+      cellRendererParams: {
+        context
       },
-      editable: true
+      editable: false
     },
     { 
       headerName: "Entity ID", 
@@ -32,32 +33,20 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Cost Centre",
       field: "cost_centre",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: (params: any) => ({
-        values: Array.from(new Set(context.validConfigs
-          ?.filter(config => config.entity_id === params.data.entity_id)
-          .map(config => config.cost_centre) || [])),
-        cellHeight: 50,
-        searchDebounceDelay: 500
-      }),
-      editable: true
+      cellRenderer: CostCentreSelector,
+      cellRendererParams: {
+        context
+      },
+      editable: false
     },
     {
       headerName: "Strategy",
       field: "strategy_name",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: (params: any) => ({
-        values: Array.from(new Set(context.validConfigs
-          ?.filter(config => config.entity_id === params.data.entity_id)
-          .map(config => config.strategy_name) || [])),
-        cellHeight: 50,
-        searchDebounceDelay: 500
-      }),
-      editable: true
+      cellRenderer: StrategySelector,
+      cellRendererParams: {
+        context
+      },
+      editable: false
     },
     { 
       headerName: "Instrument", 
@@ -67,33 +56,20 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Counterparty",
       field: "counterparty_name",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: (params: any) => ({
-        values: Array.from(new Set(context.validConfigs
-          ?.filter(config => 
-            config.entity_id === params.data.entity_id &&
-            config.strategy_name === params.data.strategy_name
-          )
-          .map(config => config.counterparty_name) || [])),
-        cellHeight: 50,
-        searchDebounceDelay: 500
-      }),
-      editable: true
+      cellRenderer: CounterpartySelector,
+      cellRendererParams: {
+        context
+      },
+      editable: false
     },
     {
       headerName: "Buy Currency",
       field: "buy_currency",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: {
-        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD'],
-        cellHeight: 50,
-        searchDebounceDelay: 500
+      cellRenderer: CurrencySelector,
+      cellRendererParams: {
+        context
       },
-      editable: true
+      editable: false
     },
     {
       headerName: "Buy Amount",
@@ -106,15 +82,11 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Sell Currency",
       field: "sell_currency",
-      cellRenderer: 'agRichSelectCellRenderer',
-      cellEditor: 'agRichSelectCellEditor',
-      cellEditorPopup: true,
-      cellEditorParams: {
-        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD'],
-        cellHeight: 50,
-        searchDebounceDelay: 500
+      cellRenderer: CurrencySelector,
+      cellRendererParams: {
+        context
       },
-      editable: true
+      editable: false
     },
     {
       headerName: "Sell Amount",
