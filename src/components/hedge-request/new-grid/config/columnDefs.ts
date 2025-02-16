@@ -14,6 +14,19 @@ interface Context {
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef[] => {
   const commonCellStyle = { display: "flex", alignItems: "center", padding: "8px" };
+  const amountCellStyle = { 
+    display: "flex", 
+    alignItems: "center", 
+    padding: "8px",
+    '& input': {
+      border: 'none',
+      outline: 'none',
+      width: '100%',
+      height: '100%',
+      padding: '0',
+      background: 'transparent'
+    }
+  };
 
   const baseColumnDefs: ColDef[] = [
     {
@@ -77,7 +90,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: true,
       cellEditor: 'agNumberCellEditor',
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null
+      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
+      cellStyle: amountCellStyle
     },
     {
       headerName: "Sell Currency",
@@ -94,7 +108,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: true,
       cellEditor: 'agNumberCellEditor',
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null
+      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
+      cellStyle: amountCellStyle
     },
     {
       headerName: "Trade Date",
