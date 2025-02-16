@@ -46,12 +46,10 @@ export const ActionsRenderer = ({
       const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex);
       
       if (currentRowData && otherRowData) {
-        // Get all current rows
-        const allRows = [...api.getModel().getDisplayedNodes()].map(node => node.data);
-        // Filter out the rows we want to delete
-        const updatedRows = allRows.filter(row => 
-          row.rowId !== currentRowData.data.rowId && 
-          row.rowId !== otherRowData.data.rowId
+        // Get all current rows and create a new array without the rows to delete
+        const allRows = api.getRenderedNodes().map(node => node.data);
+        const updatedRows = allRows.filter((row, index) => 
+          index !== rowIndex && index !== otherLegIndex
         );
         
         // Update the grid with the filtered rows
@@ -61,10 +59,9 @@ export const ActionsRenderer = ({
         toast.error("Unable to remove swap pair from grid");
       }
     } else {
-      // Get all current rows
-      const allRows = [...api.getModel().getDisplayedNodes()].map(node => node.data);
-      // Filter out the row we want to delete
-      const updatedRows = allRows.filter(row => row.rowId !== data.rowId);
+      // For non-swaps, get all rows except the one to delete
+      const allRows = api.getRenderedNodes().map(node => node.data);
+      const updatedRows = allRows.filter((_, index) => index !== rowIndex);
       
       // Update the grid with the filtered rows
       api.setRowData(updatedRows);
