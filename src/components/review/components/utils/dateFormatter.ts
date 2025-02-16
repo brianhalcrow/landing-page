@@ -1,4 +1,12 @@
 
+import { format, parseISO } from 'date-fns';
+
 export const formatDate = (params: any) => {
-  return params.value ? new Date(params.value).toLocaleString() : '';
+  if (!params.value) return '';
+  try {
+    const date = parseISO(params.value);
+    return format(date, 'dd/MM/yy HH:mm');
+  } catch (error) {
+    return '';
+  }
 };

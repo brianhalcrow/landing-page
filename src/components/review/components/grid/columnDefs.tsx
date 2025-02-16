@@ -155,58 +155,6 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
     valueFormatter: formatDate
   },
-  { 
-    field: 'reviewed_by', 
-    headerName: 'Reviewed By',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'reviewed_at', 
-    headerName: 'Reviewed At',
-    flex: 1,
-    minWidth: 160,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
-  },
-  { 
-    field: 'approved_by', 
-    headerName: 'Approved By',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'approved_at', 
-    headerName: 'Approved At',
-    flex: 1,
-    minWidth: 160,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
-  },
-  { 
-    field: 'rejected_by', 
-    headerName: 'Rejected By',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'rejected_at', 
-    headerName: 'Rejected At',
-    flex: 1,
-    minWidth: 160,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
-  },
-  { 
-    field: 'rejection_reason', 
-    headerName: 'Rejection Reason',
-    flex: 1.5,
-    minWidth: 200,
-    headerClass: 'ag-header-center header-wrap',
-  },
   {
     headerName: 'Actions',
     minWidth: 150,
