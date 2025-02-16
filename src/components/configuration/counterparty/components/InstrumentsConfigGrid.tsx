@@ -1,3 +1,4 @@
+
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridOptions } from "ag-grid-enterprise";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -147,7 +148,7 @@ export const InstrumentsConfigGrid = () => {
         hasPendingChanges,
       },
       pinned: "right",
-      suppressMenu: true, // Correct placement
+      menuTabs: [], // Replace suppressMenu with menuTabs
       sortable: false,
       filter: false,
       cellClass: (params) =>
