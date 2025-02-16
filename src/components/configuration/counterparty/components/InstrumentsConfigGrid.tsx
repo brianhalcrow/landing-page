@@ -42,8 +42,7 @@ const defaultGridOptions: GridOptions = {
   groupSelectsChildren: true,
   // Chart options
   chartThemes: ["ag-default-dark", "ag-default"],
-  // State management
-  enableCellChangeFlash: true,
+  // Status bar configuration
   statusBar: {
     statusPanels: [
       { statusPanel: "agTotalRowCountComponent", align: "left" },
@@ -73,15 +72,6 @@ const sideBarConfig = {
   ],
   defaultToolPanel: "columns",
   position: "right" as const
-};
-
-const statusBarConfig = {
-  statusPanels: [
-    { statusPanel: "agTotalRowCountComponent", align: "left" },
-    { statusPanel: "agFilteredRowCountComponent" },
-    { statusPanel: "agSelectedRowCountComponent" },
-    { statusPanel: "agAggregationComponent" },
-  ],
 };
 
 const commonGroupColProps: Partial<ColDef> = {
@@ -246,7 +236,6 @@ export const InstrumentsConfigGrid = () => {
           columnDefs={columnDefs}
           getRowId={(params) => params.data.counterparty_id}
           sideBar={sideBarConfig}
-          statusBar={statusBarConfig}
           tooltipShowDelay={0}
           tooltipHideDelay={2000}
           rowGroupPanelShow="always"
