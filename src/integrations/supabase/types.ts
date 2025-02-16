@@ -2552,9 +2552,9 @@ export type Database = {
           ccy_2: string
           ccy_2_amount: number | null
           ccy_pair: string | null
-          cost_centre: string
+          cost_centre: string | null
           counterparty_name: string | null
-          created_at: string
+          created_at: string | null
           created_by: string | null
           entity_id: string
           entity_name: string
@@ -2565,7 +2565,7 @@ export type Database = {
           request_no: number
           reviewed_at: string | null
           reviewed_by: string | null
-          settlement_date: string
+          settlement_date: string | null
           status: Database["public"]["Enums"]["request_status"]
           strategy_id: string | null
           strategy_name: string
@@ -2582,9 +2582,9 @@ export type Database = {
           ccy_2: string
           ccy_2_amount?: number | null
           ccy_pair?: string | null
-          cost_centre: string
+          cost_centre?: string | null
           counterparty_name?: string | null
-          created_at?: string
+          created_at?: string | null
           created_by?: string | null
           entity_id: string
           entity_name: string
@@ -2595,7 +2595,7 @@ export type Database = {
           request_no?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
-          settlement_date: string
+          settlement_date?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           strategy_id?: string | null
           strategy_name: string
@@ -2612,9 +2612,9 @@ export type Database = {
           ccy_2?: string
           ccy_2_amount?: number | null
           ccy_pair?: string | null
-          cost_centre?: string
+          cost_centre?: string | null
           counterparty_name?: string | null
-          created_at?: string
+          created_at?: string | null
           created_by?: string | null
           entity_id?: string
           entity_name?: string
@@ -2625,7 +2625,7 @@ export type Database = {
           request_no?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
-          settlement_date?: string
+          settlement_date?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           strategy_id?: string | null
           strategy_name?: string
