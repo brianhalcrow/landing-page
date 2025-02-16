@@ -1,4 +1,3 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { TradeRequest } from '../types/hedge-request.types';
@@ -134,8 +133,6 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
     },
     {
       headerName: 'Actions',
-      field: 'actions',
-      flex: 1,
       minWidth: 150,
       headerClass: 'ag-header-center header-wrap',
       cellRenderer: (params: any) => {
