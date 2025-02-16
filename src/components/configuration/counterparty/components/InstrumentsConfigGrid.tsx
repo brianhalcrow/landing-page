@@ -1,4 +1,3 @@
-
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridOptions, ICellRendererParams } from "ag-grid-enterprise";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,7 +39,6 @@ const defaultGridOptions: GridOptions = {
   tooltipShowDelay: 0,
   tooltipHideDelay: 2000,
   // Row grouping improvements
-  groupIncludeFooter: true,
   groupSelectsChildren: true,
   // Chart options
   chartThemes: ["ag-default-dark", "ag-default"],
@@ -74,7 +72,7 @@ const sideBarConfig = {
     },
   ],
   defaultToolPanel: "columns",
-  position: "right",
+  position: "right" as const
 };
 
 const statusBarConfig = {
