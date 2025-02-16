@@ -1,3 +1,4 @@
+
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { TradeRequest } from '../types/hedge-request.types';
@@ -63,104 +64,6 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
     setIsReviewOpen(false);
   };
 
-  const requestDetailColumns: ColDef<TradeRequest>[] = [
-    { 
-      field: 'request_no', 
-      headerName: 'ID',
-      flex: 0.5,
-      minWidth: 80,
-    },
-    { 
-      field: 'status', 
-      headerName: 'Status',
-      flex: 0.8,
-      minWidth: 120,
-      cellRenderer: (params: any) => {
-        const status = params.value;
-        const colorMap: Record<string, string> = {
-          Submitted: 'bg-blue-100 text-blue-800',
-          Reviewed: 'bg-yellow-100 text-yellow-800',
-          Approved: 'bg-green-100 text-green-800',
-          Rejected: 'bg-red-100 text-red-800'
-        };
-        return (
-          <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
-            {status}
-          </div>
-        );
-      }
-    },
-    { 
-      field: 'entity_name', 
-      headerName: 'Entity Name',
-      flex: 1,
-      minWidth: 150,
-    },
-    { 
-      field: 'strategy_name', 
-      headerName: 'Strategy',
-      flex: 1,
-      minWidth: 150,
-    },
-    { 
-      field: 'instrument', 
-      headerName: 'Instrument',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'counterparty_name', 
-      headerName: 'Counterparty',
-      flex: 1,
-      minWidth: 150,
-    },
-    { 
-      field: 'ccy_pair', 
-      headerName: 'Currency Pair',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'ccy_1_amount', 
-      headerName: 'CCY1 Amount',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'ccy_2_amount', 
-      headerName: 'CCY2 Amount',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'trade_date', 
-      headerName: 'Trade Date',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'settlement_date', 
-      headerName: 'Settlement Date',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'submitted_by', 
-      headerName: 'Submitted By',
-      flex: 1,
-      minWidth: 120,
-    },
-    { 
-      field: 'submitted_at', 
-      headerName: 'Submitted At',
-      flex: 1,
-      minWidth: 160,
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
-    }
-  ];
-
   const columnDefs: ColDef<TradeRequest>[] = [
     { 
       field: 'request_no', 
@@ -180,7 +83,8 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
         const colorMap: Record<string, string> = {
           Submitted: 'bg-blue-100 text-blue-800',
           Reviewed: 'bg-yellow-100 text-yellow-800',
-          Approved: 'bg-green-100 text-green-800'
+          Approved: 'bg-green-100 text-green-800',
+          Rejected: 'bg-red-100 text-red-800'
         };
         return (
           <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
@@ -332,7 +236,7 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
             <div className="flex-1 min-h-0 ag-theme-alpine w-full">
               <AgGridReact
                 rowData={selectedRequest ? [selectedRequest] : []}
-                columnDefs={requestDetailColumns}
+                columnDefs={columnDefs.filter(col => col.headerName !== 'Actions')}
                 defaultColDef={{
                   sortable: false,
                   filter: false,
