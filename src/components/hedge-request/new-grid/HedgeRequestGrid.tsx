@@ -41,7 +41,10 @@ const HedgeRequestGrid = () => {
 
   return (
     <div className="space-y-4">
-      <div className="w-full ag-theme-alpine border border-gray-200">
+      <div className="w-full ag-theme-alpine border border-gray-200" style={{
+        '--ag-cell-horizontal-padding': '8px',
+        '--ag-row-height': '45px',
+      } as React.CSSProperties}>
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
@@ -56,7 +59,9 @@ const HedgeRequestGrid = () => {
             suppressSizeToFit: false,
             flex: 1,
             headerClass: 'ag-header-cell-value-wrapper',
-            cellClass: 'ag-cell-value-wrapper'
+            cellClass: 'ag-cell-value-wrapper',
+            autoHeight: false,
+            wrapText: false
           }}
           getRowId={(params) => {
             if (params.data?.id) {
