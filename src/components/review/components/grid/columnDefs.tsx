@@ -18,13 +18,6 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
   },
   { 
-    field: 'entity_id', 
-    headerName: 'Entity ID',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
     field: 'entity_name', 
     headerName: 'Entity Name',
     flex: 1,
@@ -32,8 +25,15 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
   },
   { 
-    field: 'strategy_id', 
-    headerName: 'Strategy ID',
+    field: 'entity_id', 
+    headerName: 'Entity ID',
+    flex: 1,
+    minWidth: 120,
+    headerClass: 'ag-header-center header-wrap',
+  },
+  { 
+    field: 'cost_centre', 
+    headerName: 'Cost Centre',
     flex: 1,
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
@@ -89,6 +89,13 @@ export const createColumnDefs = (
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
     type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (params.value === null || params.value === undefined) return '';
+      return params.value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
   },
   { 
     field: 'ccy_2_amount', 
@@ -97,19 +104,19 @@ export const createColumnDefs = (
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
     type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (params.value === null || params.value === undefined) return '';
+      return params.value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
   },
   { 
     field: 'ccy_pair', 
     headerName: 'CCY Pair',
     flex: 0.8,
     minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'cost_centre', 
-    headerName: 'Cost Centre',
-    flex: 1,
-    minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
   },
   { 
