@@ -1,4 +1,3 @@
-
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -22,6 +21,7 @@ import GLTransactionsTab from "@/components/exposure/GLTransactionsTab";
 import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 import AnalyticsTab from "@/components/analytics/AnalyticsTab";
 import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
+import MultiBankTab from "@/components/execution/MultiBankTab";
 
 export const tabsConfig = {
   "monitor": ({ baseCurrency, setBaseCurrency }) => [
@@ -81,7 +81,7 @@ export const tabsConfig = {
     { value: "rejected", label: "Rejected", content: <RejectedTradesTab /> },
   ],
   "control": [
-    { value: "general", label: "General", content: <div>Control Overview</div> },
+    { value: "general", label: "General", content: <MultiBankTab /> },
   ],
   "execution": [
     { value: "general", label: "General", content: <div>Execution Overview</div> },
