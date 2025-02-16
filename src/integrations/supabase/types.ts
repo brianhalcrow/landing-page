@@ -2547,18 +2547,18 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
-          ccy_1: string | null
+          ccy_1: string
           ccy_1_amount: number | null
-          ccy_2: string | null
+          ccy_2: string
           ccy_2_amount: number | null
           ccy_pair: string | null
           cost_centre: string | null
           counterparty_name: string | null
           created_at: string | null
           created_by: string | null
-          entity_id: string | null
-          entity_name: string | null
-          instrument: string | null
+          entity_id: string
+          entity_name: string
+          instrument: string
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
@@ -2566,9 +2566,9 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           settlement_date: string | null
-          status: Database["public"]["Enums"]["request_status"] | null
+          status: Database["public"]["Enums"]["request_status"]
           strategy_id: string | null
-          strategy_name: string | null
+          strategy_name: string
           submitted_at: string | null
           submitted_by: string | null
           trade_date: string | null
@@ -2577,18 +2577,18 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
-          ccy_1?: string | null
+          ccy_1: string
           ccy_1_amount?: number | null
-          ccy_2?: string | null
+          ccy_2: string
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          instrument?: string | null
+          entity_id: string
+          entity_name: string
+          instrument: string
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -2596,9 +2596,9 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           settlement_date?: string | null
-          status?: Database["public"]["Enums"]["request_status"] | null
+          status?: Database["public"]["Enums"]["request_status"]
           strategy_id?: string | null
-          strategy_name?: string | null
+          strategy_name: string
           submitted_at?: string | null
           submitted_by?: string | null
           trade_date?: string | null
@@ -2607,18 +2607,18 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
-          ccy_1?: string | null
+          ccy_1?: string
           ccy_1_amount?: number | null
-          ccy_2?: string | null
+          ccy_2?: string
           ccy_2_amount?: number | null
           ccy_pair?: string | null
           cost_centre?: string | null
           counterparty_name?: string | null
           created_at?: string | null
           created_by?: string | null
-          entity_id?: string | null
-          entity_name?: string | null
-          instrument?: string | null
+          entity_id?: string
+          entity_name?: string
+          instrument?: string
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -2626,9 +2626,9 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           settlement_date?: string | null
-          status?: Database["public"]["Enums"]["request_status"] | null
+          status?: Database["public"]["Enums"]["request_status"]
           strategy_id?: string | null
-          strategy_name?: string | null
+          strategy_name?: string
           submitted_at?: string | null
           submitted_by?: string | null
           trade_date?: string | null
