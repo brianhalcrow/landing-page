@@ -18,14 +18,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     display: "flex", 
     alignItems: "center", 
     padding: "8px",
-    '& input': {
-      border: 'none',
-      outline: 'none',
-      width: '100%',
-      height: '100%',
-      padding: '0',
-      background: 'transparent'
-    }
+    backgroundColor: "transparent"
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -85,19 +78,22 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: false
     },
     {
-    headerName: "Buy Amount",
-    field: "buy_amount",
-    editable: true,
-    cellEditor: 'agNumberCellEditor',
-    valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-    valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
-    cellStyle: amountCellStyle,
-    cellEditorParams: {
-      // Use AG Grid's native styling to remove borders and adjust input appearance
-      cellEditorPopup: false, // Ensure the editor is inline
-      useFormatter: true, // Use the formatter for display
-      // Add AG Grid's native class for styling
+      headerName: "Buy Amount",
+      field: "buy_amount",
+      editable: true,
+      cellEditor: 'agNumberCellEditor',
+      valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
+      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
+      cellStyle: amountCellStyle,
       cellClass: 'ag-cell-no-border',
+      cellEditorStyle: {
+        border: 'none',
+        outline: 'none',
+        width: '100%',
+        height: '100%',
+        padding: '0',
+        background: 'transparent'
+      }
     },
     {
       headerName: "Sell Currency",
@@ -110,18 +106,21 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     },
     {
       headerName: "Sell Amount",
-    field: "sell_amount",
-    editable: true,
-    cellEditor: 'agNumberCellEditor',
-    valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-    valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
-    cellStyle: amountCellStyle,
-    cellEditorParams: {
-      // Use AG Grid's native styling to remove borders and adjust input appearance
-      cellEditorPopup: false, // Ensure the editor is inline
-      useFormatter: true, // Use the formatter for display
-      // Add AG Grid's native class for styling
+      field: "sell_amount",
+      editable: true,
+      cellEditor: 'agNumberCellEditor',
+      valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
+      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
+      cellStyle: amountCellStyle,
       cellClass: 'ag-cell-no-border',
+      cellEditorStyle: {
+        border: 'none',
+        outline: 'none',
+        width: '100%',
+        height: '100%',
+        padding: '0',
+        background: 'transparent'
+      }
     },
     {
       headerName: "Trade Date",

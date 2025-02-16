@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -119,12 +118,11 @@ const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): strin
     // If it's an object with a value property (from AG Grid's date picker)
     if (
       typeof dateInput === 'object' && 
-      dateInput !== null &&
       'value' in dateInput &&
-      dateInput.value !== null
+      dateInput.value
     ) {
       const dateValue = dateInput.value;
-      if ('iso' in dateValue && typeof dateValue.iso === 'string') {
+      if (dateValue && typeof dateValue === 'object' && 'iso' in dateValue && typeof dateValue.iso === 'string') {
         return format(new Date(dateValue.iso), 'yyyy-MM-dd');
       }
       return format(new Date(dateValue), 'yyyy-MM-dd');
