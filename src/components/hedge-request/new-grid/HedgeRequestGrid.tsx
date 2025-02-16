@@ -79,7 +79,6 @@ const HedgeRequestGrid = () => {
           suppressScrollOnNewData={true}
           rowClass="ag-row-value-wrapper"
           suppressPropertyNamesCheck={true}
-          enableCellChangeFlash={true}
         />
       </div>
 
