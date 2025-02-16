@@ -8,6 +8,7 @@ export const useTradeData = () => {
   const [rowData, setRowData] = useState<HedgeRequestDraftTrade[]>([]);
 
   const validateSwapLegs = (data: HedgeRequestDraftTrade[]) => {
+    const errors: string[] = [];
     const swapTrades = data.filter(row => row.instrument === 'Swap');
     
     // If there are no swaps, validation passes
@@ -15,7 +16,8 @@ export const useTradeData = () => {
 
     // For swaps, ensure we have pairs of trades
     if (swapTrades.length % 2 !== 0) {
-      toast.error('Swaps must have exactly two legs');
+      errors.push('Swaps must have exactly two legs');
+      toast.error(errors.join('\n'));
       return false;
     }
 
@@ -26,29 +28,37 @@ export const useTradeData = () => {
 
       // Ensure both legs exist
       if (!leg1 || !leg2) {
-        toast.error('Invalid swap configuration');
+        errors.push('Invalid swap configuration');
+        toast.error(errors.join('\n'));
         return false;
       }
 
       // Validate currencies match (reversed)
       if (leg1.buy_currency !== leg2.sell_currency || 
           leg1.sell_currency !== leg2.buy_currency) {
-        toast.error('Invalid swap configuration');
+        errors.push('Invalid swap configuration');
+        toast.error(errors.join('\n'));
         return false;
       }
 
       // Only validate amounts if they are present
       if (leg1.buy_amount !== null && leg2.sell_amount === null) {
-        toast.error('Second leg must have sell amount when first leg has buy amount');
+        errors.push('Second leg must have sell amount when first leg has buy amount');
+        toast.error(errors.join('\n'));
         return false;
       }
 
       if (leg1.sell_amount !== null && leg2.buy_amount === null) {
-        toast.error('Second leg must have buy amount when first leg has sell amount');
+        errors.push('Second leg must have buy amount when first leg has sell amount');
+        toast.error(errors.join('\n'));
         return false;
       }
     }
 
+    if (errors.length > 0) {
+      toast.error(errors.join('\n'));
+      return false;
+    }
     return true;
   };
 

@@ -25,13 +25,12 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
   };
 
   const validateRowData = (data: HedgeRequestDraftTrade[]) => {
-    for (let i = 0; i < data.length; i++) {
-      const row = data[i];
-      
+    const errors: string[] = [];
+
+    data.forEach((row, index) => {
       // Check both currencies are populated
       if (!row.buy_currency || !row.sell_currency) {
-        toast.error(`Row ${i + 1}: Both buy and sell currencies are required`);
-        return false;
+        errors.push(`Row ${index + 1}: Both buy and sell currencies are required`);
       }
 
       // Check exactly one amount is populated
@@ -39,19 +38,23 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
       const hasSellAmount = row.sell_amount !== null && row.sell_amount !== undefined;
       
       if (!hasBuyAmount && !hasSellAmount) {
-        toast.error(`Row ${i + 1}: Either buy amount or sell amount must be specified`);
-        return false;
+        errors.push(`Row ${index + 1}: Either buy amount or sell amount must be specified`);
       }
       
       if (hasBuyAmount && hasSellAmount) {
-        toast.error(`Row ${i + 1}: Only one amount (buy or sell) can be specified, not both`);
-        return false;
+        errors.push(`Row ${index + 1}: Only one amount (buy or sell) can be specified, not both`);
       }
+    });
+
+    if (errors.length > 0) {
+      toast.error(errors.join('\n'));
+      return false;
     }
     return true;
   };
 
   const validateSwapLegs = (data: HedgeRequestDraftTrade[]) => {
+    const errors: string[] = [];
     const swapTrades = data.filter(row => row.instrument === 'Swap');
     
     // If there are no swaps, validation passes
@@ -59,7 +62,8 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
 
     // For swaps, ensure we have pairs of trades
     if (swapTrades.length % 2 !== 0) {
-      toast.error('Swaps must have exactly two legs');
+      errors.push('Swaps must have exactly two legs');
+      toast.error(errors.join('\n'));
       return false;
     }
 
@@ -70,14 +74,16 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
 
       // Ensure both legs exist
       if (!leg1 || !leg2) {
-        toast.error('Invalid swap configuration');
+        errors.push('Invalid swap configuration');
+        toast.error(errors.join('\n'));
         return false;
       }
 
       // Validate currencies match (reversed)
       if (leg1.buy_currency !== leg2.sell_currency || 
           leg1.sell_currency !== leg2.buy_currency) {
-        toast.error('Swap legs must have matching currencies');
+        errors.push('Swap legs must have matching currencies');
+        toast.error(errors.join('\n'));
         return false;
       }
     }
