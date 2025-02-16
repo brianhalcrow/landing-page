@@ -1,19 +1,30 @@
-
 import { GridApi } from "ag-grid-community";
 import { EntitySelector } from "../selectors/EntitySelector";
 import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CostCentreSelector } from "../selectors/CostCentreSelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
-import { HedgeRequestRow, ValidHedgeConfig } from "../types/hedgeRequest.types";
 import { DateCell } from "../components/DateCell";
+import { ActionsRenderer } from "../components/ActionsRenderer";
 
 interface Context {
-  validConfigs?: ValidHedgeConfig[];
+  validConfigs?: any[];
   updateRowData?: (rowIndex: number, updates: any) => void;
 }
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
+  {
+    headerName: "Actions",
+    width: 180,
+    cellRenderer: ActionsRenderer,
+    cellRendererParams: {
+      onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
+      updateRowData: context.updateRowData
+    },
+    pinned: 'left',
+    sortable: false,
+    filter: false
+  },
   {
     headerName: "Entity Name",
     field: "entity_name",

@@ -14,7 +14,7 @@ const HedgeRequestGrid = () => {
     validConfigs,
     addNewRow,
     updateRowData,
-    clearRowData // Add this from useHedgeRequestData hook
+    clearRowData
   } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback((event: any) => {
@@ -23,6 +23,16 @@ const HedgeRequestGrid = () => {
       updateRowData(rowIndex, { [colDef.field]: newValue });
     }
   }, [updateRowData]);
+
+  const getRowStyle = useCallback((params: any) => {
+    if (params.data.isSaved) {
+      return { 
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        pointerEvents: 'none'
+      };
+    }
+    return {};
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -46,12 +56,15 @@ const HedgeRequestGrid = () => {
             }
             return `generated-${Date.now()}-${Math.random()}`;
           }}
+          rowHeight={45}
+          headerHeight={48}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
           stopEditingWhenCellsLoseFocus={true}
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
+          getRowStyle={getRowStyle}
         />
       </div>
 
