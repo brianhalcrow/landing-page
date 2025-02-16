@@ -65,6 +65,9 @@ export const createColumnDefs = (
     flex: 0.7,
     minWidth: 100,
     headerClass: 'ag-header-center header-wrap',
+    cellStyle: (params) => {
+      return !params.value ? { backgroundColor: '#fecaca' } : null;
+    },
   },
   { 
     field: 'ccy_1_amount', 
@@ -87,6 +90,9 @@ export const createColumnDefs = (
     flex: 0.7,
     minWidth: 100,
     headerClass: 'ag-header-center header-wrap',
+    cellStyle: (params) => {
+      return !params.value ? { backgroundColor: '#fecaca' } : null;
+    },
   },
   { 
     field: 'ccy_2_amount', 
@@ -161,6 +167,16 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
     cellRenderer: (params: any) => {
       const request = params.data as TradeRequest;
+      const isCurrencyValid = request.ccy_1 && request.ccy_2;
+      
+      if (!isCurrencyValid) {
+        return (
+          <div className="text-red-600 text-sm px-2">
+            Both currencies required
+          </div>
+        );
+      }
+      
       return (
         <ActionButtons
           request={request}
