@@ -86,20 +86,41 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
         toast.error(errors.join('\n'));
         return false;
       }
+
+      // Check that only one amount is specified per leg
+      const leg1HasBuyAmount = leg1.buy_amount !== null && leg1.buy_amount !== undefined;
+      const leg1HasSellAmount = leg1.sell_amount !== null && leg1.sell_amount !== undefined;
+      const leg2HasBuyAmount = leg2.buy_amount !== null && leg2.buy_amount !== undefined;
+      const leg2HasSellAmount = leg2.sell_amount !== null && leg2.sell_amount !== undefined;
+
+      if (leg1HasBuyAmount && leg1HasSellAmount) {
+        errors.push(`Swap leg 1: Only one amount (buy or sell) can be specified, not both`);
+      }
+
+      if (leg2HasBuyAmount && leg2HasSellAmount) {
+        errors.push(`Swap leg 2: Only one amount (buy or sell) can be specified, not both`);
+      }
+
+      if (!leg1HasBuyAmount && !leg1HasSellAmount) {
+        errors.push(`Swap leg 1: Either buy amount or sell amount must be specified`);
+      }
+
+      if (!leg2HasBuyAmount && !leg2HasSellAmount) {
+        errors.push(`Swap leg 2: Either buy amount or sell amount must be specified`);
+      }
     }
 
+    if (errors.length > 0) {
+      toast.error(errors.join('\n'));
+      return false;
+    }
     return true;
   };
 
   const handleSave = async () => {
     try {
       // Run row validation first
-      if (!validateRowData(rowData)) {
-        return;
-      }
-
-      // Then validate swap legs if any
-      if (!validateSwapLegs(rowData)) {
+      if (!validateRowData(rowData) || !validateSwapLegs(rowData)) {
         return;
       }
 
