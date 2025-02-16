@@ -1,4 +1,3 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { TradeRequest } from '../types/hedge-request.types';
@@ -114,6 +113,51 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       headerName: 'Counterparty',
       flex: 1,
       minWidth: 150,
+    },
+    { 
+      field: 'ccy_pair', 
+      headerName: 'Currency Pair',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'ccy_1_amount', 
+      headerName: 'CCY1 Amount',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'ccy_2_amount', 
+      headerName: 'CCY2 Amount',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'trade_date', 
+      headerName: 'Trade Date',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'settlement_date', 
+      headerName: 'Settlement Date',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'submitted_by', 
+      headerName: 'Submitted By',
+      flex: 1,
+      minWidth: 120,
+    },
+    { 
+      field: 'submitted_at', 
+      headerName: 'Submitted At',
+      flex: 1,
+      minWidth: 160,
+      valueFormatter: (params) => {
+        return params.value ? new Date(params.value).toLocaleString() : '';
+      }
     }
   ];
 
@@ -279,13 +323,13 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
       />
 
       <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent className="max-w-4xl h-[80vh]">
+        <DialogContent className="max-w-[90vw] w-full h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Review Hedge Request #{selectedRequest?.request_no}</DialogTitle>
           </DialogHeader>
           
-          <div className="flex flex-col gap-4">
-            <div className="h-[400px] ag-theme-alpine w-full">
+          <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+            <div className="flex-1 min-h-0 ag-theme-alpine w-full">
               <AgGridReact
                 rowData={selectedRequest ? [selectedRequest] : []}
                 columnDefs={requestDetailColumns}
@@ -294,10 +338,11 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
                   filter: false,
                   resizable: true,
                 }}
+                domLayout="normal"
               />
             </div>
             
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-4">
               <Button 
                 variant="outline"
                 onClick={() => setIsReviewOpen(false)}
