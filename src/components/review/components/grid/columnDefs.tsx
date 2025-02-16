@@ -32,6 +32,13 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
   },
   { 
+    field: 'cost_centre', 
+    headerName: 'Cost Centre',
+    flex: 1,
+    minWidth: 120,
+    headerClass: 'ag-header-center header-wrap',
+  },
+  { 
     field: 'strategy_name', 
     headerName: 'Strategy Name',
     flex: 1,
@@ -111,20 +118,6 @@ export const createColumnDefs = (
     minWidth: 130,
     headerClass: 'ag-header-center header-wrap',
     valueFormatter: formatDateNoTime
-  },
-  { 
-    field: 'cost_centre', 
-    headerName: 'Cost Centre',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'ccy_pair', 
-    headerName: 'CCY Pair',
-    flex: 0.8,
-    minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
   },
   { 
     field: 'submitted_by', 
