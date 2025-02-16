@@ -34,9 +34,25 @@ const HedgeRequestGrid = () => {
     return {};
   }, []);
 
+  // Calculate dynamic height based on number of rows (45px per row + 48px header)
+  const gridHeight = Math.min(600, (rowData?.length || 0) * 45 + 48);
+
   return (
     <div className="space-y-4">
-      <div className="w-full h-[400px] ag-theme-alpine">
+      <div className={`w-full ag-theme-alpine`} style={{ height: `${gridHeight}px` }}>
+        <style>
+          {`
+            .ag-cell {
+              display: flex !important;
+              align-items: center !important;
+            }
+            .ag-header-cell-label {
+              display: flex !important;
+              align-items: center !important;
+              justify-content: left !important;
+            }
+          `}
+        </style>
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
@@ -65,6 +81,7 @@ const HedgeRequestGrid = () => {
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
+          domLayout="autoHeight"
         />
       </div>
 
