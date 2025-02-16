@@ -4,11 +4,10 @@ import { useTradeColumns } from '../hooks/useTradeColumns';
 import { GridStyles } from '../../grid/components/GridStyles';
 import { useRef, useState, Dispatch, SetStateAction } from 'react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
-import { useCellHandlers } from '../hooks/useCellHandlers';
-import { CellEditingStartedEvent, CellValueChangedEvent } from 'ag-grid-community';
+import { CellEditingStartedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
+import { CurrencyEditorState } from './CurrencyCellEditor';
 import { validateTrade } from '../validation/tradeValidation';
-import { CurrencyEditorState } from '../components/CurrencyCellEditor';
 
 interface TradeDataGridProps {
   entityId?: string | null;
@@ -42,7 +41,6 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
     });
   };
 
-  const { handleCellKeyDown, handleCellValueChanged } = useCellHandlers(rates, setLastSelectedCurrency);
   const columnDefs = useTradeColumns();
 
   const initialEditorState: CurrencyEditorState = {
@@ -88,8 +86,6 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
-        onCellKeyDown={handleCellKeyDown}
-        onCellValueChanged={handleCellValueChanged}
         onCellEditingStarted={handleCellEditingStarted}
       />
     </div>

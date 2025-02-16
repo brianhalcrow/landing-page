@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { validateCurrencies } from '../utils/amountValidation';
 
 export interface CurrencyEditorState {
   lastSelectedCurrency: 'buy' | 'sell' | null;
