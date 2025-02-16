@@ -55,6 +55,7 @@ const HedgeRequestGrid = () => {
             resizable: true,
             suppressSizeToFit: false,
             flex: 1,
+            headerClass: 'ag-header-cell-value-wrapper',
             cellClass: 'ag-cell-value-wrapper'
           }}
           getRowId={(params) => {
@@ -75,13 +76,9 @@ const HedgeRequestGrid = () => {
           onGridReady={onGridReady}
           domLayout="autoHeight"
           suppressHorizontalScroll={true}
-          alwaysShowVerticalScroll={false}
           suppressScrollOnNewData={true}
-          headerClass="ag-header-cell-value-wrapper"
           rowClass="ag-row-value-wrapper"
-          suppressBorderAroundHeader={true}
           suppressPropertyNamesCheck={true}
-          suppressResize={false}
           enableCellChangeFlash={true}
         />
       </div>
