@@ -21,7 +21,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 200
+    minWidth: 200,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Entity ID",
@@ -30,7 +31,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Cost Centre",
@@ -39,7 +41,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Strategy",
@@ -48,12 +51,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 200
+    minWidth: 200,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Instrument",
     field: "instrument",
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Counterparty",
@@ -62,7 +67,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 200
+    minWidth: 200,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Buy Currency",
@@ -77,13 +83,23 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Buy Amount",
     field: "buy_amount",
     editable: true,
     minWidth: 150,
+    cellEditor: 'agTextCellEditor',
+    cellEditorParams: {
+      useFormatter: true
+    },
+    cellStyle: { 
+      display: 'flex', 
+      alignItems: 'center',
+      padding: '8px'
+    },
     valueFormatter: (params: any) => {
       if (params.value) {
         return Number(params.value).toLocaleString();
@@ -107,13 +123,23 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Sell Amount",
     field: "sell_amount",
     editable: true,
     minWidth: 150,
+    cellEditor: 'agTextCellEditor',
+    cellEditorParams: {
+      useFormatter: true
+    },
+    cellStyle: { 
+      display: 'flex', 
+      alignItems: 'center',
+      padding: '8px'
+    },
     valueFormatter: (params: any) => {
       if (params.value) {
         return Number(params.value).toLocaleString();
@@ -131,7 +157,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Settlement Date",
@@ -140,7 +167,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     cellRendererParams: {
       context
     },
-    minWidth: 150
+    minWidth: 150,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   },
   {
     headerName: "Actions",
@@ -152,6 +180,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     },
     sortable: false,
     filter: false,
-    suppressSizeToFit: true
+    suppressSizeToFit: true,
+    cellStyle: { display: 'flex', alignItems: 'center' }
   }
 ];

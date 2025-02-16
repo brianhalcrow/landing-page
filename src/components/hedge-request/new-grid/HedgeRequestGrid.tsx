@@ -32,7 +32,10 @@ const HedgeRequestGrid = () => {
         pointerEvents: 'none'
       };
     }
-    return {};
+    return {
+      alignItems: 'center',
+      height: '45px'
+    };
   }, []);
 
   const onGridReady = useCallback((params: { api: GridApi }) => {
@@ -41,10 +44,7 @@ const HedgeRequestGrid = () => {
 
   return (
     <div className="space-y-4">
-      <div className="w-full ag-theme-alpine border border-gray-200" style={{
-        '--ag-cell-horizontal-padding': '8px',
-        '--ag-row-height': '45px',
-      } as React.CSSProperties}>
+      <div className="w-full ag-theme-alpine border border-gray-200">
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
@@ -58,8 +58,6 @@ const HedgeRequestGrid = () => {
             resizable: true,
             suppressSizeToFit: false,
             flex: 1,
-            headerClass: 'ag-header-cell-value-wrapper',
-            cellClass: 'ag-cell-value-wrapper',
             autoHeight: false,
             wrapText: false
           }}
@@ -82,7 +80,6 @@ const HedgeRequestGrid = () => {
           domLayout="autoHeight"
           suppressHorizontalScroll={true}
           suppressScrollOnNewData={true}
-          rowClass="ag-row-value-wrapper"
           suppressPropertyNamesCheck={true}
         />
       </div>
