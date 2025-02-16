@@ -24,6 +24,33 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
     setRowData([...rowData, newRow as HedgeRequestDraftTrade]);
   };
 
+  const validateRowData = (data: HedgeRequestDraftTrade[]) => {
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      
+      // Check both currencies are populated
+      if (!row.buy_currency || !row.sell_currency) {
+        toast.error(`Row ${i + 1}: Both buy and sell currencies are required`);
+        return false;
+      }
+
+      // Check exactly one amount is populated
+      const hasBuyAmount = row.buy_amount !== null && row.buy_amount !== undefined;
+      const hasSellAmount = row.sell_amount !== null && row.sell_amount !== undefined;
+      
+      if (!hasBuyAmount && !hasSellAmount) {
+        toast.error(`Row ${i + 1}: Either buy amount or sell amount must be specified`);
+        return false;
+      }
+      
+      if (hasBuyAmount && hasSellAmount) {
+        toast.error(`Row ${i + 1}: Only one amount (buy or sell) can be specified, not both`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const validateSwapLegs = (data: HedgeRequestDraftTrade[]) => {
     const swapTrades = data.filter(row => row.instrument === 'Swap');
     
@@ -60,6 +87,12 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
 
   const handleSave = async () => {
     try {
+      // Run row validation first
+      if (!validateRowData(rowData)) {
+        return;
+      }
+
+      // Then validate swap legs if any
       if (!validateSwapLegs(rowData)) {
         return;
       }
