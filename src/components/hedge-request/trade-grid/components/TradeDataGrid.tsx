@@ -5,9 +5,9 @@ import { GridStyles } from '../../grid/components/GridStyles';
 import { useRef, useState, Dispatch, SetStateAction } from 'react';
 import { HedgeRequestDraftTrade } from '../../grid/types';
 import { useCellHandlers } from '../hooks/useCellHandlers';
-import { CellEditingStartedEvent } from 'ag-grid-community';
+import { CellEditingStartedEvent, CellValueChangedEvent } from 'ag-grid-community';
 import { toast } from 'sonner';
-import { shouldAllowAmountEdit } from '../utils/amountValidation';
+import { validateTrade } from '../validation/tradeValidation';
 import { CurrencyEditorState } from '../components/CurrencyCellEditor';
 
 interface TradeDataGridProps {
@@ -25,7 +25,19 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
   const updateRow = (index: number, updates: Partial<HedgeRequestDraftTrade>) => {
     onRowDataChange(prevData => {
       const newData = [...prevData];
-      newData[index] = { ...newData[index], ...updates };
+      const currentRow = { ...newData[index] };
+      const updatedRow = { ...currentRow, ...updates };
+
+      // Validate the row after updates
+      if ('buy_amount' in updates || 'sell_amount' in updates) {
+        const validation = validateTrade(updatedRow as HedgeRequestDraftTrade);
+        if (!validation.isValid) {
+          // If validation fails, reject the update
+          return prevData;
+        }
+      }
+
+      newData[index] = updatedRow;
       return newData;
     });
   };
@@ -42,21 +54,16 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
   const handleCellEditingStarted = (event: CellEditingStartedEvent) => {
     const field = event.column.getColId();
     
-    if (field.includes('amount')) {
-      const isBuyAmount = field === 'buy_amount';
-      if (!shouldAllowAmountEdit(event, isBuyAmount ? 'buy' : 'sell', lastSelectedCurrency)) {
+    if (field === 'buy_amount' || field === 'sell_amount') {
+      const rowData = event.data as HedgeRequestDraftTrade;
+      const validation = validateTrade({
+        ...rowData,
+        [field]: event.value
+      } as HedgeRequestDraftTrade);
+
+      if (!validation.isValid) {
         event.api.stopEditing();
-        
-        const data = event.data as HedgeRequestDraftTrade;
-        if (!data.buy_currency || !data.sell_currency) {
-          toast.error('Please select both currencies before entering amounts');
-        } else if (data.buy_currency === data.sell_currency) {
-          toast.error('Buy and sell currencies must be different');
-        } else if (isBuyAmount ? data.sell_amount !== null : data.buy_amount !== null) {
-          toast.error('Only one amount can be entered at a time');
-        } else {
-          toast.error(`Please enter amount in the ${lastSelectedCurrency === 'buy' ? 'sell' : 'buy'} field first`);
-        }
+        validation.errors.forEach(error => toast.error(error));
       }
     }
   };
@@ -84,22 +91,6 @@ const TradeDataGrid = ({ entityId, entityName, rowData, onRowDataChange }: Trade
         onCellKeyDown={handleCellKeyDown}
         onCellValueChanged={handleCellValueChanged}
         onCellEditingStarted={handleCellEditingStarted}
-        tabToNextCell={(params) => {
-          const nextColumn = params.nextCellPosition?.column.getColId();
-          if (nextColumn?.includes('amount')) {
-            const rowData = params.previousCellPosition.rowIndex !== null 
-              ? gridRef.current?.api.getDisplayedRowAtIndex(params.previousCellPosition.rowIndex)?.data
-              : null;
-            
-            if (rowData) {
-              const isBuyAmount = nextColumn === 'buy_amount';
-              if (!shouldAllowAmountEdit({ data: rowData } as any, isBuyAmount ? 'buy' : 'sell', lastSelectedCurrency)) {
-                return params.previousCellPosition;
-              }
-            }
-          }
-          return params.nextCellPosition;
-        }}
       />
     </div>
   );

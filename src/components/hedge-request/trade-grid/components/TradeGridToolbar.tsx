@@ -5,6 +5,7 @@ import { HedgeRequestDraftTrade } from '../../grid/types';
 import { Dispatch, SetStateAction } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { validateAllTrades } from '../validation/tradeValidation';
 
 interface TradeGridToolbarProps {
   entityId?: string | null;
@@ -24,82 +25,13 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
     setRowData([...rowData, newRow as HedgeRequestDraftTrade]);
   };
 
-  const validateTrades = (data: HedgeRequestDraftTrade[]) => {
-    const errors: string[] = [];
-
-    // First validate basic trade requirements for all rows
-    data.forEach((row, index) => {
-      if (!row.buy_currency || !row.sell_currency) {
-        errors.push(`Row ${index + 1}: Both buy and sell currencies are required`);
-      }
-
-      const hasBuyAmount = row.buy_amount !== null && row.buy_amount !== undefined;
-      const hasSellAmount = row.sell_amount !== null && row.sell_amount !== undefined;
-      
-      if (!hasBuyAmount && !hasSellAmount) {
-        errors.push(`Row ${index + 1}: Either buy amount or sell amount must be specified`);
-      }
-      
-      if (hasBuyAmount && hasSellAmount) {
-        errors.push(`Row ${index + 1}: Only one amount (buy or sell) can be specified, not both. Please remove either the buy amount or sell amount.`);
-      }
-    });
-
-    // Then validate swap-specific requirements
-    const swapTrades = data.filter(row => row.instrument === 'Swap');
-    if (swapTrades.length > 0) {
-      if (swapTrades.length % 2 !== 0) {
-        errors.push('Swap trades must have exactly two legs (found an odd number of swap trades)');
-      } else {
-        for (let i = 0; i < swapTrades.length; i += 2) {
-          const leg1 = swapTrades[i];
-          const leg2 = swapTrades[i + 1];
-
-          if (!leg1 || !leg2) {
-            errors.push('Invalid swap configuration: missing leg');
-            continue;
-          }
-
-          const swapIndex = Math.floor(i / 2) + 1;
-          
-          // Currency matching
-          if (leg1.buy_currency !== leg2.sell_currency || leg1.sell_currency !== leg2.buy_currency) {
-            errors.push(`Swap ${swapIndex}: Currencies must match between legs (leg 1 buy/sell should match leg 2 sell/buy)`);
-          }
-
-          // Amount validation for each leg
-          const leg1HasBuyAmount = leg1.buy_amount !== null && leg1.buy_amount !== undefined;
-          const leg1HasSellAmount = leg1.sell_amount !== null && leg1.sell_amount !== undefined;
-          const leg2HasBuyAmount = leg2.buy_amount !== null && leg2.buy_amount !== undefined;
-          const leg2HasSellAmount = leg2.sell_amount !== null && leg2.sell_amount !== undefined;
-
-          if (leg1HasBuyAmount && leg1HasSellAmount) {
-            errors.push(`Swap ${swapIndex} Leg 1: Only one amount (buy or sell) can be specified, not both`);
-          }
-
-          if (leg2HasBuyAmount && leg2HasSellAmount) {
-            errors.push(`Swap ${swapIndex} Leg 2: Only one amount (buy or sell) can be specified, not both`);
-          }
-
-          if (!leg1HasBuyAmount && !leg1HasSellAmount) {
-            errors.push(`Swap ${swapIndex} Leg 1: Must specify either buy amount or sell amount`);
-          }
-
-          if (!leg2HasBuyAmount && !leg2HasSellAmount) {
-            errors.push(`Swap ${swapIndex} Leg 2: Must specify either buy amount or sell amount`);
-          }
-        }
-      }
-    }
-
-    return errors;
-  };
-
   const handleSave = async () => {
     try {
-      const validationErrors = validateTrades(rowData);
-      if (validationErrors.length > 0) {
-        toast.error(validationErrors.join('\n'));
+      // Validate all trades before saving
+      const validation = validateAllTrades(rowData);
+      
+      if (!validation.isValid) {
+        validation.errors.forEach(error => toast.error(error));
         return;
       }
 
@@ -121,7 +53,7 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
         created_at: new Date().toISOString()
       }));
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('trade_requests')
         .insert(transformedData);
 
