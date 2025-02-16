@@ -65,12 +65,16 @@ export const TradeRequestsGrid = ({
     onDataChange?.();
   };
 
+  const formatDate = (params: any) => {
+    return params.value ? new Date(params.value).toLocaleString() : '';
+  };
+
   const columnDefs: ColDef<TradeRequest>[] = [
     { 
       field: 'request_no', 
-      headerName: 'ID',
+      headerName: 'Request #',
       flex: 0.5,
-      minWidth: 80,
+      minWidth: 100,
       headerClass: 'ag-header-center header-wrap',
     },
     { 
@@ -95,6 +99,13 @@ export const TradeRequestsGrid = ({
       }
     },
     { 
+      field: 'entity_id', 
+      headerName: 'Entity ID',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
       field: 'entity_name', 
       headerName: 'Entity Name',
       flex: 1,
@@ -102,8 +113,15 @@ export const TradeRequestsGrid = ({
       headerClass: 'ag-header-center header-wrap',
     },
     { 
+      field: 'strategy_id', 
+      headerName: 'Strategy ID',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
       field: 'strategy_name', 
-      headerName: 'Strategy',
+      headerName: 'Strategy Name',
       flex: 1,
       minWidth: 150,
       headerClass: 'ag-header-center header-wrap',
@@ -111,6 +129,66 @@ export const TradeRequestsGrid = ({
     { 
       field: 'instrument', 
       headerName: 'Instrument',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'trade_date', 
+      headerName: 'Trade Date',
+      flex: 1,
+      minWidth: 130,
+      headerClass: 'ag-header-center header-wrap',
+      valueFormatter: formatDate
+    },
+    { 
+      field: 'settlement_date', 
+      headerName: 'Settlement Date',
+      flex: 1,
+      minWidth: 130,
+      headerClass: 'ag-header-center header-wrap',
+      valueFormatter: formatDate
+    },
+    { 
+      field: 'ccy_1', 
+      headerName: 'CCY 1',
+      flex: 0.7,
+      minWidth: 100,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'ccy_2', 
+      headerName: 'CCY 2',
+      flex: 0.7,
+      minWidth: 100,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'ccy_1_amount', 
+      headerName: 'CCY 1 Amount',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+      type: 'numericColumn',
+    },
+    { 
+      field: 'ccy_2_amount', 
+      headerName: 'CCY 2 Amount',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+      type: 'numericColumn',
+    },
+    { 
+      field: 'ccy_pair', 
+      headerName: 'CCY Pair',
+      flex: 0.8,
+      minWidth: 100,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'cost_centre', 
+      headerName: 'Cost Centre',
       flex: 1,
       minWidth: 120,
       headerClass: 'ag-header-center header-wrap',
@@ -131,13 +209,11 @@ export const TradeRequestsGrid = ({
     },
     { 
       field: 'submitted_at', 
-      headerName: 'Submitted',
+      headerName: 'Submitted At',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
+      valueFormatter: formatDate
     },
     { 
       field: 'reviewed_by', 
@@ -148,13 +224,11 @@ export const TradeRequestsGrid = ({
     },
     { 
       field: 'reviewed_at', 
-      headerName: 'Reviewed',
+      headerName: 'Reviewed At',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
+      valueFormatter: formatDate
     },
     { 
       field: 'approved_by', 
@@ -165,13 +239,33 @@ export const TradeRequestsGrid = ({
     },
     { 
       field: 'approved_at', 
-      headerName: 'Approved',
+      headerName: 'Approved At',
       flex: 1,
       minWidth: 160,
       headerClass: 'ag-header-center header-wrap',
-      valueFormatter: (params) => {
-        return params.value ? new Date(params.value).toLocaleString() : '';
-      }
+      valueFormatter: formatDate
+    },
+    { 
+      field: 'rejected_by', 
+      headerName: 'Rejected By',
+      flex: 1,
+      minWidth: 120,
+      headerClass: 'ag-header-center header-wrap',
+    },
+    { 
+      field: 'rejected_at', 
+      headerName: 'Rejected At',
+      flex: 1,
+      minWidth: 160,
+      headerClass: 'ag-header-center header-wrap',
+      valueFormatter: formatDate
+    },
+    { 
+      field: 'rejection_reason', 
+      headerName: 'Rejection Reason',
+      flex: 1.5,
+      minWidth: 200,
+      headerClass: 'ag-header-center header-wrap',
     },
     {
       headerName: 'Actions',
