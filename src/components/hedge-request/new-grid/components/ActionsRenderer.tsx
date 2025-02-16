@@ -23,15 +23,37 @@ export const ActionsRenderer = ({
 }: ActionsRendererProps) => {
   const handleSave = useCallback(async () => {
     try {
-      // Mark row as saved
-      updateRowData(rowIndex, { isSaved: true });
-      node.setData({ ...data, isSaved: true });
-      toast.success("Trade request saved successfully");
+      const isSwap = data.instrument?.toLowerCase() === 'swap';
+      
+      if (isSwap) {
+        // For swaps, validate and save both legs
+        const isFirstLeg = rowIndex % 2 === 0;
+        const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
+        const otherLegNode = api.getDisplayedRowAtIndex(otherLegIndex);
+        
+        if (!otherLegNode) {
+          toast.error("Cannot save incomplete swap pair");
+          return;
+        }
+
+        // Mark both legs as saved
+        updateRowData(rowIndex, { isSaved: true });
+        updateRowData(otherLegIndex, { isSaved: true });
+        node.setData({ ...data, isSaved: true });
+        otherLegNode.setData({ ...otherLegNode.data, isSaved: true });
+        
+        toast.success("Swap trade request saved successfully");
+      } else {
+        // For non-swaps, save single row
+        updateRowData(rowIndex, { isSaved: true });
+        node.setData({ ...data, isSaved: true });
+        toast.success("Trade request saved successfully");
+      }
     } catch (error) {
       console.error("Error saving trade request:", error);
       toast.error("Failed to save trade request");
     }
-  }, [data, node, rowIndex, updateRowData]);
+  }, [data, node, rowIndex, updateRowData, api]);
 
   const handleCopy = useCallback(() => {
     const { isSaved, ...rowToCopy } = data;
@@ -43,17 +65,40 @@ export const ActionsRenderer = ({
   }, [data, onAddRow, api, updateRowData]);
 
   const handleDelete = useCallback(() => {
-    const rowNode = api.getRowNode(node.id);
-    if (rowNode) {
-      api.applyTransaction({
-        remove: [rowNode.data]
-      });
-      toast.success("Row deleted successfully");
+    const isSwap = data.instrument?.toLowerCase() === 'swap';
+    
+    if (isSwap) {
+      // For swaps, delete both legs
+      const isFirstLeg = rowIndex % 2 === 0;
+      const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
+      
+      // Get both row nodes
+      const currentNode = api.getDisplayedRowAtIndex(rowIndex);
+      const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
+      
+      if (currentNode && otherNode) {
+        api.applyTransaction({
+          remove: [currentNode.data, otherNode.data]
+        });
+        toast.success("Swap pair deleted successfully");
+      } else {
+        toast.error("Unable to delete swap pair");
+        console.error("One or both swap legs not found for deletion");
+      }
     } else {
-      toast.error("Unable to delete row");
-      console.error("Row node not found for deletion");
+      // For non-swaps, delete single row
+      const rowNode = api.getDisplayedRowAtIndex(rowIndex);
+      if (rowNode) {
+        api.applyTransaction({
+          remove: [rowNode.data]
+        });
+        toast.success("Row deleted successfully");
+      } else {
+        toast.error("Unable to delete row");
+        console.error("Row not found for deletion");
+      }
     }
-  }, [api, node.id]);
+  }, [api, rowIndex, data]);
 
   const handleAddBelow = useCallback(() => {
     // Only allow adding rows at the end
@@ -66,7 +111,6 @@ export const ActionsRenderer = ({
     }
 
     onAddRow();
-    toast.success("New row added");
   }, [api, rowIndex, onAddRow]);
 
   return (

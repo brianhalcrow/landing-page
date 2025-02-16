@@ -24,4 +24,8 @@ export interface HedgeRequestRow {
   trade_date: string | null;
   settlement_date: string | null;
   cost_centre: string;
+  rowId?: string;
+  swapId?: string;
+  swapLeg?: 1 | 2;
+  isSaved?: boolean;
 }

@@ -17,11 +17,12 @@ const defaultRow: HedgeRequestRow = {
   sell_amount: null,
   trade_date: null,
   settlement_date: null,
-  cost_centre: ""
+  cost_centre: "",
+  rowId: crypto.randomUUID()
 };
 
 export const useHedgeRequestData = () => {
-  const [rowData, setRowData] = useState<HedgeRequestRow[]>([defaultRow]);
+  const [rowData, setRowData] = useState<HedgeRequestRow[]>([{ ...defaultRow }]);
 
   const { data: validConfigs } = useQuery({
     queryKey: ['valid-hedge-configurations'],
@@ -49,10 +50,7 @@ export const useHedgeRequestData = () => {
         ...config,
         strategy_description: config.strategy_name
       })) as ValidHedgeConfig[];
-    },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true
+    }
   });
 
   const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
@@ -145,8 +143,23 @@ export const useHedgeRequestData = () => {
       // Only add a new row if this is the first time the instrument is being set to swap
       if (isNewSwap && rowIndex === newData.length - 1) {
         console.log('Adding new row for SWAP second leg');
+        const secondLegId = crypto.randomUUID();
+        const swapId = crypto.randomUUID();
+        
+        // Update first leg with swap information
+        newData[rowIndex] = {
+          ...updatedRow,
+          rowId: crypto.randomUUID(),
+          swapId,
+          swapLeg: 1
+        };
+        
+        // Add second leg
         newData.push({
           ...defaultRow,
+          rowId: secondLegId,
+          swapId,
+          swapLeg: 2,
           entity_id: updatedRow.entity_id,
           entity_name: updatedRow.entity_name,
           strategy_name: updatedRow.strategy_name,
@@ -156,20 +169,6 @@ export const useHedgeRequestData = () => {
           buy_currency: updatedRow.sell_currency,
           sell_currency: updatedRow.buy_currency
         });
-      } else if (isSwap && rowIndex % 2 === 0) {
-        // Update the second leg row with any changes from the first leg
-        const existingNextRow = newData[rowIndex + 1];
-        if (existingNextRow) {
-          newData[rowIndex + 1] = {
-            ...existingNextRow,
-            entity_id: updatedRow.entity_id,
-            entity_name: updatedRow.entity_name,
-            strategy_name: updatedRow.strategy_name,
-            instrument: updatedRow.instrument,
-            counterparty_name: updates.counterparty_name || updatedRow.counterparty_name,
-            cost_centre: updates.cost_centre || updatedRow.cost_centre,
-          };
-        }
       }
 
       return newData;
@@ -177,11 +176,11 @@ export const useHedgeRequestData = () => {
   };
 
   const addNewRow = () => {
-    setRowData([...rowData, { ...defaultRow }]);
+    setRowData(currentRows => [...currentRows, { ...defaultRow, rowId: crypto.randomUUID() }]);
   };
 
   const clearRowData = () => {
-    setRowData([{ ...defaultRow }]); // Reset to a single empty row
+    setRowData([{ ...defaultRow, rowId: crypto.randomUUID() }]);
   };
 
   return {
