@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -40,31 +41,34 @@ export const ActionsRenderer = ({
       const isFirstLeg = rowIndex % 2 === 0;
       const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
       
-      // Get row data directly for both legs
-      const currentRowData = data;
-      const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
+      // Get the current row data
+      const currentRowData = api.getDisplayedRowAtIndex(rowIndex);
+      const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex);
       
       if (currentRowData && otherRowData) {
-        // Use rowData directly to remove rows
-        const rowsToRemove = [currentRowData, otherRowData];
-        api.applyTransaction({
-          remove: rowsToRemove
-        });
+        // Get all current rows
+        const allRows = [...api.getModel().getDisplayedNodes()].map(node => node.data);
+        // Filter out the rows we want to delete
+        const updatedRows = allRows.filter(row => 
+          row.rowId !== currentRowData.data.rowId && 
+          row.rowId !== otherRowData.data.rowId
+        );
+        
+        // Update the grid with the filtered rows
+        api.setRowData(updatedRows);
         toast.success("Swap pair removed from grid");
       } else {
         toast.error("Unable to remove swap pair from grid");
       }
     } else {
-      // For non-swaps, delete single row using rowData directly
-      const rowData = data;
-      if (rowData) {
-        api.applyTransaction({
-          remove: [rowData]
-        });
-        toast.success("Row removed from grid");
-      } else {
-        toast.error("Unable to remove row from grid");
-      }
+      // Get all current rows
+      const allRows = [...api.getModel().getDisplayedNodes()].map(node => node.data);
+      // Filter out the row we want to delete
+      const updatedRows = allRows.filter(row => row.rowId !== data.rowId);
+      
+      // Update the grid with the filtered rows
+      api.setRowData(updatedRows);
+      toast.success("Row removed from grid");
     }
   }, [api, rowIndex, data]);
 
@@ -101,8 +105,6 @@ export const ActionsRenderer = ({
         // Mark both legs as saved
         updateRowData(rowIndex, { isSaved: true });
         updateRowData(otherLegIndex, { isSaved: true });
-        node.setData({ ...data, isSaved: true });
-        otherLegNode.setData({ ...otherLegNode.data, isSaved: true });
         
         toast.success("Swap trade request saved successfully");
       } else {
@@ -117,7 +119,6 @@ export const ActionsRenderer = ({
 
         // Mark as saved
         updateRowData(rowIndex, { isSaved: true });
-        node.setData({ ...data, isSaved: true });
         toast.success("Trade request saved successfully");
       }
 
@@ -128,7 +129,7 @@ export const ActionsRenderer = ({
       console.error("Error saving trade request:", error);
       toast.error("Failed to save trade request");
     }
-  }, [data, node, rowIndex, updateRowData, api, saveMutation, onClearGrid]);
+  }, [data, rowIndex, updateRowData, api, saveMutation, onClearGrid]);
 
   const handleCopy = useCallback(() => {
     const { isSaved, ...rowToCopy } = data;
