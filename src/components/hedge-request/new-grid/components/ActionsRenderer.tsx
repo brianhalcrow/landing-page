@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useCallback } from "react";
 import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
 import { useTradeRequestSave } from "../hooks/useTradeRequestSave";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ActionsRendererProps {
   data: any;
@@ -27,95 +26,45 @@ export const ActionsRenderer = ({
 }: ActionsRendererProps) => {
   const saveMutation = useTradeRequestSave();
 
-  const handleDelete = useCallback(async () => {
-    try {
-      // If the row hasn't been saved to the database yet, just remove it from the grid
-      if (!data.request_no) {
-        const isSwap = data.instrument?.toLowerCase() === 'swap';
-        
-        if (isSwap) {
-          // For swaps, delete both legs
-          const isFirstLeg = rowIndex % 2 === 0;
-          const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
-          
-          // Get row data directly for both legs
-          const currentRowData = data;
-          const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
-          
-          if (currentRowData && otherRowData) {
-            // Use rowData directly to remove rows
-            const rowsToRemove = [currentRowData, otherRowData];
-            api.applyTransaction({
-              remove: rowsToRemove
-            });
-            toast.success("Swap pair removed from grid");
-          } else {
-            toast.error("Unable to remove swap pair from grid");
-          }
-        } else {
-          // For non-swaps, delete single row using rowData directly
-          const rowData = data;
-          if (rowData) {
-            api.applyTransaction({
-              remove: [rowData]
-            });
-            toast.success("Row removed from grid");
-          } else {
-            toast.error("Unable to remove row from grid");
-          }
-        }
-        return;
-      }
+  const handleDelete = useCallback(() => {
+    // Only allow deletion of unsaved rows
+    if (data.isSaved) {
+      toast.error("Cannot delete saved trade requests");
+      return;
+    }
 
-      // For saved records, delete from database
-      const isSwap = data.instrument?.toLowerCase() === 'swap';
+    const isSwap = data.instrument?.toLowerCase() === 'swap';
+    
+    if (isSwap) {
+      // For swaps, delete both legs
+      const isFirstLeg = rowIndex % 2 === 0;
+      const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
       
-      if (isSwap) {
-        // Delete both legs of the swap
-        const { error } = await supabase
-          .from('trade_requests')
-          .delete()
-          .match({ swapId: data.swapId });
-
-        if (error) {
-          console.error('Error deleting swap trade requests:', error);
-          toast.error('Failed to delete swap trade requests');
-          return;
-        }
-
-        // Remove from grid using rowData directly
-        const isFirstLeg = rowIndex % 2 === 0;
-        const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
-        const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
-        
-        if (data && otherRowData) {
-          api.applyTransaction({
-            remove: [data, otherRowData]
-          });
-          toast.success('Swap trade requests deleted successfully');
-        }
-      } else {
-        // Delete single trade request
-        const { error } = await supabase
-          .from('trade_requests')
-          .delete()
-          .eq('request_no', data.request_no);
-
-        if (error) {
-          console.error('Error deleting trade request:', error);
-          toast.error('Failed to delete trade request');
-          return;
-        }
-
-        // Remove from grid using rowData directly
+      // Get row data directly for both legs
+      const currentRowData = data;
+      const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
+      
+      if (currentRowData && otherRowData) {
+        // Use rowData directly to remove rows
+        const rowsToRemove = [currentRowData, otherRowData];
         api.applyTransaction({
-          remove: [data]
+          remove: rowsToRemove
         });
-        toast.success('Trade request deleted successfully');
+        toast.success("Swap pair removed from grid");
+      } else {
+        toast.error("Unable to remove swap pair from grid");
       }
-    } catch (error) {
-      console.error('Error in handleDelete:', error);
-      toast.error('An error occurred while deleting');
+    } else {
+      // For non-swaps, delete single row using rowData directly
+      const rowData = data;
+      if (rowData) {
+        api.applyTransaction({
+          remove: [rowData]
+        });
+        toast.success("Row removed from grid");
+      } else {
+        toast.error("Unable to remove row from grid");
+      }
     }
   }, [api, rowIndex, data]);
 
@@ -236,6 +185,7 @@ export const ActionsRenderer = ({
         size="icon"
         onClick={handleDelete}
         className="h-8 w-8"
+        disabled={data.isSaved}
       >
         <Trash className="h-4 w-4" />
       </Button>
