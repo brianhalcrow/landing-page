@@ -9,9 +9,17 @@ interface ValidationResult {
 export const validateTrade = (trade: HedgeRequestDraftTrade): ValidationResult => {
   const errors: string[] = [];
 
-  // Validate currencies
-  if (!trade.buy_currency || !trade.sell_currency) {
-    errors.push('Both buy and sell currencies are required');
+  // Strict currency validation
+  if (!trade.buy_currency) {
+    errors.push('Buy currency is required');
+  }
+
+  if (!trade.sell_currency) {
+    errors.push('Sell currency is required');
+  }
+
+  // Only proceed with other validations if currencies are present
+  if (errors.length > 0) {
     return { isValid: false, errors };
   }
 
@@ -34,7 +42,7 @@ export const validateTrade = (trade: HedgeRequestDraftTrade): ValidationResult =
     return { isValid: false, errors };
   }
 
-  return { isValid: true, errors: [] };
+  return { isValid: errors.length === 0, errors };
 };
 
 export const validateSwapTrades = (trades: HedgeRequestDraftTrade[]): ValidationResult => {
@@ -67,9 +75,11 @@ export const validateSwapTrades = (trades: HedgeRequestDraftTrade[]): Validation
       errors.push(`Swap ${swapIndex} Leg 2: ${leg2Validation.errors.join(', ')}`);
     }
 
-    // Validate currency matching between legs
-    if (leg1.buy_currency !== leg2.sell_currency || leg1.sell_currency !== leg2.buy_currency) {
-      errors.push(`Swap ${swapIndex}: Currencies must match between legs (leg 1 buy/sell should match leg 2 sell/buy)`);
+    // Only proceed with swap-specific validation if both legs have valid currencies
+    if (leg1.buy_currency && leg1.sell_currency && leg2.buy_currency && leg2.sell_currency) {
+      if (leg1.buy_currency !== leg2.sell_currency || leg1.sell_currency !== leg2.buy_currency) {
+        errors.push(`Swap ${swapIndex}: Currencies must match between legs (leg 1 buy/sell should match leg 2 sell/buy)`);
+      }
     }
   }
 
@@ -79,11 +89,24 @@ export const validateSwapTrades = (trades: HedgeRequestDraftTrade[]): Validation
 export const validateAllTrades = (trades: HedgeRequestDraftTrade[]): ValidationResult => {
   const errors: string[] = [];
 
+  // First validate that we have trades to validate
+  if (!trades || trades.length === 0) {
+    errors.push('No trades to validate');
+    return { isValid: false, errors };
+  }
+
   // Validate each individual trade
   trades.forEach((trade, index) => {
+    // Skip empty rows or rows that haven't been started yet
+    if (!trade.buy_currency && !trade.sell_currency && !trade.buy_amount && !trade.sell_amount) {
+      return;
+    }
+
     const validation = validateTrade(trade);
     if (!validation.isValid) {
-      errors.push(`Row ${index + 1}: ${validation.errors.join(', ')}`);
+      validation.errors.forEach(error => {
+        errors.push(`Row ${index + 1}: ${error}`);
+      });
     }
   });
 
