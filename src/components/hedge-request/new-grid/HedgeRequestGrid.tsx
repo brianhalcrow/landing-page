@@ -6,6 +6,7 @@ import { GridActions } from './components/GridActions';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useCallback, useRef } from 'react';
+import { GridApi } from 'ag-grid-community';
 
 const HedgeRequestGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -34,48 +35,13 @@ const HedgeRequestGrid = () => {
     return {};
   }, []);
 
-  // Calculate exact height based on number of rows (45px per row) plus header (48px)
-  const gridHeight = (rowData?.length || 0) * 45 + 48;
+  const onGridReady = useCallback((params: { api: GridApi }) => {
+    params.api.sizeColumnsToFit();
+  }, []);
 
   return (
     <div className="space-y-4">
-      <div className={`w-full ag-theme-alpine border border-gray-200`} style={{ height: `${gridHeight}px`, overflow: 'hidden' }}>
-        <style>
-          {`
-            .ag-cell {
-              display: flex !important;
-              align-items: center !important;
-            }
-            .ag-header-cell-label {
-              display: flex !important;
-              align-items: center !important;
-              justify-content: left !important;
-            }
-            .ag-cell select {
-              width: 100% !important;
-              padding-right: 24px !important;
-            }
-            .ag-cell .relative svg {
-              right: 8px !important;
-            }
-            .ag-cell-wrapper {
-              width: 100% !important;
-            }
-            .ag-root-wrapper {
-              border: none !important;
-              overflow: hidden !important;
-            }
-            .ag-root {
-              overflow: hidden !important;
-            }
-            .ag-body-viewport {
-              overflow: hidden !important;
-            }
-            .ag-body-horizontal-scroll {
-              display: none !important;
-            }
-          `}
-        </style>
+      <div className="w-full ag-theme-alpine border border-gray-200">
         <AgGridReact
           ref={gridRef}
           rowData={rowData}
@@ -87,7 +53,9 @@ const HedgeRequestGrid = () => {
             sortable: true,
             filter: true,
             resizable: true,
-            suppressSizeToFit: false
+            suppressSizeToFit: false,
+            flex: 1,
+            cellClass: 'ag-cell-value-wrapper'
           }}
           getRowId={(params) => {
             if (params.data?.id) {
@@ -104,8 +72,17 @@ const HedgeRequestGrid = () => {
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
+          onGridReady={onGridReady}
+          domLayout="autoHeight"
           suppressHorizontalScroll={true}
+          alwaysShowVerticalScroll={false}
           suppressScrollOnNewData={true}
+          headerClass="ag-header-cell-value-wrapper"
+          rowClass="ag-row-value-wrapper"
+          suppressBorderAroundHeader={true}
+          suppressPropertyNamesCheck={true}
+          suppressResize={false}
+          enableCellChangeFlash={true}
         />
       </div>
 
