@@ -1,10 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback } from "react";
 import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
 import { useTradeRequestSave } from "../hooks/useTradeRequestSave";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ActionsRendererProps {
   data: any;
@@ -26,6 +26,104 @@ export const ActionsRenderer = ({
   onClearGrid 
 }: ActionsRendererProps) => {
   const saveMutation = useTradeRequestSave();
+
+  const handleDelete = useCallback(async () => {
+    try {
+      // If the row hasn't been saved to the database yet, just remove it from the grid
+      if (!data.request_no) {
+        const isSwap = data.instrument?.toLowerCase() === 'swap';
+        
+        if (isSwap) {
+          // For swaps, delete both legs
+          const isFirstLeg = rowIndex % 2 === 0;
+          const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
+          
+          // Get both row nodes
+          const currentNode = api.getDisplayedRowAtIndex(rowIndex);
+          const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
+          
+          if (currentNode && otherNode) {
+            api.applyTransaction({
+              remove: [currentNode.data, otherNode.data]
+            });
+            toast.success("Swap pair removed from grid");
+          } else {
+            toast.error("Unable to remove swap pair from grid");
+            console.error("One or both swap legs not found for deletion");
+          }
+        } else {
+          // For non-swaps, delete single row
+          const rowNode = api.getDisplayedRowAtIndex(rowIndex);
+          if (rowNode) {
+            api.applyTransaction({
+              remove: [rowNode.data]
+            });
+            toast.success("Row removed from grid");
+          } else {
+            toast.error("Unable to remove row from grid");
+            console.error("Row not found for deletion");
+          }
+        }
+        return;
+      }
+
+      // For saved records, delete from database
+      const isSwap = data.instrument?.toLowerCase() === 'swap';
+      
+      if (isSwap) {
+        // Delete both legs of the swap
+        const { error } = await supabase
+          .from('trade_requests')
+          .delete()
+          .match({ swapId: data.swapId });
+
+        if (error) {
+          console.error('Error deleting swap trade requests:', error);
+          toast.error('Failed to delete swap trade requests');
+          return;
+        }
+
+        // Remove from grid
+        const isFirstLeg = rowIndex % 2 === 0;
+        const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
+        const currentNode = api.getDisplayedRowAtIndex(rowIndex);
+        const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
+        
+        if (currentNode && otherNode) {
+          api.applyTransaction({
+            remove: [currentNode.data, otherNode.data]
+          });
+        }
+
+        toast.success('Swap trade requests deleted successfully');
+      } else {
+        // Delete single trade request
+        const { error } = await supabase
+          .from('trade_requests')
+          .delete()
+          .eq('request_no', data.request_no);
+
+        if (error) {
+          console.error('Error deleting trade request:', error);
+          toast.error('Failed to delete trade request');
+          return;
+        }
+
+        // Remove from grid
+        const rowNode = api.getDisplayedRowAtIndex(rowIndex);
+        if (rowNode) {
+          api.applyTransaction({
+            remove: [rowNode.data]
+          });
+        }
+
+        toast.success('Trade request deleted successfully');
+      }
+    } catch (error) {
+      console.error('Error in handleDelete:', error);
+      toast.error('An error occurred while deleting');
+    }
+  }, [api, rowIndex, data]);
 
   const handleSave = useCallback(async () => {
     try {
@@ -98,42 +196,6 @@ export const ActionsRenderer = ({
     toast.success("Row copied successfully");
   }, [data, onAddRow, api, updateRowData]);
 
-  const handleDelete = useCallback(() => {
-    const isSwap = data.instrument?.toLowerCase() === 'swap';
-    
-    if (isSwap) {
-      // For swaps, delete both legs
-      const isFirstLeg = rowIndex % 2 === 0;
-      const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
-      
-      // Get both row nodes
-      const currentNode = api.getDisplayedRowAtIndex(rowIndex);
-      const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
-      
-      if (currentNode && otherNode) {
-        api.applyTransaction({
-          remove: [currentNode.data, otherNode.data]
-        });
-        toast.success("Swap pair deleted successfully");
-      } else {
-        toast.error("Unable to delete swap pair");
-        console.error("One or both swap legs not found for deletion");
-      }
-    } else {
-      // For non-swaps, delete single row
-      const rowNode = api.getDisplayedRowAtIndex(rowIndex);
-      if (rowNode) {
-        api.applyTransaction({
-          remove: [rowNode.data]
-        });
-        toast.success("Row deleted successfully");
-      } else {
-        toast.error("Unable to delete row");
-        console.error("Row not found for deletion");
-      }
-    }
-  }, [api, rowIndex, data]);
-
   const handleAddBelow = useCallback(() => {
     // Only allow adding rows at the end
     const totalRows = api.getDisplayedRowCount();
@@ -180,7 +242,6 @@ export const ActionsRenderer = ({
         size="icon"
         onClick={handleDelete}
         className="h-8 w-8"
-        disabled={data.isSaved}
       >
         <Trash className="h-4 w-4" />
       </Button>
