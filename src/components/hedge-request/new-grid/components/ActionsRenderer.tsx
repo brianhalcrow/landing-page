@@ -43,20 +43,31 @@ export const ActionsRenderer = ({
   }, [data, onAddRow, api, updateRowData]);
 
   const handleDelete = useCallback(() => {
-    api.applyTransaction({ remove: [data] });
-    toast.success("Row deleted successfully");
-  }, [api, data]);
+    const rowNode = api.getRowNode(node.id);
+    if (rowNode) {
+      api.applyTransaction({
+        remove: [rowNode.data]
+      });
+      toast.success("Row deleted successfully");
+    } else {
+      toast.error("Unable to delete row");
+      console.error("Row node not found for deletion");
+    }
+  }, [api, node.id]);
 
   const handleAddBelow = useCallback(() => {
-    const currentDisplayedIndex = node.rowIndex;
-    if (typeof currentDisplayedIndex === 'number') {
-      api.applyTransaction({
-        add: [{}],
-        addIndex: currentDisplayedIndex + 1
-      });
-      toast.success("New row added");
+    // Only allow adding rows at the end
+    const totalRows = api.getDisplayedRowCount();
+    const isLastRow = rowIndex === totalRows - 1;
+    
+    if (!isLastRow) {
+      toast.error("New rows can only be added at the end");
+      return;
     }
-  }, [api, node]);
+
+    onAddRow();
+    toast.success("New row added");
+  }, [api, rowIndex, onAddRow]);
 
   return (
     <div className="flex items-center gap-1">
@@ -65,7 +76,7 @@ export const ActionsRenderer = ({
         size="icon"
         onClick={handleAddBelow}
         className="h-8 w-8"
-        disabled={data.isSaved}
+        disabled={data.isSaved || rowIndex !== api.getDisplayedRowCount() - 1}
       >
         <Plus className="h-4 w-4" />
       </Button>
