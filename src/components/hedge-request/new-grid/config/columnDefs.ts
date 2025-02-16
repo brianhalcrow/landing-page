@@ -14,8 +14,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Entity Name",
       field: "entity_name",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
+        values: Array.from(new Set(context.validConfigs?.map(config => config.entity_name) || [])),
+      },
+      cellRendererParams: {
         values: Array.from(new Set(context.validConfigs?.map(config => config.entity_name) || [])),
       },
       editable: true
@@ -28,8 +32,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Cost Centre",
       field: "cost_centre",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => config.entity_id === params.data.entity_id)
+          .map(config => config.cost_centre) || [])),
+      }),
+      cellRendererParams: (params: any) => ({
         values: Array.from(new Set(context.validConfigs
           ?.filter(config => config.entity_id === params.data.entity_id)
           .map(config => config.cost_centre) || [])),
@@ -39,8 +49,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Strategy",
       field: "strategy_name",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => config.entity_id === params.data.entity_id)
+          .map(config => config.strategy_name) || [])),
+      }),
+      cellRendererParams: (params: any) => ({
         values: Array.from(new Set(context.validConfigs
           ?.filter(config => config.entity_id === params.data.entity_id)
           .map(config => config.strategy_name) || [])),
@@ -55,8 +71,17 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Counterparty",
       field: "counterparty_name",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => 
+            config.entity_id === params.data.entity_id &&
+            config.strategy_name === params.data.strategy_name
+          )
+          .map(config => config.counterparty_name) || [])),
+      }),
+      cellRendererParams: (params: any) => ({
         values: Array.from(new Set(context.validConfigs
           ?.filter(config => 
             config.entity_id === params.data.entity_id &&
@@ -69,8 +94,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Buy Currency",
       field: "buy_currency",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
+        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
+      },
+      cellRendererParams: {
         values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
       },
       editable: true
@@ -86,8 +115,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Sell Currency",
       field: "sell_currency",
+      cellRenderer: 'agSelectCellRenderer',
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
+        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
+      },
+      cellRendererParams: {
         values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
       },
       editable: true
