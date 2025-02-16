@@ -1,49 +1,63 @@
-
-import { ColDef, ColGroupDef } from "ag-grid-community";
+import { ColDef, ColGroupDef } from "ag-grid-enterprise";
 import { Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
 import { ExposureType } from "@/hooks/useExposureTypes";
 
-// Base columns for entity information
-export const createBaseColumnDefs = (): ColDef[] => [
+// Define interface for base column configuration
+interface BaseColumnConfig {
+  field: string;
+  headerName: string;
+  width: number;
+  filter?: string | boolean;
+}
+
+// Common properties for all columns
+const commonColProps: Partial<ColDef> = {
+  sortable: true,
+  filter: "agTextColumnFilter",
+  enableRowGroup: true,
+  enablePivot: true,
+  filterParams: {
+    buttons: ["reset", "apply"],
+    defaultOption: "contains",
+  },
+};
+
+// Base column configurations
+const baseColumnConfig: BaseColumnConfig[] = [
   {
     field: "entity_id",
     headerName: "Entity ID",
-    sortable: true,
-    filter: true,
     width: 100,
-    headerClass: 'header-left header-wrap',
-    cellClass: 'cell-left',
   },
   {
     field: "entity_name",
     headerName: "Entity Name",
-    sortable: true,
-    filter: true,
     width: 200,
-    headerClass: 'header-left header-wrap',
-    cellClass: 'cell-left',
   },
   {
     field: "functional_currency",
     headerName: "Functional Currency",
-    sortable: true,
-    filter: true,
     width: 120,
-    headerClass: 'header-left header-wrap',
-    cellClass: 'cell-left',
+    filter: "agSetColumnFilter",
   },
   {
     field: "accounting_rate_method",
     headerName: "Accounting Rate Method",
-    sortable: true,
-    filter: true,
     width: 150,
-    headerClass: 'header-left header-wrap',
-    cellClass: 'cell-left',
+    filter: "agSetColumnFilter",
   },
 ];
+
+// Create base columns with common properties
+export const createBaseColumnDefs = (): ColDef[] =>
+  baseColumnConfig.map(
+    (col: BaseColumnConfig): ColDef => ({
+      ...commonColProps,
+      ...col,
+    })
+  );
 
 // Actions column definition
 export const createActionsColumn = (
@@ -53,6 +67,10 @@ export const createActionsColumn = (
 ): ColDef => ({
   headerName: "Actions",
   width: 100,
+  pinned: "right",
+  suppressMovable: true,
+  sortable: false,
+  filter: false,
   cellRenderer: (params: any) => {
     const isEditing = editingRows[params.data.entity_id];
     return (
@@ -62,11 +80,7 @@ export const createActionsColumn = (
           size="sm"
           onClick={() => {
             const entityId = params.data.entity_id;
-            if (isEditing) {
-              onSaveClick(entityId);
-            } else {
-              onEditClick(entityId);
-            }
+            isEditing ? onSaveClick(entityId) : onEditClick(entityId);
           }}
           className="h-5 w-5 p-0"
         >
@@ -79,8 +93,22 @@ export const createActionsColumn = (
       </div>
     );
   },
-  cellClass: 'actions-cell',
 });
+
+// Common properties for exposure columns
+const exposureColProps: Partial<ColDef> = {
+  ...commonColProps,
+  width: 150,
+  enableValue: true,
+  aggFunc: "count",
+  filter: "agSetColumnFilter",
+};
+
+// Common properties for column groups
+const groupProps: Partial<ColGroupDef> = {
+  marryChildren: true,
+  openByDefault: true,
+};
 
 // Exposure columns definition
 export const createExposureColumns = (
@@ -92,68 +120,59 @@ export const createExposureColumns = (
   return exposureTypes.reduce((acc: ColGroupDef[], type) => {
     const l1Key = type.exposure_category_l1;
     const l2Key = type.exposure_category_l2;
-    
-    let l1Group = acc.find(group => group.headerName === l1Key);
-    
+
+    let l1Group = acc.find((group) => group.headerName === l1Key);
+
     if (!l1Group) {
       l1Group = {
         headerName: l1Key,
-        headerClass: 'header-center',
-        children: []
+        ...groupProps,
+        children: [],
       };
       acc.push(l1Group);
     }
 
-    let l2Group = l1Group.children?.find(group => 
-      (group as ColGroupDef).headerName === l2Key
+    let l2Group = l1Group.children?.find(
+      (group) => (group as ColGroupDef).headerName === l2Key
     ) as ColGroupDef;
 
     if (!l2Group) {
       l2Group = {
         headerName: l2Key,
-        headerClass: 'header-center',
-        children: []
+        ...groupProps,
+        children: [],
       };
       l1Group.children?.push(l2Group);
     }
 
     const l3Column: ColDef = {
+      ...exposureColProps,
       field: `exposure_configs.${type.exposure_type_id}`,
       headerName: type.exposure_category_l3,
-      headerClass: 'header-center header-wrap',
-      cellClass: 'cell-center',
-      width: 150,
       cellRenderer: CheckboxCellRenderer,
       cellRendererParams: {
         disabled: (params: any) => !editingRows[params.data?.entity_id],
-        getValue: function() {
+        getValue: function () {
           if (!this?.data?.entity_id) return false;
-          
           const entityId = this.data.entity_id;
           const exposureTypeId = type.exposure_type_id;
-          
-          if (pendingChanges[entityId]?.[exposureTypeId] !== undefined) {
-            return pendingChanges[entityId][exposureTypeId];
-          }
-          return this.value;
+          return pendingChanges[entityId]?.[exposureTypeId] ?? this.value;
         },
         onChange: (isChecked: boolean, data: any) => {
           if (!data?.entity_id) return;
-          
           const entityId = data.entity_id;
           setPendingChanges({
             ...pendingChanges,
             [entityId]: {
               ...pendingChanges[entityId],
-              [type.exposure_type_id]: isChecked
-            }
+              [type.exposure_type_id]: isChecked,
+            },
           });
         },
       },
     };
 
     l2Group.children?.push(l3Column);
-
     return acc;
   }, []);
 };

@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import type { ColumnState } from 'ag-grid-community';
+import type { ColumnState } from 'ag-grid-enterprise';
 
 export const useGridPreferences = (gridRef: React.RefObject<AgGridReact>, gridId: string) => {
   const saveColumnState = useCallback(async () => {

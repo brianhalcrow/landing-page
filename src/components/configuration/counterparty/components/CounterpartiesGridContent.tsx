@@ -1,10 +1,14 @@
-
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, ColGroupDef } from "ag-grid-community";
-import { createBaseColumnDefs, createCounterpartyColumns } from "../columnDefs/counterpartyColumns";
+import { ColDef, ColGroupDef } from "ag-grid-enterprise";
+import {
+  createBaseColumnDefs,
+  createCounterpartyColumns,
+} from "../columnDefs/counterpartyColumns";
 import ActionsCellRenderer from "../../grid/ActionsCellRenderer";
-import { gridStyles } from "../styles/gridStyles";
-import { GridStyles } from "@/components/shared/grid/GridStyles";
+
+// Enterprise AG Grid styles
+import "ag-grid-enterprise/styles/ag-grid.css";
+import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 interface CounterpartiesGridContentProps {
   gridData: any[];
@@ -26,23 +30,26 @@ export const CounterpartiesGridContent = ({
   onSaveClick,
 }: CounterpartiesGridContentProps) => {
   const baseColumns = createBaseColumnDefs();
-  const counterpartyColumns = counterparties ? createCounterpartyColumns(
-    counterparties,
-    editingRows,
-    pendingChanges,
-    setPendingChanges
-  ) : [];
+  const counterpartyColumns = counterparties
+    ? createCounterpartyColumns(
+        counterparties,
+        editingRows,
+        pendingChanges,
+        setPendingChanges
+      )
+    : [];
 
   const columnDefs: (ColDef | ColGroupDef)[] = [
     {
-      headerName: 'Entity Information',
-      headerClass: 'header-center',
-      children: baseColumns
+      headerName: "Entity Information",
+      children: baseColumns,
+      marryChildren: true,
     } as ColGroupDef,
     ...counterpartyColumns,
     {
-      headerName: 'Actions',
-      field: 'actions',
+      // This should be ColDef, not part of a group
+      headerName: "Actions",
+      field: "actions",
       width: 100,
       cellRenderer: ActionsCellRenderer,
       cellRendererParams: (params: any) => ({
@@ -50,33 +57,71 @@ export const CounterpartiesGridContent = ({
         onEditClick: () => onEditClick(params.data?.entity_id),
         onSaveClick: () => onSaveClick(params.data?.entity_id),
       }),
-      headerClass: 'header-center',
-      cellClass: 'cell-center'
-    },
+      pinned: "right",
+      suppressMenu: true,
+      sortable: false,
+      filter: false,
+    } as ColDef, // Explicitly type as ColDef
   ];
 
   return (
-    <div className="space-y-4">
-      <style>{gridStyles}</style>
-      <div className="w-full h-[300px] ag-theme-alpine">
-        <GridStyles />
-        <AgGridReact
-          rowData={gridData}
-          columnDefs={columnDefs}
-          defaultColDef={{
-            resizable: true,
-            editable: false,
-            sortable: true,
-            filter: true,
-          }}
-          rowHeight={24}
-          headerHeight={50}
-          suppressRowTransform={true}
-          enableCellTextSelection={true}
-          suppressRowClickSelection={true}
-          animateRows={true}
-        />
-      </div>
+    <div className="h-[300px] w-full ag-theme-alpine">
+      <AgGridReact
+        rowData={gridData}
+        columnDefs={columnDefs}
+        defaultColDef={{
+          resizable: true,
+          editable: false,
+          sortable: true,
+          filter: "agTextColumnFilter",
+          enableRowGroup: true,
+          enablePivot: true,
+          enableValue: true,
+          menuTabs: ["filterMenuTab", "generalMenuTab", "columnsMenuTab"],
+        }}
+        // Grid options
+        rowHeight={24}
+        headerHeight={50}
+        suppressRowTransform={true}
+        enableCellTextSelection={true}
+        suppressRowClickSelection={true}
+        animateRows={true}
+        // Enterprise features
+        enableRangeSelection={true}
+        enableCharts={true}
+        enableRangeHandle={true}
+        rowGroupPanelShow="always"
+        groupDisplayType="groupRows"
+        // Side panels
+        sideBar={{
+          toolPanels: [
+            {
+              id: "columns",
+              labelDefault: "Columns",
+              labelKey: "columns",
+              iconKey: "columns",
+              toolPanel: "agColumnsToolPanel",
+            },
+            {
+              id: "filters",
+              labelDefault: "Filters",
+              labelKey: "filters",
+              iconKey: "filter",
+              toolPanel: "agFiltersToolPanel",
+            },
+          ],
+          defaultToolPanel: "columns",
+        }}
+        // Status bar
+        statusBar={{
+          statusPanels: [
+            { statusPanel: "agTotalRowCountComponent", align: "left" },
+            { statusPanel: "agFilteredRowCountComponent" },
+            { statusPanel: "agSelectedRowCountComponent" },
+            { statusPanel: "agAggregationComponent" },
+          ],
+        }}
+      />
     </div>
   );
 };

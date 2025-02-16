@@ -1,7 +1,5 @@
-
-import React from 'react';
-import { ICellRendererParams } from 'ag-grid-community';
-import { cn } from "@/lib/utils";
+import React from "react";
+import { ICellRendererParams } from "ag-grid-enterprise";
 
 interface CheckboxCellRendererProps extends ICellRendererParams {
   disabled?: boolean | ((params: any) => boolean);
@@ -10,12 +8,12 @@ interface CheckboxCellRendererProps extends ICellRendererParams {
 }
 
 const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
-  const isDisabled = typeof props.disabled === 'function' 
-    ? props.disabled(props)
-    : props.disabled || !props.data?.isEditing;
+  const isDisabled =
+    typeof props.disabled === "function"
+      ? props.disabled(props)
+      : props.disabled || !props.data?.isEditing;
 
   const value = props.getValue ? props.getValue() : props.value;
-  const isEditing = props.data?.isEditing;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isDisabled && props.data) {
@@ -24,20 +22,33 @@ const CheckboxCellRenderer = (props: CheckboxCellRendererProps) => {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center items-center h-full">
       <input
         type="checkbox"
         checked={!!value}
         disabled={isDisabled}
         onChange={handleChange}
-        className={cn(
-          "w-4 h-4 rounded border transition-colors",
-          "focus:ring-2 focus:ring-blue-500",
-          isEditing
-            ? "accent-blue-500 border-blue-500 bg-white" // Active editing state
-            : "accent-blue-600 border-blue-400 bg-blue-50", // Saved state with better contrast
-          isDisabled && !isEditing && "cursor-not-allowed" // Removed opacity reduction
-        )}
+        className="ag-checkbox-input"
+        ref={(el) => {
+          if (el) {
+            el.style.setProperty(
+              "--ag-checkbox-checked-color",
+              "var(--ag-material-primary-color)"
+            );
+            el.style.setProperty(
+              "--ag-input-focus-border-color",
+              "var(--ag-material-primary-color)"
+            );
+            el.style.setProperty(
+              "--ag-checkbox-background-color",
+              "var(--ag-background-color)"
+            );
+            el.style.setProperty(
+              "--ag-checkbox-unchecked-color",
+              "var(--ag-secondary-foreground-color)"
+            );
+          }
+        }}
       />
     </div>
   );

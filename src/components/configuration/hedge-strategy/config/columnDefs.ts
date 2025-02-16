@@ -1,5 +1,5 @@
 
-import { ColDef } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-enterprise';
 import { HedgeStrategyGridRow } from '../types/hedgeStrategy.types';
 
 export const createColumnDefs = (): ColDef[] => [

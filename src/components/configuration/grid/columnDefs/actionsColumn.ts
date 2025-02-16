@@ -1,5 +1,5 @@
 
-import { ColDef } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-enterprise';
 import ActionsCellRenderer from '../cellRenderers/ActionsCellRenderer';
 
 export const createActionColumn = (): ColDef => ({
