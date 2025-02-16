@@ -39,7 +39,7 @@ const HedgeRequestGrid = () => {
 
   return (
     <div className="space-y-4">
-      <div className={`w-full ag-theme-alpine border border-gray-200`} style={{ height: `${gridHeight}px` }}>
+      <div className={`w-full ag-theme-alpine border border-gray-200`} style={{ height: `${gridHeight}px`, overflow: 'hidden' }}>
         <style>
           {`
             .ag-cell {
@@ -60,6 +60,12 @@ const HedgeRequestGrid = () => {
             }
             .ag-cell-wrapper {
               width: 100% !important;
+            }
+            .ag-root-wrapper {
+              border: none !important;
+            }
+            .ag-root {
+              overflow: hidden !important;
             }
           `}
         </style>
@@ -91,6 +97,8 @@ const HedgeRequestGrid = () => {
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
+          suppressHorizontalScroll={true}
+          suppressScrollOnNewData={true}
         />
       </div>
 
