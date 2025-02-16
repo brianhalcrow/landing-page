@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -6,8 +7,8 @@ interface TradeRequestInput {
   entity_name: string;
   strategy_name: string;
   instrument: string;
-  trade_date: string | null;
-  settlement_date: string;
+  trade_date: string | Date | null;
+  settlement_date: string | Date | null;
   buy_currency: string;
   sell_currency: string;
   buy_amount: number | string | null;
@@ -22,7 +23,7 @@ interface TradeRequest {
   strategy_name: string;
   instrument: string;
   trade_date: string | null;
-  settlement_date: string;
+  settlement_date: string | null;
   ccy_1: string | null;
   ccy_2: string | null;
   ccy_1_amount: number | null;
@@ -106,32 +107,55 @@ export const validateTradeRequest = (data: any): boolean => {
   return true;
 };
 
-const parseDateToYYYYMMDD = (dateStr: string | null): string | null => {
-  if (!dateStr || dateStr.trim() === '') return null;
-  
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    const date = parse(dateStr, 'yyyy-MM-dd', new Date());
-    if (isValid(date)) {
-      return dateStr;
+const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): string | null => {
+  if (!dateInput) return null;
+
+  // If it's already a Date object
+  if (dateInput instanceof Date) {
+    return format(dateInput, 'yyyy-MM-dd');
+  }
+
+  // If it's an object with a value property (from AG Grid's date picker)
+  if (typeof dateInput === 'object' && dateInput !== null && 'value' in dateInput) {
+    const date = new Date(dateInput.value.iso || dateInput.value);
+    return format(date, 'yyyy-MM-dd');
+  }
+
+  // If it's a string
+  if (typeof dateInput === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+      return dateInput;
+    }
+    
+    try {
+      const parsedDate = parse(dateInput, 'dd/MM/yyyy', new Date());
+      if (isValid(parsedDate)) {
+        return format(parsedDate, 'yyyy-MM-dd');
+      }
+    } catch (error) {
+      console.error("Error parsing date:", error);
     }
   }
-  
-  try {
-    const parsedDate = parse(dateStr, 'dd/MM/yyyy', new Date());
-    if (isValid(parsedDate)) {
-      return format(parsedDate, 'yyyy-MM-dd');
-    }
-    return null;
-  } catch (error) {
-    console.error("Error parsing date:", error);
-    return null;
-  }
+
+  return null;
 };
 
 export const transformTradeRequest = (data: any): TradeRequest => {
+  // Handle both AG Grid date format and regular date strings
   const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
   const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
   
+  console.log("Transforming dates:", {
+    original: {
+      tradeDate: data.trade_date,
+      settlementDate: data.settlement_date
+    },
+    parsed: {
+      tradeDate: parsedTradeDate,
+      settlementDate: parsedSettlementDate
+    }
+  });
+
   // Transform a single row into the database format
   const transformed: TradeRequest = {
     entity_id: data.entity_id,
