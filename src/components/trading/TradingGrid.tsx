@@ -17,124 +17,67 @@ const TradingGrid = () => {
     quotes: MOCK_BANK_DATA
   });
 
-  const numberFormatter = (params: ValueFormatterParams) => {
-    if (typeof params.value === 'number') {
-      return params.value.toFixed(4);
-    }
-    return params.value;
-  };
+  // Create 10 columns with no headers
+  const columnDefs: ColDef[] = Array(10).fill(null).map((_, index) => ({
+    field: `col${index}`,
+    headerName: '',
+    width: 100,
+    suppressMenu: true,
+    sortable: false,
+    filter: false,
+    headerClass: 'hide-header'
+  }));
 
-  const columnDefs: ColDef[] = [
-    { 
-      field: 'bankName', 
-      headerName: 'Bank',
-      width: 120,
-      suppressMovable: true,
-    },
-    { 
-      field: 'buySpot', 
-      headerName: 'Spot',
-      width: 100,
-      valueFormatter: numberFormatter,
-      cellClass: (params: CellClassParams) => {
-        return ['rate-cell', 'buy-cell'];
-      }
-    },
-    { 
-      field: 'buyPoints', 
-      headerName: 'Points',
-      width: 100,
-      valueFormatter: numberFormatter,
-      cellClass: 'points-cell'
-    },
-    { 
-      field: 'buyContract', 
-      headerName: 'Contract',
-      width: 100,
-      valueFormatter: numberFormatter,
-      cellClass: 'contract-cell'
-    },
-    { 
-      field: 'sellSpot', 
-      headerName: 'Spot',
-      width: 100,
-      valueFormatter: numberFormatter,
-      cellClass: (params: CellClassParams) => {
-        return ['rate-cell', 'sell-cell'];
-      }
-    },
-    { 
-      field: 'sellPoints', 
-      headerName: 'Points',
-      width: 100,
-      valueFormatter: numberFormatter,
-      cellClass: 'points-cell'
-    }
-  ];
-
-  const onCellClicked = useCallback((event: any) => {
-    if (event.colDef.field?.includes('buy') || event.colDef.field?.includes('sell')) {
-      console.log('Rate clicked:', event.value);
-      // Future implementation: handle trade execution
-    }
-  }, []);
+  // Create 10x10 grid data
+  const rowData = Array(10).fill(null).map(() => ({
+    col0: '',
+    col1: '',
+    col2: '',
+    col3: '',
+    col4: '',
+    col5: '',
+    col6: '',
+    col7: '',
+    col8: '',
+    col9: ''
+  }));
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex gap-4 items-center">
-        <div className="space-y-2">
-          <div className="font-semibold">Currency Pair</div>
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{tradingState.baseCurrency}/{tradingState.termCurrency}</span>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="font-semibold">Amount</div>
-          <input 
-            type="number" 
-            value={tradingState.amount}
-            onChange={(e) => setTradingState(prev => ({ ...prev, amount: Number(e.target.value) }))}
-            className="p-2 border rounded w-40"
-          />
-        </div>
-      </div>
-
       <div 
         className="ag-theme-alpine" 
         style={{ 
-          height: '400px',
-          width: '100%'
+          height: '1000px',
+          width: '1000px'
         }}
       >
         <GridStyles />
         <style>
           {`
-            .rate-cell {
-              background-color: #f8fafc;
-              font-weight: 500;
+            .hide-header {
+              display: none;
             }
-            .buy-cell {
-              color: #059669;
+            .ag-root-wrapper {
+              border: none !important;
             }
-            .sell-cell {
-              color: #dc2626;
+            .ag-row {
+              border: 1px solid #ddd !important;
             }
-            .points-cell {
-              background-color: #f1f5f9;
-            }
-            .contract-cell {
-              background-color: #e2e8f0;
-              font-weight: 600;
+            .ag-cell {
+              border-right: 1px solid #ddd !important;
             }
           `}
         </style>
         <AgGridReact
-          rowData={tradingState.quotes}
           columnDefs={columnDefs}
+          rowData={rowData}
+          suppressColumnVirtualisation={true}
+          suppressRowVirtualisation={true}
           suppressMovableColumns={true}
-          suppressRowHoverHighlight={false}
-          onCellClicked={onCellClicked}
-          domLayout="autoHeight"
+          suppressColumnMoveAnimation={true}
+          suppressRowHoverHighlight={true}
+          rowSelection={null}
+          headerHeight={0}
         />
       </div>
     </div>
