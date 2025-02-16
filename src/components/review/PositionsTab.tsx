@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import RealtimeSubscription from "./RealtimeSubscription";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { HedgeRequestsGrid } from "./components/HedgeRequestsGrid";
+import { TradeRequestsGrid } from "./components/TradeRequestsGrid";
+import { TradeRequest } from "./types/trade-request.types";
 
 export const PositionsTab = () => {
   const [isMounted, setIsMounted] = useState(true);
@@ -18,7 +19,7 @@ export const PositionsTab = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as TradeRequest[];
     },
     enabled: isMounted
   });
@@ -45,7 +46,11 @@ export const PositionsTab = () => {
           <span>Loading trade requests...</span>
         </div>
       ) : (
-        <HedgeRequestsGrid rowData={tradeRequests} />
+        <TradeRequestsGrid 
+          rowData={tradeRequests} 
+          showApproveButton={true}
+          showRejectButton={true}
+        />
       )}
     </div>
   );

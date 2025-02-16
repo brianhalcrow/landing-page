@@ -3,14 +3,15 @@ import { useState, useEffect } from "react";
 import RealtimeSubscription from "./RealtimeSubscription";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { HedgeRequestsGrid } from "./components/HedgeRequestsGrid";
+import { TradeRequestsGrid } from "./components/TradeRequestsGrid";
 import { GridStyles } from "../shared/grid/GridStyles";
+import { TradeRequest } from "./types/trade-request.types";
 
 export const OverviewTab = () => {
   const [isMounted, setIsMounted] = useState(true);
 
-  const { data: hedgeRequests = [], refetch } = useQuery({
-    queryKey: ['hedge-requests-overview'],
+  const { data: tradeRequests = [], refetch } = useQuery({
+    queryKey: ['trade-requests-overview'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('trade_requests')
@@ -18,7 +19,7 @@ export const OverviewTab = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as TradeRequest[];
     },
     enabled: isMounted
   });
@@ -42,7 +43,11 @@ export const OverviewTab = () => {
       <RealtimeSubscription onDataChange={refetch} />
       <div className="w-full h-[600px] ag-theme-alpine">
         <GridStyles />
-        <HedgeRequestsGrid rowData={hedgeRequests} />
+        <TradeRequestsGrid 
+          rowData={tradeRequests} 
+          showApproveButton={true}
+          showRejectButton={true}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-import { TradeRequest } from '../types/trade-request.types';
+import { TradeRequest, RequestStatus } from '../types/trade-request.types';
 import { ActionButtons } from './ActionButtons';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ interface TradeRequestsGridProps {
   showApproveButton: boolean;
   showRejectButton: boolean;
   onDataChange?: () => void;
-  targetStatus?: string;
+  targetStatus?: RequestStatus;
 }
 
 export const TradeRequestsGrid = ({ 
@@ -25,7 +25,7 @@ export const TradeRequestsGrid = ({
 }: TradeRequestsGridProps) => {
 
   const handleApprove = async (request: TradeRequest) => {
-    const newStatus = targetStatus || 'Reviewed';
+    const newStatus: RequestStatus = targetStatus || 'Reviewed';
     const updateField = newStatus === 'Reviewed' ? 'reviewed' : 'approved';
 
     const { error } = await supabase
@@ -50,7 +50,7 @@ export const TradeRequestsGrid = ({
     const { error } = await supabase
       .from('trade_requests')
       .update({
-        status: 'Rejected',
+        status: 'Rejected' as RequestStatus,
         rejected_by: 'Current User', // TODO: Replace with actual user
         rejected_at: new Date().toISOString()
       })
