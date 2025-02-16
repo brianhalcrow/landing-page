@@ -14,137 +14,327 @@ export const createColumnDefs = (
     headerName: "Request #",
     flex: 0.5,
     minWidth: 100,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "entity_name",
     headerName: "Entity Name",
     flex: 1,
     minWidth: 150,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "entity_id",
     headerName: "Entity ID",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "cost_centre",
     headerName: "Cost Centre",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "strategy_name",
     headerName: "Strategy Name",
     flex: 1,
     minWidth: 150,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "instrument",
     headerName: "Instrument",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "counterparty_name",
     headerName: "Counterparty",
     flex: 1,
     minWidth: 150,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "ccy_1",
     headerName: "Buy Currency",
     flex: 0.7,
     minWidth: 100,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     cellStyle: (params) => {
       return !params.value ? { backgroundColor: "#fecaca" } : null;
     },
+    sortable: true,
+    resizable: true
   },
   {
     field: "ccy_1_amount",
     headerName: "Buy Amount",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     type: "numericColumn",
-    valueFormatter: (params) => {
+    valueFormatter: params => {
       if (params.value === null || params.value === undefined) return "";
       return params.value.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
     },
+    sortable: true,
+    resizable: true
   },
   {
     field: "ccy_2",
     headerName: "Sell Currency",
     flex: 0.7,
     minWidth: 100,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     cellStyle: (params) => {
       return !params.value ? { backgroundColor: "#fecaca" } : null;
     },
+    sortable: true,
+    resizable: true
   },
   {
     field: "ccy_2_amount",
     headerName: "Sell Amount",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     type: "numericColumn",
-    valueFormatter: (params) => {
+    valueFormatter: params => {
       if (params.value === null || params.value === undefined) return "";
       return params.value.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
     },
+    sortable: true,
+    resizable: true
   },
   {
     field: "trade_date",
     headerName: "Trade Date",
     flex: 1,
     minWidth: 130,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     valueFormatter: formatDate,
+    sortable: true,
+    resizable: true
   },
   {
     field: "settlement_date",
     headerName: "Settlement Date",
     flex: 1,
     minWidth: 130,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     valueFormatter: formatDateNoTime,
+    sortable: true,
+    resizable: true
   },
   {
     field: "submitted_by",
     headerName: "Submitted By",
     flex: 1,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
+    sortable: true,
+    resizable: true
   },
   {
     field: "submitted_at",
     headerName: "Submitted At",
     flex: 1,
     minWidth: 160,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     valueFormatter: formatDate,
+    sortable: true,
+    resizable: true
   },
   {
     field: "status",
     headerName: "Status",
     flex: 0.8,
     minWidth: 120,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     cellRenderer: (params: any) => {
       const status = params.value;
       const colorMap: Record<string, string> = {
@@ -163,11 +353,20 @@ export const createColumnDefs = (
         </div>
       );
     },
+    sortable: true,
+    resizable: true
   },
   {
     headerName: "Actions",
     minWidth: 150,
-    headerClass: "ag-header-center header-wrap",
+    headerComponentParams: {
+      template: 
+        '<div class="ag-cell-label-container" role="presentation">' +
+        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+        '    <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
+        '  </div>' +
+        '</div>'
+    },
     cellRenderer: (params: any) => {
       const request = params.data as TradeRequest;
       const isCurrencyValid = request.ccy_1 && request.ccy_2;
@@ -190,5 +389,7 @@ export const createColumnDefs = (
         />
       );
     },
+    sortable: false,
+    resizable: true
   },
 ];
