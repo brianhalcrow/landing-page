@@ -33,7 +33,7 @@ export const useTradeData = () => {
       // Validate currencies match (reversed)
       if (leg1.buy_currency !== leg2.sell_currency || 
           leg1.sell_currency !== leg2.buy_currency) {
-        toast.error('Swap legs must have matching currencies');
+        toast.error('Invalid swap configuration');
         return false;
       }
 
@@ -58,32 +58,30 @@ export const useTradeData = () => {
         return;
       }
 
-      const updatedRowData = [...rowData];
+      // Transform data to match database schema
+      const transformedData = rowData.map((row, index) => ({
+        draft_id: row.draft_id,
+        entity_id: row.entity_id,
+        entity_name: row.entity_name,
+        ccy_1: row.buy_currency,
+        ccy_2: row.sell_currency,
+        ccy_1_amount: row.buy_amount,
+        ccy_2_amount: row.sell_amount,
+        trade_date: row.trade_date,
+        settlement_date: row.settlement_date,
+        cost_centre: row.cost_centre,
+        counterparty_name: row.counterparty_name,
+        instrument: row.instrument,
+        strategy_name: row.strategy_name,
+        created_at: new Date().toISOString()
+      }));
       
-      // Save trades one by one to establish relationships for swaps
-      for (let i = 0; i < updatedRowData.length; i++) {
-        const row = updatedRowData[i];
-        const { data, error } = await supabase
-          .from('trade_requests')
-          .insert({
-            ...row,
-            created_at: new Date().toISOString(),
-            // For swaps, link second leg to first leg
-            related_trade_id: row.instrument === 'Swap' && i % 2 === 1 && updatedRowData[i - 1].request_no ? 
-              updatedRowData[i - 1].request_no : null
-          })
-          .select();
+      const { data, error } = await supabase
+        .from('trade_requests')
+        .insert(transformedData)
+        .select();
 
-        if (error) throw error;
-
-        // Update the request_no in our rowData for the next iteration
-        if (data?.[0]) {
-          updatedRowData[i] = {
-            ...updatedRowData[i],
-            request_no: data[0].request_no
-          };
-        }
-      }
+      if (error) throw error;
       
       toast.success('Trades saved successfully');
       setRowData([]); // Clear the grid after successful save

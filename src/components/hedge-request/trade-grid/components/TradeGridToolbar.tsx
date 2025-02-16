@@ -97,12 +97,27 @@ const TradeGridToolbar = ({ entityId, entityName, draftId, rowData, setRowData }
         return;
       }
 
+      // Transform data to match database schema
+      const transformedData = rowData.map(row => ({
+        draft_id: row.draft_id,
+        entity_id: row.entity_id,
+        entity_name: row.entity_name,
+        ccy_1: row.buy_currency,
+        ccy_2: row.sell_currency,
+        ccy_1_amount: row.buy_amount,
+        ccy_2_amount: row.sell_amount,
+        trade_date: row.trade_date,
+        settlement_date: row.settlement_date,
+        cost_centre: row.cost_centre,
+        counterparty_name: row.counterparty_name,
+        instrument: row.instrument,
+        strategy_name: row.strategy_name,
+        created_at: new Date().toISOString()
+      }));
+
       const { data, error } = await supabase
         .from('trade_requests')
-        .insert(rowData.map(row => ({
-          ...row,
-          created_at: new Date().toISOString()
-        })));
+        .insert(transformedData);
 
       if (error) throw error;
       
