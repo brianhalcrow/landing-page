@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -46,25 +45,18 @@ export const ActionsRenderer = ({
       const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex);
       
       if (currentRowData && otherRowData) {
-        // Get all current rows and create a new array without the rows to delete
-        const allRows = api.getRenderedNodes().map(node => node.data);
-        const updatedRows = allRows.filter((row, index) => 
-          index !== rowIndex && index !== otherLegIndex
-        );
-        
-        // Update the grid with the filtered rows
-        api.setRowData(updatedRows);
+        api.applyTransaction({
+          remove: [currentRowData.data, otherRowData.data]
+        });
         toast.success("Swap pair removed from grid");
       } else {
         toast.error("Unable to remove swap pair from grid");
       }
     } else {
-      // For non-swaps, get all rows except the one to delete
-      const allRows = api.getRenderedNodes().map(node => node.data);
-      const updatedRows = allRows.filter((_, index) => index !== rowIndex);
-      
-      // Update the grid with the filtered rows
-      api.setRowData(updatedRows);
+      // For non-swaps, remove single row
+      api.applyTransaction({
+        remove: [data]
+      });
       toast.success("Row removed from grid");
     }
   }, [api, rowIndex, data]);
