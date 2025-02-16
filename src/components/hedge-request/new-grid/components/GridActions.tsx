@@ -7,7 +7,7 @@ import { transformTradeRequest, validateTradeRequest } from "../utils/tradeReque
 interface GridActionsProps {
   onAddRow: () => void;
   rowData: any[];
-  onClearGrid?: () => void; // Add new prop for clearing the grid
+  onClearGrid?: () => void;
 }
 
 export const GridActions = ({ onAddRow, rowData, onClearGrid }: GridActionsProps) => {
@@ -15,51 +15,49 @@ export const GridActions = ({ onAddRow, rowData, onClearGrid }: GridActionsProps
 
   const validateRows = (rows: any[]) => {
     const validationErrors: string[] = [];
-    const validRows = rows.filter(row => {
-      const isValid = validateTradeRequest(row);
-      
-      console.log('Row validation:', {
-        row,
-        isValid,
-        hasEntityId: !!row.entity_id,
-        hasStrategy: !!row.strategy_name,
-        hasBuyCurrency: !!row.buy_currency,
-        hasBuyAmount: !!row.buy_amount,
-        hasSellCurrency: !!row.sell_currency,
-        hasSellAmount: !!row.sell_amount,
-        hasSettlementDate: !!row.settlement_date
-      });
+    let allRowsValid = true;
 
+    // First check if all rows are valid
+    rows.forEach((row, index) => {
+      const isValid = validateTradeRequest(row);
       if (!isValid) {
-        if (!row.entity_id || !row.entity_name) {
-          validationErrors.push("Entity information is missing");
-        }
-        if (!row.strategy_name) {
-          validationErrors.push("Strategy is required");
-        }
-        if (!row.buy_currency && !row.sell_currency) {
-          validationErrors.push("At least one currency is required");
-        }
-        if (!row.settlement_date) {
-          validationErrors.push("Settlement date is required");
-        }
+        allRowsValid = false;
+        validationErrors.push(`Row ${index + 1} has validation errors`);
       }
-      return isValid;
     });
 
-    return { validRows, errors: [...new Set(validationErrors)] };
+    // Only return valid rows if ALL rows are valid
+    return {
+      validRows: allRowsValid ? rows : [],
+      errors: [...new Set(validationErrors)]
+    };
   };
 
   const handleSave = async () => {
     try {
-      const { validRows, errors } = validateRows(rowData);
+      // Filter out empty rows (rows with no data entered)
+      const nonEmptyRows = rowData.filter(row => 
+        row.entity_id || 
+        row.strategy_name || 
+        row.buy_currency || 
+        row.sell_currency || 
+        row.buy_amount || 
+        row.sell_amount
+      );
+
+      if (nonEmptyRows.length === 0) {
+        toast.error("No trades to save");
+        return;
+      }
+
+      const { validRows, errors } = validateRows(nonEmptyRows);
 
       console.log("Validation results:", {
-        totalRows: rowData.length,
+        totalRows: nonEmptyRows.length,
         validRowsCount: validRows.length,
         validRows,
         errors,
-        allRows: rowData
+        allRows: nonEmptyRows
       });
 
       if (errors.length > 0) {
@@ -77,7 +75,7 @@ export const GridActions = ({ onAddRow, rowData, onClearGrid }: GridActionsProps
       }
 
       if (validRows.length === 0) {
-        toast.error("No valid trades to save");
+        toast.error("All rows must be valid before saving");
         return;
       }
 
