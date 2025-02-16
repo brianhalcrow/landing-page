@@ -1,4 +1,3 @@
-
 import { GridApi, ColDef } from "ag-grid-enterprise";
 import { ActionsRenderer } from "../components/ActionsRenderer";
 import { EntitySelector } from "../selectors/EntitySelector";
@@ -18,7 +17,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     display: "flex", 
     alignItems: "center", 
     padding: "8px",
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
+    border: "none"
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -85,14 +85,10 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
       cellStyle: amountCellStyle,
-      cellClass: 'ag-cell-no-border',
-      cellEditorStyle: {
-        border: 'none',
-        outline: 'none',
-        width: '100%',
-        height: '100%',
-        padding: '0',
-        background: 'transparent'
+      cellClass: ['ag-cell-no-border', 'no-outline-cell'],
+      cellEditorParams: {
+        cellEditorPopup: false,
+        useFormatter: true
       }
     },
     {
@@ -112,14 +108,10 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
       cellStyle: amountCellStyle,
-      cellClass: 'ag-cell-no-border',
-      cellEditorStyle: {
-        border: 'none',
-        outline: 'none',
-        width: '100%',
-        height: '100%',
-        padding: '0',
-        background: 'transparent'
+      cellClass: ['ag-cell-no-border', 'no-outline-cell'],
+      cellEditorParams: {
+        cellEditorPopup: false,
+        useFormatter: true
       }
     },
     {

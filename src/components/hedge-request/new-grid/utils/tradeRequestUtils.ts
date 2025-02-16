@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -96,11 +97,14 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
+  // Settlement date is required
   if (!data.settlement_date) {
     console.log("Validation failed: Missing settlement date");
     toast.error("Settlement date is required");
     return false;
   }
+
+  // Note: trade_date is optional, so we don't validate it
 
   console.log("Validation passed successfully");
   return true;
@@ -116,16 +120,14 @@ const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): strin
     }
 
     // If it's an object with a value property (from AG Grid's date picker)
-    if (
-      typeof dateInput === 'object' && 
-      'value' in dateInput &&
-      dateInput.value
-    ) {
+    if (typeof dateInput === 'object' && dateInput !== null && 'value' in dateInput) {
       const dateValue = dateInput.value;
-      if (dateValue && typeof dateValue === 'object' && 'iso' in dateValue && typeof dateValue.iso === 'string') {
+      if (dateValue && typeof dateValue === 'object' && 'iso' in dateValue) {
         return format(new Date(dateValue.iso), 'yyyy-MM-dd');
       }
-      return format(new Date(dateValue), 'yyyy-MM-dd');
+      if (dateValue) {
+        return format(new Date(dateValue), 'yyyy-MM-dd');
+      }
     }
 
     // If it's a string
