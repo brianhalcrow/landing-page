@@ -105,7 +105,6 @@ const HedgeRequestGrid = () => {
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
           suppressHorizontalScroll={true}
-          suppressVerticalScroll={true}
           suppressScrollOnNewData={true}
         />
       </div>
