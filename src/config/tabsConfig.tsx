@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -7,6 +8,10 @@ import FxRatesTab from "@/rates/FxRates";
 import SpotRatesStreaming from "@/rates/SpotRatesStreaming";
 import OverviewTab from "@/components/review/OverviewTab";
 import PositionsTab from "@/components/review/PositionsTab";
+import ReviewTab from "@/components/review/ReviewTab";
+import ApproveTab from "@/components/review/ApproveTab";
+import ReadyToTradeTab from "@/components/review/ReadyToTradeTab";
+import RejectedTradesTab from "@/components/review/RejectedTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
@@ -73,6 +78,7 @@ export const tabsConfig = {
     { value: "review", label: "Review", content: <ReviewTab /> },
     { value: "approve", label: "Approve", content: <ApproveTab /> },
     { value: "ready", label: "Ready to Trade", content: <ReadyToTradeTab /> },
+    { value: "rejected", label: "Rejected", content: <RejectedTradesTab /> },
   ],
   "control": [
     { value: "general", label: "General", content: <div>Control Overview</div> },
