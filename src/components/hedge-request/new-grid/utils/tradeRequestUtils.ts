@@ -110,34 +110,43 @@ export const validateTradeRequest = (data: any): boolean => {
 const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): string | null => {
   if (!dateInput) return null;
 
-  // If it's already a Date object
-  if (dateInput instanceof Date) {
-    return format(dateInput, 'yyyy-MM-dd');
-  }
-
-  // If it's an object with a value property (from AG Grid's date picker)
-  if (typeof dateInput === 'object' && dateInput !== null && 'value' in dateInput) {
-    const date = new Date(dateInput.value.iso || dateInput.value);
-    return format(date, 'yyyy-MM-dd');
-  }
-
-  // If it's a string
-  if (typeof dateInput === 'string') {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
-      return dateInput;
+  try {
+    // If it's already a Date object
+    if (dateInput instanceof Date) {
+      return format(dateInput, 'yyyy-MM-dd');
     }
-    
-    try {
+
+    // If it's an object with a value property (from AG Grid's date picker)
+    if (
+      typeof dateInput === 'object' && 
+      dateInput !== null &&
+      'value' in dateInput &&
+      dateInput.value !== null
+    ) {
+      const dateValue = dateInput.value;
+      if ('iso' in dateValue && typeof dateValue.iso === 'string') {
+        return format(new Date(dateValue.iso), 'yyyy-MM-dd');
+      }
+      return format(new Date(dateValue), 'yyyy-MM-dd');
+    }
+
+    // If it's a string
+    if (typeof dateInput === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+        return dateInput;
+      }
+      
       const parsedDate = parse(dateInput, 'dd/MM/yyyy', new Date());
       if (isValid(parsedDate)) {
         return format(parsedDate, 'yyyy-MM-dd');
       }
-    } catch (error) {
-      console.error("Error parsing date:", error);
     }
-  }
 
-  return null;
+    return null;
+  } catch (error) {
+    console.error("Error parsing date:", error);
+    return null;
+  }
 };
 
 export const transformTradeRequest = (data: any): TradeRequest => {
@@ -163,7 +172,7 @@ export const transformTradeRequest = (data: any): TradeRequest => {
     strategy_name: data.strategy_name,
     instrument: data.instrument,
     trade_date: parsedTradeDate,
-    settlement_date: parsedSettlementDate!,
+    settlement_date: parsedSettlementDate,
     ccy_1: data.buy_currency,
     ccy_2: data.sell_currency,
     ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
@@ -174,4 +183,4 @@ export const transformTradeRequest = (data: any): TradeRequest => {
   };
 
   return transformed;
-}
+};
