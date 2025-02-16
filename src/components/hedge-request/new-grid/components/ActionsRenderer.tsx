@@ -48,13 +48,15 @@ export const ActionsRenderer = ({
   }, [api, data]);
 
   const handleAddBelow = useCallback(() => {
-    const currentIndex = api.getDisplayedRowAtIndex(rowIndex).rowIndex;
-    api.applyTransaction({
-      add: [{}],
-      addIndex: currentIndex + 1
-    });
-    toast.success("New row added");
-  }, [api, rowIndex]);
+    const currentDisplayedIndex = node.rowIndex;
+    if (typeof currentDisplayedIndex === 'number') {
+      api.applyTransaction({
+        add: [{}],
+        addIndex: currentDisplayedIndex + 1
+      });
+      toast.success("New row added");
+    }
+  }, [api, node]);
 
   return (
     <div className="flex items-center gap-1">
