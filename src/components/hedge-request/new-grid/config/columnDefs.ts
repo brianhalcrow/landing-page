@@ -1,3 +1,4 @@
+
 import { GridApi } from "ag-grid-community";
 import { EntitySelector } from "../selectors/EntitySelector";
 import { StrategySelector } from "../selectors/StrategySelector";
@@ -13,18 +14,6 @@ interface Context {
 }
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
-  {
-    headerName: "Actions",
-    width: 180,
-    cellRenderer: ActionsRenderer,
-    cellRendererParams: {
-      onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
-      updateRowData: context.updateRowData
-    },
-    pinned: 'left',
-    sortable: false,
-    filter: false
-  },
   {
     headerName: "Entity Name",
     field: "entity_name",
@@ -134,5 +123,17 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
       context
     },
     minWidth: 150
+  },
+  {
+    headerName: "Actions",
+    width: 180,
+    cellRenderer: ActionsRenderer,
+    cellRendererParams: {
+      onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
+      updateRowData: context.updateRowData
+    },
+    sortable: false,
+    filter: false,
+    suppressSizeToFit: true
   }
 ];
