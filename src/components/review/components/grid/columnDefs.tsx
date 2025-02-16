@@ -2,7 +2,7 @@
 import { ColDef } from 'ag-grid-community';
 import { TradeRequest } from '../../types/trade-request.types';
 import { ActionButtons } from '../ActionButtons';
-import { formatDate } from '../utils/dateFormatter';
+import { formatDate, formatDateNoTime } from '../utils/dateFormatter';
 
 export const createColumnDefs = (
   handleApprove: (request: TradeRequest) => Promise<void>,
@@ -16,27 +16,6 @@ export const createColumnDefs = (
     flex: 0.5,
     minWidth: 100,
     headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'status', 
-    headerName: 'Status',
-    flex: 0.8,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-    cellRenderer: (params: any) => {
-      const status = params.value;
-      const colorMap: Record<string, string> = {
-        Submitted: 'bg-blue-100 text-blue-800',
-        Reviewed: 'bg-yellow-100 text-yellow-800',
-        Approved: 'bg-green-100 text-green-800',
-        Rejected: 'bg-red-100 text-red-800'
-      };
-      return (
-        <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
-          {status}
-        </div>
-      );
-    }
   },
   { 
     field: 'entity_id', 
@@ -87,7 +66,7 @@ export const createColumnDefs = (
     flex: 1,
     minWidth: 130,
     headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
+    valueFormatter: formatDateNoTime
   },
   { 
     field: 'ccy_1', 
@@ -154,6 +133,27 @@ export const createColumnDefs = (
     minWidth: 160,
     headerClass: 'ag-header-center header-wrap',
     valueFormatter: formatDate
+  },
+  { 
+    field: 'status', 
+    headerName: 'Status',
+    flex: 0.8,
+    minWidth: 120,
+    headerClass: 'ag-header-center header-wrap',
+    cellRenderer: (params: any) => {
+      const status = params.value;
+      const colorMap: Record<string, string> = {
+        Submitted: 'bg-blue-100 text-blue-800',
+        Reviewed: 'bg-yellow-100 text-yellow-800',
+        Approved: 'bg-green-100 text-green-800',
+        Rejected: 'bg-red-100 text-red-800'
+      };
+      return (
+        <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
+          {status}
+        </div>
+      );
+    }
   },
   {
     headerName: 'Actions',

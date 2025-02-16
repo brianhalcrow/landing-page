@@ -10,3 +10,13 @@ export const formatDate = (params: any) => {
     return '';
   }
 };
+
+export const formatDateNoTime = (params: any) => {
+  if (!params.value) return '';
+  try {
+    const date = parseISO(params.value);
+    return format(date, 'dd/MM/yy');
+  } catch (error) {
+    return '';
+  }
+};
