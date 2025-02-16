@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -23,7 +22,7 @@ interface TradeRequest {
   strategy_name: string;
   instrument: string;
   trade_date: string | null;
-  settlement_date: string | null;
+  settlement_date: string;
   ccy_1: string | null;
   ccy_2: string | null;
   ccy_1_amount: number | null;
@@ -120,14 +119,13 @@ const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): strin
     }
 
     // If it's an object with a value property (from AG Grid's date picker)
-    if (typeof dateInput === 'object' && dateInput !== null && 'value' in dateInput) {
-      const dateValue = dateInput.value;
-      if (dateValue && typeof dateValue === 'object' && 'iso' in dateValue) {
+    const dateObj = dateInput as any;
+    if (typeof dateObj === 'object' && dateObj.value) {
+      const dateValue = dateObj.value;
+      if (typeof dateValue === 'object' && 'iso' in dateValue) {
         return format(new Date(dateValue.iso), 'yyyy-MM-dd');
       }
-      if (dateValue) {
-        return format(new Date(dateValue), 'yyyy-MM-dd');
-      }
+      return format(new Date(dateValue), 'yyyy-MM-dd');
     }
 
     // If it's a string
@@ -151,7 +149,7 @@ const parseDateToYYYYMMDD = (dateInput: Date | string | null | undefined): strin
 
 export const transformTradeRequest = (data: any): TradeRequest => {
   // Handle both AG Grid date format and regular date strings
-  const parsedTradeDate = parseDateToYYYYMMDD(data.trade_date);
+  const parsedTradeDate = data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null;
   const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
   
   console.log("Transforming dates:", {
@@ -172,7 +170,7 @@ export const transformTradeRequest = (data: any): TradeRequest => {
     strategy_name: data.strategy_name,
     instrument: data.instrument,
     trade_date: parsedTradeDate,
-    settlement_date: parsedSettlementDate,
+    settlement_date: parsedSettlementDate || '',
     ccy_1: data.buy_currency,
     ccy_2: data.sell_currency,
     ccy_1_amount: data.buy_amount ? parseFloat(data.buy_amount) : null,
