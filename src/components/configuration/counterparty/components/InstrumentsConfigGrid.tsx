@@ -1,10 +1,10 @@
 
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, GridOptions } from "ag-grid-enterprise";
+import { ColDef, GridOptions, ICellRendererParams } from "ag-grid-enterprise";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInstrumentsConfig } from "../hooks/useInstrumentsConfig";
-import CheckboxCellRenderer from "../../grid/cellRenderers/CheckboxCellRenderer";
-import ActionsCellRenderer from "../../grid/cellRenderers/ActionsCellRenderer";
+import { Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import "ag-grid-enterprise/styles/ag-grid.css";
 import "ag-grid-enterprise/styles/ag-theme-alpine.css";
@@ -23,7 +23,7 @@ const defaultGridOptions: GridOptions = {
   rowGroupPanelShow: "always",
   groupDisplayType: "groupRows",
   animateRows: true,
-  rowHeight: 24,
+  rowHeight: 48, // Increased for better checkbox visibility
   headerHeight: 40,
   suppressRowClickSelection: true,
   enableCellTextSelection: true,
@@ -69,6 +69,59 @@ const commonGroupColProps: Partial<ColDef> = {
     buttons: ["reset", "apply"],
     defaultOption: "contains",
   },
+};
+
+// New Enterprise cell renderers
+const CheckboxCellRenderer = (props: ICellRendererParams) => {
+  const checked = props.value || false;
+  const isEditing = props.data?.isEditing;
+  const onChange = props.colDef.cellRendererParams?.onChange;
+
+  return (
+    <div className="flex items-center justify-center h-full">
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={!isEditing}
+        onChange={(e) => onChange?.(e.target.checked, props.data)}
+        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+      />
+    </div>
+  );
+};
+
+const ActionsCellRenderer = (props: ICellRendererParams) => {
+  const { data, colDef } = props;
+  const { onEditClick, onSaveClick, currentlyEditing, hasPendingChanges } = colDef.cellRendererParams || {};
+  
+  const isEditing = data?.isEditing;
+  const isDisabled = currentlyEditing && currentlyEditing !== data?.counterparty_id;
+
+  const handleClick = () => {
+    if (isEditing) {
+      onSaveClick?.(data?.counterparty_id);
+    } else {
+      onEditClick?.(data?.counterparty_id);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleClick}
+        disabled={!isEditing && (isDisabled || hasPendingChanges)}
+        className="h-8 w-8 p-0"
+      >
+        {isEditing ? (
+          <Check className="h-4 w-4 text-green-600" />
+        ) : (
+          <X className="h-4 w-4 text-blue-600" />
+        )}
+      </Button>
+    </div>
+  );
 };
 
 export const InstrumentsConfigGrid = () => {
@@ -123,7 +176,6 @@ export const InstrumentsConfigGrid = () => {
       cellClass: (params) =>
         params.data?.isEditing ? "ag-cell-highlight" : "",
       cellRendererParams: {
-        disabled: (params: any) => !params.data?.isEditing,
         onChange: (checked: boolean, data: any) => {
           if (!data?.counterparty_id) return;
           setPendingChanges((prev) => ({
@@ -148,7 +200,7 @@ export const InstrumentsConfigGrid = () => {
         hasPendingChanges,
       },
       pinned: "right",
-      menuTabs: [], // Replace suppressMenu with menuTabs
+      menuTabs: [],
       sortable: false,
       filter: false,
       cellClass: (params) =>
