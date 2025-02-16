@@ -1,10 +1,5 @@
+
 import { GridApi, ColDef } from "ag-grid-enterprise";
-import { EntitySelector } from "../selectors/EntitySelector";
-import { StrategySelector } from "../selectors/StrategySelector";
-import { CounterpartySelector } from "../selectors/CounterpartySelector";
-import { CostCentreSelector } from "../selectors/CostCentreSelector";
-import { CurrencySelector } from "../selectors/CurrencySelector";
-import { DateCell } from "../components/DateCell";
 import { ActionsRenderer } from "../components/ActionsRenderer";
 
 interface Context {
@@ -12,77 +7,127 @@ interface Context {
   updateRowData?: (rowIndex: number, updates: any) => void;
 }
 
-// Define common cell styles
-const commonCellStyle = { display: "flex", alignItems: "center", padding: "8px" };
-
-// Function to generate column definitions dynamically
 export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef[] => {
+  const commonCellStyle = { display: "flex", alignItems: "center", padding: "8px" };
+
   const baseColumnDefs: ColDef[] = [
-    { headerName: "Entity Name", field: "entity_name", cellRenderer: EntitySelector },
-    { headerName: "Entity ID", field: "entity_id", cellRenderer: EntitySelector },
-    { headerName: "Cost Centre", field: "cost_centre", cellRenderer: CostCentreSelector },
-    { headerName: "Strategy", field: "strategy_name", cellRenderer: StrategySelector },
-    { headerName: "Instrument", field: "instrument" },
-    { headerName: "Counterparty", field: "counterparty_name", cellRenderer: CounterpartySelector },
-    { 
-      headerName: "Buy Currency", 
-      field: "buy_currency", 
-      cellRenderer: CurrencySelector,
-      valueGetter: params => params.data?.buy_currency || "",
-      valueSetter: params => {
-        params.data.buy_currency = params.newValue || "";
-        return true;
-      }
+    {
+      headerName: "Entity Name",
+      field: "entity_name",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: Array.from(new Set(context.validConfigs?.map(config => config.entity_name) || [])),
+      },
+      editable: true
     },
     { 
-      headerName: "Buy Amount", 
-      field: "buy_amount", 
-      editable: true, 
-      cellEditor: "agTextCellEditor", 
-      cellEditorParams: { useFormatter: true },
+      headerName: "Entity ID", 
+      field: "entity_id",
+      editable: false
+    },
+    {
+      headerName: "Cost Centre",
+      field: "cost_centre",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => config.entity_id === params.data.entity_id)
+          .map(config => config.cost_centre) || [])),
+      }),
+      editable: true
+    },
+    {
+      headerName: "Strategy",
+      field: "strategy_name",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => config.entity_id === params.data.entity_id)
+          .map(config => config.strategy_name) || [])),
+      }),
+      editable: true
+    },
+    { 
+      headerName: "Instrument", 
+      field: "instrument",
+      editable: false
+    },
+    {
+      headerName: "Counterparty",
+      field: "counterparty_name",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: (params: any) => ({
+        values: Array.from(new Set(context.validConfigs
+          ?.filter(config => 
+            config.entity_id === params.data.entity_id &&
+            config.strategy_name === params.data.strategy_name
+          )
+          .map(config => config.counterparty_name) || [])),
+      }),
+      editable: true
+    },
+    {
+      headerName: "Buy Currency",
+      field: "buy_currency",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
+      },
+      editable: true
+    },
+    {
+      headerName: "Buy Amount",
+      field: "buy_amount",
+      editable: true,
+      cellEditor: 'agNumberCellEditor',
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null
     },
-    { 
-      headerName: "Sell Currency", 
-      field: "sell_currency", 
-      cellRenderer: CurrencySelector,
-      valueGetter: params => params.data?.sell_currency || "",
-      valueSetter: params => {
-        params.data.sell_currency = params.newValue || "";
-        return true;
-      }
+    {
+      headerName: "Sell Currency",
+      field: "sell_currency",
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'NZD', 'SGD']
+      },
+      editable: true
     },
-    { 
-      headerName: "Sell Amount", 
-      field: "sell_amount", 
-      editable: true, 
-      cellEditor: "agTextCellEditor", 
-      cellEditorParams: { useFormatter: true },
+    {
+      headerName: "Sell Amount",
+      field: "sell_amount",
+      editable: true,
+      cellEditor: 'agNumberCellEditor',
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null
     },
-    { headerName: "Trade Date", field: "trade_date", cellRenderer: DateCell },
-    { headerName: "Settlement Date", field: "settlement_date", cellRenderer: DateCell },
-    { 
-      headerName: "Actions", 
-      width: 180, 
-      cellRenderer: ActionsRenderer, 
-      suppressSizeToFit: true,
-      cellRendererParams: { 
-        onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),  // ✅ Now `gridApi` is properly passed
+    {
+      headerName: "Trade Date",
+      field: "trade_date",
+      editable: true,
+      cellEditor: 'agDateCellEditor',
+      cellEditorPopup: true
+    },
+    {
+      headerName: "Settlement Date",
+      field: "settlement_date",
+      editable: true,
+      cellEditor: 'agDateCellEditor',
+      cellEditorPopup: true
+    },
+    {
+      headerName: "Actions",
+      width: 100,
+      cellRenderer: ActionsRenderer,
+      cellRendererParams: {
+        onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
         updateRowData: context.updateRowData
       }
     }
   ];
 
-  // Apply default properties to all columns
   return baseColumnDefs.map(col => ({
     ...col,
-    minWidth: (col as ColDef).minWidth ?? 150, // ✅ Explicitly casting `col` as `ColDef`
-    sortable: col.sortable ?? false,
-    filter: col.filter ?? false,
+    minWidth: col.minWidth ?? 150,
     cellStyle: col.cellStyle ?? commonCellStyle
   }));
 };
-
