@@ -18,18 +18,42 @@ const defaultGridOptions: GridOptions = {
     enablePivot: true,
     enableValue: true,
     menuTabs: ["filterMenuTab", "generalMenuTab", "columnsMenuTab"],
+    autoHeaderHeight: true,
+    wrapHeaderText: true,
+    suppressColumnsToolPanel: false,
   },
   groupDefaultExpanded: -1,
   rowGroupPanelShow: "always",
   groupDisplayType: "groupRows",
   animateRows: true,
-  rowHeight: 48, // Increased for better checkbox visibility
+  rowHeight: 48,
   headerHeight: 40,
   suppressRowClickSelection: true,
   enableCellTextSelection: true,
   enableRangeSelection: true,
   enableCharts: true,
   enableRangeHandle: true,
+  // Enhanced enterprise features
+  suppressPropertyNamesCheck: true,
+  masterDetail: true,
+  detailRowAutoHeight: true,
+  tooltipShowDelay: 0,
+  tooltipHideDelay: 2000,
+  // Row grouping improvements
+  groupIncludeFooter: true,
+  groupSelectsChildren: true,
+  // Chart options
+  chartThemes: ["ag-default-dark", "ag-default"],
+  // State management
+  enableCellChangeFlash: true,
+  statusBar: {
+    statusPanels: [
+      { statusPanel: "agTotalRowCountComponent", align: "left" },
+      { statusPanel: "agFilteredRowCountComponent" },
+      { statusPanel: "agSelectedRowCountComponent" },
+      { statusPanel: "agAggregationComponent" }
+    ]
+  }
 };
 
 const sideBarConfig = {
@@ -50,6 +74,7 @@ const sideBarConfig = {
     },
   ],
   defaultToolPanel: "columns",
+  position: "right",
 };
 
 const statusBarConfig = {
@@ -71,7 +96,6 @@ const commonGroupColProps: Partial<ColDef> = {
   },
 };
 
-// New Enterprise cell renderers
 const CheckboxCellRenderer = (props: ICellRendererParams) => {
   const checked = props.value || false;
   const isEditing = props.data?.isEditing;
@@ -146,11 +170,13 @@ export const InstrumentsConfigGrid = () => {
       field: "counterparty_type",
       headerName: "Type",
       ...commonGroupColProps,
+      enablePivot: true,
     },
     {
       field: "country",
       headerName: "Country",
       ...commonGroupColProps,
+      enablePivot: true,
     },
     {
       field: "counterparty_name",
@@ -163,6 +189,10 @@ export const InstrumentsConfigGrid = () => {
       tooltipField: "counterparty_name",
       cellClass: (params) =>
         params.data?.isEditing ? "ag-cell-highlight" : "",
+      filterParams: {
+        buttons: ["reset", "apply"],
+        closeOnApply: true,
+      },
     },
     ...instruments.map((instrument) => ({
       field: `instruments.${instrument.id}`,
@@ -219,6 +249,12 @@ export const InstrumentsConfigGrid = () => {
           getRowId={(params) => params.data.counterparty_id}
           sideBar={sideBarConfig}
           statusBar={statusBarConfig}
+          tooltipShowDelay={0}
+          tooltipHideDelay={2000}
+          rowGroupPanelShow="always"
+          groupDefaultExpanded={-1}
+          enableCharts={true}
+          enableRangeSelection={true}
         />
       </div>
     </div>
