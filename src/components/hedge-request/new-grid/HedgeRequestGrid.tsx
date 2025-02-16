@@ -63,9 +63,16 @@ const HedgeRequestGrid = () => {
             }
             .ag-root-wrapper {
               border: none !important;
+              overflow: hidden !important;
             }
             .ag-root {
               overflow: hidden !important;
+            }
+            .ag-body-viewport {
+              overflow: hidden !important;
+            }
+            .ag-body-horizontal-scroll {
+              display: none !important;
             }
           `}
         </style>
@@ -98,6 +105,7 @@ const HedgeRequestGrid = () => {
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
           suppressHorizontalScroll={true}
+          suppressVerticalScroll={true}
           suppressScrollOnNewData={true}
         />
       </div>
