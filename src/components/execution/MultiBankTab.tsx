@@ -23,7 +23,7 @@ interface RowDataType {
 const MultiBankTab = () => {
   // Create 10 columns with no headers
   const columnDefs: ColDef<RowDataType>[] = Array(10).fill(null).map((_, index) => ({
-    field: `col${index}` as keyof RowDataType,
+    field: `col${index}`,
     headerName: '',
     width: 100,
     suppressMenu: true,
@@ -80,7 +80,7 @@ const MultiBankTab = () => {
           suppressMovableColumns={true}
           suppressColumnMoveAnimation={true}
           suppressRowHoverHighlight={true}
-          suppressCellSelection={true}
+          suppressRowSelection={true}
           headerHeight={0}
         />
       </div>
