@@ -39,7 +39,7 @@ const HedgeRequestGrid = () => {
 
   return (
     <div className="space-y-4">
-      <div className={`w-full ag-theme-alpine`} style={{ height: `${gridHeight}px` }}>
+      <div className={`w-full ag-theme-alpine border border-gray-200`} style={{ height: `${gridHeight}px` }}>
         <style>
           {`
             .ag-cell {
@@ -50,6 +50,16 @@ const HedgeRequestGrid = () => {
               display: flex !important;
               align-items: center !important;
               justify-content: left !important;
+            }
+            .ag-cell select {
+              width: 100% !important;
+              padding-right: 24px !important;
+            }
+            .ag-cell .relative svg {
+              right: 8px !important;
+            }
+            .ag-cell-wrapper {
+              width: 100% !important;
             }
           `}
         </style>

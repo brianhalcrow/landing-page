@@ -83,7 +83,16 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Buy Amount",
     field: "buy_amount",
     editable: true,
-    minWidth: 150
+    minWidth: 150,
+    valueFormatter: (params: any) => {
+      if (params.value) {
+        return Number(params.value).toLocaleString();
+      }
+      return '';
+    },
+    valueParser: (params: any) => {
+      return params.newValue ? params.newValue.replace(/,/g, '') : null;
+    }
   },
   {
     headerName: "Sell Currency",
@@ -104,7 +113,16 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context) => [
     headerName: "Sell Amount",
     field: "sell_amount",
     editable: true,
-    minWidth: 150
+    minWidth: 150,
+    valueFormatter: (params: any) => {
+      if (params.value) {
+        return Number(params.value).toLocaleString();
+      }
+      return '';
+    },
+    valueParser: (params: any) => {
+      return params.newValue ? params.newValue.replace(/,/g, '') : null;
+    }
   },
   {
     headerName: "Trade Date",
