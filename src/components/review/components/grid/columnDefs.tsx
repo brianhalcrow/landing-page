@@ -32,13 +32,6 @@ export const createColumnDefs = (
     headerClass: 'ag-header-center header-wrap',
   },
   { 
-    field: 'cost_centre', 
-    headerName: 'Cost Centre',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
     field: 'strategy_name', 
     headerName: 'Strategy Name',
     flex: 1,
@@ -51,6 +44,61 @@ export const createColumnDefs = (
     flex: 1,
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
+  },
+  { 
+    field: 'counterparty_name', 
+    headerName: 'Counterparty',
+    flex: 1,
+    minWidth: 150,
+    headerClass: 'ag-header-center header-wrap',
+  },
+  { 
+    field: 'buy_currency', 
+    headerName: 'Buy Currency',
+    field: 'ccy_1',
+    flex: 0.7,
+    minWidth: 100,
+    headerClass: 'ag-header-center header-wrap',
+  },
+  { 
+    field: 'buy_amount', 
+    headerName: 'Buy Amount',
+    field: 'ccy_1_amount',
+    flex: 1,
+    minWidth: 120,
+    headerClass: 'ag-header-center header-wrap',
+    type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (params.value === null || params.value === undefined) return '';
+      return params.value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+  },
+  { 
+    field: 'sell_currency', 
+    headerName: 'Sell Currency',
+    field: 'ccy_2',
+    flex: 0.7,
+    minWidth: 100,
+    headerClass: 'ag-header-center header-wrap',
+  },
+  { 
+    field: 'sell_amount', 
+    headerName: 'Sell Amount',
+    field: 'ccy_2_amount',
+    flex: 1,
+    minWidth: 120,
+    headerClass: 'ag-header-center header-wrap',
+    type: 'numericColumn',
+    valueFormatter: (params) => {
+      if (params.value === null || params.value === undefined) return '';
+      return params.value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
   },
   { 
     field: 'trade_date', 
@@ -69,61 +117,17 @@ export const createColumnDefs = (
     valueFormatter: formatDateNoTime
   },
   { 
-    field: 'ccy_1', 
-    headerName: 'Buy Currency',
-    flex: 0.7,
-    minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'ccy_2', 
-    headerName: 'Sell Currency',
-    flex: 0.7,
-    minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'ccy_1_amount', 
-    headerName: 'Buy Amount',
+    field: 'cost_centre', 
+    headerName: 'Cost Centre',
     flex: 1,
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
-    type: 'numericColumn',
-    valueFormatter: (params) => {
-      if (params.value === null || params.value === undefined) return '';
-      return params.value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-  },
-  { 
-    field: 'ccy_2_amount', 
-    headerName: 'Sell Amount',
-    flex: 1,
-    minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-    type: 'numericColumn',
-    valueFormatter: (params) => {
-      if (params.value === null || params.value === undefined) return '';
-      return params.value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
   },
   { 
     field: 'ccy_pair', 
     headerName: 'CCY Pair',
     flex: 0.8,
     minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
-  },
-  { 
-    field: 'counterparty_name', 
-    headerName: 'Counterparty',
-    flex: 1,
-    minWidth: 150,
     headerClass: 'ag-header-center header-wrap',
   },
   { 

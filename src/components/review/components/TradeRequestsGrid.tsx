@@ -1,7 +1,7 @@
 
 import { AgGridReact } from 'ag-grid-react';
-import { TradeRequest, RequestStatus } from '../types/trade-request.types';
 import { createColumnDefs } from './grid/columnDefs';
+import { TradeRequest } from '../types/trade-request.types';
 import { useTradeRequestActions } from './hooks/useTradeRequestActions';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -40,6 +40,8 @@ export const TradeRequestsGrid = ({
         resizable: true,
         suppressSizeToFit: false
       }}
+      rowHeight={65} // Increased by 30% from default 50px
+      headerHeight={48}
       animateRows={true}
       suppressColumnVirtualisation={true}
       enableCellTextSelection={true}
