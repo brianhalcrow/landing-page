@@ -17,7 +17,53 @@ const TradingGrid = () => {
     quotes: MOCK_BANK_DATA
   });
 
-  // Create 10 columns with no headers
+  // Create grid cell data with specific content
+  const createGridData = () => {
+    const data = Array(10).fill(null).map(() => ({
+      col0: '',
+      col1: '',
+      col2: '',
+      col3: '',
+      col4: '',
+      col5: '',
+      col6: '',
+      col7: '',
+      col8: '',
+      col9: ''
+    }));
+
+    // Set header labels
+    data[GRID_CONFIG.headerCells.sell.row].col2 = 'SELL';
+    data[GRID_CONFIG.headerCells.buy.row].col5 = 'BUY';
+    
+    // Set currency pair
+    data[GRID_CONFIG.inputCells.currencies.base.row].col2 = tradingState.baseCurrency;
+    data[GRID_CONFIG.inputCells.currencies.term.row].col4 = tradingState.termCurrency;
+    
+    // Set amount
+    data[GRID_CONFIG.inputCells.amount.row].col3 = tradingState.amount.toString();
+    
+    // Set currency labels
+    data[GRID_CONFIG.headerCells.buyBase.row].col2 = `Buy ${tradingState.baseCurrency}`;
+    data[GRID_CONFIG.headerCells.sellTerm.row].col4 = `Sell ${tradingState.termCurrency}`;
+    
+    // Set bank data
+    tradingState.quotes.forEach((quote, index) => {
+      const rowIndex = GRID_CONFIG.bankMatrix.startRow + index;
+      if (rowIndex < data.length) {
+        data[rowIndex].col0 = quote.bankName;
+        data[rowIndex].col1 = quote.buySpot.toFixed(4);
+        data[rowIndex].col2 = quote.buyPoints.toFixed(4);
+        data[rowIndex].col3 = quote.buyContract.toFixed(4);
+        data[rowIndex].col4 = quote.sellSpot.toFixed(4);
+        data[rowIndex].col5 = quote.sellPoints.toFixed(4);
+      }
+    });
+
+    return data;
+  };
+
+  // Create column definitions
   const columnDefs: ColDef[] = Array(10).fill(null).map((_, index) => ({
     field: `col${index}`,
     headerName: '',
@@ -25,21 +71,32 @@ const TradingGrid = () => {
     suppressMenu: true,
     sortable: false,
     filter: false,
-    headerClass: 'hide-header'
-  }));
-
-  // Create 10x10 grid data
-  const rowData = Array(10).fill(null).map(() => ({
-    col0: '',
-    col1: '',
-    col2: '',
-    col3: '',
-    col4: '',
-    col5: '',
-    col6: '',
-    col7: '',
-    col8: '',
-    col9: ''
+    headerClass: 'hide-header',
+    cellClass: (params: CellClassParams) => {
+      const rowIndex = params.rowIndex;
+      const colDef = params.colDef.field;
+      
+      if (rowIndex >= GRID_CONFIG.bankMatrix.startRow) {
+        if (colDef === 'col1' || colDef === 'col2' || colDef === 'col3') {
+          return 'buy-rate-cell';
+        }
+        if (colDef === 'col4' || colDef === 'col5') {
+          return 'sell-rate-cell';
+        }
+      }
+      
+      if (rowIndex === GRID_CONFIG.headerCells.sell.row || 
+          rowIndex === GRID_CONFIG.headerCells.buy.row) {
+        return 'header-cell';
+      }
+      
+      if (rowIndex === GRID_CONFIG.inputCells.amount.row && 
+          colDef === `col${GRID_CONFIG.inputCells.amount.col}`) {
+        return 'amount-cell';
+      }
+      
+      return '';
+    }
   }));
 
   return (
@@ -65,12 +122,30 @@ const TradingGrid = () => {
             }
             .ag-cell {
               border-right: 1px solid #ddd !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .header-cell {
+              background-color: #e5e7eb;
+              font-weight: bold;
+            }
+            .amount-cell {
+              background-color: #f3f4f6;
+            }
+            .buy-rate-cell {
+              color: #059669;
+              font-weight: 500;
+            }
+            .sell-rate-cell {
+              color: #dc2626;
+              font-weight: 500;
             }
           `}
         </style>
         <AgGridReact
           columnDefs={columnDefs}
-          rowData={rowData}
+          rowData={createGridData()}
           suppressColumnVirtualisation={true}
           suppressRowVirtualisation={true}
           suppressMovableColumns={true}
