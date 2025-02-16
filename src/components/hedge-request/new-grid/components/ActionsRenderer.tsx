@@ -38,30 +38,30 @@ export const ActionsRenderer = ({
           const isFirstLeg = rowIndex % 2 === 0;
           const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
           
-          // Get both row nodes
-          const currentNode = api.getDisplayedRowAtIndex(rowIndex);
-          const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
+          // Get row data directly for both legs
+          const currentRowData = data;
+          const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
           
-          if (currentNode && otherNode) {
+          if (currentRowData && otherRowData) {
+            // Use rowData directly to remove rows
+            const rowsToRemove = [currentRowData, otherRowData];
             api.applyTransaction({
-              remove: [currentNode.data, otherNode.data]
+              remove: rowsToRemove
             });
             toast.success("Swap pair removed from grid");
           } else {
             toast.error("Unable to remove swap pair from grid");
-            console.error("One or both swap legs not found for deletion");
           }
         } else {
-          // For non-swaps, delete single row
-          const rowNode = api.getDisplayedRowAtIndex(rowIndex);
-          if (rowNode) {
+          // For non-swaps, delete single row using rowData directly
+          const rowData = data;
+          if (rowData) {
             api.applyTransaction({
-              remove: [rowNode.data]
+              remove: [rowData]
             });
             toast.success("Row removed from grid");
           } else {
             toast.error("Unable to remove row from grid");
-            console.error("Row not found for deletion");
           }
         }
         return;
@@ -83,19 +83,17 @@ export const ActionsRenderer = ({
           return;
         }
 
-        // Remove from grid
+        // Remove from grid using rowData directly
         const isFirstLeg = rowIndex % 2 === 0;
         const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
-        const currentNode = api.getDisplayedRowAtIndex(rowIndex);
-        const otherNode = api.getDisplayedRowAtIndex(otherLegIndex);
+        const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex)?.data;
         
-        if (currentNode && otherNode) {
+        if (data && otherRowData) {
           api.applyTransaction({
-            remove: [currentNode.data, otherNode.data]
+            remove: [data, otherRowData]
           });
+          toast.success('Swap trade requests deleted successfully');
         }
-
-        toast.success('Swap trade requests deleted successfully');
       } else {
         // Delete single trade request
         const { error } = await supabase
@@ -109,14 +107,10 @@ export const ActionsRenderer = ({
           return;
         }
 
-        // Remove from grid
-        const rowNode = api.getDisplayedRowAtIndex(rowIndex);
-        if (rowNode) {
-          api.applyTransaction({
-            remove: [rowNode.data]
-          });
-        }
-
+        // Remove from grid using rowData directly
+        api.applyTransaction({
+          remove: [data]
+        });
         toast.success('Trade request deleted successfully');
       }
     } catch (error) {
