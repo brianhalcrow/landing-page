@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -35,7 +36,7 @@ interface TradeRequest {
 export const validateTradeRequest = (data: any): boolean => {
   console.log("Starting validation for trade request data:", data);
   
-  // Basic required fields
+  // Basic required fields validation
   if (!data.entity_id || !data.entity_name) {
     console.log("Validation failed: Missing entity information");
     toast.error("Entity information is required");
@@ -60,25 +61,35 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  // Handle currency fields mapping
+  // Currency validation
   const buyCurrency = data.buy_currency || data.ccy_1;
   const sellCurrency = data.sell_currency || data.ccy_2;
-  const buyAmount = data.buy_amount || data.ccy_1_amount;
-  const sellAmount = data.sell_amount || data.ccy_2_amount;
 
-  // For all trades, validate that at least one side is complete
-  const hasBuySide = buyCurrency && buyAmount && buyAmount !== "0";
-  const hasSellSide = sellCurrency && sellAmount && sellAmount !== "0";
-
-  if (!hasBuySide && !hasSellSide) {
-    console.log("Validation failed: No complete side specified");
-    toast.error("Please specify at least one complete side (currency and amount)");
+  // Both currencies must be present
+  if (!buyCurrency || !sellCurrency) {
+    console.log("Validation failed: Both currencies are required");
+    toast.error("Both buy and sell currencies must be specified");
     return false;
   }
 
-  if (buyCurrency && sellCurrency && buyCurrency === sellCurrency) {
+  // Currencies must be different
+  if (buyCurrency === sellCurrency) {
     console.log("Validation failed: Same currency on both sides");
     toast.error("Buy and sell currencies must be different");
+    return false;
+  }
+
+  // Amount validation
+  const buyAmount = data.buy_amount || data.ccy_1_amount;
+  const sellAmount = data.sell_amount || data.ccy_2_amount;
+
+  // At least one amount must be specified and valid
+  const hasBuyAmount = buyAmount && buyAmount !== "0" && Number(buyAmount) > 0;
+  const hasSellAmount = sellAmount && sellAmount !== "0" && Number(sellAmount) > 0;
+
+  if (!hasBuyAmount && !hasSellAmount) {
+    console.log("Validation failed: No valid amount specified");
+    toast.error("Please specify at least one valid amount (greater than zero)");
     return false;
   }
 
