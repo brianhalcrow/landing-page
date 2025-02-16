@@ -31,20 +31,33 @@ export const TradeRequestsGrid = ({
   );
 
   return (
-    <AgGridReact
-      rowData={rowData}
-      columnDefs={columnDefs}
-      defaultColDef={{
-        sortable: true,
-        filter: true,
-        resizable: true,
-        suppressSizeToFit: false
-      }}
-      rowHeight={65}
-      headerHeight={48}
-      animateRows={true}
-      suppressColumnVirtualisation={true}
-      enableCellTextSelection={true}
-    />
+    <div className="ag-theme-alpine h-full">
+      <style>
+        {`
+          .ag-cell {
+            display: flex !important;
+            align-items: center !important;
+          }
+          .ag-cell-wrapper {
+            width: 100%;
+          }
+        `}
+      </style>
+      <AgGridReact
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={{
+          sortable: true,
+          filter: true,
+          resizable: true,
+          suppressSizeToFit: false
+        }}
+        rowHeight={45}
+        headerHeight={48}
+        animateRows={true}
+        suppressColumnVirtualisation={true}
+        enableCellTextSelection={true}
+      />
+    </div>
   );
 };
