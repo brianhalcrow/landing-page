@@ -1,4 +1,3 @@
-
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -71,8 +70,9 @@ export const tabsConfig = {
   ],
   "review": [
     { value: "overview", label: "Overview", content: <OverviewTab /> },
-    { value: "positions", label: "Positions", content: <PositionsTab /> },
-    { value: "reports", label: "Reports", content: <div>Review Reports</div> },
+    { value: "review", label: "Review", content: <ReviewTab /> },
+    { value: "approve", label: "Approve", content: <ApproveTab /> },
+    { value: "ready", label: "Ready to Trade", content: <ReadyToTradeTab /> },
   ],
   "control": [
     { value: "general", label: "General", content: <div>Control Overview</div> },
