@@ -104,8 +104,8 @@ const TradingGrid = () => {
       <div 
         className="ag-theme-alpine" 
         style={{ 
-          height: '2000px',
-          width: '2000px'
+          height: '1000px',
+          width: '1000px'
         }}
       >
         <GridStyles />
@@ -119,38 +119,32 @@ const TradingGrid = () => {
             }
             .ag-row {
               border: 1px solid #ddd !important;
-              height: 200px !important;
             }
             .ag-cell {
               border-right: 1px solid #ddd !important;
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 24px;
             }
             .header-cell {
               background-color: #e5e7eb;
               font-weight: bold;
-              font-size: 28px;
             }
             .amount-cell {
               background-color: #f3f4f6;
-              font-size: 26px;
             }
             .buy-rate-cell {
               color: #059669;
               font-weight: 500;
-              font-size: 26px;
             }
             .sell-rate-cell {
               color: #dc2626;
               font-weight: 500;
-              font-size: 26px;
             }
           `}
         </style>
         <AgGridReact
-          columnDefs={columnDefs.map(col => ({ ...col, width: 200 }))}
+          columnDefs={columnDefs}
           rowData={createGridData()}
           suppressColumnVirtualisation={true}
           suppressRowVirtualisation={true}
@@ -159,7 +153,6 @@ const TradingGrid = () => {
           suppressRowHoverHighlight={true}
           rowSelection={null}
           headerHeight={0}
-          rowHeight={200}
         />
       </div>
     </div>
