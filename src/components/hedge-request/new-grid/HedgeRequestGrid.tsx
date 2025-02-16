@@ -34,8 +34,8 @@ const HedgeRequestGrid = () => {
     return {};
   }, []);
 
-  // Calculate dynamic height based on number of rows (45px per row + 48px header)
-  const gridHeight = Math.min(600, (rowData?.length || 0) * 45 + 48);
+  // Calculate exact height based on number of rows (45px per row) plus header (48px)
+  const gridHeight = (rowData?.length || 0) * 45 + 48;
 
   return (
     <div className="space-y-4">
@@ -91,7 +91,6 @@ const HedgeRequestGrid = () => {
           onCellValueChanged={handleCellValueChanged}
           suppressMoveWhenRowDragging={true}
           getRowStyle={getRowStyle}
-          domLayout="autoHeight"
         />
       </div>
 
