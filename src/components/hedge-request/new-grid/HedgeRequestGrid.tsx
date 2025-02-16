@@ -14,7 +14,7 @@ const HedgeRequestGrid = () => {
     validConfigs,
     addNewRow,
     updateRowData,
-    clearRowData // Add this from useHedgeRequestData hook
+    clearRowData
   } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback((event: any) => {
@@ -46,6 +46,8 @@ const HedgeRequestGrid = () => {
             }
             return `generated-${Date.now()}-${Math.random()}`;
           }}
+          rowHeight={45}
+          headerHeight={48}
           animateRows={true}
           suppressColumnVirtualisation={true}
           enableCellTextSelection={true}
