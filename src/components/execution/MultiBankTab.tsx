@@ -80,7 +80,7 @@ const MultiBankTab = () => {
           suppressMovableColumns={true}
           suppressColumnMoveAnimation={true}
           suppressRowHoverHighlight={true}
-          suppressRowSelection={true}
+          rowSelection={null}
           headerHeight={0}
         />
       </div>
