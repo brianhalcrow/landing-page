@@ -64,10 +64,12 @@ export const validateTradeRequest = (data: any): boolean => {
   // Currency validation
   const buyCurrency = data.buy_currency || data.ccy_1;
   const sellCurrency = data.sell_currency || data.ccy_2;
+  const buyAmount = data.buy_amount || data.ccy_1_amount;
+  const sellAmount = data.sell_amount || data.ccy_2_amount;
 
   // Both currencies must be present
   if (!buyCurrency || !sellCurrency) {
-    console.log("Validation failed: Both currencies are required");
+    console.log("Validation failed: Missing currencies");
     toast.error("Both buy and sell currencies must be specified");
     return false;
   }
@@ -79,18 +81,28 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  // Amount validation
-  const buyAmount = data.buy_amount || data.ccy_1_amount;
-  const sellAmount = data.sell_amount || data.ccy_2_amount;
+  // Strict amount validation based on instrument type
+  const isSwap = data.instrument?.toLowerCase() === 'swap';
+  
+  if (isSwap) {
+    // For swaps, both amounts must be present and valid
+    if (!buyAmount || !sellAmount || 
+        buyAmount === "0" || sellAmount === "0" || 
+        Number(buyAmount) <= 0 || Number(sellAmount) <= 0) {
+      console.log("Validation failed: Swap requires both amounts");
+      toast.error("For swap trades, both buy and sell amounts must be specified and greater than zero");
+      return false;
+    }
+  } else {
+    // For non-swap trades, at least one amount must be valid
+    const hasBuyAmount = buyAmount && buyAmount !== "0" && Number(buyAmount) > 0;
+    const hasSellAmount = sellAmount && sellAmount !== "0" && Number(sellAmount) > 0;
 
-  // At least one amount must be specified and valid
-  const hasBuyAmount = buyAmount && buyAmount !== "0" && Number(buyAmount) > 0;
-  const hasSellAmount = sellAmount && sellAmount !== "0" && Number(sellAmount) > 0;
-
-  if (!hasBuyAmount && !hasSellAmount) {
-    console.log("Validation failed: No valid amount specified");
-    toast.error("Please specify at least one valid amount (greater than zero)");
-    return false;
+    if (!hasBuyAmount && !hasSellAmount) {
+      console.log("Validation failed: No valid amount specified");
+      toast.error("Please specify at least one valid amount (greater than zero)");
+      return false;
+    }
   }
 
   if (!data.settlement_date) {
