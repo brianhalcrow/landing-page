@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -81,28 +80,20 @@ export const validateTradeRequest = (data: any): boolean => {
     return false;
   }
 
-  // Strict amount validation based on instrument type
-  const isSwap = data.instrument?.toLowerCase() === 'swap';
-  
-  if (isSwap) {
-    // For swaps, both amounts must be present and valid
-    if (!buyAmount || !sellAmount || 
-        buyAmount === "0" || sellAmount === "0" || 
-        Number(buyAmount) <= 0 || Number(sellAmount) <= 0) {
-      console.log("Validation failed: Swap requires both amounts");
-      toast.error("For swap trades, both buy and sell amounts must be specified and greater than zero");
-      return false;
-    }
-  } else {
-    // For non-swap trades, at least one amount must be valid
-    const hasBuyAmount = buyAmount && buyAmount !== "0" && Number(buyAmount) > 0;
-    const hasSellAmount = sellAmount && sellAmount !== "0" && Number(sellAmount) > 0;
+  // Amount validation - exactly one amount must be specified
+  const hasBuyAmount = buyAmount && buyAmount !== "0" && Number(buyAmount) > 0;
+  const hasSellAmount = sellAmount && sellAmount !== "0" && Number(sellAmount) > 0;
 
-    if (!hasBuyAmount && !hasSellAmount) {
-      console.log("Validation failed: No valid amount specified");
-      toast.error("Please specify at least one valid amount (greater than zero)");
-      return false;
-    }
+  if (hasBuyAmount && hasSellAmount) {
+    console.log("Validation failed: Both amounts specified");
+    toast.error("Please specify only one amount (either buy or sell)");
+    return false;
+  }
+
+  if (!hasBuyAmount && !hasSellAmount) {
+    console.log("Validation failed: No amount specified");
+    toast.error("Please specify one amount (either buy or sell)");
+    return false;
   }
 
   if (!data.settlement_date) {
