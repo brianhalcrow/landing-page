@@ -70,21 +70,21 @@ export const createColumnDefs = (
   },
   { 
     field: 'ccy_1', 
-    headerName: 'CCY 1',
+    headerName: 'Buy Currency',
     flex: 0.7,
     minWidth: 100,
     headerClass: 'ag-header-center header-wrap',
   },
   { 
     field: 'ccy_2', 
-    headerName: 'CCY 2',
+    headerName: 'Sell Currency',
     flex: 0.7,
     minWidth: 100,
     headerClass: 'ag-header-center header-wrap',
   },
   { 
     field: 'ccy_1_amount', 
-    headerName: 'CCY 1 Amount',
+    headerName: 'Buy Amount',
     flex: 1,
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
@@ -99,7 +99,7 @@ export const createColumnDefs = (
   },
   { 
     field: 'ccy_2_amount', 
-    headerName: 'CCY 2 Amount',
+    headerName: 'Sell Amount',
     flex: 1,
     minWidth: 120,
     headerClass: 'ag-header-center header-wrap',
