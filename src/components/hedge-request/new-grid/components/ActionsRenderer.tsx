@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback } from "react";
+import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
+import { useTradeRequestSave } from "../hooks/useTradeRequestSave";
 
 interface ActionsRendererProps {
   data: any;
@@ -11,6 +13,7 @@ interface ActionsRendererProps {
   rowIndex: number;
   onAddRow: () => void;
   updateRowData: (rowIndex: number, updates: any) => void;
+  onClearGrid?: () => void;
 }
 
 export const ActionsRenderer = ({ 
@@ -19,8 +22,11 @@ export const ActionsRenderer = ({
   api, 
   rowIndex,
   onAddRow,
-  updateRowData 
+  updateRowData,
+  onClearGrid 
 }: ActionsRendererProps) => {
+  const saveMutation = useTradeRequestSave();
+
   const handleSave = useCallback(async () => {
     try {
       const isSwap = data.instrument?.toLowerCase() === 'swap';
@@ -36,6 +42,21 @@ export const ActionsRenderer = ({
           return;
         }
 
+        // Validate both legs
+        const isFirstLegValid = validateTradeRequest(data);
+        const isSecondLegValid = validateTradeRequest(otherLegNode.data);
+
+        if (!isFirstLegValid || !isSecondLegValid) {
+          return; // validateTradeRequest already shows error toasts
+        }
+
+        // Transform both legs for saving
+        const firstLegToSave = transformTradeRequest(data);
+        const secondLegToSave = transformTradeRequest(otherLegNode.data);
+
+        // Save both legs
+        await saveMutation.mutateAsync([firstLegToSave, secondLegToSave]);
+
         // Mark both legs as saved
         updateRowData(rowIndex, { isSaved: true });
         updateRowData(otherLegIndex, { isSaved: true });
@@ -44,16 +65,29 @@ export const ActionsRenderer = ({
         
         toast.success("Swap trade request saved successfully");
       } else {
-        // For non-swaps, save single row
+        // For non-swaps, validate and save single row
+        if (!validateTradeRequest(data)) {
+          return; // validateTradeRequest already shows error toasts
+        }
+
+        // Transform and save the trade
+        const tradeToSave = transformTradeRequest(data);
+        await saveMutation.mutateAsync(tradeToSave);
+
+        // Mark as saved
         updateRowData(rowIndex, { isSaved: true });
         node.setData({ ...data, isSaved: true });
         toast.success("Trade request saved successfully");
+      }
+
+      if (onClearGrid) {
+        onClearGrid();
       }
     } catch (error) {
       console.error("Error saving trade request:", error);
       toast.error("Failed to save trade request");
     }
-  }, [data, node, rowIndex, updateRowData, api]);
+  }, [data, node, rowIndex, updateRowData, api, saveMutation, onClearGrid]);
 
   const handleCopy = useCallback(() => {
     const { isSaved, ...rowToCopy } = data;
@@ -137,7 +171,7 @@ export const ActionsRenderer = ({
         size="icon"
         onClick={handleSave}
         className="h-8 w-8"
-        disabled={data.isSaved}
+        disabled={data.isSaved || saveMutation.isPending}
       >
         <Save className="h-4 w-4" />
       </Button>
