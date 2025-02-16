@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import RealtimeSubscription from "./RealtimeSubscription";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TradeRequestsGrid } from "./components/TradeRequestsGrid";
-import { GridStyles } from "../shared/grid/GridStyles";
 import { TradeRequest } from "./types/trade-request.types";
 
 export const OverviewTab = () => {
@@ -41,13 +39,11 @@ export const OverviewTab = () => {
   return (
     <div className="space-y-4">
       <RealtimeSubscription onDataChange={refetch} />
-      <div className="w-full h-[600px] ag-theme-alpine">
-        <GridStyles />
-        <TradeRequestsGrid 
-          rowData={tradeRequests} 
-          showApproveButton={true}
-          showRejectButton={true}
-        />
+      <div className="w-full">
+        {/* Charts will be added here */}
+        <div className="text-center text-gray-500">
+          Charts coming soon...
+        </div>
       </div>
     </div>
   );
