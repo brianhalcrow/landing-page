@@ -2559,6 +2559,9 @@ export type Database = {
           entity_id: string | null
           entity_name: string | null
           instrument: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           request_no: number
           reviewed_at: string | null
           reviewed_by: string | null
@@ -2586,6 +2589,9 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           request_no?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -2613,6 +2619,9 @@ export type Database = {
           entity_id?: string | null
           entity_name?: string | null
           instrument?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           request_no?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -3336,7 +3345,7 @@ export type Database = {
       }
     }
     Enums: {
-      request_status: "Submitted" | "Reviewed" | "Approved"
+      request_status: "Submitted" | "Reviewed" | "Approved" | "Rejected"
       schedule_frequency: "daily" | "weekly" | "monthly" | "on_demand"
       schedule_type: "on_demand" | "scheduled"
     }
