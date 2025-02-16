@@ -1,13 +1,9 @@
-
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { TradeRequest } from '../types/hedge-request.types';
 import { Eye, CheckSquare, XSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -16,52 +12,16 @@ interface HedgeRequestsGridProps {
 }
 
 export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
-  const [selectedRequest, setSelectedRequest] = useState<TradeRequest | null>(null);
-  const [isReviewOpen, setIsReviewOpen] = useState(false);
-
   const handleReview = (request: TradeRequest) => {
-    setSelectedRequest(request);
-    setIsReviewOpen(true);
+    toast.info(`Reviewing request ${request.request_no}`);
   };
 
-  const handleApprove = async (request: TradeRequest) => {
-    const { error } = await supabase
-      .from('trade_requests')
-      .update({
-        status: 'Reviewed',
-        reviewed_by: 'Current User', // TODO: Replace with actual user
-        reviewed_at: new Date().toISOString()
-      })
-      .eq('request_no', request.request_no);
-
-    if (error) {
-      toast.error('Failed to approve request');
-      console.error('Error approving request:', error);
-      return;
-    }
-
-    toast.success(`Request ${request.request_no} marked as reviewed`);
-    setIsReviewOpen(false);
+  const handleApprove = (request: TradeRequest) => {
+    toast.info(`Approving request ${request.request_no}`);
   };
 
-  const handleReject = async (request: TradeRequest) => {
-    const { error } = await supabase
-      .from('trade_requests')
-      .update({
-        status: 'Rejected',
-        reviewed_by: 'Current User', // TODO: Replace with actual user
-        reviewed_at: new Date().toISOString()
-      })
-      .eq('request_no', request.request_no);
-
-    if (error) {
-      toast.error('Failed to reject request');
-      console.error('Error rejecting request:', error);
-      return;
-    }
-
-    toast.success(`Request ${request.request_no} rejected`);
-    setIsReviewOpen(false);
+  const handleReject = (request: TradeRequest) => {
+    toast.info(`Rejecting request ${request.request_no}`);
   };
 
   const columnDefs: ColDef<TradeRequest>[] = [
@@ -83,8 +43,7 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
         const colorMap: Record<string, string> = {
           Submitted: 'bg-blue-100 text-blue-800',
           Reviewed: 'bg-yellow-100 text-yellow-800',
-          Approved: 'bg-green-100 text-green-800',
-          Rejected: 'bg-red-100 text-red-800'
+          Approved: 'bg-green-100 text-green-800'
         };
         return (
           <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
@@ -211,67 +170,18 @@ export const HedgeRequestsGrid = ({ rowData }: HedgeRequestsGridProps) => {
   ];
 
   return (
-    <>
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={{
-          sortable: true,
-          filter: true,
-          resizable: true,
-          suppressSizeToFit: false
-        }}
-        animateRows={true}
-        suppressColumnVirtualisation={true}
-        enableCellTextSelection={true}
-      />
-
-      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent className="max-w-[90vw] w-full h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Review Hedge Request #{selectedRequest?.request_no}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-            <div className="flex-1 min-h-0 ag-theme-alpine w-full">
-              <AgGridReact
-                rowData={selectedRequest ? [selectedRequest] : []}
-                columnDefs={columnDefs.filter(col => col.headerName !== 'Actions')}
-                defaultColDef={{
-                  sortable: false,
-                  filter: false,
-                  resizable: true,
-                }}
-                domLayout="normal"
-              />
-            </div>
-            
-            <div className="flex justify-end gap-2 pt-4">
-              <Button 
-                variant="outline"
-                onClick={() => setIsReviewOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                className="bg-green-600 hover:bg-green-700"
-                onClick={() => selectedRequest && handleApprove(selectedRequest)}
-              >
-                <CheckSquare className="h-4 w-4 mr-2" />
-                Mark as Reviewed
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => selectedRequest && handleReject(selectedRequest)}
-              >
-                <XSquare className="h-4 w-4 mr-2" />
-                Reject
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <AgGridReact
+      rowData={rowData}
+      columnDefs={columnDefs}
+      defaultColDef={{
+        sortable: true,
+        filter: true,
+        resizable: true,
+        suppressSizeToFit: false
+      }}
+      animateRows={true}
+      suppressColumnVirtualisation={true}
+      enableCellTextSelection={true}
+    />
   );
 };

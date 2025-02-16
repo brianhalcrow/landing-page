@@ -1,7 +1,7 @@
 
 export interface TradeRequest {
   request_no: number;
-  status: 'Submitted' | 'Reviewed' | 'Approved' | 'Rejected';
+  status: 'Submitted' | 'Reviewed' | 'Approved';
   entity_id: string;
   entity_name: string;
   strategy_name: string;
