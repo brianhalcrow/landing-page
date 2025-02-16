@@ -1,191 +1,193 @@
-
-import { AgGridReact } from 'ag-grid-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { TradeRegister } from './types';
-import { format } from 'date-fns';
-import { ColDef, GridApi } from 'ag-grid-community';
-import { useEffect, useRef, useState } from 'react';
-import { useGridPreferences } from '../cash-management/hooks/useGridPreferences';
+import { AgGridReact } from "ag-grid-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { TradeRegister } from "./types";
+import { format } from "date-fns";
+import { ColDef, GridApi } from "ag-grid-enterprise";
+import { useEffect, useRef, useState } from "react";
+import { useGridPreferences } from "../cash-management/hooks/useGridPreferences";
 
 const ExecutedTradesGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
   const [api, setApi] = useState<GridApi | null>(null);
-  const { saveColumnState, loadColumnState } = useGridPreferences(gridRef, 'executed-trades-grid');
+  const { saveColumnState, loadColumnState } = useGridPreferences(
+    gridRef,
+    "executed-trades-grid"
+  );
 
   const { data: trades, isLoading } = useQuery({
-    queryKey: ['executed-trades'],
+    queryKey: ["executed-trades"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('trade_register')
-        .select('*')
-        .order('trade_date', { ascending: false });
-      
+        .from("trade_register")
+        .select("*")
+        .order("trade_date", { ascending: false });
+
       if (error) throw error;
-      
+
       // Transform the data to match TradeRegister type
-      return (data as any[]).map(trade => ({
+      return (data as any[]).map((trade) => ({
         ...trade,
-        counterparty_id: trade.counterparty_id || '',
-        counterparty_name: trade.counterparty_name || '',
-        strategy_id: trade.strategy_id || '',
-        strategy_name: trade.strategy_name || ''
+        counterparty_id: trade.counterparty_id || "",
+        counterparty_name: trade.counterparty_name || "",
+        strategy_id: trade.strategy_id || "",
+        strategy_name: trade.strategy_name || "",
       })) as TradeRegister[];
-    }
+    },
   });
 
   const formatAmount = (params: any) => {
-    if (params.value === null || params.value === undefined) return '';
+    if (params.value === null || params.value === undefined) return "";
     const value = params.value;
-    const formattedValue = Math.abs(value).toLocaleString('en-US', {
+    const formattedValue = Math.abs(value).toLocaleString("en-US", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     });
     return value < 0 ? `-${formattedValue}` : formattedValue;
   };
 
   const amountCellStyle = (params: any) => {
     if (params.value < 0) {
-      return { color: 'red' };
+      return { color: "red" };
     }
     return null;
   };
 
   const columnDefs: ColDef<TradeRegister>[] = [
-    { 
-      field: 'deal_no', 
-      headerName: 'Deal No', 
+    {
+      field: "deal_no",
+      headerName: "Deal No",
       filter: true,
       width: 120,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'trade_date', 
-      headerName: 'Trade Date', 
+    {
+      field: "trade_date",
+      headerName: "Trade Date",
       filter: true,
       width: 130,
       suppressSizeToFit: true,
-      valueFormatter: (params: any) => 
-        params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
+      valueFormatter: (params: any) =>
+        params.value ? format(new Date(params.value), "dd/MM/yyyy") : "",
     },
-    { 
-      field: 'settlement_date', 
-      headerName: 'Settlement Date',
+    {
+      field: "settlement_date",
+      headerName: "Settlement Date",
       filter: true,
       width: 130,
       suppressSizeToFit: true,
-      valueFormatter: (params: any) => 
-        params.value ? format(new Date(params.value), 'dd/MM/yyyy') : ''
+      valueFormatter: (params: any) =>
+        params.value ? format(new Date(params.value), "dd/MM/yyyy") : "",
     },
-    { 
-      field: 'spot_rate', 
-      headerName: 'Spot Rate', 
+    {
+      field: "spot_rate",
+      headerName: "Spot Rate",
       filter: true,
       width: 120,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'ccy_2_amount', 
-      headerName: 'Quote Amount', 
+    {
+      field: "ccy_2_amount",
+      headerName: "Quote Amount",
       filter: true,
       width: 140,
       suppressSizeToFit: true,
       valueFormatter: formatAmount,
-      cellStyle: amountCellStyle
+      cellStyle: amountCellStyle,
     },
-    { 
-      field: 'ccy_1_amount', 
-      headerName: 'Base Amount', 
+    {
+      field: "ccy_1_amount",
+      headerName: "Base Amount",
       filter: true,
       width: 140,
       suppressSizeToFit: true,
       valueFormatter: formatAmount,
-      cellStyle: amountCellStyle
+      cellStyle: amountCellStyle,
     },
-    { 
-      field: 'ccy_1', 
-      headerName: 'Base CCY', 
+    {
+      field: "ccy_1",
+      headerName: "Base CCY",
       filter: true,
       width: 100,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'currency_pair', 
-      headerName: 'Currency Pair', 
+    {
+      field: "currency_pair",
+      headerName: "Currency Pair",
       filter: true,
       width: 120,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'ccy_2', 
-      headerName: 'Quote CCY', 
+    {
+      field: "ccy_2",
+      headerName: "Quote CCY",
       filter: true,
       width: 100,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'created_by', 
-      headerName: 'Created By', 
+    {
+      field: "created_by",
+      headerName: "Created By",
       filter: true,
       width: 130,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'counterparty_id', 
-      headerName: 'Counterparty ID', 
+    {
+      field: "counterparty_id",
+      headerName: "Counterparty ID",
       filter: true,
       width: 150,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'counterparty_name', 
-      headerName: 'Counterparty', 
+    {
+      field: "counterparty_name",
+      headerName: "Counterparty",
       filter: true,
       width: 150,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'entity_id', 
-      headerName: 'Entity ID', 
+    {
+      field: "entity_id",
+      headerName: "Entity ID",
       filter: true,
       width: 120,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'entity_name', 
-      headerName: 'Entity', 
+    {
+      field: "entity_name",
+      headerName: "Entity",
       filter: true,
       width: 200,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'strategy_id', 
-      headerName: 'Strategy ID', 
+    {
+      field: "strategy_id",
+      headerName: "Strategy ID",
       filter: true,
       width: 130,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'strategy_name', 
-      headerName: 'Strategy', 
+    {
+      field: "strategy_name",
+      headerName: "Strategy",
       filter: true,
       width: 130,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'instrument', 
-      headerName: 'Instrument', 
+    {
+      field: "instrument",
+      headerName: "Instrument",
       filter: true,
       width: 130,
-      suppressSizeToFit: true
+      suppressSizeToFit: true,
     },
-    { 
-      field: 'contract_rate', 
-      headerName: 'Contract Rate', 
+    {
+      field: "contract_rate",
+      headerName: "Contract Rate",
       filter: true,
       width: 120,
-      suppressSizeToFit: true
-    }
+      suppressSizeToFit: true,
+    },
   ];
 
   const onGridReady = async (params: any) => {
@@ -219,7 +221,7 @@ const ExecutedTradesGrid = () => {
           sortable: true,
           filter: true,
           resizable: true,
-          floatingFilter: true
+          floatingFilter: true,
         }}
         pagination={true}
         paginationPageSize={100}

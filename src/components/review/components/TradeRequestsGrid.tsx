@@ -1,10 +1,9 @@
-
-import { AgGridReact } from 'ag-grid-react';
-import { createColumnDefs } from './grid/columnDefs';
-import { TradeRequest, RequestStatus } from '../types/trade-request.types';
-import { useTradeRequestActions } from './hooks/useTradeRequestActions';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { AgGridReact } from "ag-grid-react";
+import { createColumnDefs } from "./grid/columnDefs";
+import { TradeRequest, RequestStatus } from "../types/trade-request.types";
+import { useTradeRequestActions } from "./hooks/useTradeRequestActions";
+import "ag-grid-enterprise/styles/ag-grid.css";
+import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 interface TradeRequestsGridProps {
   rowData: TradeRequest[];
@@ -14,12 +13,12 @@ interface TradeRequestsGridProps {
   targetStatus?: RequestStatus;
 }
 
-export const TradeRequestsGrid = ({ 
-  rowData, 
-  showApproveButton, 
+export const TradeRequestsGrid = ({
+  rowData,
+  showApproveButton,
   showRejectButton,
   onDataChange,
-  targetStatus 
+  targetStatus,
 }: TradeRequestsGridProps) => {
   const { handleApprove, handleReject } = useTradeRequestActions(onDataChange);
 
@@ -50,7 +49,7 @@ export const TradeRequestsGrid = ({
           sortable: true,
           filter: true,
           resizable: true,
-          suppressSizeToFit: false
+          suppressSizeToFit: false,
         }}
         rowHeight={45}
         headerHeight={48}

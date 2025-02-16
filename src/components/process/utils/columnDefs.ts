@@ -1,5 +1,5 @@
 
-import { ColDef, ColGroupDef } from 'ag-grid-community';
+import { ColDef, ColGroupDef } from 'ag-grid-enterprise';
 import CheckboxCellRenderer from '@/components/configuration/grid/cellRenderers/CheckboxCellRenderer';
 import ActionsCellRenderer from '../grid/ActionsCellRenderer';
 

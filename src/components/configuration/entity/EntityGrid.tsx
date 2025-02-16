@@ -1,16 +1,77 @@
-
 import { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, ColGroupDef } from "ag-grid-community";
+import { ColDef, ColGroupDef, GridOptions } from "ag-grid-enterprise";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GridStyles } from "@/components/shared/grid/GridStyles";
 import { toast } from "sonner";
 import { LegalEntity, PendingChanges } from "./types/entityTypes";
-import { createBaseColumnDefs, createActionsColumn, createExposureColumns } from "./columnDefs/entityColumns";
-import { gridStyles } from "./styles/gridStyles";
+import {
+  createBaseColumnDefs,
+  createActionsColumn,
+  createExposureColumns,
+} from "./columnDefs/entityColumns";
 import { useExposureTypes } from "@/hooks/useExposureTypes";
+
+// Enterprise AG Grid styles
+import "ag-grid-enterprise/styles/ag-grid.css";
+import "ag-grid-enterprise/styles/ag-theme-alpine.css";
+
+// Common grid options
+const defaultGridOptions: GridOptions = {
+  defaultColDef: {
+    resizable: true,
+    editable: false,
+    sortable: true,
+    filter: "agTextColumnFilter",
+    enableRowGroup: true,
+    enablePivot: true,
+    enableValue: true,
+    menuTabs: ["filterMenuTab", "generalMenuTab", "columnsMenuTab"],
+  },
+  rowHeight: 24,
+  headerHeight: 50,
+  suppressRowTransform: true,
+  enableCellTextSelection: true,
+  suppressRowClickSelection: true,
+  animateRows: true,
+  enableRangeSelection: true,
+  enableCharts: true,
+  enableRangeHandle: true,
+  rowGroupPanelShow: "always",
+  groupDisplayType: "groupRows",
+};
+
+// Side panel configuration
+const sideBarConfig = {
+  toolPanels: [
+    {
+      id: "columns",
+      labelDefault: "Columns",
+      labelKey: "columns",
+      iconKey: "columns",
+      toolPanel: "agColumnsToolPanel",
+    },
+    {
+      id: "filters",
+      labelDefault: "Filters",
+      labelKey: "filters",
+      iconKey: "filter",
+      toolPanel: "agFiltersToolPanel",
+    },
+  ],
+  defaultToolPanel: "columns",
+};
+
+// Status bar configuration
+const statusBarConfig = {
+  statusPanels: [
+    { statusPanel: "agTotalRowCountComponent", align: "left" },
+    { statusPanel: "agFilteredRowCountComponent" },
+    { statusPanel: "agSelectedRowCountComponent" },
+    { statusPanel: "agAggregationComponent" },
+  ],
+};
 
 const EntityGrid = () => {
   const queryClient = useQueryClient();
@@ -37,43 +98,51 @@ const EntityGrid = () => {
 
       if (configError) throw configError;
 
+      // Map entities with their configs
       return legalEntities.map((entity) => ({
         ...entity,
         exposure_configs: exposureConfigs
           .filter((config) => config.entity_id === entity.entity_id)
-          .reduce((acc, config) => ({
-            ...acc,
-            [config.exposure_type_id]: config.is_active,
-          }), {}),
+          .reduce(
+            (acc, config) => ({
+              ...acc,
+              [config.exposure_type_id]: config.is_active,
+            }),
+            {}
+          ),
       }));
     },
   });
 
-  // Batch update exposure configs mutation
+  // Batch update mutation
   const updateConfigsMutation = useMutation({
-    mutationFn: async ({ 
-      entityId, 
-      changes 
-    }: { 
-      entityId: string; 
+    mutationFn: async ({
+      entityId,
+      changes,
+    }: {
+      entityId: string;
       changes: Record<number, boolean>;
     }) => {
-      const updates = Object.entries(changes).map(([exposureTypeId, isActive]) => ({
-        entity_id: entityId,
-        exposure_type_id: parseInt(exposureTypeId),
-        is_active: isActive,
-      }));
+      const updates = Object.entries(changes).map(
+        ([exposureTypeId, isActive]) => ({
+          entity_id: entityId,
+          exposure_type_id: parseInt(exposureTypeId),
+          is_active: isActive,
+        })
+      );
 
       const { error } = await supabase
         .from("entity_exposure_config")
         .upsert(updates, {
-          onConflict: 'entity_id,exposure_type_id'
+          onConflict: "entity_id,exposure_type_id",
         });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["legal-entities-with-config"] });
+      queryClient.invalidateQueries({
+        queryKey: ["legal-entities-with-config"],
+      });
       toast.success("Configuration updated successfully");
     },
     onError: (error) => {
@@ -82,26 +151,24 @@ const EntityGrid = () => {
     },
   });
 
+  // Row edit handlers
   const handleEditClick = (entityId: string) => {
-    setEditingRows(prev => ({
+    setEditingRows((prev) => ({
       ...prev,
-      [entityId]: true
+      [entityId]: true,
     }));
   };
 
   const handleSaveClick = (entityId: string) => {
     const changes = pendingChanges[entityId];
     if (changes) {
-      updateConfigsMutation.mutate({
-        entityId,
-        changes,
-      });
+      updateConfigsMutation.mutate({ entityId, changes });
     }
-    setEditingRows(prev => ({
+    setEditingRows((prev) => ({
       ...prev,
-      [entityId]: false
+      [entityId]: false,
     }));
-    setPendingChanges(prev => {
+    setPendingChanges((prev) => {
       const newPending = { ...prev };
       delete newPending[entityId];
       return newPending;
@@ -109,23 +176,21 @@ const EntityGrid = () => {
   };
 
   // Create column definitions
-  const baseColumns = createBaseColumnDefs();
-  const actionsColumn = createActionsColumn(editingRows, handleEditClick, handleSaveClick);
-  const exposureColumns = exposureTypes ? createExposureColumns(
-    exposureTypes,
-    editingRows,
-    pendingChanges,
-    setPendingChanges
-  ) : [];
-
   const columnDefs: (ColDef | ColGroupDef)[] = [
     {
-      headerName: 'Entity Information',
-      headerClass: 'header-center',
-      children: baseColumns
+      headerName: "Entity Information",
+      marryChildren: true,
+      children: createBaseColumnDefs(),
     } as ColGroupDef,
-    ...exposureColumns,
-    actionsColumn
+    ...(exposureTypes
+      ? createExposureColumns(
+          exposureTypes,
+          editingRows,
+          pendingChanges,
+          setPendingChanges
+        )
+      : []),
+    createActionsColumn(editingRows, handleEditClick, handleSaveClick),
   ];
 
   if (isLoading) {
@@ -134,24 +199,13 @@ const EntityGrid = () => {
 
   return (
     <div className="space-y-4">
-      <style>{gridStyles}</style>
       <div className="w-full h-[600px] ag-theme-alpine">
-        <GridStyles />
         <AgGridReact
+          {...defaultGridOptions}
           rowData={entities}
           columnDefs={columnDefs}
-          defaultColDef={{
-            resizable: true,
-            editable: false,
-            sortable: true,
-            filter: true,
-          }}
-          rowHeight={24}
-          headerHeight={50}
-          suppressRowTransform={true}
-          enableCellTextSelection={true}
-          suppressRowClickSelection={true}
-          animateRows={true}
+          sideBar={sideBarConfig}
+          statusBar={statusBarConfig}
         />
       </div>
     </div>

@@ -1,11 +1,14 @@
-
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { GridStyles } from '../hedge-request/grid/components/GridStyles';
-import { useProcessData } from './hooks/useProcessData';
-import { useProcessSettings } from './hooks/useProcessSettings';
-import { createBaseColumnDefs, createProcessColumnGroups, createActionsColumn } from './utils/columnDefs';
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-enterprise/styles/ag-grid.css";
+import "ag-grid-enterprise/styles/ag-theme-alpine.css";
+import { GridStyles } from "../hedge-request/grid/components/GridStyles";
+import { useProcessData } from "./hooks/useProcessData";
+import { useProcessSettings } from "./hooks/useProcessSettings";
+import {
+  createBaseColumnDefs,
+  createProcessColumnGroups,
+  createActionsColumn,
+} from "./utils/columnDefs";
 
 const ProcessGrid = () => {
   const { processTypes, entitySettings, isLoading } = useProcessData();
@@ -14,18 +17,20 @@ const ProcessGrid = () => {
   const handleCellValueChanged = async (params: any) => {
     if (params.data?.isEditing) {
       const fieldName = params.column.getColId();
-      if (fieldName.startsWith('setting_')) {
-        const processSettingId = parseInt(fieldName.replace('setting_', ''));
-        const updates = [{
-          entityId: params.data.entity_id,
-          processSettingId,
-          settingValue: params.newValue.toString()
-        }];
-        
+      if (fieldName.startsWith("setting_")) {
+        const processSettingId = parseInt(fieldName.replace("setting_", ""));
+        const updates = [
+          {
+            entityId: params.data.entity_id,
+            processSettingId,
+            settingValue: params.newValue.toString(),
+          },
+        ];
+
         try {
           await updateSettings.mutateAsync(updates);
         } catch (error) {
-          console.error('Error saving changes:', error);
+          console.error("Error saving changes:", error);
         }
       }
     }
@@ -34,7 +39,7 @@ const ProcessGrid = () => {
   const columnDefs = [
     ...createBaseColumnDefs(),
     ...createProcessColumnGroups(processTypes),
-    createActionsColumn()
+    createActionsColumn(),
   ];
 
   if (isLoading) {
@@ -63,7 +68,7 @@ const ProcessGrid = () => {
           sortable: true,
           filter: true,
           resizable: true,
-          suppressSizeToFit: false
+          suppressSizeToFit: false,
         }}
         animateRows={true}
         suppressColumnVirtualisation={true}

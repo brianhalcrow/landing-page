@@ -1,4 +1,4 @@
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-enterprise';
 import { CSSProperties } from 'react';
 
 export const gridStyles: CSSProperties = {

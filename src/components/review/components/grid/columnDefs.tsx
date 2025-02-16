@@ -1,174 +1,177 @@
-
-import { ColDef } from 'ag-grid-community';
-import { TradeRequest } from '../../types/trade-request.types';
-import { ActionButtons } from '../ActionButtons';
-import { formatDate, formatDateNoTime } from '../utils/dateFormatter';
+import { ColDef } from "ag-grid-enterprise";
+import { TradeRequest } from "../../types/trade-request.types";
+import { ActionButtons } from "../ActionButtons";
+import { formatDate, formatDateNoTime } from "../utils/dateFormatter";
 
 export const createColumnDefs = (
   handleApprove: (request: TradeRequest) => Promise<void>,
   handleReject: (request: TradeRequest) => Promise<void>,
   showApproveButton: boolean,
-  showRejectButton: boolean,
+  showRejectButton: boolean
 ): ColDef<TradeRequest>[] => [
-  { 
-    field: 'request_no', 
-    headerName: 'Request #',
+  {
+    field: "request_no",
+    headerName: "Request #",
     flex: 0.5,
     minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'entity_name', 
-    headerName: 'Entity Name',
+  {
+    field: "entity_name",
+    headerName: "Entity Name",
     flex: 1,
     minWidth: 150,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'entity_id', 
-    headerName: 'Entity ID',
+  {
+    field: "entity_id",
+    headerName: "Entity ID",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'cost_centre', 
-    headerName: 'Cost Centre',
+  {
+    field: "cost_centre",
+    headerName: "Cost Centre",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'strategy_name', 
-    headerName: 'Strategy Name',
+  {
+    field: "strategy_name",
+    headerName: "Strategy Name",
     flex: 1,
     minWidth: 150,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'instrument', 
-    headerName: 'Instrument',
+  {
+    field: "instrument",
+    headerName: "Instrument",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'counterparty_name', 
-    headerName: 'Counterparty',
+  {
+    field: "counterparty_name",
+    headerName: "Counterparty",
     flex: 1,
     minWidth: 150,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'ccy_1', 
-    headerName: 'Buy Currency',
+  {
+    field: "ccy_1",
+    headerName: "Buy Currency",
     flex: 0.7,
     minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
     cellStyle: (params) => {
-      return !params.value ? { backgroundColor: '#fecaca' } : null;
+      return !params.value ? { backgroundColor: "#fecaca" } : null;
     },
   },
-  { 
-    field: 'ccy_1_amount', 
-    headerName: 'Buy Amount',
+  {
+    field: "ccy_1_amount",
+    headerName: "Buy Amount",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-    type: 'numericColumn',
+    headerClass: "ag-header-center header-wrap",
+    type: "numericColumn",
     valueFormatter: (params) => {
-      if (params.value === null || params.value === undefined) return '';
-      return params.value.toLocaleString('en-US', {
+      if (params.value === null || params.value === undefined) return "";
+      return params.value.toLocaleString("en-US", {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
       });
-    }
+    },
   },
-  { 
-    field: 'ccy_2', 
-    headerName: 'Sell Currency',
+  {
+    field: "ccy_2",
+    headerName: "Sell Currency",
     flex: 0.7,
     minWidth: 100,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
     cellStyle: (params) => {
-      return !params.value ? { backgroundColor: '#fecaca' } : null;
+      return !params.value ? { backgroundColor: "#fecaca" } : null;
     },
   },
-  { 
-    field: 'ccy_2_amount', 
-    headerName: 'Sell Amount',
+  {
+    field: "ccy_2_amount",
+    headerName: "Sell Amount",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
-    type: 'numericColumn',
+    headerClass: "ag-header-center header-wrap",
+    type: "numericColumn",
     valueFormatter: (params) => {
-      if (params.value === null || params.value === undefined) return '';
-      return params.value.toLocaleString('en-US', {
+      if (params.value === null || params.value === undefined) return "";
+      return params.value.toLocaleString("en-US", {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
       });
-    }
+    },
   },
-  { 
-    field: 'trade_date', 
-    headerName: 'Trade Date',
+  {
+    field: "trade_date",
+    headerName: "Trade Date",
     flex: 1,
     minWidth: 130,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
+    headerClass: "ag-header-center header-wrap",
+    valueFormatter: formatDate,
   },
-  { 
-    field: 'settlement_date', 
-    headerName: 'Settlement Date',
+  {
+    field: "settlement_date",
+    headerName: "Settlement Date",
     flex: 1,
     minWidth: 130,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDateNoTime
+    headerClass: "ag-header-center header-wrap",
+    valueFormatter: formatDateNoTime,
   },
-  { 
-    field: 'submitted_by', 
-    headerName: 'Submitted By',
+  {
+    field: "submitted_by",
+    headerName: "Submitted By",
     flex: 1,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
   },
-  { 
-    field: 'submitted_at', 
-    headerName: 'Submitted At',
+  {
+    field: "submitted_at",
+    headerName: "Submitted At",
     flex: 1,
     minWidth: 160,
-    headerClass: 'ag-header-center header-wrap',
-    valueFormatter: formatDate
+    headerClass: "ag-header-center header-wrap",
+    valueFormatter: formatDate,
   },
-  { 
-    field: 'status', 
-    headerName: 'Status',
+  {
+    field: "status",
+    headerName: "Status",
     flex: 0.8,
     minWidth: 120,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
     cellRenderer: (params: any) => {
       const status = params.value;
       const colorMap: Record<string, string> = {
-        Submitted: 'bg-blue-100 text-blue-800',
-        Reviewed: 'bg-yellow-100 text-yellow-800',
-        Approved: 'bg-green-100 text-green-800',
-        Rejected: 'bg-red-100 text-red-800'
+        Submitted: "bg-blue-100 text-blue-800",
+        Reviewed: "bg-yellow-100 text-yellow-800",
+        Approved: "bg-green-100 text-green-800",
+        Rejected: "bg-red-100 text-red-800",
       };
       return (
-        <div className={`px-2 py-1 rounded-full text-sm font-medium text-center ${colorMap[status] || ''}`}>
+        <div
+          className={`px-2 py-1 rounded-full text-sm font-medium text-center ${
+            colorMap[status] || ""
+          }`}
+        >
           {status}
         </div>
       );
-    }
+    },
   },
   {
-    headerName: 'Actions',
+    headerName: "Actions",
     minWidth: 150,
-    headerClass: 'ag-header-center header-wrap',
+    headerClass: "ag-header-center header-wrap",
     cellRenderer: (params: any) => {
       const request = params.data as TradeRequest;
       const isCurrencyValid = request.ccy_1 && request.ccy_2;
-      
+
       if (!isCurrencyValid) {
         return (
           <div className="text-red-600 text-sm px-2">
@@ -176,7 +179,7 @@ export const createColumnDefs = (
           </div>
         );
       }
-      
+
       return (
         <ActionButtons
           request={request}
@@ -186,6 +189,6 @@ export const createColumnDefs = (
           showReject={showRejectButton}
         />
       );
-    }
-  }
+    },
+  },
 ];
