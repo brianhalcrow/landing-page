@@ -54,11 +54,16 @@ export const useHedgeRequestData = () => {
   });
 
   const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
+    if (rowIndex < 0 || !updates) {
+      console.error('Invalid row index or updates:', { rowIndex, updates });
+      return;
+    }
+
     console.log('Updating row data:', { rowIndex, updates });
     
     setRowData(currentRows => {
       const newData = [...currentRows];
-      const currentRow = newData[rowIndex];
+      const currentRow = newData[rowIndex] || { ...defaultRow };
       
       // Calculate the final state after updates
       const updatedRow = {
@@ -66,8 +71,16 @@ export const useHedgeRequestData = () => {
         ...updates
       };
       
-      const isSwap = (updates.instrument?.toLowerCase() === 'swap') || (currentRow.instrument?.toLowerCase() === 'swap');
-      const isNewSwap = updates.instrument?.toLowerCase() === 'swap' && currentRow.instrument?.toLowerCase() !== 'swap';
+      // Safely check if this is a swap
+      const isSwap = (
+        (updates.instrument || currentRow.instrument || '')
+        .toLowerCase() === 'swap'
+      );
+      
+      const isNewSwap = (
+        updates.instrument?.toLowerCase() === 'swap' && 
+        (currentRow.instrument || '').toLowerCase() !== 'swap'
+      );
       
       // Handle amount validation for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
@@ -93,22 +106,22 @@ export const useHedgeRequestData = () => {
         // For first leg, update second leg's currencies
         if (rowIndex % 2 === 0) {
           const nextRowIndex = rowIndex + 1;
-          if (newData[nextRowIndex]) {
+          if (nextRowIndex < newData.length) {
             newData[nextRowIndex] = {
               ...newData[nextRowIndex],
-              buy_currency: updatedRow.sell_currency,
-              sell_currency: updatedRow.buy_currency
+              buy_currency: updatedRow.sell_currency || '',
+              sell_currency: updatedRow.buy_currency || ''
             };
           }
         }
         // For second leg, update first leg's currencies
         else {
           const prevRowIndex = rowIndex - 1;
-          if (newData[prevRowIndex]) {
+          if (prevRowIndex >= 0) {
             newData[prevRowIndex] = {
               ...newData[prevRowIndex],
-              buy_currency: updatedRow.sell_currency,
-              sell_currency: updatedRow.buy_currency
+              buy_currency: updatedRow.sell_currency || '',
+              sell_currency: updatedRow.buy_currency || ''
             };
           }
         }
@@ -119,7 +132,7 @@ export const useHedgeRequestData = () => {
         // For first leg, update second leg's amounts
         if (rowIndex % 2 === 0) {
           const nextRowIndex = rowIndex + 1;
-          if (newData[nextRowIndex]) {
+          if (nextRowIndex < newData.length) {
             newData[nextRowIndex] = {
               ...newData[nextRowIndex],
               buy_amount: updatedRow.sell_amount,
@@ -130,7 +143,7 @@ export const useHedgeRequestData = () => {
         // For second leg, update first leg's amounts
         else {
           const prevRowIndex = rowIndex - 1;
-          if (newData[prevRowIndex]) {
+          if (prevRowIndex >= 0) {
             newData[prevRowIndex] = {
               ...newData[prevRowIndex],
               buy_amount: updatedRow.sell_amount,
@@ -160,14 +173,14 @@ export const useHedgeRequestData = () => {
           rowId: secondLegId,
           swapId,
           swapLeg: 2,
-          entity_id: updatedRow.entity_id,
-          entity_name: updatedRow.entity_name,
-          strategy_name: updatedRow.strategy_name,
-          instrument: updatedRow.instrument,
-          counterparty_name: updatedRow.counterparty_name,
-          cost_centre: updatedRow.cost_centre,
-          buy_currency: updatedRow.sell_currency,
-          sell_currency: updatedRow.buy_currency
+          entity_id: updatedRow.entity_id || '',
+          entity_name: updatedRow.entity_name || '',
+          strategy_name: updatedRow.strategy_name || '',
+          instrument: updatedRow.instrument || '',
+          counterparty_name: updatedRow.counterparty_name || '',
+          cost_centre: updatedRow.cost_centre || '',
+          buy_currency: updatedRow.sell_currency || '',
+          sell_currency: updatedRow.buy_currency || ''
         });
       }
 
