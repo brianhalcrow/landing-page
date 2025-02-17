@@ -19,7 +19,7 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
 
     if (error) {
       toast.error(`Failed to update request: ${error.message}`);
-      return;
+      throw error;
     }
 
     toast.success(`Request ${request.request_no} ${updateField}`);
@@ -38,7 +38,7 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
 
     if (error) {
       toast.error(`Failed to reject request: ${error.message}`);
-      return;
+      throw error;
     }
 
     toast.success(`Request ${request.request_no} rejected`);
