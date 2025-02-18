@@ -8,14 +8,22 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
     const newStatus: RequestStatus = targetStatus || 'Reviewed';
     const updateField = newStatus === 'Reviewed' ? 'reviewed' : 'approved';
 
-    const { error } = await supabase
+    let query = supabase
       .from('trade_requests')
       .update({
         status: newStatus,
         [`${updateField}_by`]: 'Current User', // TODO: Replace with actual user
         [`${updateField}_at`]: new Date().toISOString()
-      })
-      .eq('request_no', request.request_no);
+      });
+
+    // If this is part of a group, update all related trades
+    if (request.hedge_group_id) {
+      query = query.eq('hedge_group_id', request.hedge_group_id);
+    } else {
+      query = query.eq('request_no', request.request_no);
+    }
+
+    const { error } = await query;
 
     if (error) {
       toast.error(`Failed to update request: ${error.message}`);
@@ -27,14 +35,22 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
   };
 
   const handleReject = async (request: TradeRequest) => {
-    const { error } = await supabase
+    let query = supabase
       .from('trade_requests')
       .update({
         status: 'Rejected' as RequestStatus,
         rejected_by: 'Current User', // TODO: Replace with actual user
         rejected_at: new Date().toISOString()
-      })
-      .eq('request_no', request.request_no);
+      });
+
+    // If this is part of a group, reject all related trades
+    if (request.hedge_group_id) {
+      query = query.eq('hedge_group_id', request.hedge_group_id);
+    } else {
+      query = query.eq('request_no', request.request_no);
+    }
+
+    const { error } = await query;
 
     if (error) {
       toast.error(`Failed to reject request: ${error.message}`);

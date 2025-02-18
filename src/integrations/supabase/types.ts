@@ -2630,6 +2630,7 @@ export type Database = {
           created_by: string | null
           entity_id: string
           entity_name: string
+          hedge_group_id: number | null
           instrument: string
           rejected_at: string | null
           rejected_by: string | null
@@ -2660,6 +2661,7 @@ export type Database = {
           created_by?: string | null
           entity_id: string
           entity_name: string
+          hedge_group_id?: number | null
           instrument: string
           rejected_at?: string | null
           rejected_by?: string | null
@@ -2690,6 +2692,7 @@ export type Database = {
           created_by?: string | null
           entity_id?: string
           entity_name?: string
+          hedge_group_id?: number | null
           instrument?: string
           rejected_at?: string | null
           rejected_by?: string | null

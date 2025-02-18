@@ -31,7 +31,13 @@ export const TradeRequestsGrid = ({
     if (gridRef.current?.api) {
       const rowNode = gridRef.current.api.getRowNode(request.request_no.toString());
       if (rowNode) {
-        gridRef.current.api.applyTransaction({ remove: [request] });
+        // If this is part of a group, remove all related trades
+        if (request.hedge_group_id) {
+          const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
+          gridRef.current.api.applyTransaction({ remove: relatedRows });
+        } else {
+          gridRef.current.api.applyTransaction({ remove: [request] });
+        }
       }
     }
   };
@@ -41,7 +47,13 @@ export const TradeRequestsGrid = ({
     if (gridRef.current?.api) {
       const rowNode = gridRef.current.api.getRowNode(request.request_no.toString());
       if (rowNode) {
-        gridRef.current.api.applyTransaction({ remove: [request] });
+        // If this is part of a group, remove all related trades
+        if (request.hedge_group_id) {
+          const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
+          gridRef.current.api.applyTransaction({ remove: relatedRows });
+        } else {
+          gridRef.current.api.applyTransaction({ remove: [request] });
+        }
       }
     }
   };
@@ -82,6 +94,7 @@ export const TradeRequestsGrid = ({
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        groupDisplayType="groupRows"
       />
     </div>
   );

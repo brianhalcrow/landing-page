@@ -27,6 +27,7 @@ export interface TradeRequest {
   rejected_by: string | null;
   rejected_at: string | null;
   rejection_reason: string | null;
+  hedge_group_id: number | null;
 }
 
 export interface ActionButtonsProps {
