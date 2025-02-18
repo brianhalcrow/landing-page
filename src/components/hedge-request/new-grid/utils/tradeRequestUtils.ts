@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { parse, format, isValid } from "date-fns";
 
@@ -14,6 +15,8 @@ interface TradeRequestInput {
   sell_amount: number | string | null;
   cost_centre: string;
   counterparty_name: string;
+  swapId?: string;
+  swapLeg?: 1 | 2;
 }
 
 interface TradeRequest {
@@ -30,6 +33,7 @@ interface TradeRequest {
   cost_centre: string;
   ccy_pair: string | null;
   counterparty_name: string | null;
+  hedge_group_id?: number | null;
 }
 
 export const validateTradeRequest = (data: any): boolean => {
@@ -177,7 +181,9 @@ export const transformTradeRequest = (data: any): TradeRequest => {
     ccy_2_amount: data.sell_amount ? parseFloat(data.sell_amount) : null,
     cost_centre: data.cost_centre,
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
-    counterparty_name: data.counterparty_name
+    counterparty_name: data.counterparty_name,
+    // If this is part of a swap, it will be assigned a hedge_group_id by the save mutation
+    hedge_group_id: null
   };
 
   return transformed;

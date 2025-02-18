@@ -17,7 +17,9 @@ interface TradeRequest {
   cost_centre: string;
   ccy_pair: string | null;
   counterparty_name: string | null;
-  swap_reference?: string | null;
+  hedge_group_id?: number | null;
+  swapId?: string;
+  swapLeg?: 1 | 2;
 }
 
 export const useTradeRequestSave = () => {
@@ -37,9 +39,30 @@ export const useTradeRequestSave = () => {
         throw new Error("No valid trade requests to save");
       }
 
+      // Group swap legs together by assigning them the same hedge_group_id
+      let currentGroupId: number | null = null;
+      const requestsToSave = validRequests.map((request, index) => {
+        // If this is part of a swap (has swapId)
+        if (request.swapId) {
+          // If this is the first leg or we don't have a current group ID, get a new one
+          if (request.swapLeg === 1 || !currentGroupId) {
+            // We'll use a temporary negative number as a placeholder
+            // The actual ID will be assigned by the database
+            currentGroupId = -(Date.now() + index);
+          }
+          return { ...request, hedge_group_id: currentGroupId };
+        }
+        // Reset group ID for non-swap trades
+        currentGroupId = null;
+        return request;
+      });
+
+      console.log("Saving trades:", requestsToSave);
+
+      // Insert the trades - the database will assign real hedge_group_ids
       const { error } = await supabase
         .from('trade_requests')
-        .insert(validRequests);
+        .insert(requestsToSave);
 
       if (error) {
         console.error("Error saving trade request:", error);
