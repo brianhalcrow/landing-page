@@ -157,22 +157,22 @@ export const useHedgeRequestData = () => {
       if (isNewSwap && rowIndex === newData.length - 1) {
         console.log('Adding new row for SWAP second leg');
         const secondLegId = crypto.randomUUID();
-        const swapId = crypto.randomUUID();
+        const swap_id = crypto.randomUUID();
         
         // Update first leg with swap information
         newData[rowIndex] = {
           ...updatedRow,
           rowId: crypto.randomUUID(),
-          swapId,
-          swapLeg: 1
+          swap_id,
+          swap_leg: 1
         };
         
         // Add second leg
         newData.push({
           ...defaultRow,
           rowId: secondLegId,
-          swapId,
-          swapLeg: 2,
+          swap_id,
+          swap_leg: 2,
           entity_id: updatedRow.entity_id || '',
           entity_name: updatedRow.entity_name || '',
           strategy_name: updatedRow.strategy_name || '',
