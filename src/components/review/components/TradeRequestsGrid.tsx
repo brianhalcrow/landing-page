@@ -7,7 +7,6 @@ import { GridStyles } from "@/components/shared/grid/GridStyles";
 import "ag-grid-enterprise/styles/ag-grid.css";
 import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 import { useRef } from "react";
-import { AgGridReact as AgGridReactType } from 'ag-grid-react/lib/agGridReact';
 
 interface TradeRequestsGridProps {
   rowData: TradeRequest[];
@@ -24,7 +23,7 @@ export const TradeRequestsGrid = ({
   onDataChange,
   targetStatus,
 }: TradeRequestsGridProps) => {
-  const gridRef = useRef<AgGridReactType>(null);
+  const gridRef = useRef<AgGridReact>(null);
   const { handleApprove, handleReject } = useTradeRequestActions(onDataChange);
 
   const handleApproveWithRowRemoval = async (request: TradeRequest) => {
