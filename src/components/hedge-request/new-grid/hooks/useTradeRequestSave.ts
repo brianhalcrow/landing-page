@@ -51,13 +51,12 @@ export const useTradeRequestSave = () => {
 
           // Sort legs by leg number
           group.sort((a, b) => (a.swapLeg || 0) - (b.swapLeg || 0));
-
-          // Assign temporary hedge_group_id (will be replaced by DB sequence)
-          const tempGroupId = -Date.now();
+          
+          // For swaps, let the database generate the hedge_group_id
           group.forEach(leg => {
             requestsToSave.push({
               ...leg,
-              hedge_group_id: tempGroupId
+              hedge_group_id: null // Let database sequence handle this
             });
           });
         } else {
@@ -68,18 +67,28 @@ export const useTradeRequestSave = () => {
 
       console.log("Saving trades:", requestsToSave);
 
-      // Insert the trades
-      const { data: savedData, error } = await supabase
-        .from('trade_requests')
-        .insert(requestsToSave)
-        .select();
+      try {
+        // First, try to save the trades
+        const { data: savedData, error } = await supabase
+          .from('trade_requests')
+          .insert(requestsToSave)
+          .select();
 
-      if (error) {
-        console.error("Error saving trade request:", error);
-        throw error;
+        if (error) {
+          console.error("Error saving trade request:", error);
+          throw error;
+        }
+
+        if (!savedData) {
+          throw new Error("No data returned from save operation");
+        }
+
+        // Return the saved data
+        return savedData;
+      } catch (error) {
+        console.error("Error in save operation:", error);
+        throw new Error("Failed to save trade request");
       }
-
-      return savedData;
     }
   });
 };
