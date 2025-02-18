@@ -22,6 +22,7 @@ import ExecutedTradesTab from "@/components/confirmation/ExecutedTradesTab";
 import AnalyticsTab from "@/components/analytics/AnalyticsTab";
 import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
 import TradingGrid from "@/components/trading/TradingGrid";
+import CalendarTab from "@/components/monitor/CalendarTab";
 
 export const tabsConfig = {
   "monitor": ({ baseCurrency, setBaseCurrency }) => [
@@ -32,6 +33,7 @@ export const tabsConfig = {
     { value: "gain-loss", label: "Gain/Loss", content: <div>Gain/Loss Content Goes Here</div> },
     { value: "fx-rates", label: "FX Rates", content: <FxRatesTab baseCurrency={baseCurrency} setBaseCurrency={setBaseCurrency} /> },
     { value: "spot-rates", label: "Spot Rates", content: <SpotRatesStreaming baseCurrency={baseCurrency} /> },
+    { value: "calendar", label: "Calendar", content: <CalendarTab /> },
   ],
   "cash-management": [
     { value: "overview", label: "Overview", content: <CashManagementOverviewTab /> },

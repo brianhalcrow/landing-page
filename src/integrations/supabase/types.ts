@@ -253,6 +253,78 @@ export type Database = {
           },
         ]
       }
+      currency_centres: {
+        Row: {
+          central_bank: string
+          country_code: string
+          created_at: string | null
+          currency_code: string
+          currency_name: string
+          financial_capital: string
+          financial_capital_timezone: string
+          id: number
+          updated_at: string | null
+          weekend: string
+        }
+        Insert: {
+          central_bank: string
+          country_code: string
+          created_at?: string | null
+          currency_code: string
+          currency_name: string
+          financial_capital: string
+          financial_capital_timezone: string
+          id?: number
+          updated_at?: string | null
+          weekend: string
+        }
+        Update: {
+          central_bank?: string
+          country_code?: string
+          created_at?: string | null
+          currency_code?: string
+          currency_name?: string
+          financial_capital?: string
+          financial_capital_timezone?: string
+          id?: number
+          updated_at?: string | null
+          weekend?: string
+        }
+        Relationships: []
+      }
+      currency_holidays: {
+        Row: {
+          created_at: string | null
+          currency_code: string
+          description: string | null
+          holiday_date: string
+          holiday_name: string
+          holiday_type: string | null
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency_code: string
+          description?: string | null
+          holiday_date: string
+          holiday_name: string
+          holiday_type?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency_code?: string
+          description?: string | null
+          holiday_date?: string
+          holiday_name?: string
+          holiday_type?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           content: string | null
