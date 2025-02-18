@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -35,22 +36,16 @@ export const ActionsRenderer = ({
 
     const isSwap = data.instrument?.toLowerCase() === 'swap';
     
-    if (isSwap) {
-      // For swaps, delete both legs
-      const isFirstLeg = rowIndex % 2 === 0;
-      const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
+    if (isSwap && data.swapId) {
+      // Find all rows with the same swapId
+      const allRows = api.getModel().rowsToDisplay;
+      const swapRows = allRows.filter(row => row.data.swapId === data.swapId);
       
-      // Get the current row data
-      const currentRowData = api.getDisplayedRowAtIndex(rowIndex);
-      const otherRowData = api.getDisplayedRowAtIndex(otherLegIndex);
-      
-      if (currentRowData && otherRowData) {
+      if (swapRows.length) {
         api.applyTransaction({
-          remove: [currentRowData.data, otherRowData.data]
+          remove: swapRows.map(row => row.data)
         });
         toast.success("Swap pair removed from grid");
-      } else {
-        toast.error("Unable to remove swap pair from grid");
       }
     } else {
       // For non-swaps, remove single row
@@ -59,26 +54,33 @@ export const ActionsRenderer = ({
       });
       toast.success("Row removed from grid");
     }
-  }, [api, rowIndex, data]);
+  }, [api, data]);
+
+  const findSwapPair = useCallback(() => {
+    if (!data.swapId) return null;
+    
+    const allRows = api.getModel().rowsToDisplay;
+    return allRows
+      .map(row => row.data)
+      .filter(rowData => rowData.swapId === data.swapId && rowData !== data);
+  }, [api, data]);
 
   const handleSave = useCallback(async () => {
     try {
       const isSwap = data.instrument?.toLowerCase() === 'swap';
       
       if (isSwap) {
-        // For swaps, validate and save both legs
-        const isFirstLeg = rowIndex % 2 === 0;
-        const otherLegIndex = isFirstLeg ? rowIndex + 1 : rowIndex - 1;
-        const otherLegNode = api.getDisplayedRowAtIndex(otherLegIndex);
+        // Find the other leg of the swap
+        const otherLeg = findSwapPair()?.[0];
         
-        if (!otherLegNode) {
+        if (!otherLeg) {
           toast.error("Cannot save incomplete swap pair");
           return;
         }
 
         // Validate both legs
         const isFirstLegValid = validateTradeRequest(data);
-        const isSecondLegValid = validateTradeRequest(otherLegNode.data);
+        const isSecondLegValid = validateTradeRequest(otherLeg);
 
         if (!isFirstLegValid || !isSecondLegValid) {
           return; // validateTradeRequest already shows error toasts
@@ -86,39 +88,54 @@ export const ActionsRenderer = ({
 
         // Transform both legs for saving
         const firstLegToSave = transformTradeRequest(data);
-        const secondLegToSave = transformTradeRequest(otherLegNode.data);
+        const secondLegToSave = transformTradeRequest(otherLeg);
 
         // Save both legs
-        await saveMutation.mutateAsync([firstLegToSave, secondLegToSave]);
-
-        // Mark both legs as saved
-        updateRowData(rowIndex, { isSaved: true });
-        updateRowData(otherLegIndex, { isSaved: true });
+        const savedData = await saveMutation.mutateAsync([firstLegToSave, secondLegToSave]);
+        
+        // Update both rows with saved state and new IDs
+        const savedFirstLeg = savedData?.[0];
+        const savedSecondLeg = savedData?.[1];
+        
+        if (savedFirstLeg && savedSecondLeg) {
+          const firstRowNode = api.getRowNode(data.rowId);
+          const secondRowNode = api.getRowNode(otherLeg.rowId);
+          
+          if (firstRowNode) {
+            firstRowNode.setData({ ...data, isSaved: true, request_no: savedFirstLeg.request_no });
+          }
+          
+          if (secondRowNode) {
+            secondRowNode.setData({ ...otherLeg, isSaved: true, request_no: savedSecondLeg.request_no });
+          }
+        }
         
         toast.success("Swap trade request saved successfully");
       } else {
         // For non-swaps, validate and save single row
         if (!validateTradeRequest(data)) {
-          return; // validateTradeRequest already shows error toasts
+          return;
         }
 
         // Transform and save the trade
         const tradeToSave = transformTradeRequest(data);
-        await saveMutation.mutateAsync(tradeToSave);
-
-        // Mark as saved
-        updateRowData(rowIndex, { isSaved: true });
+        const savedData = await saveMutation.mutateAsync(tradeToSave);
+        
+        if (savedData?.[0]) {
+          const rowNode = api.getRowNode(data.rowId);
+          if (rowNode) {
+            rowNode.setData({ ...data, isSaved: true, request_no: savedData[0].request_no });
+          }
+        }
+        
         toast.success("Trade request saved successfully");
       }
 
-      if (onClearGrid) {
-        onClearGrid();
-      }
     } catch (error) {
       console.error("Error saving trade request:", error);
       toast.error("Failed to save trade request");
     }
-  }, [data, rowIndex, updateRowData, api, saveMutation, onClearGrid]);
+  }, [data, api, saveMutation, findSwapPair]);
 
   const handleCopy = useCallback(() => {
     const { isSaved, ...rowToCopy } = data;

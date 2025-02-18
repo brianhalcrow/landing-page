@@ -30,46 +30,56 @@ export const useTradeRequestSave = () => {
       // If it's a single request, wrap it in an array
       const requests = Array.isArray(data) ? data : [data];
       
-      // Filter out any undefined or invalid requests
-      const validRequests = requests.filter(request => {
-        return request.entity_id && request.strategy_name && request.instrument;
+      // Group trades by swapId
+      const swapGroups = new Map<string | undefined, TradeRequest[]>();
+      requests.forEach(request => {
+        const key = request.swapId || `single-${request.entity_id}-${Date.now()}`;
+        const group = swapGroups.get(key) || [];
+        group.push(request);
+        swapGroups.set(key, group);
       });
 
-      if (validRequests.length === 0) {
-        throw new Error("No valid trade requests to save");
-      }
-
-      // Group swap legs together by assigning them the same hedge_group_id
-      let currentGroupId: number | null = null;
-      const requestsToSave = validRequests.map((request, index) => {
-        // If this is part of a swap (has swapId)
-        if (request.swapId) {
-          // If this is the first leg or we don't have a current group ID, get a new one
-          if (request.swapLeg === 1 || !currentGroupId) {
-            // We'll use a temporary negative number as a placeholder
-            // The actual ID will be assigned by the database
-            currentGroupId = -(Date.now() + index);
+      // Validate and prepare trades for saving
+      const requestsToSave: TradeRequest[] = [];
+      
+      for (const [swapId, group] of swapGroups) {
+        // For swaps, ensure we have both legs
+        if (group[0]?.instrument?.toLowerCase() === 'swap') {
+          if (group.length !== 2) {
+            throw new Error(`Incomplete swap pair for ${group[0]?.entity_name}`);
           }
-          return { ...request, hedge_group_id: currentGroupId };
+
+          // Sort legs by leg number
+          group.sort((a, b) => (a.swapLeg || 0) - (b.swapLeg || 0));
+
+          // Assign temporary hedge_group_id (will be replaced by DB sequence)
+          const tempGroupId = -Date.now();
+          group.forEach(leg => {
+            requestsToSave.push({
+              ...leg,
+              hedge_group_id: tempGroupId
+            });
+          });
+        } else {
+          // For non-swaps, just add them as is
+          requestsToSave.push(...group);
         }
-        // Reset group ID for non-swap trades
-        currentGroupId = null;
-        return request;
-      });
+      }
 
       console.log("Saving trades:", requestsToSave);
 
-      // Insert the trades - the database will assign real hedge_group_ids
-      const { error } = await supabase
+      // Insert the trades
+      const { data: savedData, error } = await supabase
         .from('trade_requests')
-        .insert(requestsToSave);
+        .insert(requestsToSave)
+        .select();
 
       if (error) {
         console.error("Error saving trade request:", error);
         throw error;
       }
 
-      return true;
+      return savedData;
     }
   });
 };
