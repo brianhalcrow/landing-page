@@ -18,8 +18,8 @@ interface TradeRequest {
   ccy_pair: string | null;
   counterparty_name: string | null;
   hedge_group_id?: number | null;
-  swapId?: string;
-  swapLeg?: 1 | 2;
+  swap_id?: string;
+  swap_leg?: 1 | 2;
 }
 
 export const useTradeRequestSave = () => {
@@ -30,10 +30,10 @@ export const useTradeRequestSave = () => {
       // If it's a single request, wrap it in an array
       const requests = Array.isArray(data) ? data : [data];
       
-      // Group trades by swapId
+      // Group trades by swap_id
       const swapGroups = new Map<string | undefined, TradeRequest[]>();
       requests.forEach(request => {
-        const key = request.swapId || `single-${request.entity_id}-${Date.now()}`;
+        const key = request.swap_id || `single-${request.entity_id}-${Date.now()}`;
         const group = swapGroups.get(key) || [];
         group.push(request);
         swapGroups.set(key, group);
@@ -42,7 +42,7 @@ export const useTradeRequestSave = () => {
       // Validate and prepare trades for saving
       const requestsToSave: TradeRequest[] = [];
       
-      for (const [swapId, group] of swapGroups) {
+      for (const [swap_id, group] of swapGroups) {
         // For swaps, ensure we have both legs
         if (group[0]?.instrument?.toLowerCase() === 'swap') {
           if (group.length !== 2) {
@@ -50,7 +50,7 @@ export const useTradeRequestSave = () => {
           }
 
           // Sort legs by leg number
-          group.sort((a, b) => (a.swapLeg || 0) - (b.swapLeg || 0));
+          group.sort((a, b) => (a.swap_leg || 0) - (b.swap_leg || 0));
           
           // For swaps, let the database generate the hedge_group_id
           group.forEach(leg => {

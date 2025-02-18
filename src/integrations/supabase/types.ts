@@ -2644,6 +2644,8 @@ export type Database = {
           strategy_name: string
           submitted_at: string | null
           submitted_by: string | null
+          swap_id: string | null
+          swap_leg: number | null
           trade_date: string | null
           updated_at: string | null
         }
@@ -2675,6 +2677,8 @@ export type Database = {
           strategy_name: string
           submitted_at?: string | null
           submitted_by?: string | null
+          swap_id?: string | null
+          swap_leg?: number | null
           trade_date?: string | null
           updated_at?: string | null
         }
@@ -2706,6 +2710,8 @@ export type Database = {
           strategy_name?: string
           submitted_at?: string | null
           submitted_by?: string | null
+          swap_id?: string | null
+          swap_leg?: number | null
           trade_date?: string | null
           updated_at?: string | null
         }
