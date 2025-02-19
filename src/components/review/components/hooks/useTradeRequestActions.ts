@@ -16,10 +16,16 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
         [`${updateField}_at`]: new Date().toISOString()
       });
 
-    // If this is part of a group, update all related trades
-    if (request.hedge_group_id) {
+    // For swaps, we need to update both legs together
+    if (request.instrument?.toLowerCase() === 'swap') {
+      // If this is a swap, use hedge_group_id to update both legs
+      if (!request.hedge_group_id) {
+        toast.error('Cannot process swap: Missing hedge group ID');
+        return;
+      }
       query = query.eq('hedge_group_id', request.hedge_group_id);
     } else {
+      // For non-swaps, just update the individual request
       query = query.eq('request_no', request.request_no);
     }
 
@@ -30,7 +36,11 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
       throw error;
     }
 
-    toast.success(`Request ${request.request_no} ${updateField}`);
+    toast.success(
+      request.instrument?.toLowerCase() === 'swap' 
+        ? `Swap trade request ${request.request_no} and its paired leg ${updateField}`
+        : `Request ${request.request_no} ${updateField}`
+    );
     onDataChange?.();
   };
 
@@ -43,10 +53,16 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
         rejected_at: new Date().toISOString()
       });
 
-    // If this is part of a group, reject all related trades
-    if (request.hedge_group_id) {
+    // For swaps, we need to reject both legs together
+    if (request.instrument?.toLowerCase() === 'swap') {
+      // If this is a swap, use hedge_group_id to reject both legs
+      if (!request.hedge_group_id) {
+        toast.error('Cannot process swap: Missing hedge group ID');
+        return;
+      }
       query = query.eq('hedge_group_id', request.hedge_group_id);
     } else {
+      // For non-swaps, just reject the individual request
       query = query.eq('request_no', request.request_no);
     }
 
@@ -57,7 +73,11 @@ export const useTradeRequestActions = (onDataChange?: () => void) => {
       throw error;
     }
 
-    toast.success(`Request ${request.request_no} rejected`);
+    toast.success(
+      request.instrument?.toLowerCase() === 'swap' 
+        ? `Swap trade request ${request.request_no} and its paired leg rejected`
+        : `Request ${request.request_no} rejected`
+    );
     onDataChange?.();
   };
 

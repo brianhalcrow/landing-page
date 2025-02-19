@@ -29,15 +29,13 @@ export const TradeRequestsGrid = ({
   const handleApproveWithRowRemoval = async (request: TradeRequest) => {
     await handleApprove(request, targetStatus);
     if (gridRef.current?.api) {
-      const rowNode = gridRef.current.api.getRowNode(request.request_no.toString());
-      if (rowNode) {
-        // If this is part of a group, remove all related trades
-        if (request.hedge_group_id) {
-          const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
-          gridRef.current.api.applyTransaction({ remove: relatedRows });
-        } else {
-          gridRef.current.api.applyTransaction({ remove: [request] });
-        }
+      if (request.instrument?.toLowerCase() === 'swap' && request.hedge_group_id) {
+        // For swaps, remove all trades with the same hedge_group_id
+        const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
+        gridRef.current.api.applyTransaction({ remove: relatedRows });
+      } else {
+        // For non-swaps, just remove the individual row
+        gridRef.current.api.applyTransaction({ remove: [request] });
       }
     }
   };
@@ -45,15 +43,13 @@ export const TradeRequestsGrid = ({
   const handleRejectWithRowRemoval = async (request: TradeRequest) => {
     await handleReject(request);
     if (gridRef.current?.api) {
-      const rowNode = gridRef.current.api.getRowNode(request.request_no.toString());
-      if (rowNode) {
-        // If this is part of a group, remove all related trades
-        if (request.hedge_group_id) {
-          const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
-          gridRef.current.api.applyTransaction({ remove: relatedRows });
-        } else {
-          gridRef.current.api.applyTransaction({ remove: [request] });
-        }
+      if (request.instrument?.toLowerCase() === 'swap' && request.hedge_group_id) {
+        // For swaps, remove all trades with the same hedge_group_id
+        const relatedRows = rowData.filter(row => row.hedge_group_id === request.hedge_group_id);
+        gridRef.current.api.applyTransaction({ remove: relatedRows });
+      } else {
+        // For non-swaps, just remove the individual row
+        gridRef.current.api.applyTransaction({ remove: [request] });
       }
     }
   };
@@ -64,6 +60,18 @@ export const TradeRequestsGrid = ({
     showApproveButton,
     showRejectButton
   );
+
+  // Group rows by hedge_group_id for swaps
+  const getRowId = (params: { data: TradeRequest }) => 
+    params.data.request_no.toString();
+
+  const isRowSelectable = (params: { data: TradeRequest }) => {
+    if (params.data.instrument?.toLowerCase() === 'swap') {
+      // For swaps, only allow selection of the first leg
+      return params.data.swap_leg === 1;
+    }
+    return true;
+  };
 
   return (
     <div className="ag-theme-alpine h-full">
@@ -88,12 +96,14 @@ export const TradeRequestsGrid = ({
           resizable: true,
           suppressSizeToFit: false,
         }}
-        getRowId={(params) => params.data.request_no.toString()}
+        getRowId={getRowId}
         rowHeight={45}
         headerHeight={48}
         animateRows={true}
         suppressColumnVirtualisation={true}
         enableCellTextSelection={true}
+        isRowSelectable={isRowSelectable}
+        groupDefaultExpanded={1}
         groupDisplayType="groupRows"
       />
     </div>
