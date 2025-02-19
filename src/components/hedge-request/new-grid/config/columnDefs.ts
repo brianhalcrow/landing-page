@@ -5,6 +5,7 @@ import { CostCentreSelector } from "../selectors/CostCentreSelector";
 import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
+import { DateCell } from "../components/DateCell";
 
 interface Context {
   validConfigs?: any[];
@@ -117,16 +118,20 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Trade Date",
       field: "trade_date",
-      editable: true,
-      cellEditor: 'agDateCellEditor',
-      cellEditorPopup: true
+      cellRenderer: DateCell,
+      cellRendererParams: {
+        context
+      },
+      editable: false
     },
     {
       headerName: "Settlement Date",
       field: "settlement_date",
-      editable: true,
-      cellEditor: 'agDateCellEditor',
-      cellEditorPopup: true
+      cellRenderer: DateCell,
+      cellRendererParams: {
+        context
+      },
+      editable: false
     },
     {
       headerName: "Actions",

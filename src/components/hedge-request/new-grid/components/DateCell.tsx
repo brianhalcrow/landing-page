@@ -26,18 +26,22 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <div className="w-full h-full px-2 py-1 cursor-pointer">
-          {value ? format(new Date(value), 'dd/MM/yyyy') : 'Select date'}
-        </div>
+    <Popover 
+      open={open} 
+      onOpenChange={setOpen}
+    >
+      <PopoverTrigger
+        className="w-full h-full px-2 py-1 cursor-pointer"
+        onMouseEnter={() => setOpen(true)}
+      >
+        {value ? format(new Date(value), 'dd/MM/yyyy') : 'Select date'}
       </PopoverTrigger>
       <PopoverContent 
         className="w-auto p-0" 
         align="start"
         side="bottom"
         sideOffset={5}
-        avoidCollisions
+        onMouseLeave={() => setOpen(false)}
       >
         <Calendar
           mode="single"
