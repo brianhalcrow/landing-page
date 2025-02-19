@@ -28,6 +28,8 @@ export interface TradeRequest {
   rejected_at: string | null;
   rejection_reason: string | null;
   hedge_group_id: number | null;
+  swap_id: string | null;
+  swap_leg: number | null;
 }
 
 export interface ActionButtonsProps {
