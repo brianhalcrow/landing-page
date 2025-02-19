@@ -101,54 +101,53 @@ export const useHedgeRequestData = () => {
       // Update the current row
       newData[rowIndex] = updatedRow;
 
-      // If this is a currency update for a swap
-      if (isSwap && (updates.buy_currency !== undefined || updates.sell_currency !== undefined)) {
-        // For first leg, update second leg's currencies
+      // If this is a swap, propagate shared fields to the other leg
+      if (isSwap) {
         if (rowIndex % 2 === 0) {
+          // For first leg, update second leg
           const nextRowIndex = rowIndex + 1;
           if (nextRowIndex < newData.length) {
             newData[nextRowIndex] = {
               ...newData[nextRowIndex],
+              // Propagate currencies
               buy_currency: updatedRow.sell_currency || '',
-              sell_currency: updatedRow.buy_currency || ''
+              sell_currency: updatedRow.buy_currency || '',
+              // Propagate shared fields
+              entity_id: updatedRow.entity_id || '',
+              entity_name: updatedRow.entity_name || '',
+              strategy_name: updatedRow.strategy_name || '',
+              instrument: updatedRow.instrument || '',
+              counterparty_name: updatedRow.counterparty_name || '',
+              cost_centre: updatedRow.cost_centre || '',
             };
+            // Propagate amounts if they exist
+            if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
+              newData[nextRowIndex].buy_amount = updatedRow.sell_amount;
+              newData[nextRowIndex].sell_amount = updatedRow.buy_amount;
+            }
           }
-        }
-        // For second leg, update first leg's currencies
-        else {
+        } else {
+          // For second leg, update first leg
           const prevRowIndex = rowIndex - 1;
           if (prevRowIndex >= 0) {
             newData[prevRowIndex] = {
               ...newData[prevRowIndex],
+              // Propagate currencies
               buy_currency: updatedRow.sell_currency || '',
-              sell_currency: updatedRow.buy_currency || ''
+              sell_currency: updatedRow.buy_currency || '',
+              // Propagate shared fields
+              entity_id: updatedRow.entity_id || '',
+              entity_name: updatedRow.entity_name || '',
+              strategy_name: updatedRow.strategy_name || '',
+              instrument: updatedRow.instrument || '',
+              counterparty_name: updatedRow.counterparty_name || '',
+              cost_centre: updatedRow.cost_centre || '',
             };
-          }
-        }
-      }
-
-      // If this is an amount update for a swap
-      if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
-        // For first leg, update second leg's amounts
-        if (rowIndex % 2 === 0) {
-          const nextRowIndex = rowIndex + 1;
-          if (nextRowIndex < newData.length) {
-            newData[nextRowIndex] = {
-              ...newData[nextRowIndex],
-              buy_amount: updatedRow.sell_amount,
-              sell_amount: updatedRow.buy_amount
-            };
-          }
-        }
-        // For second leg, update first leg's amounts
-        else {
-          const prevRowIndex = rowIndex - 1;
-          if (prevRowIndex >= 0) {
-            newData[prevRowIndex] = {
-              ...newData[prevRowIndex],
-              buy_amount: updatedRow.sell_amount,
-              sell_amount: updatedRow.buy_amount
-            };
+            // Propagate amounts if they exist
+            if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
+              newData[prevRowIndex].buy_amount = updatedRow.sell_amount;
+              newData[prevRowIndex].sell_amount = updatedRow.buy_amount;
+            }
           }
         }
       }
