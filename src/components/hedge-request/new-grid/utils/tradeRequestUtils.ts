@@ -15,8 +15,8 @@ interface TradeRequestInput {
   sell_amount: number | string | null;
   cost_centre: string;
   counterparty_name: string;
-  swapId?: string;
-  swapLeg?: 1 | 2;
+  swap_id?: string;
+  swap_leg?: 1 | 2;
 }
 
 interface TradeRequest {
@@ -34,6 +34,8 @@ interface TradeRequest {
   ccy_pair: string | null;
   counterparty_name: string | null;
   hedge_group_id?: number | null;
+  swap_id?: string;
+  swap_leg?: 1 | 2;
 }
 
 export const validateTradeRequest = (data: any): boolean => {
@@ -156,12 +158,9 @@ export const transformTradeRequest = (data: any): TradeRequest => {
   const parsedTradeDate = data.trade_date ? parseDateToYYYYMMDD(data.trade_date) : null;
   const parsedSettlementDate = parseDateToYYYYMMDD(data.settlement_date);
   
-  console.log("Transforming dates:", {
-    original: {
-      tradeDate: data.trade_date,
-      settlementDate: data.settlement_date
-    },
-    parsed: {
+  console.log("Transforming trade request:", {
+    original: data,
+    parsedDates: {
       tradeDate: parsedTradeDate,
       settlementDate: parsedSettlementDate
     }
@@ -182,9 +181,14 @@ export const transformTradeRequest = (data: any): TradeRequest => {
     cost_centre: data.cost_centre,
     ccy_pair: data.buy_currency && data.sell_currency ? `${data.buy_currency}${data.sell_currency}` : null,
     counterparty_name: data.counterparty_name,
-    // If this is part of a swap, it will be assigned a hedge_group_id by the save mutation
+    swap_id: data.swap_id,
+    swap_leg: data.swap_leg,
+    // hedge_group_id will be assigned by the database trigger
     hedge_group_id: null
   };
 
+  console.log("Transformed trade request:", transformed);
+
   return transformed;
 };
+
