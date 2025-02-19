@@ -2998,6 +2998,39 @@ export type Database = {
         }
         Relationships: []
       }
+      v_gl_transaction_summary: {
+        Row: {
+          account_category_level_1: string | null
+          account_category_level_1_id: number | null
+          account_category_level_2: string | null
+          account_category_level_2_id: number | null
+          account_category_level_3: string | null
+          account_category_level_3_id: number | null
+          account_category_level_4: string | null
+          account_category_level_4_id: number | null
+          account_name: string | null
+          account_number: string | null
+          base_amount: number | null
+          base_balance: number | null
+          cost_centre: string | null
+          country: string | null
+          entity: string | null
+          entity_id: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          period: string | null
+          revalue_flag: boolean | null
+          total_base_amount: number | null
+          total_transaction_amount: number | null
+          transaction_amount: number | null
+          transaction_balance: number | null
+          transaction_currency: string | null
+          year: number | null
+          year_period: string | null
+        }
+        Relationships: []
+      }
       v_hedge_request_config: {
         Row: {
           counterparty_id: string | null
@@ -3082,14 +3115,33 @@ export type Database = {
       }
       v_trial_balance: {
         Row: {
+          account_category_level_1: string | null
+          account_category_level_1_id: number | null
+          account_category_level_2: string | null
+          account_category_level_2_id: number | null
+          account_category_level_3: string | null
+          account_category_level_3_id: number | null
+          account_category_level_4: string | null
+          account_category_level_4_id: number | null
           account_name: string | null
           account_number: string | null
-          base_amount: number | null
-          base_balance: number | null
+          closing_base_amount: number | null
+          closing_transaction_amount: number | null
+          cost_centre: string | null
+          country: string | null
           entity: string | null
-          transaction_amount: number | null
-          transaction_balance: number | null
+          entity_id: string | null
+          geo_level_1: string | null
+          geo_level_2: string | null
+          geo_level_3: string | null
+          movement_base_amount: number | null
+          movement_transaction_amount: number | null
+          opening_base_amount: number | null
+          opening_transaction_amount: number | null
+          period: string | null
+          revalue_flag: boolean | null
           transaction_currency: string | null
+          year: number | null
           year_period: string | null
         }
         Relationships: []

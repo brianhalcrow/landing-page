@@ -93,3 +93,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* AG Grid Overrides */
+.ag-cell-no-border {
+  border: none !important;
+}
+
+.ag-cell-no-border.amount-cell {
+  padding: 0 !important;
+}
+
+.ag-cell-no-border .ag-cell-editor,
+.ag-cell-no-border input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  height: 100% !important;
+}
+
+.amount-cell .ag-cell-editor {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Prevent any default input styling */
+.amount-cell input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}

@@ -6,6 +6,7 @@ import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
 import { DateCell } from "../components/DateCell";
+import { AmountEditor } from "../components/AmountEditor";
 
 interface Context {
   validConfigs?: any[];
@@ -19,7 +20,9 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     alignItems: "center", 
     padding: "8px",
     backgroundColor: "transparent",
-    border: "none"
+    border: "none !important",
+    outline: "none !important",
+    boxShadow: "none !important"
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -82,11 +85,11 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       headerName: "Buy Amount",
       field: "buy_amount",
       editable: true,
-      cellEditor: 'agNumberCellEditor',
+      cellEditor: AmountEditor,
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
       cellStyle: amountCellStyle,
-      cellClass: ['ag-cell-no-border', 'no-outline-cell'],
+      cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
       cellEditorParams: {
         cellEditorPopup: false,
         useFormatter: true
@@ -105,11 +108,11 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       headerName: "Sell Amount",
       field: "sell_amount",
       editable: true,
-      cellEditor: 'agNumberCellEditor',
+      cellEditor: AmountEditor,
       valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
       valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
       cellStyle: amountCellStyle,
-      cellClass: ['ag-cell-no-border', 'no-outline-cell'],
+      cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
       cellEditorParams: {
         cellEditorPopup: false,
         useFormatter: true
