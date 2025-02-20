@@ -24,6 +24,7 @@ import CashManagementOverviewTab from "@/components/cash-management/OverviewTab"
 import TradingGrid from "@/components/trading/TradingGrid";
 import CalendarTab from "@/components/monitor/CalendarTab";
 import { TrialBalanceGrid } from "@/components/exposure/balance-sheet/TrialBalanceGrid";
+import FxTradingContainer from "@/components/trading/fx/FxTradingContainer";
 
 export const tabsConfig = {
   "monitor": ({ baseCurrency, setBaseCurrency }) => [
@@ -87,7 +88,7 @@ export const tabsConfig = {
     { value: "general", label: "General", content: <TradingGrid /> },
   ],
   "execution": [
-    { value: "general", label: "General", content: <div>Execution Overview</div> },
+    { value: "general", label: "General", content: <FxTradingContainer /> },
   ],
   "confirmation": [
     { value: "executed", label: "Executed", content: <ExecutedTradesTab /> },
