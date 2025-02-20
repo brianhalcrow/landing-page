@@ -3,13 +3,17 @@ import React, { createContext, useContext, ReactNode } from "react";
 import { CubeProvider as BaseCubeProvider } from "@cubejs-client/react";
 import cubejs, { CubeApi } from "@cubejs-client/core";
 
-// Initialize Cube API with environment variables
+// Initialize Cube API with environment variables and custom options
 const cubeApi = cubejs({
-  apiUrl: import.meta.env.VITE_CUBEJS_API_URL || "http://localhost:4000/cubejs-api/v1",
-  headers: {
-    // Add any required headers
-    'Content-Type': 'application/json',
-  },
+  apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
+  options: {
+    transport: {
+      authorization: import.meta.env.CUBEJS_API_SECRET, // Add the API secret if needed
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+  }
 });
 
 interface CubeProviderProps {
