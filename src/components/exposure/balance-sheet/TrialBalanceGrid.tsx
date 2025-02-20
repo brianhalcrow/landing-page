@@ -113,9 +113,8 @@ export const TrialBalanceGrid = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
               </div>
             )}
-            loadingOverlayComponentFramework={undefined}
-            overlayLoadingTemplate={`<span class="ag-overlay-loading-center">Loading...</span>`}
-            overlayNoRowsTemplate={`<span class="ag-overlay-no-rows-center">No data to display</span>`}
+            overlayLoadingTemplate="Loading..."
+            overlayNoRowsTemplate="No data to display"
           />
         </div>
       </CardContent>

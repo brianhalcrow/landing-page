@@ -21,7 +21,6 @@ export const useTrialBalanceQuery = () => {
   );
 
   const { resultSet, isLoading, error, refetch } = useCubeQuery(query, {
-    suspend: false,
     retry: 3,
     retryDelay: 1000,
   });
