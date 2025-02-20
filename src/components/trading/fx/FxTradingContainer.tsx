@@ -56,17 +56,17 @@ const FxTradingContainer = () => {
               <span className="text-sm text-muted-foreground">Required</span>
             </div>
             <div className="p-4">
-              <div className="grid grid-cols-8 gap-4">
+              <div className="grid grid-cols-9 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <label className="block text-sm font-medium mb-1">Entity</label>
                   <Select>
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder="Select entity" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="spot">Spot</SelectItem>
-                      <SelectItem value="forward">Forward</SelectItem>
-                      <SelectItem value="swap">Swap</SelectItem>
+                      <SelectItem value="entity1">Entity 1</SelectItem>
+                      <SelectItem value="entity2">Entity 2</SelectItem>
+                      <SelectItem value="entity3">Entity 3</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -81,6 +81,20 @@ const FxTradingContainer = () => {
                       <SelectItem value="hedge">Hedge</SelectItem>
                       <SelectItem value="proprietary">Proprietary</SelectItem>
                       <SelectItem value="client">Client</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Instrument</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select instrument" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spot">Spot</SelectItem>
+                      <SelectItem value="forward">Forward</SelectItem>
+                      <SelectItem value="swap">Swap</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -115,7 +129,7 @@ const FxTradingContainer = () => {
                   <Toggle
                     pressed={selectedCurrency !== currencyPair.substring(0, 3)}
                     onPressedChange={toggleCurrency}
-                    className="w-full h-9"
+                    className="w-full h-9 bg-[#8E9196] data-[state=on]:bg-[#8E9196] hover:bg-[#8E9196]/90"
                     disabled={!currencyPair}
                   >
                     {selectedCurrency || "Select Pair"}
