@@ -10,8 +10,7 @@ const cubeApi = cubejs({
     'Content-Type': 'application/json',
     // Adding Bearer token format for authorization
     'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`,
-  },
-  credentials: 'include'  // Add credentials inclusion
+  }
 });
 
 interface CubeProviderProps {
@@ -21,7 +20,6 @@ interface CubeProviderProps {
 export const CubeContext = createContext<CubeApi | null>(null);
 
 export const CubeProvider: React.FC<CubeProviderProps> = ({ children }) => {
-  // Remove debug logs since we've confirmed HTTPS is working
   return (
     <BaseCubeProvider cubeApi={cubeApi}>
       <CubeContext.Provider value={cubeApi}>
