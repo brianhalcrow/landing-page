@@ -20,7 +20,11 @@ export const useTrialBalanceQuery = () => {
     []
   );
 
-  const { resultSet, isLoading, error } = useCubeQuery(query);
+  const { resultSet, isLoading, error, refetch } = useCubeQuery(query, {
+    suspend: false,
+    retry: 3,
+    retryDelay: 1000,
+  });
 
   const formattedData = useMemo(() => {
     if (!resultSet) return [];
@@ -33,6 +37,7 @@ export const useTrialBalanceQuery = () => {
   return {
     data: formattedData,
     isLoading,
-    error: error ? `${error.message || 'An error occurred while fetching data'}` : null
+    error: error ? `Error connecting to data source: ${error.message || 'Connection failed'}` : null,
+    refetch
   };
 };

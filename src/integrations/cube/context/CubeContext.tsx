@@ -4,8 +4,12 @@ import { CubeProvider as BaseCubeProvider } from "@cubejs-client/react";
 import cubejs, { CubeApi } from "@cubejs-client/core";
 
 // Initialize Cube API with environment variables
-const cubeApi = cubejs(import.meta.env.CUBEJS_API_SECRET || "", {
+const cubeApi = cubejs({
   apiUrl: import.meta.env.VITE_CUBEJS_API_URL || "http://localhost:4000/cubejs-api/v1",
+  headers: {
+    // Add any required headers
+    'Content-Type': 'application/json',
+  },
 });
 
 interface CubeProviderProps {

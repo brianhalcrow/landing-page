@@ -10,7 +10,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { GridStyles } from "@/components/shared/grid/GridStyles";
 
 export const TrialBalanceGrid = () => {
-  const { data, isLoading, error } = useTrialBalanceQuery();
+  const { data, isLoading, error, refetch } = useTrialBalanceQuery();
 
   const columnDefs = useMemo<ColDef[]>(() => [
     {
@@ -53,7 +53,15 @@ export const TrialBalanceGrid = () => {
           <CardTitle>Trial Balance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-red-500">Error loading trial balance: {error}</div>
+          <div className="flex flex-col gap-4">
+            <div className="text-red-500">{error}</div>
+            <button 
+              onClick={() => refetch()}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
+            >
+              Retry Connection
+            </button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -100,7 +108,14 @@ export const TrialBalanceGrid = () => {
               ],
             }}
             groupDisplayType="multipleColumns"
-            suppressLoadingOverlay={isLoading}
+            loadingOverlayComponent={() => (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              </div>
+            )}
+            loadingOverlayComponentFramework={undefined}
+            overlayLoadingTemplate={`<span class="ag-overlay-loading-center">Loading...</span>`}
+            overlayNoRowsTemplate={`<span class="ag-overlay-no-rows-center">No data to display</span>`}
           />
         </div>
       </CardContent>
