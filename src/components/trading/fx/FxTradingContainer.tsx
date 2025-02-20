@@ -55,7 +55,7 @@ const FxTradingContainer = () => {
               <h3 className="text-lg font-medium">Trade Details</h3>
               <span className="text-sm text-muted-foreground">Required</span>
             </div>
-            <div className="p-4">
+            <div className="p-4 space-y-4">
               <div className="grid grid-cols-11 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Entity</label>
@@ -89,7 +89,9 @@ const FxTradingContainer = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-11 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Strategy</label>
                   <Select>
