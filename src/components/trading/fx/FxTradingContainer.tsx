@@ -39,6 +39,10 @@ const FxTradingContainer = () => {
     }
   };
 
+  const handleDateSelect = (date: Date | undefined) => {
+    setSettlementDate(date);
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-[1400px]">
       <div className="flex items-center justify-between mb-6">
@@ -187,7 +191,7 @@ const FxTradingContainer = () => {
                   </Select>
                 </div>
 
-                <div className="col-span-1.3">
+                <div className="col-span-1.5">
                   <label className="block text-sm font-medium mb-1">Settlement Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -203,7 +207,7 @@ const FxTradingContainer = () => {
                       <CalendarComponent
                         mode="single"
                         selected={settlementDate}
-                        onSelect={setSettlementDate}
+                        onSelect={handleDateSelect}
                         initialFocus
                       />
                     </PopoverContent>
