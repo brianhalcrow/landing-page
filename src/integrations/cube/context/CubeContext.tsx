@@ -8,6 +8,7 @@ const cubeApi = cubejs({
   apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Authorization': import.meta.env.CUBEJS_API_SECRET
   }
 });
 
