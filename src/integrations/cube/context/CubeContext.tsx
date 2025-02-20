@@ -9,12 +9,10 @@ const cubeApi = cubejs({
   headers: {
     'Content-Type': 'application/json',
     // Adding Bearer token format for authorization
-    'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`
-  },
-  credentials: 'include',  // Add credentials inclusion
-  apiHeaders: {
+    'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`,
     'X-Forwarded-Proto': 'https'  // Force HTTPS
-  }
+  },
+  credentials: 'include'  // Add credentials inclusion
 });
 
 interface CubeProviderProps {
