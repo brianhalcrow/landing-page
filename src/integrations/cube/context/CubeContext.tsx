@@ -10,7 +10,7 @@ const cubeApi = cubejs({
     'Content-Type': 'application/json',
   },
   credentials: 'include',
-  apiToken: import.meta.env.CUBEJS_API_SECRET // Use apiToken instead of authorization
+  token: import.meta.env.CUBEJS_API_SECRET // Using 'token' instead of 'apiToken'
 });
 
 interface CubeProviderProps {
