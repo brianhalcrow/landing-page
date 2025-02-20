@@ -56,8 +56,8 @@ const FxTradingContainer = () => {
               <span className="text-sm text-muted-foreground">Required</span>
             </div>
             <div className="p-4">
-              <div className="grid grid-cols-9 gap-4">
-                <div>
+              <div className="grid grid-cols-11 gap-4">
+                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Entity</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -72,6 +72,25 @@ const FxTradingContainer = () => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium mb-1">Entity ID</label>
+                  <Input type="text" className="h-9" placeholder="Enter ID" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Cost Centre</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cc1">Cost Centre 1</SelectItem>
+                      <SelectItem value="cc2">Cost Centre 2</SelectItem>
+                      <SelectItem value="cc3">Cost Centre 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Strategy</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -118,7 +137,8 @@ const FxTradingContainer = () => {
                   <Toggle
                     pressed={direction === "sell"}
                     onPressedChange={(pressed) => setDirection(pressed ? "sell" : "buy")}
-                    className="w-full h-9"
+                    variant="outline"
+                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                   >
                     {direction.charAt(0).toUpperCase() + direction.slice(1)}
                   </Toggle>
@@ -129,7 +149,8 @@ const FxTradingContainer = () => {
                   <Toggle
                     pressed={selectedCurrency !== currencyPair.substring(0, 3)}
                     onPressedChange={toggleCurrency}
-                    className="w-full h-9 bg-[#8E9196] data-[state=on]:bg-[#8E9196] hover:bg-[#8E9196]/90"
+                    variant="outline"
+                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                     disabled={!currencyPair}
                   >
                     {selectedCurrency || "Select Pair"}
@@ -139,21 +160,6 @@ const FxTradingContainer = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Amount</label>
                   <Input type="number" className="h-9" placeholder="0.00" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Tenor</label>
-                  <Select>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spot">SPOT</SelectItem>
-                      <SelectItem value="1w">1W</SelectItem>
-                      <SelectItem value="1m">1M</SelectItem>
-                      <SelectItem value="3m">3M</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div>
