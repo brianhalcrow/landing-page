@@ -29,14 +29,16 @@ export const useTrialBalanceQuery = () => {
 
   const { resultSet, isLoading, error, refetch } = useCubeQuery(query);
 
-  // Add detailed error logging
+  // Enhanced error logging
   if (error) {
     const cubeError = error as CubeError;
-    console.error('Cube.js Connection Error:', {
+    console.error('Cube.js Query Error:', {
       message: cubeError.message,
       url: import.meta.env.VITE_CUBEJS_API_URL,
       status: cubeError.response?.status,
-      details: cubeError.response?.data
+      details: cubeError.response?.data,
+      headers: cubeError.response?.headers,
+      query: JSON.stringify(query)
     });
   }
 
@@ -50,16 +52,20 @@ export const useTrialBalanceQuery = () => {
 
   const getErrorMessage = (error: CubeError | null) => {
     if (!error) return null;
+    
+    // Log the complete error object for debugging
+    console.debug('Full Cube.js error object:', error);
+
     if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
-      return 'CORS Error: The Cube.js server needs to be configured to allow requests from this domain. Please check the server configuration.';
+      return 'Unable to connect to the data service. This might be due to CORS restrictions. Please contact support.';
     }
     if (error.message?.includes('CONNECTION_REFUSED')) {
-      return 'Unable to connect to the Cube.js server. The server appears to be offline or not accessible.';
+      return 'The data service appears to be offline. Please try again later.';
     }
     if (error.response?.status === 401) {
-      return 'Authentication failed. Please check your API credentials.';
+      return 'Authentication failed. Please check your credentials.';
     }
-    return `Connection Error: ${error.message || 'Unable to reach the Cube.js server. Please verify the server is running and accessible.'}`;
+    return `Connection Error: ${error.message || 'Unable to fetch data. Please try again.'}`;
   };
 
   return {
