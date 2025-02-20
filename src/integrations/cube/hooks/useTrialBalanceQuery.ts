@@ -1,5 +1,5 @@
 
-import { useQuery } from "@cubejs-client/react";
+import { useCubeQuery } from "@cubejs-client/react";
 import { useMemo } from "react";
 
 export interface TrialBalanceData {
@@ -17,5 +17,5 @@ export const useTrialBalanceQuery = () => {
     []
   );
 
-  return useQuery(query);
+  return useCubeQuery(query);
 };
