@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -23,6 +24,7 @@ import AnalyticsTab from "@/components/analytics/AnalyticsTab";
 import CashManagementOverviewTab from "@/components/cash-management/OverviewTab";
 import TradingGrid from "@/components/trading/TradingGrid";
 import CalendarTab from "@/components/monitor/CalendarTab";
+import { TrialBalanceGrid } from "@/components/exposure/balance-sheet/TrialBalanceGrid";
 
 export const tabsConfig = {
   "monitor": ({ baseCurrency, setBaseCurrency }) => [
@@ -58,7 +60,7 @@ export const tabsConfig = {
   ],
   "exposure": [
     { value: "ad-hoc", label: "Ad-Hoc", content: <div>Ad-Hoc Exposure</div> },
-    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Exposure</div> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <TrialBalanceGrid /> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Exposure</div> },
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Exposure</div> },
     { value: "gl-transactions", label: "GL Transactions", content: <GLTransactionsTab /> }
