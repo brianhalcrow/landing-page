@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,9 @@ const FxTradingContainer = () => {
   const [currencyPair, setCurrencyPair] = React.useState("");
   const [selectedCurrency, setSelectedCurrency] = React.useState("");
   const [tenor, setTenor] = React.useState("");
+  const [spread, setSpread] = React.useState("0.000139");
+  const [bid, setBid] = React.useState("1.056071");
+  const [ask, setAsk] = React.useState("1.056071");
 
   const handleCurrencyPairChange = (value: string) => {
     setCurrencyPair(value);
@@ -41,6 +45,15 @@ const FxTradingContainer = () => {
 
   const handleDateSelect = (date: Date | undefined) => {
     setSettlementDate(date);
+  };
+
+  // Helper function to get currency pair parts
+  const getCurrencyPairParts = () => {
+    if (!currencyPair) return { base: "EUR", quote: "USD" };
+    return {
+      base: currencyPair.substring(0, 3),
+      quote: currencyPair.substring(3, 6)
+    };
   };
 
   return (
@@ -225,8 +238,48 @@ const FxTradingContainer = () => {
               <span className="text-sm text-muted-foreground">Live Rates</span>
             </div>
             <div className="p-6">
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                Execution Panel (Coming in Phase 4)
+              <div className="grid grid-cols-3 gap-4">
+                {/* Bid */}
+                <div className="text-center">
+                  <label className="block text-sm font-medium mb-2">
+                    {direction === "buy" ? `Sell ${getCurrencyPairParts().base}` : `Buy ${getCurrencyPairParts().base}`}
+                  </label>
+                  <Input 
+                    type="text" 
+                    value={bid} 
+                    onChange={(e) => setBid(e.target.value)}
+                    className="text-center font-mono"
+                    readOnly 
+                  />
+                </div>
+
+                {/* Spread */}
+                <div className="text-center">
+                  <label className="block text-sm font-medium mb-2">
+                    Spread
+                  </label>
+                  <Input 
+                    type="text" 
+                    value={spread}
+                    onChange={(e) => setSpread(e.target.value)}
+                    className="text-center font-mono"
+                    readOnly
+                  />
+                </div>
+
+                {/* Ask */}
+                <div className="text-center">
+                  <label className="block text-sm font-medium mb-2">
+                    {direction === "buy" ? `Buy ${getCurrencyPairParts().base}` : `Sell ${getCurrencyPairParts().base}`}
+                  </label>
+                  <Input 
+                    type="text" 
+                    value={ask}
+                    onChange={(e) => setAsk(e.target.value)}
+                    className="text-center font-mono"
+                    readOnly
+                  />
+                </div>
               </div>
             </div>
           </div>
