@@ -3,17 +3,19 @@ import React, { createContext, useContext, ReactNode } from "react";
 import { CubeProvider as BaseCubeProvider } from "@cubejs-client/react";
 import cubejs, { CubeApi } from "@cubejs-client/core";
 
-// Log connection details for debugging
+// Initialize Cube API with minimal configuration and debug logging
+const apiUrl = import.meta.env.VITE_CUBEJS_API_URL;
+const apiSecret = import.meta.env.CUBEJS_API_SECRET;
+
 console.log('Initializing Cube.js connection:', {
-  apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
-  authPresent: !!import.meta.env.CUBEJS_API_SECRET
+  apiUrl,
+  authPresent: !!apiSecret
 });
 
-// Initialize Cube API with minimal configuration
 const cubeApi = cubejs({
-  apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
+  apiUrl,
   headers: {
-    Authorization: `Bearer ${import.meta.env.CUBEJS_API_SECRET}`
+    Authorization: `Bearer ${apiSecret}`
   }
 });
 

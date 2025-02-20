@@ -37,7 +37,6 @@ export const useTrialBalanceQuery = () => {
       url: import.meta.env.VITE_CUBEJS_API_URL,
       status: cubeError.response?.status,
       details: cubeError.response?.data,
-      headers: cubeError.response?.headers,
       query: JSON.stringify(query)
     });
   }
