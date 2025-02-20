@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "@/pages/Auth";
 import Layout from "@/components/Layout";
@@ -22,6 +21,7 @@ import Execution from "@/pages/Execution";
 import HedgeAccounting from "@/pages/HedgeAccounting";
 import CashManagement from "@/pages/CashManagement";
 import { WebSocketProvider } from '@/trade/contexts/WebSocketContext';
+import { CubeProvider } from '@/integrations/cube/context/CubeContext';
 
 const websocketUrl = import.meta.env.VITE_WS_URL;
 
@@ -30,29 +30,31 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-        <WebSocketProvider url={websocketUrl}>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                <Route path="/" element={<Index />} />
-                <Route path="/data-sources" element={<DataSources />} />
-                <Route path="/configuration" element={<Configuration />} />
-                <Route path="/hedge-request" element={<HedgeRequest />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/monitor" element={<Monitor />} />
-                <Route path="/review" element={<Review />} />
-                <Route path="/forecast" element={<Forecast />} />
-                <Route path="/exposure" element={<Exposure />} />
-                <Route path="/execution" element={<Execution />} />
-                <Route path="/confirmation" element={<Confirmation />} />
-                <Route path="/control" element={<Control />} />
-                <Route path="/hedge-accounting" element={<HedgeAccounting />} />
-                <Route path="/cash-management" element={<CashManagement />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          </WebSocketProvider>
-          <Toaster />
+          <CubeProvider>
+            <WebSocketProvider url={websocketUrl}>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/data-sources" element={<DataSources />} />
+                  <Route path="/configuration" element={<Configuration />} />
+                  <Route path="/hedge-request" element={<HedgeRequest />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/monitor" element={<Monitor />} />
+                  <Route path="/review" element={<Review />} />
+                  <Route path="/forecast" element={<Forecast />} />
+                  <Route path="/exposure" element={<Exposure />} />
+                  <Route path="/execution" element={<Execution />} />
+                  <Route path="/confirmation" element={<Confirmation />} />
+                  <Route path="/control" element={<Control />} />
+                  <Route path="/hedge-accounting" element={<HedgeAccounting />} />
+                  <Route path="/cash-management" element={<CashManagement />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </WebSocketProvider>
+            <Toaster />
+          </CubeProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
