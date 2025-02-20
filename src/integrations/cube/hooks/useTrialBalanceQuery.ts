@@ -22,6 +22,14 @@ export const useTrialBalanceQuery = () => {
 
   const { resultSet, isLoading, error, refetch } = useCubeQuery(query);
 
+  // Add console logs for debugging
+  console.log('Cube Query Status:', { 
+    isLoading, 
+    hasError: !!error, 
+    errorDetails: error,
+    apiUrl: import.meta.env.VITE_CUBEJS_API_URL 
+  });
+
   const formattedData = useMemo(() => {
     if (!resultSet) return [];
     return resultSet.tablePivot().map((row) => ({
@@ -33,7 +41,7 @@ export const useTrialBalanceQuery = () => {
   return {
     data: formattedData,
     isLoading,
-    error: error ? `Error connecting to data source: ${error.message || 'Connection failed'}` : null,
+    error: error ? `Error connecting to data source: ${error.message || 'Connection refused - please check if the Cube.js server is running'}` : null,
     refetch
   };
 };
