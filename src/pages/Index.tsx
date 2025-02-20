@@ -1,4 +1,5 @@
 
+import React, { useEffect } from 'react';
 import Dashboard from "@/components/Dashboard";
 import { useCube } from "@/integrations/cube/context/CubeContext";
 
@@ -6,7 +7,7 @@ const Index = () => {
   const cubeApi = useCube();
 
   // Test the connection
-  React.useEffect(() => {
+  useEffect(() => {
     const testConnection = async () => {
       try {
         const response = await cubeApi.load({
