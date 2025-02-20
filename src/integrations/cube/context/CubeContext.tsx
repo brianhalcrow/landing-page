@@ -8,7 +8,8 @@ const cubeApi = cubejs({
   apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': import.meta.env.CUBEJS_API_SECRET
+    // Adding Bearer token format for authorization
+    'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`
   }
 });
 
@@ -20,6 +21,7 @@ export const CubeContext = createContext<CubeApi | null>(null);
 
 export const CubeProvider: React.FC<CubeProviderProps> = ({ children }) => {
   console.log('Cube API URL:', import.meta.env.VITE_CUBEJS_API_URL); // Add logging to verify URL
+  console.log('Authorization header is set:', !!import.meta.env.CUBEJS_API_SECRET); // Debug log
 
   return (
     <BaseCubeProvider cubeApi={cubeApi}>
