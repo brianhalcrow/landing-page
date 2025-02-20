@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -40,114 +39,131 @@ const FxTradingContainer = () => {
       
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Trade Details Section - Left Column */}
-        <section className="xl:col-span-4 space-y-6">
+        <section className="xl:col-span-12">
           <div className="rounded-lg border bg-card shadow-sm">
-            <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-medium">Trade Details</h3>
               <span className="text-sm text-muted-foreground">Required</span>
             </div>
-            <div className="p-6 space-y-4">
-              {/* Trade Date */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Trade Date</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {tradeDate ? format(tradeDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={tradeDate}
-                      onSelect={setTradeDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+            <div className="p-4">
+              <div className="grid grid-cols-7 gap-4">
+                {/* Trade Date */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Trade Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-9"
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {tradeDate ? format(tradeDate, "dd/MM/yyyy") : <span>Pick date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={tradeDate}
+                        onSelect={setTradeDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-              {/* Currency Pair */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Currency Pair</label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency pair" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="eurusd">EUR/USD</SelectItem>
-                    <SelectItem value="gbpusd">GBP/USD</SelectItem>
-                    <SelectItem value="usdjpy">USD/JPY</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                {/* Currency Pair */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">CCY Pair</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select pair" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="eurusd">EUR/USD</SelectItem>
+                      <SelectItem value="gbpusd">GBP/USD</SelectItem>
+                      <SelectItem value="usdjpy">USD/JPY</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Direction (Buy/Sell) */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Direction</label>
-                <ToggleGroup
-                  type="single"
-                  value={direction}
-                  onValueChange={(value) => value && setDirection(value)}
-                  className="justify-start"
-                >
-                  <ToggleGroupItem value="buy" className="flex-1">
-                    Buy
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="sell" className="flex-1">
-                    Sell
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+                {/* Direction */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Direction</label>
+                  <ToggleGroup
+                    type="single"
+                    value={direction}
+                    onValueChange={(value) => value && setDirection(value)}
+                    className="justify-start h-9"
+                  >
+                    <ToggleGroupItem value="buy" className="flex-1">
+                      Buy
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="sell" className="flex-1">
+                      Sell
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
 
-              {/* Amount */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Amount</label>
-                <Input type="number" placeholder="Enter amount" />
-              </div>
+                {/* Currency */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">CCY</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="eur">EUR</SelectItem>
+                      <SelectItem value="usd">USD</SelectItem>
+                      <SelectItem value="gbp">GBP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Settlement Date */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Settlement Date</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {settlementDate ? format(settlementDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={settlementDate}
-                      onSelect={setSettlementDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+                {/* Amount */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Amount</label>
+                  <Input type="number" className="h-9" placeholder="0.00" />
+                </div>
 
-              {/* Tenor */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tenor</label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tenor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="spot">SPOT</SelectItem>
-                    <SelectItem value="1w">1W</SelectItem>
-                    <SelectItem value="1m">1M</SelectItem>
-                    <SelectItem value="3m">3M</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Tenor */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tenor</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spot">SPOT</SelectItem>
+                      <SelectItem value="1w">1W</SelectItem>
+                      <SelectItem value="1m">1M</SelectItem>
+                      <SelectItem value="3m">3M</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Settlement Date */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Settlement Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-9"
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {settlementDate ? format(settlementDate, "dd/MM/yyyy") : <span>Pick date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={settlementDate}
+                        onSelect={setSettlementDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
           </div>
