@@ -74,7 +74,36 @@ const FxTradingContainer = () => {
               <span className="text-sm text-muted-foreground">Required</span>
             </div>
             <div className="p-4 space-y-4">
+              {/* Row 1: Entity, Entity ID, Cost Centre, Strategy, and Instrument */}
               <div className="grid grid-cols-11 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Strategy</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select strategy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hedge">Hedge</SelectItem>
+                      <SelectItem value="proprietary">Proprietary</SelectItem>
+                      <SelectItem value="client">Client</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Instrument</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select instrument" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spot">Spot</SelectItem>
+                      <SelectItem value="forward">Forward</SelectItem>
+                      <SelectItem value="swap">Swap</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Entity</label>
                   <Select>
@@ -109,35 +138,8 @@ const FxTradingContainer = () => {
                 </div>
               </div>
 
+              {/* Row 2: CCY Pair, Buy/Sell, CCY, Amount, Tenor, Settlement Date */}
               <div className="grid grid-cols-11 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">Strategy</label>
-                  <Select>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select strategy" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hedge">Hedge</SelectItem>
-                      <SelectItem value="proprietary">Proprietary</SelectItem>
-                      <SelectItem value="client">Client</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">Instrument</label>
-                  <Select>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select instrument" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spot">Spot</SelectItem>
-                      <SelectItem value="forward">Forward</SelectItem>
-                      <SelectItem value="swap">Swap</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-1">CCY Pair</label>
                   <Select onValueChange={handleCurrencyPairChange}>
