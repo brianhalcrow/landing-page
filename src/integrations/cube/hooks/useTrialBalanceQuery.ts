@@ -29,15 +29,21 @@ export const useTrialBalanceQuery = () => {
 
   const { resultSet, isLoading, error, refetch } = useCubeQuery(query);
 
-  // Enhanced error logging
+  // Enhanced error logging with CORS detection
   if (error) {
     const cubeError = error as CubeError;
+    const isCorsError = error.message?.includes('CORS') || 
+                       !cubeError.response?.status || 
+                       cubeError.response?.status === 0;
+
     console.error('Cube.js Query Error:', {
       message: cubeError.message,
       url: import.meta.env.VITE_CUBEJS_API_URL,
       status: cubeError.response?.status,
       details: cubeError.response?.data,
-      query: JSON.stringify(query)
+      query: JSON.stringify(query),
+      isCorsError,
+      origin: window.location.origin
     });
   }
 
@@ -55,8 +61,12 @@ export const useTrialBalanceQuery = () => {
     // Log the complete error object for debugging
     console.debug('Full Cube.js error object:', error);
 
-    if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
-      return 'Unable to connect to the data service. This might be due to CORS restrictions. Please contact support.';
+    // Enhanced CORS error detection
+    if (error.message?.includes('CORS') || (!error.response?.status && error.message?.includes('fetch'))) {
+      return `CORS Error: The data service is not configured to accept requests from ${window.location.origin}. Please contact support with this information.`;
+    }
+    if (error.message?.includes('Failed to fetch')) {
+      return 'Unable to connect to the data service. Please check your network connection.';
     }
     if (error.message?.includes('CONNECTION_REFUSED')) {
       return 'The data service appears to be offline. Please try again later.';
