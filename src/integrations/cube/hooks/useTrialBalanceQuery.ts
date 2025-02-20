@@ -12,10 +12,27 @@ export const useTrialBalanceQuery = () => {
     () => ({
       measures: ["trial_balance.movement_transaction_amount"],
       dimensions: ["trial_balance.account_category_level_4"],
+      order: {
+        "trial_balance.movement_transaction_amount": "desc"
+      },
       limit: 10000,
     }),
     []
   );
 
-  return useCubeQuery(query);
+  const { resultSet, isLoading, error } = useCubeQuery(query);
+
+  const formattedData = useMemo(() => {
+    if (!resultSet) return [];
+    return resultSet.tablePivot().map((row) => ({
+      accountCategory: row["trial_balance.account_category_level_4"],
+      movementAmount: row["trial_balance.movement_transaction_amount"],
+    }));
+  }, [resultSet]);
+
+  return {
+    data: formattedData,
+    isLoading,
+    error: error ? `${error.message || 'An error occurred while fetching data'}` : null
+  };
 };
