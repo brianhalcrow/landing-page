@@ -24,6 +24,7 @@ const FxTradingContainer = () => {
   const [direction, setDirection] = React.useState("buy");
   const [currencyPair, setCurrencyPair] = React.useState("");
   const [selectedCurrency, setSelectedCurrency] = React.useState("");
+  const [tenor, setTenor] = React.useState("");
 
   const handleCurrencyPairChange = (value: string) => {
     setCurrencyPair(value);
@@ -164,7 +165,29 @@ const FxTradingContainer = () => {
                   <Input type="number" className="h-9" placeholder="0.00" />
                 </div>
 
-                <div className="col-span-2">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tenor</label>
+                  <Select value={tenor} onValueChange={setTenor}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select tenor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="tod">TOD</SelectItem>
+                      <SelectItem value="tom">TOM</SelectItem>
+                      <SelectItem value="spot">SPOT</SelectItem>
+                      <SelectItem value="1w">1W</SelectItem>
+                      <SelectItem value="2w">2W</SelectItem>
+                      <SelectItem value="1m">1M</SelectItem>
+                      <SelectItem value="2m">2M</SelectItem>
+                      <SelectItem value="3m">3M</SelectItem>
+                      <SelectItem value="6m">6M</SelectItem>
+                      <SelectItem value="9m">9M</SelectItem>
+                      <SelectItem value="1y">1Y</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-1.3">
                   <label className="block text-sm font-medium mb-1">Settlement Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
