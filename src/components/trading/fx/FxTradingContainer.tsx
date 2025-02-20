@@ -92,7 +92,7 @@ const FxTradingContainer = () => {
               </div>
 
               <div className="grid grid-cols-11 gap-4">
-                <div className="col-span-2">
+                <div className="col-span-1.5">
                   <label className="block text-sm font-medium mb-1">Strategy</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -106,7 +106,7 @@ const FxTradingContainer = () => {
                   </Select>
                 </div>
 
-                <div>
+                <div className="col-span-1.5">
                   <label className="block text-sm font-medium mb-1">Instrument</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -152,7 +152,7 @@ const FxTradingContainer = () => {
                     pressed={selectedCurrency !== currencyPair.substring(0, 3)}
                     onPressedChange={toggleCurrency}
                     variant="outline"
-                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground uppercase"
                     disabled={!currencyPair}
                   >
                     {selectedCurrency || "Select Pair"}
@@ -164,7 +164,7 @@ const FxTradingContainer = () => {
                   <Input type="number" className="h-9" placeholder="0.00" />
                 </div>
 
-                <div>
+                <div className="col-span-1.4">
                   <label className="block text-sm font-medium mb-1">Settlement Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
