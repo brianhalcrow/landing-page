@@ -3,8 +3,8 @@ import { useCubeQuery } from "@cubejs-client/react";
 import { useMemo } from "react";
 
 export interface TrialBalanceData {
-  account_category_level_4: string;
-  movement_transaction_amount: number;
+  accountCategory: string;
+  movementAmount: number;
 }
 
 export const useTrialBalanceQuery = () => {
@@ -13,7 +13,7 @@ export const useTrialBalanceQuery = () => {
       measures: ["trial_balance.movement_transaction_amount"],
       dimensions: ["trial_balance.account_category_level_4"],
       order: {
-        "trial_balance.movement_transaction_amount": "desc"
+        "trial_balance.movement_transaction_amount": "desc" as const
       },
       limit: 10000,
     }),

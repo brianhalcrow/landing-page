@@ -44,7 +44,6 @@ export const TrialBalanceGrid = () => {
     filter: true,
     floatingFilter: true,
     sortable: true,
-    menuTabs: ["filterMenuTab", "generalMenuTab"],
   }), []);
 
   if (error) {
@@ -75,7 +74,25 @@ export const TrialBalanceGrid = () => {
             enableRangeSelection={true}
             animateRows={true}
             rowGroupPanelShow="always"
-            sideBar={true}
+            sideBar={{
+              toolPanels: [
+                {
+                  id: "columns",
+                  labelDefault: "Columns",
+                  labelKey: "columns",
+                  iconKey: "columns",
+                  toolPanel: "agColumnsToolPanel",
+                },
+                {
+                  id: "filters",
+                  labelDefault: "Filters",
+                  labelKey: "filters",
+                  iconKey: "filter",
+                  toolPanel: "agFiltersToolPanel",
+                },
+              ],
+              defaultToolPanel: "columns",
+            }}
             statusBar={{
               statusPanels: [
                 { statusPanel: "agTotalRowCountComponent", align: "left" },
