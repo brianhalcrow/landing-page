@@ -6,14 +6,11 @@ import cubejs, { CubeApi } from "@cubejs-client/core";
 // Initialize Cube API with environment variables and custom options
 const cubeApi = cubejs({
   apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
-  options: {
-    transport: {
-      authorization: import.meta.env.CUBEJS_API_SECRET, // Add the API secret if needed
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }
-  }
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include',
+  apiToken: import.meta.env.CUBEJS_API_SECRET // Use apiToken instead of authorization
 });
 
 interface CubeProviderProps {
