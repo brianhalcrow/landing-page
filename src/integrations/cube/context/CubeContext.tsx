@@ -10,12 +10,8 @@ const cubeApi = cubejs({
     'Content-Type': 'application/json',
   },
   credentials: 'include',
-  token: import.meta.env.CUBEJS_API_SECRET // Using 'token' instead of 'apiToken'
+  apiToken: import.meta.env.CUBEJS_API_SECRET  // Changed from 'token' to 'apiToken'
 });
-
-interface CubeProviderProps {
-  children: ReactNode;
-}
 
 export const CubeContext = createContext<CubeApi | null>(null);
 
