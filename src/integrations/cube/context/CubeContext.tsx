@@ -18,6 +18,8 @@ interface CubeProviderProps {
 export const CubeContext = createContext<CubeApi | null>(null);
 
 export const CubeProvider: React.FC<CubeProviderProps> = ({ children }) => {
+  console.log('Cube API URL:', import.meta.env.VITE_CUBEJS_API_URL); // Add logging to verify URL
+
   return (
     <BaseCubeProvider cubeApi={cubeApi}>
       <CubeContext.Provider value={cubeApi}>
