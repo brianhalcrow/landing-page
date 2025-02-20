@@ -19,6 +19,16 @@ export const TrialBalanceGrid = () => {
 
   const data = resultSet.tablePivot();
 
+  const formatAmount = (value: any): string => {
+    const numValue = Number(value);
+    if (isNaN(numValue)) return 'N/A';
+    
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(numValue);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -39,10 +49,7 @@ export const TrialBalanceGrid = () => {
                   {row["trial_balance.account_category_level_4"]}
                 </TableCell>
                 <TableCell className="text-right">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(row["trial_balance.movement_transaction_amount"])}
+                  {formatAmount(row["trial_balance.movement_transaction_amount"])}
                 </TableCell>
               </TableRow>
             ))}
