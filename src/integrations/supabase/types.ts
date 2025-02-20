@@ -3131,7 +3131,6 @@ export type Database = {
           country: string | null
           entity: string | null
           entity_id: string | null
-          functional_currency: string | null
           geo_level_1: string | null
           geo_level_2: string | null
           geo_level_3: string | null
