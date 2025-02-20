@@ -50,6 +50,9 @@ export const useTrialBalanceQuery = () => {
 
   const getErrorMessage = (error: CubeError | null) => {
     if (!error) return null;
+    if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
+      return 'CORS Error: The Cube.js server needs to be configured to allow requests from this domain. Please check the server configuration.';
+    }
     if (error.message?.includes('CONNECTION_REFUSED')) {
       return 'Unable to connect to the Cube.js server. The server appears to be offline or not accessible.';
     }

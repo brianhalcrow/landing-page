@@ -12,6 +12,10 @@ const cubeApi = cubejs({
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`,
+  },
+  // Add custom request options to handle CORS
+  requestOptions: {
+    credentials: 'include'
   }
 });
 
