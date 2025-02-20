@@ -7,6 +7,13 @@ export interface TrialBalanceData {
   movementAmount: number;
 }
 
+interface CubeError extends Error {
+  response?: {
+    status?: number;
+    data?: any;
+  };
+}
+
 export const useTrialBalanceQuery = () => {
   const query = useMemo(
     () => ({
@@ -24,11 +31,12 @@ export const useTrialBalanceQuery = () => {
 
   // Add detailed error logging
   if (error) {
+    const cubeError = error as CubeError;
     console.error('Cube.js Connection Error:', {
-      message: error.message,
+      message: cubeError.message,
       url: import.meta.env.VITE_CUBEJS_API_URL,
-      status: error.response?.status,
-      details: error.response?.data
+      status: cubeError.response?.status,
+      details: cubeError.response?.data
     });
   }
 
@@ -40,7 +48,7 @@ export const useTrialBalanceQuery = () => {
     }));
   }, [resultSet]);
 
-  const getErrorMessage = (error: any) => {
+  const getErrorMessage = (error: CubeError | null) => {
     if (!error) return null;
     if (error.message?.includes('CONNECTION_REFUSED')) {
       return 'Unable to connect to the Cube.js server. The server appears to be offline or not accessible.';
@@ -54,7 +62,7 @@ export const useTrialBalanceQuery = () => {
   return {
     data: formattedData,
     isLoading,
-    error: getErrorMessage(error),
+    error: getErrorMessage(error as CubeError),
     refetch
   };
 };
