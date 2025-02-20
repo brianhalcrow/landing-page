@@ -6,16 +6,12 @@ import cubejs, { CubeApi } from "@cubejs-client/core";
 // Log the API URL for debugging
 console.log('Initializing Cube.js with API URL:', import.meta.env.VITE_CUBEJS_API_URL);
 
-// Initialize Cube API with environment variables and custom options
+// Initialize Cube API with environment variables
 const cubeApi = cubejs({
   apiUrl: import.meta.env.VITE_CUBEJS_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`,
-  },
-  // Add custom request options to handle CORS
-  requestOptions: {
-    credentials: 'include'
+    'Authorization': `Bearer ${import.meta.env.CUBEJS_API_SECRET}`
   }
 });
 
