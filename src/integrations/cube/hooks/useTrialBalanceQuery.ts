@@ -22,13 +22,15 @@ export const useTrialBalanceQuery = () => {
 
   const { resultSet, isLoading, error, refetch } = useCubeQuery(query);
 
-  // Add console logs for debugging
-  console.log('Cube Query Status:', { 
-    isLoading, 
-    hasError: !!error, 
-    errorDetails: error,
-    apiUrl: import.meta.env.VITE_CUBEJS_API_URL 
-  });
+  // Add detailed error logging
+  if (error) {
+    console.error('Cube.js Connection Error:', {
+      message: error.message,
+      url: import.meta.env.VITE_CUBEJS_API_URL,
+      status: error.response?.status,
+      details: error.response?.data
+    });
+  }
 
   const formattedData = useMemo(() => {
     if (!resultSet) return [];
@@ -38,10 +40,21 @@ export const useTrialBalanceQuery = () => {
     }));
   }, [resultSet]);
 
+  const getErrorMessage = (error: any) => {
+    if (!error) return null;
+    if (error.message?.includes('CONNECTION_REFUSED')) {
+      return 'Unable to connect to the Cube.js server. The server appears to be offline or not accessible.';
+    }
+    if (error.response?.status === 401) {
+      return 'Authentication failed. Please check your API credentials.';
+    }
+    return `Connection Error: ${error.message || 'Unable to reach the Cube.js server. Please verify the server is running and accessible.'}`;
+  };
+
   return {
     data: formattedData,
     isLoading,
-    error: error ? `Error connecting to data source: ${error.message || 'Connection refused - please check if the Cube.js server is running'}` : null,
+    error: getErrorMessage(error),
     refetch
   };
 };
