@@ -92,7 +92,7 @@ const FxTradingContainer = () => {
               </div>
 
               <div className="grid grid-cols-11 gap-4">
-                <div className="col-span-1.5">
+                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Strategy</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -106,7 +106,7 @@ const FxTradingContainer = () => {
                   </Select>
                 </div>
 
-                <div className="col-span-1.5">
+                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Instrument</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -164,7 +164,7 @@ const FxTradingContainer = () => {
                   <Input type="number" className="h-9" placeholder="0.00" />
                 </div>
 
-                <div className="col-span-1.4">
+                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Settlement Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
