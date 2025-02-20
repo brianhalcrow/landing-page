@@ -20,10 +20,7 @@ export const useTrialBalanceQuery = () => {
     []
   );
 
-  const { resultSet, isLoading, error, refetch } = useCubeQuery(query, {
-    retry: 3,
-    retryDelay: 1000,
-  });
+  const { resultSet, isLoading, error, refetch } = useCubeQuery(query);
 
   const formattedData = useMemo(() => {
     if (!resultSet) return [];
