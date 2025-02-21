@@ -7,7 +7,7 @@ import FxTradingContainer from "@/components/trading/fx/FxTradingContainer";
 const Execution = () => {
   return (
     <div className="container mx-auto p-6">
-      <TabsContainer tabs={tabsConfig.execution} defaultValue="fx-trading" />
+      <TabsContainer tabs={tabsConfig.execution} defaultTab="fx-trading" />
     </div>
   );
 };
