@@ -20,4 +20,3 @@ export interface GLTransactionsPaginationProps {
   pageSize: number;
   onPageChange: (newPage: number) => void;
 }
-

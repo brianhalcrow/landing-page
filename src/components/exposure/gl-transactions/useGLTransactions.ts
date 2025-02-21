@@ -11,14 +11,14 @@ export const useGLTransactions = (page: number) => {
     queryFn: async () => {
       // First, get the count
       const { count, error: countError } = await supabase
-        .from('erp_gl_transactions')
+        .from('erp_gl_transaction')
         .select('*', { count: 'exact', head: true });
       
       if (countError) throw countError;
       
       // Then get the paginated data
       const { data, error } = await supabase
-        .from('erp_gl_transactions')
+        .from('erp_gl_transaction')
         .select('*')
         .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
         .order('document_date', { ascending: false });
