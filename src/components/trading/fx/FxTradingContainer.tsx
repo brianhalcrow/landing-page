@@ -77,34 +77,6 @@ const FxTradingContainer = () => {
               {/* Row 1: Entity, Entity ID, Cost Centre, Strategy, and Instrument */}
               <div className="grid grid-cols-11 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">Strategy</label>
-                  <Select>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select strategy" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hedge">Hedge</SelectItem>
-                      <SelectItem value="proprietary">Proprietary</SelectItem>
-                      <SelectItem value="client">Client</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">Instrument</label>
-                  <Select>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Select instrument" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spot">Spot</SelectItem>
-                      <SelectItem value="forward">Forward</SelectItem>
-                      <SelectItem value="swap">Swap</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Entity</label>
                   <Select>
                     <SelectTrigger className="h-9">
@@ -136,6 +108,34 @@ const FxTradingContainer = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Strategy</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select strategy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hedge">Hedge</SelectItem>
+                      <SelectItem value="proprietary">Proprietary</SelectItem>
+                      <SelectItem value="client">Client</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Instrument</label>
+                  <Select>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Select instrument" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spot">Spot</SelectItem>
+                      <SelectItem value="forward">Forward</SelectItem>
+                      <SelectItem value="swap">Swap</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Row 2: CCY Pair, Buy/Sell, CCY, Amount, Tenor, Settlement Date */}
@@ -162,7 +162,7 @@ const FxTradingContainer = () => {
                     variant="outline"
                     className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                   >
-                    {direction.charAt(0).toUpperCase() + direction.slice(1)}
+                    {direction === "sell" ? "Sell" : "Buy"}
                   </Toggle>
                 </div>
 
@@ -244,7 +244,7 @@ const FxTradingContainer = () => {
                 {/* Bid */}
                 <div className="text-center">
                   <label className="block text-sm font-medium mb-2">
-                    {direction === "buy" ? `Sell ${getCurrencyPairParts().base}` : `Buy ${getCurrencyPairParts().base}`}
+                    Sell {getCurrencyPairParts().base}
                   </label>
                   <Input 
                     type="text" 
@@ -272,7 +272,7 @@ const FxTradingContainer = () => {
                 {/* Ask */}
                 <div className="text-center">
                   <label className="block text-sm font-medium mb-2">
-                    {direction === "buy" ? `Buy ${getCurrencyPairParts().base}` : `Sell ${getCurrencyPairParts().base}`}
+                    Buy {getCurrencyPairParts().base}
                   </label>
                   <Input 
                     type="text" 
