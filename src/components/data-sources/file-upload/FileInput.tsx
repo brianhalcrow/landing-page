@@ -14,7 +14,7 @@ export const FileInput = ({ onFileSelect, loading }: FileInputProps) => {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".txt,.zip"
+        accept=".txt,.zip,.csv"
         onChange={onFileSelect}
         disabled={loading}
         className="block w-full text-sm text-slate-500
@@ -26,9 +26,8 @@ export const FileInput = ({ onFileSelect, loading }: FileInputProps) => {
           disabled:opacity-50 disabled:cursor-not-allowed"
       />
       <p className="text-sm text-slate-500">
-        Accepted formats: .txt files or .zip archives containing .txt files
+        Accepted formats: .txt files, .csv files with YouTube URLs, or .zip archives containing .txt files
       </p>
     </div>
   );
 };
-

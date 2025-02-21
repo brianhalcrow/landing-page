@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +6,7 @@ import { ProgressIndicator } from "./data-sources/file-upload/ProgressIndicator"
 import { FileProcessor } from "./data-sources/file-upload/FileProcessor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { processCsvFile } from "./data-sources/file-upload/utils/csvProcessor";
 
 export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -41,6 +41,12 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         toast({
           title: "Success",
           description: "Document processed successfully",
+        });
+      } else if (file.type === 'text/csv') {
+        const processedUrls = await processCsvFile(file, setProgress);
+        toast({
+          title: "Success",
+          description: `Processed ${processedUrls} YouTube URLs from CSV`,
         });
       }
       
