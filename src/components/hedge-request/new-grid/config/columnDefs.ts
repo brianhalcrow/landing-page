@@ -1,3 +1,4 @@
+
 import { GridApi, ColDef } from "ag-grid-enterprise";
 import { ActionsRenderer } from "../components/ActionsRenderer";
 import { EntitySelector } from "../selectors/EntitySelector";
@@ -14,15 +15,23 @@ interface Context {
 }
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef[] => {
-  const commonCellStyle = { display: "flex", alignItems: "center", padding: "8px" };
+  const commonCellStyle = { 
+    display: "flex", 
+    alignItems: "center", 
+    padding: "8px",
+    justifyContent: "flex-start" 
+  };
+
   const amountCellStyle = { 
     display: "flex", 
     alignItems: "center", 
     padding: "8px",
+    justifyContent: "center",
     backgroundColor: "transparent",
     border: "none !important",
     outline: "none !important",
-    boxShadow: "none !important"
+    boxShadow: "none !important",
+    textAlign: "center"
   };
 
   const baseColumnDefs: ColDef[] = [

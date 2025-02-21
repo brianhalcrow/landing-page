@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -101,6 +102,7 @@
 
 .ag-cell-no-border.amount-cell {
   padding: 0 !important;
+  text-align: center !important;
 }
 
 .ag-cell-no-border .ag-cell-editor,
@@ -110,11 +112,13 @@
   box-shadow: none !important;
   background: transparent !important;
   height: 100% !important;
+  text-align: center !important;
 }
 
 .amount-cell .ag-cell-editor {
   padding: 0 !important;
   margin: 0 !important;
+  text-align: center !important;
 }
 
 /* Prevent any default input styling */
@@ -122,4 +126,13 @@
   outline: none !important;
   box-shadow: none !important;
   border: none !important;
+}
+
+/* Right align dropdown arrows */
+.ag-cell select {
+  padding-right: 24px !important;
+}
+
+.ag-cell .relative svg {
+  right: 8px !important;
 }
