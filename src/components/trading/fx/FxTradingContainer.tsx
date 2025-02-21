@@ -67,6 +67,7 @@ const FxTradingContainer = () => {
       <Separator className="mb-6" />
       
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        {/* Trade Details Section */}
         <section className="xl:col-span-12">
           <div className="rounded-lg border bg-card shadow-sm">
             <div className="flex items-center justify-between p-4 border-b">
@@ -233,6 +234,7 @@ const FxTradingContainer = () => {
           </div>
         </section>
 
+        {/* Execution Section */}
         <section className="xl:col-span-8 space-y-6">
           <div className="rounded-lg border bg-card shadow-sm">
             <div className="flex items-center justify-between p-6 border-b">
@@ -243,7 +245,7 @@ const FxTradingContainer = () => {
               <div className="grid grid-cols-3 gap-4">
                 {/* Bid */}
                 <div className="text-center">
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-2 uppercase">
                     Sell {getCurrencyPairParts().base}
                   </label>
                   <Input 
@@ -271,7 +273,7 @@ const FxTradingContainer = () => {
 
                 {/* Ask */}
                 <div className="text-center">
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-2 uppercase">
                     Buy {getCurrencyPairParts().base}
                   </label>
                   <Input 
