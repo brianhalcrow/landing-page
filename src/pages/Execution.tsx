@@ -1,7 +1,8 @@
 
 import React from "react";
-import TabsContainer from "@/components/TabsContainer.tsx";
-import { tabsConfig } from "@/config/tabsConfig.tsx";
+import TabsContainer from "@/components/TabsContainer";
+import { tabsConfig } from "@/config/tabsConfig";
+import FxTradingContainer from "@/components/trading/fx/FxTradingContainer";
 
 const Execution = () => {
   return (
