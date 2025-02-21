@@ -6,14 +6,14 @@ export const validateFile = (file: File) => {
     throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
   }
   
-  const allowedTypes = ['application/zip', 'text/plain', 'application/x-zip-compressed', 'text/csv'];
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error('Only .txt files, .csv files, and zip archives containing .txt files are supported');
-  }
-
-  // Additional validation for file names
   const fileName = file.name.toLowerCase();
-  if (!fileName.endsWith('.txt') && !fileName.endsWith('.zip') && !fileName.endsWith('.csv')) {
-    throw new Error('File must have a .txt, .csv, or .zip extension');
+  
+  // Some systems might send different MIME types for CSV files
+  const isCsv = fileName.endsWith('.csv') || file.type === 'text/csv' || file.type === 'application/csv';
+  const isText = fileName.endsWith('.txt') || file.type === 'text/plain';
+  const isZip = fileName.endsWith('.zip') || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
+
+  if (!isCsv && !isText && !isZip) {
+    throw new Error('Only .txt files, .csv files, and zip archives containing .txt files are supported');
   }
 };
