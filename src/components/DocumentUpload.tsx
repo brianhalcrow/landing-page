@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +7,6 @@ import { ProgressIndicator } from "./data-sources/file-upload/ProgressIndicator"
 import { FileProcessor } from "./data-sources/file-upload/FileProcessor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { processCsvFile } from "./data-sources/file-upload/utils/csvProcessor";
 
 export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -24,15 +24,23 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       setProgress(0);
       setCurrentFileName(file.name);
       
+      // Validate file and log the file type
+      console.log('Processing file:', { name: file.name, type: file.type });
       FileProcessor.validateFile(file);
       
-      if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        const processedUrls = await FileProcessor.processCsvFile(file, setProgress);
+        toast({
+          title: "Success",
+          description: `Processed ${processedUrls} YouTube URLs from CSV`,
+        });
+      } else if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
         const processedFiles = await FileProcessor.processZipFile(file, setProgress);
         toast({
           title: "Success",
           description: `Processed ${processedFiles} files from zip archive`,
         });
-      } else if (file.type === 'text/plain') {
+      } else {
         const text = await file.text();
         setProgress(50);
         await FileProcessor.processTextFile(text, file.name);
@@ -41,12 +49,6 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         toast({
           title: "Success",
           description: "Document processed successfully",
-        });
-      } else if (file.type === 'text/csv') {
-        const processedUrls = await processCsvFile(file, setProgress);
-        toast({
-          title: "Success",
-          description: `Processed ${processedUrls} YouTube URLs from CSV`,
         });
       }
       

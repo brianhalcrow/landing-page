@@ -7,9 +7,10 @@ export const validateFile = (file: File) => {
   }
   
   const fileName = file.name.toLowerCase();
+  console.log('Validating file:', { name: fileName, type: file.type });
   
   // Some systems might send different MIME types for CSV files
-  const isCsv = fileName.endsWith('.csv') || file.type === 'text/csv' || file.type === 'application/csv' || file.type === 'application/vnd.ms-excel';
+  const isCsv = fileName.endsWith('.csv');  // Only check file extension for CSV
   const isText = fileName.endsWith('.txt') || file.type === 'text/plain';
   const isZip = fileName.endsWith('.zip') || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
 
@@ -17,12 +18,6 @@ export const validateFile = (file: File) => {
     throw new Error('Only .txt files, .csv files, and zip archives containing .txt files are supported');
   }
 
-  // Log file type information for debugging
-  console.log('File validation:', {
-    name: file.name,
-    type: file.type,
-    isCsv,
-    isText,
-    isZip
-  });
+  // Log the validation result
+  console.log('File validation result:', { isCsv, isText, isZip });
 };
