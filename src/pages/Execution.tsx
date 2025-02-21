@@ -1,12 +1,12 @@
 
-import TabsContainer from "@/components/TabsContainer";
-import { tabsConfig } from "@/config/tabsConfig";
+import React from "react";
+import TabsContainer from "@/components/TabsContainer.tsx";
+import { tabsConfig } from "@/config/tabsConfig.tsx";
 
 const Execution = () => {
   return (
-    <div>
-      <TabsContainer tabs={tabsConfig["execution"]} />
-      <FxTradingContainer />
+    <div className="container mx-auto p-6">
+      <TabsContainer tabs={tabsConfig.execution} defaultValue="fx-trading" />
     </div>
   );
 };
