@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.vector-operations]
 verify_jwt = false
+
+[functions.youtube-transcribe]
+verify_jwt = false

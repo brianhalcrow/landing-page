@@ -14,22 +14,29 @@ serve(async (req) => {
 
   try {
     const { url } = await req.json()
+    console.log('Processing YouTube URL:', url)
 
     // Extract video ID from URL
     const videoId = extractVideoId(url)
     if (!videoId) {
       throw new Error('Invalid YouTube URL')
     }
+    console.log('Extracted video ID:', videoId)
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Fetch captions using YouTube API
+    // First, get video details
+    const videoDetails = await fetchVideoDetails(videoId)
+    console.log('Retrieved video details:', videoDetails.title)
+
+    // Then fetch captions
     const transcript = await fetchTranscript(videoId)
-    
-    // Process and store the transcript
+    console.log('Retrieved transcript, length:', transcript.length)
+
+    // Process and store the transcript with video metadata
     const { data, error } = await supabase
       .from('documents')
       .insert({
@@ -38,13 +45,21 @@ serve(async (req) => {
           source: 'youtube',
           video_id: videoId,
           url: url,
-          type: 'transcript'
+          type: 'transcript',
+          title: videoDetails.title,
+          channel: videoDetails.channelTitle,
+          description: videoDetails.description,
+          publishedAt: videoDetails.publishedAt,
+          duration: videoDetails.duration
         }
       })
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('Error storing transcript:', error)
+      throw error
+    }
 
     return new Response(
       JSON.stringify({ success: true, data }),
@@ -52,6 +67,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error processing YouTube video:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -65,25 +81,89 @@ function extractVideoId(url: string): string | null {
   return match ? match[1] : null
 }
 
+async function fetchVideoDetails(videoId: string) {
+  const apiKey = Deno.env.get('YOUTUBE_API_KEY')
+  if (!apiKey) {
+    throw new Error('YouTube API key not configured')
+  }
+
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`
+  )
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch video details')
+  }
+
+  const data = await response.json()
+  if (!data.items || data.items.length === 0) {
+    throw new Error('Video not found')
+  }
+
+  const item = data.items[0]
+  return {
+    title: item.snippet.title,
+    description: item.snippet.description,
+    channelTitle: item.snippet.channelTitle,
+    publishedAt: item.snippet.publishedAt,
+    duration: item.contentDetails.duration
+  }
+}
+
 async function fetchTranscript(videoId: string): Promise<string> {
   const apiKey = Deno.env.get('YOUTUBE_API_KEY')
   if (!apiKey) {
     throw new Error('YouTube API key not configured')
   }
 
-  // Fetch captions using YouTube Data API
-  const response = await fetch(
+  // First, get available captions
+  const captionsResponse = await fetch(
     `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`
   )
   
-  if (!response.ok) {
+  if (!captionsResponse.ok) {
     throw new Error('Failed to fetch video captions')
   }
 
-  // Process and return the transcript
-  const data = await response.json()
-  // Implementation depends on the specific requirements and YouTube API response format
-  // You'll need to process the captions and return them as text
+  const captionsData = await captionsResponse.json()
+  
+  // Try to find English captions, preferring manual over auto-generated
+  const captions = captionsData.items || []
+  let captionId = null
 
-  return "Transcript content" // Placeholder
+  // First try to find manual English captions
+  const manualEnglish = captions.find(c => 
+    c.snippet.language === 'en' && !c.snippet.trackKind.includes('ASR')
+  )
+
+  // If no manual English captions, try auto-generated ones
+  const autoEnglish = captions.find(c => 
+    c.snippet.language === 'en' && c.snippet.trackKind.includes('ASR')
+  )
+
+  captionId = manualEnglish?.id || autoEnglish?.id
+
+  if (!captionId) {
+    throw new Error('No English captions available for this video')
+  }
+
+  // Fetch the actual caption track
+  const trackResponse = await fetch(
+    `https://www.googleapis.com/youtube/v3/captions/${captionId}?key=${apiKey}`
+  )
+
+  if (!trackResponse.ok) {
+    throw new Error('Failed to fetch caption track')
+  }
+
+  const trackData = await trackResponse.text()
+  
+  // Process the caption data into plain text
+  // Remove timestamps and formatting
+  const cleanText = trackData
+    .replace(/\[\d{2}:\d{2}\.\d{3}\]/g, '') // Remove timestamps
+    .replace(/\n\n/g, '\n')                  // Normalize line breaks
+    .trim()
+
+  return cleanText
 }
