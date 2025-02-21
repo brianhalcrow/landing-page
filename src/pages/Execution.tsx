@@ -1,7 +1,6 @@
 
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
-import FxTradingContainer from "@/components/trading/fx/FxTradingContainer";
 
 const Execution = () => {
   return (
