@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -6,20 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
-
 const FxTradingContainer = () => {
   const [settlementDate, setSettlementDate] = React.useState<Date | undefined>(new Date());
   const [direction, setDirection] = React.useState("buy");
@@ -29,12 +17,10 @@ const FxTradingContainer = () => {
   const [spread, setSpread] = React.useState("0.000139");
   const [bid, setBid] = React.useState("1.056071");
   const [ask, setAsk] = React.useState("1.056071");
-
   const handleCurrencyPairChange = (value: string) => {
     setCurrencyPair(value);
     setSelectedCurrency(value.substring(0, 3));
   };
-
   const toggleCurrency = () => {
     if (currencyPair) {
       const baseCurrency = currencyPair.substring(0, 3);
@@ -42,37 +28,32 @@ const FxTradingContainer = () => {
       setSelectedCurrency(selectedCurrency === baseCurrency ? quoteCurrency : baseCurrency);
     }
   };
-
   const handleDateSelect = (date: Date | undefined) => {
     setSettlementDate(date);
   };
 
   // Helper function to get currency pair parts
   const getCurrencyPairParts = () => {
-    if (!currencyPair) return { base: "EUR", quote: "USD" };
+    if (!currencyPair) return {
+      base: "EUR",
+      quote: "USD"
+    };
     return {
       base: currencyPair.substring(0, 3),
       quote: currencyPair.substring(3, 6)
     };
   };
-
-  return (
-    <div className="container mx-auto p-6 max-w-[1400px]">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">FX Trading</h2>
-        <div className="text-sm text-muted-foreground">
-          Last Updated: {new Date().toLocaleTimeString()}
-        </div>
-      </div>
-      <Separator className="mb-6" />
+  return <div className="container mx-auto p-6 max-w-[1400px]">
+      
+      
       
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Trade Details Section */}
         <section className="xl:col-span-12">
           <div className="rounded-lg border bg-card shadow-sm">
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-medium">Trade Details</h3>
-              <span className="text-sm text-muted-foreground">Required</span>
+              
+              
             </div>
             <div className="p-4 space-y-4">
               {/* Row 1: Entity, Entity ID, Cost Centre, Strategy, and Instrument */}
@@ -157,25 +138,14 @@ const FxTradingContainer = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">Buy/Sell</label>
-                  <Toggle
-                    pressed={direction === "sell"}
-                    onPressedChange={(pressed) => setDirection(pressed ? "sell" : "buy")}
-                    variant="outline"
-                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                  >
+                  <Toggle pressed={direction === "sell"} onPressedChange={pressed => setDirection(pressed ? "sell" : "buy")} variant="outline" className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                     {direction === "sell" ? "Sell" : "Buy"}
                   </Toggle>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-1">CCY</label>
-                  <Toggle
-                    pressed={selectedCurrency !== currencyPair.substring(0, 3)}
-                    onPressedChange={toggleCurrency}
-                    variant="outline"
-                    className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground uppercase"
-                    disabled={!currencyPair}
-                  >
+                  <Toggle pressed={selectedCurrency !== currencyPair.substring(0, 3)} onPressedChange={toggleCurrency} variant="outline" className="w-full h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground uppercase" disabled={!currencyPair}>
                     {selectedCurrency || "Select Pair"}
                   </Toggle>
                 </div>
@@ -211,21 +181,13 @@ const FxTradingContainer = () => {
                   <label className="block text-sm font-medium mb-1">Settlement Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal h-9"
-                      >
+                      <Button variant="outline" className="w-full justify-start text-left font-normal h-9">
                         <Calendar className="mr-2 h-4 w-4" />
                         {settlementDate ? format(settlementDate, "dd/MM/yyyy") : <span>Pick date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <CalendarComponent
-                        mode="single"
-                        selected={settlementDate}
-                        onSelect={handleDateSelect}
-                        initialFocus
-                      />
+                      <CalendarComponent mode="single" selected={settlementDate} onSelect={handleDateSelect} initialFocus />
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -237,10 +199,7 @@ const FxTradingContainer = () => {
         {/* Execution Section */}
         <section className="xl:col-span-8 space-y-6">
           <div className="rounded-lg border bg-card shadow-sm">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-medium">Execution</h3>
-              <span className="text-sm text-muted-foreground">Live Rates</span>
-            </div>
+            
             <div className="p-6">
               <div className="grid grid-cols-3 gap-4">
                 {/* Bid */}
@@ -248,13 +207,7 @@ const FxTradingContainer = () => {
                   <label className="block text-sm font-medium mb-2 uppercase">
                     Sell {getCurrencyPairParts().base}
                   </label>
-                  <Input 
-                    type="text" 
-                    value={bid} 
-                    onChange={(e) => setBid(e.target.value)}
-                    className="text-center font-mono"
-                    readOnly 
-                  />
+                  <Input type="text" value={bid} onChange={e => setBid(e.target.value)} className="text-center font-mono" readOnly />
                 </div>
 
                 {/* Spread */}
@@ -262,13 +215,7 @@ const FxTradingContainer = () => {
                   <label className="block text-sm font-medium mb-2">
                     Spread
                   </label>
-                  <Input 
-                    type="text" 
-                    value={spread}
-                    onChange={(e) => setSpread(e.target.value)}
-                    className="text-center font-mono"
-                    readOnly
-                  />
+                  <Input type="text" value={spread} onChange={e => setSpread(e.target.value)} className="text-center font-mono" readOnly />
                 </div>
 
                 {/* Ask */}
@@ -276,13 +223,7 @@ const FxTradingContainer = () => {
                   <label className="block text-sm font-medium mb-2 uppercase">
                     Buy {getCurrencyPairParts().base}
                   </label>
-                  <Input 
-                    type="text" 
-                    value={ask}
-                    onChange={(e) => setAsk(e.target.value)}
-                    className="text-center font-mono"
-                    readOnly
-                  />
+                  <Input type="text" value={ask} onChange={e => setAsk(e.target.value)} className="text-center font-mono" readOnly />
                 </div>
               </div>
             </div>
@@ -301,8 +242,6 @@ const FxTradingContainer = () => {
           </div>
         </section>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default FxTradingContainer;
