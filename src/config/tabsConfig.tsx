@@ -88,7 +88,8 @@ export const tabsConfig = {
     { value: "general", label: "General", content: <TradingGrid /> },
   ],
   "execution": [
-    { value: "general", label: "General", content: <FxTradingContainer /> },
+    { value: "fx-trading", label: "FX Trading", content: <FxTradingContainer /> },
+    { value: "multi-trade", label: "Multi-Trade", content: <div className="p-4"><h2 className="text-2xl font-semibold mb-4">Multi-Trade</h2><p>Multi-trade functionality coming soon.</p></div> }
   ],
   "confirmation": [
     { value: "executed", label: "Executed", content: <ExecutedTradesTab /> },
