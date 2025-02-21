@@ -7,7 +7,15 @@ export const processCsvFile = async (file: File, setProgress: (progress: number)
     Papa.parse(file, {
       complete: async (results) => {
         try {
-          const urls = results.data.flat().filter(url => typeof url === 'string' && url.trim() !== '');
+          // Flatten all columns and rows into a single array and filter for valid URLs
+          const urls = results.data
+            .flat()
+            .filter((value): value is string => 
+              typeof value === 'string' && 
+              value.trim() !== '' &&
+              (value.includes('youtube.com') || value.includes('youtu.be'))
+            );
+
           console.log('Found URLs in CSV:', urls.length);
 
           let processedCount = 0;
