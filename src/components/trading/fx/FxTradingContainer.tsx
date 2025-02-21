@@ -35,6 +35,19 @@ const FxTradingContainer = () => {
     setSelectedCurrency(value.substring(0, 3));
   };
 
+  // Get the opposite currency from the selected one
+  const getOppositeCurrency = () => {
+    if (!currencyPair) return "";
+    const baseCurrency = currencyPair.substring(0, 3);
+    const quoteCurrency = currencyPair.substring(3, 6);
+    return selectedCurrency === baseCurrency ? quoteCurrency : baseCurrency;
+  };
+
+  // Get the opposite direction
+  const getOppositeDirection = () => {
+    return direction === "buy" ? "sell" : "buy";
+  };
+
   const toggleCurrency = () => {
     if (currencyPair) {
       const baseCurrency = currencyPair.substring(0, 3);
@@ -164,6 +177,14 @@ const FxTradingContainer = () => {
                   >
                     {direction === "sell" ? "Sell" : "Buy"}
                   </Toggle>
+                  <Toggle
+                    disabled
+                    pressed={direction === "buy"}
+                    variant="outline"
+                    className="w-full h-9 mt-2 border border-input bg-background"
+                  >
+                    {getOppositeDirection()}
+                  </Toggle>
                 </div>
 
                 <div>
@@ -177,11 +198,24 @@ const FxTradingContainer = () => {
                   >
                     {selectedCurrency || "Select Pair"}
                   </Toggle>
+                  <Toggle
+                    disabled
+                    variant="outline"
+                    className="w-full h-9 mt-2 border border-input bg-background uppercase"
+                  >
+                    {getOppositeCurrency()}
+                  </Toggle>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-1">Amount</label>
                   <Input type="number" className="h-9" placeholder="0.00" />
+                  <Input 
+                    type="number" 
+                    className="h-9 mt-2" 
+                    placeholder="0.00" 
+                    disabled
+                  />
                 </div>
 
                 <div>
