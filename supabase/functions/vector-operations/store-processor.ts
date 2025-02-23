@@ -1,8 +1,8 @@
 
-import { SupabaseClient } from '@supabase/supabase-js';
-import { corsHeaders } from '../vector-operations/cors-headers';
-import { TextChunker } from './text-chunker';
-import { generateEmbedding } from './text-processor';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { corsHeaders } from './cors-headers.ts';
+import { TextChunker } from './text-chunker.ts';
+import { generateEmbedding } from './text-processor.ts';
 
 interface FileMetadata {
   fileName: string;
