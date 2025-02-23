@@ -37,13 +37,18 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         setProgress(25); // Start processing
         console.log('Text file read, processing content...');
         
-        await FileProcessor.processTextFile(text, file.name);
-        setProgress(100);
-        
-        toast({
-          title: "Success",
-          description: "Text document processed successfully",
-        });
+        try {
+          await FileProcessor.processTextFile(text, file.name);
+          setProgress(100);
+          
+          toast({
+            title: "Success",
+            description: "Text document processed successfully",
+          });
+        } catch (textError) {
+          console.error('Text processing error:', textError);
+          throw new Error(`Failed to process text: ${textError.message}`);
+        }
       } else if (file.type === 'application/msword' || 
                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         console.log('Processing doc/docx file...');
@@ -55,13 +60,18 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           console.log('Doc processing completed, starting vectorization...');
           setProgress(50); // Document processed
           
-          await FileProcessor.processTextFile(text, file.name);
-          setProgress(100);
-          
-          toast({
-            title: "Success",
-            description: "Document processed and vectorized successfully",
-          });
+          try {
+            await FileProcessor.processTextFile(text, file.name);
+            setProgress(100);
+            
+            toast({
+              title: "Success",
+              description: "Document processed and vectorized successfully",
+            });
+          } catch (vectorizeError) {
+            console.error('Vectorization error:', vectorizeError);
+            throw new Error(`Vectorization failed: ${vectorizeError.message}`);
+          }
         } catch (docError) {
           console.error('Document processing error:', docError);
           throw new Error(`Document processing failed: ${docError.message}`);

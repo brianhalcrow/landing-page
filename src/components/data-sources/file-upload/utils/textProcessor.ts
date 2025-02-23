@@ -92,7 +92,7 @@ export const processTextFile = async (content: string, filename: string) => {
           size: sanitizedContent.length,
           content: base64Content
         },
-        metadata: metadata
+        metadata
       }
     });
 
