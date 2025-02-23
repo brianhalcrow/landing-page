@@ -45,23 +45,31 @@ async function insertChunkWithRetry(chunk: string, embedding: any, metadata: any
       // Remove any id from metadata if present
       const { id, ...cleanMetadata } = metadata;
       
+      // Create a unique identifier for this chunk based on content hash and metadata
+      const chunkIdentifier = `${metadata.fileName}_${metadata.chunk_index}`;
+      
+      // Use upsert with onConflict handling
       const { data: storedChunk, error: insertError } = await supabase
         .from('documents')
-        .insert({
+        .upsert({
           content: chunk,
           metadata: {
             ...cleanMetadata,
             chunk_index: metadata.chunk_index,
             total_chunks: metadata.total_chunks,
+            chunk_identifier: chunkIdentifier,
             processed_at: new Date().toISOString()
           },
           embedding
+        }, {
+          onConflict: 'metadata->chunk_identifier',
+          ignoreDuplicates: false // update if exists
         })
         .select()
         .maybeSingle();
 
       if (insertError) {
-        console.error('Insert error:', insertError);
+        console.error(`Insert attempt ${attempt} failed:`, insertError);
         if (attempt === retries) {
           throw new Error(`Failed to store chunk in database: ${insertError.message}`);
         }
@@ -70,9 +78,14 @@ async function insertChunkWithRetry(chunk: string, embedding: any, metadata: any
       }
 
       if (!storedChunk) {
-        throw new Error('No chunk data returned after insert');
+        console.warn(`No data returned for chunk ${metadata.chunk_index}, attempting retry...`);
+        if (attempt === retries) {
+          throw new Error('No chunk data returned after insert/upsert');
+        }
+        continue;
       }
 
+      console.log(`Successfully stored chunk ${metadata.chunk_index} with id ${storedChunk.id}`);
       return storedChunk;
     } catch (error) {
       console.error(`Attempt ${attempt} failed:`, error);
