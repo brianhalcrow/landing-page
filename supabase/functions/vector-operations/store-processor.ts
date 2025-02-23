@@ -42,12 +42,15 @@ async function createEmbedding(input: string) {
 async function insertChunkWithRetry(chunk: string, embedding: any, metadata: any, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      // Remove any id from metadata if present
+      const { id, ...cleanMetadata } = metadata;
+      
       const { data: storedChunk, error: insertError } = await supabase
         .from('documents')
         .insert({
           content: chunk,
           metadata: {
-            ...metadata,
+            ...cleanMetadata,
             chunk_index: metadata.chunk_index,
             total_chunks: metadata.total_chunks,
             processed_at: new Date().toISOString()
@@ -55,89 +58,95 @@ async function insertChunkWithRetry(chunk: string, embedding: any, metadata: any
           embedding
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (insertError) {
+        console.error('Insert error:', insertError);
         if (attempt === retries) {
           throw new Error(`Failed to store chunk in database: ${insertError.message}`);
         }
-        // Wait before retrying with exponential backoff
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
         continue;
       }
 
+      if (!storedChunk) {
+        throw new Error('No chunk data returned after insert');
+      }
+
       return storedChunk;
     } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
       if (attempt === retries) {
         throw error;
       }
-      // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
     }
   }
 }
 
 export async function storeDocument(file: any, metadata: any) {
-  console.log('Starting document storage process...')
+  console.log('Starting document storage process...');
   
   try {
     // Decode base64 content
-    const content = decodeBase64Content(file.content)
-    console.log('Content decoded successfully, length:', content.length)
+    const content = decodeBase64Content(file.content);
+    console.log('Content decoded successfully, length:', content.length);
 
     // Split content into chunks
-    console.log('Chunking document...')
-    const chunks = chunkDocument(content)
-    console.log(`Document split into ${chunks.length} chunks`)
+    console.log('Chunking document...');
+    const chunks = chunkDocument(content);
+    console.log(`Document split into ${chunks.length} chunks`);
 
-    const storedChunks = []
+    const storedChunks = [];
     
     // Process chunks sequentially to avoid race conditions
     for (const [index, chunk] of chunks.entries()) {
-      console.log(`Processing chunk ${index + 1}/${chunks.length}`)
+      console.log(`Processing chunk ${index + 1}/${chunks.length}`);
       
       try {
         // Generate embedding for chunk
-        console.log(`Generating embedding for chunk ${index + 1}...`)
-        const embedding = await createEmbedding(chunk)
-        console.log(`Generated embedding for chunk ${index + 1}, vector length:`, embedding.length)
+        console.log(`Generating embedding for chunk ${index + 1}...`);
+        const embedding = await createEmbedding(chunk);
+        console.log(`Generated embedding for chunk ${index + 1}, vector length:`, embedding.length);
 
         // Store chunk with embedding using retry mechanism
         const chunkMetadata = {
           ...metadata,
           chunk_index: index,
           total_chunks: chunks.length
-        }
+        };
         
-        const storedChunk = await insertChunkWithRetry(chunk, embedding, chunkMetadata)
-        storedChunks.push(storedChunk)
-        console.log(`Successfully stored chunk ${index + 1}/${chunks.length}`)
+        const storedChunk = await insertChunkWithRetry(chunk, embedding, chunkMetadata);
+        if (storedChunk) {
+          storedChunks.push(storedChunk);
+          console.log(`Successfully stored chunk ${index + 1}/${chunks.length} with id ${storedChunk.id}`);
+        }
 
       } catch (chunkError) {
-        console.error(`Error processing chunk ${index + 1}:`, chunkError)
-        throw new Error(`Failed to process chunk ${index + 1}: ${chunkError.message}`)
+        console.error(`Error processing chunk ${index + 1}:`, chunkError);
+        throw new Error(`Failed to process chunk ${index + 1}: ${chunkError.message}`);
       }
     }
 
-    console.log('Document processing completed successfully')
+    console.log('Document processing completed successfully');
     return {
       success: true,
       chunks_processed: storedChunks.length,
       total_chunks: chunks.length,
       first_chunk_id: storedChunks[0]?.id
-    }
+    };
 
   } catch (error) {
-    console.error('Document storage failed:', error)
-    throw new Error(`Document storage failed: ${error.message}`)
+    console.error('Document storage failed:', error);
+    throw new Error(`Document storage failed: ${error.message}`);
   }
 }
 
 function decodeBase64Content(base64Content: string): string {
   try {
-    return atob(base64Content)
+    return atob(base64Content);
   } catch (error) {
-    console.error('Error decoding content:', error)
-    throw new Error('Failed to decode document content')
+    console.error('Error decoding content:', error);
+    throw new Error('Failed to decode document content');
   }
 }
