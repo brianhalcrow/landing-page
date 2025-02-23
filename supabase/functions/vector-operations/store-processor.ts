@@ -39,6 +39,44 @@ async function createEmbedding(input: string) {
   }
 }
 
+async function insertChunkWithRetry(chunk: string, embedding: any, metadata: any, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const { data: storedChunk, error: insertError } = await supabase
+        .from('documents')
+        .insert({
+          content: chunk,
+          metadata: {
+            ...metadata,
+            chunk_index: metadata.chunk_index,
+            total_chunks: metadata.total_chunks,
+            processed_at: new Date().toISOString()
+          },
+          embedding
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        if (attempt === retries) {
+          throw new Error(`Failed to store chunk in database: ${insertError.message}`);
+        }
+        // Wait before retrying with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+        continue;
+      }
+
+      return storedChunk;
+    } catch (error) {
+      if (attempt === retries) {
+        throw error;
+      }
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+    }
+  }
+}
+
 export async function storeDocument(file: any, metadata: any) {
   console.log('Starting document storage process...')
   
@@ -54,6 +92,7 @@ export async function storeDocument(file: any, metadata: any) {
 
     const storedChunks = []
     
+    // Process chunks sequentially to avoid race conditions
     for (const [index, chunk] of chunks.entries()) {
       console.log(`Processing chunk ${index + 1}/${chunks.length}`)
       
@@ -63,26 +102,14 @@ export async function storeDocument(file: any, metadata: any) {
         const embedding = await createEmbedding(chunk)
         console.log(`Generated embedding for chunk ${index + 1}, vector length:`, embedding.length)
 
-        // Store chunk with embedding
-        const { data: storedChunk, error: insertError } = await supabase
-          .from('documents')
-          .insert({
-            content: chunk,
-            metadata: {
-              ...metadata,
-              chunk_index: index,
-              total_chunks: chunks.length,
-              processed_at: new Date().toISOString()
-            },
-            embedding
-          })
-          .select()
-          .single()
-
-        if (insertError) {
-          throw new Error(`Failed to store chunk in database: ${insertError.message}`)
+        // Store chunk with embedding using retry mechanism
+        const chunkMetadata = {
+          ...metadata,
+          chunk_index: index,
+          total_chunks: chunks.length
         }
-
+        
+        const storedChunk = await insertChunkWithRetry(chunk, embedding, chunkMetadata)
         storedChunks.push(storedChunk)
         console.log(`Successfully stored chunk ${index + 1}/${chunks.length}`)
 
