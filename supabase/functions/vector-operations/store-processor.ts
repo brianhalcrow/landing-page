@@ -1,12 +1,15 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { encode } from 'https://deno.land/std@0.177.0/encoding/base64.ts'
 import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
 import { chunkDocument } from './text-chunker.ts'
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL')
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+if (!openAIApiKey) {
+  throw new Error('Missing OPENAI_API_KEY environment variable')
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 const openai = new OpenAIApi(new Configuration({ apiKey: openAIApiKey }))
@@ -16,12 +19,13 @@ export async function storeDocument(file: any, metadata: any) {
   
   try {
     // Decode base64 content
-    const decodedContent = decode(file.content)
-    console.log('Content decoded successfully, length:', decodedContent.length)
+    const content = decodeBase64Content(file.content)
+    console.log('Content decoded successfully, length:', content.length)
 
-    // Chunk the document
-    const chunks = chunkDocument(decodedContent)
-    console.log(`Document chunked into ${chunks.length} parts`)
+    // Split content into chunks
+    console.log('Chunking document...')
+    const chunks = chunkDocument(content)
+    console.log(`Document split into ${chunks.length} chunks`)
 
     const storedChunks = []
     
@@ -29,36 +33,42 @@ export async function storeDocument(file: any, metadata: any) {
       console.log(`Processing chunk ${index + 1}/${chunks.length}`)
       
       try {
-        // Generate embeddings
+        // Generate embedding for chunk
+        console.log(`Generating embedding for chunk ${index + 1}...`)
         const embeddingResponse = await openai.createEmbedding({
           model: 'text-embedding-ada-002',
-          input: chunk
+          input: chunk.trim()
         })
-        
-        const [{ embedding }] = embeddingResponse.data.data
-        console.log(`Generated embedding for chunk ${index + 1}`)
 
-        // Store in database
-        const { data: storedDoc, error: storeError } = await supabase
+        if (!embeddingResponse.data.data[0].embedding) {
+          throw new Error('Failed to generate embedding')
+        }
+
+        const embedding = embeddingResponse.data.data[0].embedding
+        console.log(`Generated embedding for chunk ${index + 1}, vector length:`, embedding.length)
+
+        // Store chunk with embedding
+        const { data: storedChunk, error: insertError } = await supabase
           .from('documents')
           .insert({
             content: chunk,
             metadata: {
               ...metadata,
               chunk_index: index,
-              total_chunks: chunks.length
+              total_chunks: chunks.length,
+              processed_at: new Date().toISOString()
             },
             embedding
           })
           .select()
           .single()
 
-        if (storeError) {
-          throw new Error(`Database storage failed: ${storeError.message}`)
+        if (insertError) {
+          throw new Error(`Failed to store chunk in database: ${insertError.message}`)
         }
 
-        storedChunks.push(storedDoc)
-        console.log(`Stored chunk ${index + 1} successfully`)
+        storedChunks.push(storedChunk)
+        console.log(`Successfully stored chunk ${index + 1}/${chunks.length}`)
 
       } catch (chunkError) {
         console.error(`Error processing chunk ${index + 1}:`, chunkError)
@@ -66,10 +76,12 @@ export async function storeDocument(file: any, metadata: any) {
       }
     }
 
+    console.log('Document processing completed successfully')
     return {
+      success: true,
       chunks_processed: storedChunks.length,
       total_chunks: chunks.length,
-      document_id: storedChunks[0]?.id
+      first_chunk_id: storedChunks[0]?.id
     }
 
   } catch (error) {
@@ -78,10 +90,9 @@ export async function storeDocument(file: any, metadata: any) {
   }
 }
 
-function decode(base64Content: string): string {
+function decodeBase64Content(base64Content: string): string {
   try {
-    const binary = atob(base64Content)
-    return binary
+    return atob(base64Content)
   } catch (error) {
     console.error('Error decoding content:', error)
     throw new Error('Failed to decode document content')
