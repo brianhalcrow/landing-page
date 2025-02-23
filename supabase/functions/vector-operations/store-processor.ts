@@ -1,151 +1,89 @@
 
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
-import { processFileContent } from './text-processor.ts';
-import { chunkText } from './text-chunker.ts';
-import { BATCH_SIZE } from './utils.ts';
-import { StoreRequestBody, FileMetadata } from './types.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { encode } from 'https://deno.land/std@0.177.0/encoding/base64.ts'
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
+import { chunkDocument } from './text-chunker.ts'
 
-export async function processStore(body: StoreRequestBody, openai: OpenAIApi, supabaseClient: any) {
-  const { file, metadata } = body;
-  console.log('Processing store action for file:', file?.name);
-  console.log('Initial metadata:', JSON.stringify(metadata, null, 2));
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+const supabaseUrl = Deno.env.get('SUPABASE_URL')
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const openai = new OpenAIApi(new Configuration({ apiKey: openAIApiKey }))
+
+export async function storeDocument(file: any, metadata: any) {
+  console.log('Starting document storage process...')
   
-  if (!file?.content) {
-    throw new Error('File content is required');
-  }
+  try {
+    // Decode base64 content
+    const decodedContent = decode(file.content)
+    console.log('Content decoded successfully, length:', decodedContent.length)
 
-  console.log('Processing file content');
-  const { text: extractedText, metadata: analyzedMetadata } = await processFileContent(file.content, file.type);
-  
-  if (!extractedText || extractedText.trim().length === 0) {
-    throw new Error('No text could be extracted from the file');
-  }
+    // Chunk the document
+    const chunks = chunkDocument(decodedContent)
+    console.log(`Document chunked into ${chunks.length} parts`)
 
-  // Validate extracted text for expected patterns
-  console.log('Validating extracted text...');
-  const containsCommonHeaders = /Confidential Treatment Requested|LBEX-LL \d+/i.test(extractedText);
-  if (containsCommonHeaders) {
-    console.warn('Warning: Text still contains headers that should have been removed');
-  }
-
-  // Merge analyzed metadata with existing metadata
-  const enhancedMetadata: FileMetadata = {
-    ...metadata,
-    ...analyzedMetadata,
-    fileName: file.name,
-    fileType: file.type,
-    size: file.size || file.content.length,
-    uploadedAt: new Date().toISOString(),
-    status: 'completed'
-  };
-
-  console.log('Enhanced metadata:', JSON.stringify(enhancedMetadata, null, 2));
-
-  // Check for duplicates
-  const { data: existingDocs, error: searchError } = await supabaseClient
-    .from('documents')
-    .select('id, content')
-    .eq('metadata->>fileName', file.name);
-
-  if (searchError) {
-    console.error('Error checking for duplicates:', searchError);
-    throw searchError;
-  }
-
-  if (existingDocs && existingDocs.length > 0) {
-    console.log(`Document ${file.name} already exists. Skipping processing.`);
-    return {
-      message: 'Document already exists',
-      existingDocuments: existingDocs
-    };
-  }
-
-  console.log('Text extracted and validated, length:', extractedText.length);
-  
-  const chunks = chunkText(extractedText);
-  console.log(`Split content into ${chunks.length} chunks`);
-
-  // Validate chunks
-  chunks.forEach((chunk, index) => {
-    if (chunk.length < 50) {
-      console.warn(`Warning: Chunk ${index + 1} is unusually short (${chunk.length} chars)`);
-    }
-    console.log(`Chunk ${index + 1} preview:`, chunk.slice(0, 100));
-  });
-
-  const processedChunks = [];
-  
-  // Process chunks in batches
-  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-    const batch = chunks.slice(i, i + BATCH_SIZE);
-    console.log(`Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(chunks.length/BATCH_SIZE)}`);
+    const storedChunks = []
     
-    const batchPromises = batch.map(async (chunk, batchIndex) => {
-      const index = i + batchIndex;
+    for (const [index, chunk] of chunks.entries()) {
+      console.log(`Processing chunk ${index + 1}/${chunks.length}`)
+      
       try {
-        console.log(`Processing chunk ${index + 1}/${chunks.length}`);
-        
+        // Generate embeddings
         const embeddingResponse = await openai.createEmbedding({
-          model: "text-embedding-ada-002",
-          input: chunk.slice(0, 8000),
-        });
+          model: 'text-embedding-ada-002',
+          input: chunk
+        })
+        
+        const [{ embedding }] = embeddingResponse.data.data
+        console.log(`Generated embedding for chunk ${index + 1}`)
 
-        const [{ embedding }] = embeddingResponse.data.data;
-
-        // Escape special characters in content
-        const { data, error } = await supabaseClient.rpc('escape_special_chars', {
-          input_text: chunk
-        });
-
-        if (error) {
-          throw new Error(`Error escaping text: ${error.message}`);
-        }
-
-        const escapedContent = data;
-
-        // Generate tags
-        const generatedTags = [
-          enhancedMetadata.category,
-          `chunk_${index + 1}`,
-          enhancedMetadata.difficulty
-        ].filter(Boolean);
-
-        // Insert document
-        const { data: insertData, error: insertError } = await supabaseClient
+        // Store in database
+        const { data: storedDoc, error: storeError } = await supabase
           .from('documents')
           .insert({
-            content: escapedContent,
-            embedding,
-            metadata: enhancedMetadata,
-            metadata_tags: generatedTags,
-            metadata_source_reference: file.name,
-            metadata_category: null,
-            metadata_section: null,
-            metadata_difficulty: null
+            content: chunk,
+            metadata: {
+              ...metadata,
+              chunk_index: index,
+              total_chunks: chunks.length
+            },
+            embedding
           })
-          .select();
+          .select()
+          .single()
 
-        if (insertError) {
-          throw insertError;
+        if (storeError) {
+          throw new Error(`Database storage failed: ${storeError.message}`)
         }
 
-        return insertData?.[0];
-      } catch (error) {
-        console.error(`Error processing chunk ${index + 1}:`, error);
-        throw error;
+        storedChunks.push(storedDoc)
+        console.log(`Stored chunk ${index + 1} successfully`)
+
+      } catch (chunkError) {
+        console.error(`Error processing chunk ${index + 1}:`, chunkError)
+        throw new Error(`Failed to process chunk ${index + 1}: ${chunkError.message}`)
       }
-    });
-
-    const batchResults = await Promise.all(batchPromises);
-    processedChunks.push(...batchResults.filter(Boolean));
-    
-    if (i + BATCH_SIZE < chunks.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
     }
-  }
 
-  return {
-    message: `Successfully processed ${processedChunks.length} chunks`,
-    chunks: processedChunks
-  };
+    return {
+      chunks_processed: storedChunks.length,
+      total_chunks: chunks.length,
+      document_id: storedChunks[0]?.id
+    }
+
+  } catch (error) {
+    console.error('Document storage failed:', error)
+    throw new Error(`Document storage failed: ${error.message}`)
+  }
+}
+
+function decode(base64Content: string): string {
+  try {
+    const binary = atob(base64Content)
+    return binary
+  } catch (error) {
+    console.error('Error decoding content:', error)
+    throw new Error('Failed to decode document content')
+  }
 }
