@@ -1900,6 +1900,7 @@ export type Database = {
           branchno: string | null
           country: string | null
           currency: string | null
+          fwd: number | null
           id: number
           indexid: number
           paymentdate: string | null
@@ -1907,6 +1908,7 @@ export type Database = {
           secondaryamount: number | null
           secondarycurrency: string | null
           side: string | null
+          spot: number | null
           timestamp: string | null
         }
         Insert: {
@@ -1920,6 +1922,7 @@ export type Database = {
           branchno?: string | null
           country?: string | null
           currency?: string | null
+          fwd?: number | null
           id?: number
           indexid: number
           paymentdate?: string | null
@@ -1927,6 +1930,7 @@ export type Database = {
           secondaryamount?: number | null
           secondarycurrency?: string | null
           side?: string | null
+          spot?: number | null
           timestamp?: string | null
         }
         Update: {
@@ -1940,6 +1944,7 @@ export type Database = {
           branchno?: string | null
           country?: string | null
           currency?: string | null
+          fwd?: number | null
           id?: number
           indexid?: number
           paymentdate?: string | null
@@ -1947,6 +1952,7 @@ export type Database = {
           secondaryamount?: number | null
           secondarycurrency?: string | null
           side?: string | null
+          spot?: number | null
           timestamp?: string | null
         }
         Relationships: [
@@ -2352,36 +2358,42 @@ export type Database = {
         Row: {
           amount: number | null
           currency: string | null
+          fwd: number | null
           id: number
           indexid: number | null
           price: number | null
           secondaryamount: number | null
           secondarycurrency: string | null
           side: string | null
+          spot: number | null
           timestamp: string | null
           valuedate: string | null
         }
         Insert: {
           amount?: number | null
           currency?: string | null
+          fwd?: number | null
           id?: number
           indexid?: number | null
           price?: number | null
           secondaryamount?: number | null
           secondarycurrency?: string | null
           side?: string | null
+          spot?: number | null
           timestamp?: string | null
           valuedate?: string | null
         }
         Update: {
           amount?: number | null
           currency?: string | null
+          fwd?: number | null
           id?: number
           indexid?: number | null
           price?: number | null
           secondaryamount?: number | null
           secondarycurrency?: string | null
           side?: string | null
+          spot?: number | null
           timestamp?: string | null
           valuedate?: string | null
         }
@@ -2436,10 +2448,14 @@ export type Database = {
           amount: number | null
           bid: number | null
           currency: string | null
+          fwdbid: number | null
+          fwdoffer: number | null
           id: number
           indexid: number | null
           offer: number | null
           side: string | null
+          spotbid: number | null
+          spotoffer: number | null
           timestamp: string | null
           valuedate: string | null
         }
@@ -2447,10 +2463,14 @@ export type Database = {
           amount?: number | null
           bid?: number | null
           currency?: string | null
+          fwdbid?: number | null
+          fwdoffer?: number | null
           id?: number
           indexid?: number | null
           offer?: number | null
           side?: string | null
+          spotbid?: number | null
+          spotoffer?: number | null
           timestamp?: string | null
           valuedate?: string | null
         }
@@ -2458,10 +2478,14 @@ export type Database = {
           amount?: number | null
           bid?: number | null
           currency?: string | null
+          fwdbid?: number | null
+          fwdoffer?: number | null
           id?: number
           indexid?: number | null
           offer?: number | null
           side?: string | null
+          spotbid?: number | null
+          spotoffer?: number | null
           timestamp?: string | null
           valuedate?: string | null
         }
