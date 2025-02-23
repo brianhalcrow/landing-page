@@ -54,10 +54,9 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           
           console.log('Doc processing completed, sending to text processor...');
           // Process the extracted text (50-100%)
-          await FileProcessor.processTextFile(text, file.name, (textProgress) => {
-            // Scale text processing progress from 50-100%
-            setProgress(50 + Math.floor(textProgress * 0.5));
-          });
+          setProgress(75); // Update progress before text processing
+          await FileProcessor.processTextFile(text, file.name);
+          setProgress(100); // Update progress after text processing
           
           toast({
             title: "Success",
