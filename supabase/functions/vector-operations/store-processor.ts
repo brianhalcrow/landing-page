@@ -45,13 +45,13 @@ export async function storeDocument(
         // Remove any id from metadata if present
         const { id, ...cleanMetadata } = metadata;
         
-        // Create a unique identifier for this chunk based on content hash and metadata
+        // Create a unique identifier for this chunk
         const chunkIdentifier = `${metadata.fileName}_${metadata.chunk_index}`;
         
-        // Use upsert with onConflict handling
+        // Simple insert without conflict handling
         const { data: storedChunk, error: insertError } = await supabase
           .from('documents')
-          .upsert({
+          .insert({
             content: chunk,
             metadata: {
               ...cleanMetadata,
@@ -61,9 +61,6 @@ export async function storeDocument(
               processed_at: new Date().toISOString()
             },
             embedding
-          }, {
-            onConflict: 'documents_chunk_identifier_unique',
-            ignoreDuplicates: false // update if exists
           })
           .select()
           .maybeSingle();
@@ -80,7 +77,7 @@ export async function storeDocument(
         if (!storedChunk) {
           console.warn(`No data returned for chunk ${metadata.chunk_index}, attempting retry...`);
           if (attempt === retries) {
-            throw new Error('No chunk data returned after insert/upsert');
+            throw new Error('No chunk data returned after insert');
           }
           attempt++;
           continue;
