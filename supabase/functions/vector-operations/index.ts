@@ -1,87 +1,69 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { processSearch } from './search-processor.ts'
-import { storeDocument } from './store-processor.ts'
+import "https://deno.land/x/xhr@0.3.1/mod.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.3.0';
+import { corsHeaders, validateRequestBody, createErrorResponse } from './utils.ts';
+import { processStore } from './store-processor.ts';
+import { processSearch } from './search-processor.ts';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight requests
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, file, metadata, query } = await req.json()
-    console.log(`Processing ${action} request...`)
+    console.log('Starting vector-operations function');
+    const startTime = Date.now();
 
-    if (action === 'store') {
-      if (!file || !metadata) {
-        throw new Error('Missing required file or metadata for storage operation')
-      }
+    const body = await validateRequestBody(req);
+    const { action } = body;
+    console.log('Action:', action);
 
-      console.log('Starting document storage process...')
-      console.log('File info:', { name: file.name, type: file.type, size: file.size })
-      
-      try {
-        const result = await storeDocument(file, metadata)
-        console.log('Document stored successfully:', result)
-        
-        return new Response(JSON.stringify({
-          success: true,
-          message: 'Document processed and stored successfully',
-          data: result
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
-      } catch (storeError) {
-        console.error('Error storing document:', storeError)
-        throw new Error(`Failed to store document: ${storeError.message}`)
-      }
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not configured');
     }
 
-    if (action === 'search') {
-      if (!query) {
-        throw new Error('Missing required query parameter for search operation')
-      }
+    const configuration = new Configuration({ apiKey: openaiApiKey });
+    const openai = new OpenAIApi(configuration);
 
-      console.log('Starting document search process...')
-      try {
-        const results = await processSearch({ query }, null, supabase)
-        console.log(`Search completed. Found ${results?.length || 0} results`)
-        
-        return new Response(JSON.stringify({
-          success: true,
-          data: results
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
-      } catch (searchError) {
-        console.error('Error searching documents:', searchError)
-        throw new Error(`Failed to search documents: ${searchError.message}`)
-      }
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase configuration missing');
     }
 
-    throw new Error(`Unsupported action: ${action}`)
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
+
+    let result;
+
+    switch (action) {
+      case 'store': {
+        result = await processStore(body, openai, supabaseClient);
+        break;
+      }
+      case 'search': {
+        result = await processSearch(body, openai, supabaseClient);
+        break;
+      }
+      default:
+        throw new Error('Invalid action');
+    }
+
+    const executionTime = Date.now() - startTime;
+    console.log(`Operation completed in ${executionTime}ms`);
+
+    return new Response(
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
-    console.error('Operation failed:', error)
-    
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message || 'An unexpected error occurred',
-      details: error.stack || null
-    }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    console.error('Error processing request:', error);
+    return createErrorResponse(error);
   }
-})
+});

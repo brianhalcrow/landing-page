@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const sanitizeText = (text: string): string => {
@@ -46,7 +45,11 @@ const sanitizeText = (text: string): string => {
   console.log(`[TextProcessor] Text sanitization completed:
     - Original length: ${startLength}
     - Final length: ${sanitizedText.length}
-    - Characters removed: ${startLength - sanitizedText.length}`);
+    - Characters removed: ${startLength - sanitizedText.length}
+    - Headers removed: ${(text.match(/Confidential Treatment Requested/gi) || []).length}
+    - Reference numbers removed: ${(text.match(/LBEX[-\s]*LL\s*\d+/gi) || []).length}
+    - Source headers removed: ${(text.match(/Source:\s*(?:Lehman\s+Live|LehmanLive)/gi) || []).length}`
+  );
   
   return sanitizedText;
 };
@@ -55,15 +58,9 @@ export const processTextFile = async (content: string, filename: string) => {
   console.log(`[TextProcessor] Starting processing of: ${filename}`);
   console.log(`[TextProcessor] Initial content length: ${content.length} characters`);
   
-  // Add delay for progress visibility (remove in production)
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
   // Sanitize text before encoding
   const sanitizedContent = sanitizeText(content);
   console.log('[TextProcessor] Content sanitized, converting to base64');
-  
-  // Add delay for progress visibility (remove in production)
-  await new Promise(resolve => setTimeout(resolve, 1000));
   
   // Convert the sanitized text content to base64
   const base64Content = btoa(unescape(encodeURIComponent(sanitizedContent)));
@@ -92,7 +89,7 @@ export const processTextFile = async (content: string, filename: string) => {
           size: sanitizedContent.length,
           content: base64Content
         },
-        metadata
+        metadata: metadata
       }
     });
 
@@ -100,9 +97,6 @@ export const processTextFile = async (content: string, filename: string) => {
       console.error('[TextProcessor] Error:', error);
       throw error;
     }
-    
-    // Add delay for progress visibility (remove in production)
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
     console.log(`[TextProcessor] Successfully processed ${filename}`);
     return data;
