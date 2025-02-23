@@ -34,7 +34,9 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       } else if (file.type === 'text/plain') {
         // Process single text file
         const text = await file.text();
-        setProgress(50);
+        setProgress(25); // Start processing
+        console.log('Text file read, processing content...');
+        
         await FileProcessor.processTextFile(text, file.name);
         setProgress(100);
         
@@ -45,18 +47,16 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       } else if (file.type === 'application/msword' || 
                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         console.log('Processing doc/docx file...');
-        // Process .doc or .docx file with granular progress
         try {
           const text = await FileProcessor.processDocFile(file, (docProgress) => {
-            // Scale doc processing progress from 0-50%
-            setProgress(Math.floor(docProgress * 0.5));
+            setProgress(Math.floor(docProgress * 0.4)); // 0-40% for doc processing
           });
           
-          console.log('Doc processing completed, sending to text processor...');
-          // Process the extracted text (50-100%)
-          setProgress(75); // Update progress before text processing
+          console.log('Doc processing completed, starting vectorization...');
+          setProgress(50); // Document processed
+          
           await FileProcessor.processTextFile(text, file.name);
-          setProgress(100); // Update progress after text processing
+          setProgress(100);
           
           toast({
             title: "Success",
@@ -76,6 +76,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       
     } catch (error) {
       console.error('Upload error:', error);
+      setProgress(0);
       toast({
         variant: "destructive",
         title: "Error",
@@ -83,7 +84,6 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       });
     } finally {
       setLoading(false);
-      setProgress(0);
       setCurrentFileName('');
       event.target.value = '';
     }
