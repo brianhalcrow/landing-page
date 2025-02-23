@@ -6,15 +6,24 @@ export const validateFile = (file: File) => {
     throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
   }
   
-  const allowedTypes = ['application/zip', 'text/plain', 'application/x-zip-compressed'];
+  const allowedTypes = [
+    'application/zip', 
+    'text/plain', 
+    'application/x-zip-compressed',
+    'application/msword',                // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+  ];
+  
   if (!allowedTypes.includes(file.type)) {
-    throw new Error('Only .txt files and zip archives containing .txt files are supported');
+    throw new Error('Only .txt, .doc, .docx files and zip archives containing these files are supported');
   }
 
   // Additional validation for file names
   const fileName = file.name.toLowerCase();
-  if (!fileName.endsWith('.txt') && !fileName.endsWith('.zip')) {
-    throw new Error('File must have a .txt or .zip extension');
+  if (!fileName.endsWith('.txt') && 
+      !fileName.endsWith('.zip') && 
+      !fileName.endsWith('.doc') && 
+      !fileName.endsWith('.docx')) {
+    throw new Error('File must have a .txt, .doc, .docx or .zip extension');
   }
 };
-

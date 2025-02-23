@@ -42,8 +42,21 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           title: "Success",
           description: "Document processed successfully",
         });
+      } else if (file.type === 'application/msword' || 
+                 file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        // Process .doc or .docx file
+        setProgress(25);
+        const text = await FileProcessor.processDocFile(file);
+        setProgress(50);
+        await FileProcessor.processTextFile(text, file.name);
+        setProgress(100);
+        
+        toast({
+          title: "Success",
+          description: "Document processed successfully",
+        });
       } else {
-        throw new Error('Unsupported file type. Please upload a .txt file or a .zip archive containing .txt files.');
+        throw new Error('Unsupported file type. Please upload a .txt, .doc, .docx file or a zip archive containing these files.');
       }
       
       if (onUploadSuccess) {
@@ -77,4 +90,3 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
     </Card>
   );
 }
-
