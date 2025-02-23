@@ -1,16 +1,10 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
 import { processSearch } from './search-processor.ts'
 import { storeDocument } from './store-processor.ts'
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL')
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
-if (!openAIApiKey) {
-  throw new Error('Missing OPENAI_API_KEY environment variable')
-}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +12,6 @@ const corsHeaders = {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAIApi(new Configuration({ apiKey: openAIApiKey }))
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -62,7 +55,7 @@ Deno.serve(async (req) => {
 
       console.log('Starting document search process...')
       try {
-        const results = await processSearch({ query }, openai, supabase)
+        const results = await processSearch({ query }, null, supabase)
         console.log(`Search completed. Found ${results?.length || 0} results`)
         
         return new Response(JSON.stringify({

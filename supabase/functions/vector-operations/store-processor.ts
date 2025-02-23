@@ -1,6 +1,5 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
 import { chunkDocument } from './text-chunker.ts'
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
@@ -12,7 +11,33 @@ if (!openAIApiKey) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
-const openai = new OpenAIApi(new Configuration({ apiKey: openAIApiKey }))
+
+async function createEmbedding(input: string) {
+  try {
+    const response = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        input: input.trim(),
+        model: 'text-embedding-ada-002'
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    return data.data[0].embedding;
+  } catch (error) {
+    console.error('Error generating embedding:', error);
+    throw new Error(`Failed to generate embedding: ${error.message}`);
+  }
+}
 
 export async function storeDocument(file: any, metadata: any) {
   console.log('Starting document storage process...')
@@ -35,16 +60,7 @@ export async function storeDocument(file: any, metadata: any) {
       try {
         // Generate embedding for chunk
         console.log(`Generating embedding for chunk ${index + 1}...`)
-        const embeddingResponse = await openai.createEmbedding({
-          model: 'text-embedding-ada-002',
-          input: chunk.trim()
-        })
-
-        if (!embeddingResponse.data.data[0].embedding) {
-          throw new Error('Failed to generate embedding')
-        }
-
-        const embedding = embeddingResponse.data.data[0].embedding
+        const embedding = await createEmbedding(chunk)
         console.log(`Generated embedding for chunk ${index + 1}, vector length:`, embedding.length)
 
         // Store chunk with embedding
