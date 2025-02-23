@@ -20,7 +20,7 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       setLoading(true);
       setProgress(0);
       setCurrentFileName(file.name);
-      console.log('Starting file upload process:', file.name);
+      console.log('Starting file upload process:', file.name, 'Type:', file.type);
       
       // Validate file
       FileProcessor.validateFile(file);
@@ -40,21 +40,33 @@ export function DocumentUpload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         
         toast({
           title: "Success",
-          description: "Document processed successfully",
+          description: "Text document processed successfully",
         });
       } else if (file.type === 'application/msword' || 
                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        // Process .doc or .docx file
-        setProgress(25);
-        const text = await FileProcessor.processDocFile(file);
-        setProgress(50);
-        await FileProcessor.processTextFile(text, file.name);
-        setProgress(100);
-        
-        toast({
-          title: "Success",
-          description: "Document processed successfully",
-        });
+        console.log('Processing doc/docx file...');
+        // Process .doc or .docx file with granular progress
+        try {
+          const text = await FileProcessor.processDocFile(file, (docProgress) => {
+            // Scale doc processing progress from 0-50%
+            setProgress(Math.floor(docProgress * 0.5));
+          });
+          
+          console.log('Doc processing completed, sending to text processor...');
+          // Process the extracted text (50-100%)
+          await FileProcessor.processTextFile(text, file.name, (textProgress) => {
+            // Scale text processing progress from 50-100%
+            setProgress(50 + Math.floor(textProgress * 0.5));
+          });
+          
+          toast({
+            title: "Success",
+            description: "Document processed and vectorized successfully",
+          });
+        } catch (docError) {
+          console.error('Document processing error:', docError);
+          throw new Error(`Document processing failed: ${docError.message}`);
+        }
       } else {
         throw new Error('Unsupported file type. Please upload a .txt, .doc, .docx file or a zip archive containing these files.');
       }
