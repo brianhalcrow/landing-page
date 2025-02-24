@@ -11,14 +11,12 @@ import {
   FileCheck,
   FileSpreadsheet,
   Wallet,
-  Cog,
   Coins
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
-  const location = useLocation();
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/" },
     { icon: Database, label: "Data Sources", href: "/data-sources" },
@@ -67,60 +65,51 @@ const Sidebar = () => {
                   </span>
                   <div className="mt-2">
                     {item.items?.map((subItem) => (
-                      <Link
+                      <NavLink
                         key={subItem.label}
                         to={subItem.href}
-                        className={cn(
-                          "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
-                          location.pathname === subItem.href && "bg-white text-primary"
-                        )}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          window.history.pushState({}, '', subItem.href);
-                          window.dispatchEvent(new PopStateEvent('popstate'));
-                        }}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
+                            isActive && "bg-white text-primary"
+                          )
+                        }
                       >
                         <subItem.icon className="h-5 w-5" />
                         <span className="ml-4">{subItem.label}</span>
-                      </Link>
+                      </NavLink>
                     ))}
                   </div>
                 </>
               ) : (
-                <Link
+                <NavLink
                   to={item.href}
-                  className={cn(
-                    "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
-                    location.pathname === item.href && "bg-white text-primary"
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.history.pushState({}, '', item.href);
-                    window.dispatchEvent(new PopStateEvent('popstate'));
-                  }}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
+                      isActive && "bg-white text-primary"
+                    )
+                  }
                 >
                   <item.icon className="h-5 w-5" />
                   <span className="ml-4">{item.label}</span>
-                </Link>
+                </NavLink>
               )}
             </div>
           ))}
         </div>
-        <Link
+        <NavLink
           to="/settings"
-          className={cn(
-            "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md mb-4",
-            location.pathname === "/settings" && "bg-white text-primary"
-          )}
-          onClick={(e) => {
-            e.preventDefault();
-            window.history.pushState({}, '', '/settings');
-            window.dispatchEvent(new PopStateEvent('popstate'));
-          }}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md mb-4",
+              isActive && "bg-white text-primary"
+            )
+          }
         >
           <Settings className="h-5 w-5" />
           <span className="ml-4">Settings</span>
-        </Link>
+        </NavLink>
       </nav>
     </div>
   );
