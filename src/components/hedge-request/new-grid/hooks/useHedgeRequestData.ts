@@ -78,10 +78,25 @@ export const useHedgeRequestData = () => {
 
       const updatedRow = {
         ...currentRow,
-        ...updates,
-        rowId: currentRow.rowId // Ensure rowId remains unchanged
+        ...updates
       };
-      
+
+      // Handle currency auto-population for swaps
+      if (updates.buy_currency && currentRow.instrument?.toLowerCase() === 'swap') {
+        updatedRow.sell_currency = currentRow.buy_currency;
+        updatedRow.buy_currency = updates.buy_currency;
+      } else if (updates.sell_currency && currentRow.instrument?.toLowerCase() === 'swap') {
+        updatedRow.buy_currency = currentRow.sell_currency;
+        updatedRow.sell_currency = updates.sell_currency;
+      }
+
+      // Handle amount auto-population for swaps
+      if (updates.buy_amount !== undefined && currentRow.instrument?.toLowerCase() === 'swap') {
+        updatedRow.sell_amount = updates.buy_amount;
+      } else if (updates.sell_amount !== undefined && currentRow.instrument?.toLowerCase() === 'swap') {
+        updatedRow.buy_amount = updates.sell_amount;
+      }
+
       newRows[rowIndex] = updatedRow;
 
       // Handle swap instrument selection
@@ -100,9 +115,12 @@ export const useHedgeRequestData = () => {
           rowId: crypto.randomUUID(),
           swap_id: swapId,
           swap_leg: 2,
-          // Clear amounts as they will be different
-          buy_amount: null,
-          sell_amount: null
+          // Mirror the amounts for the second leg
+          buy_amount: updatedRow.sell_amount,
+          sell_amount: updatedRow.buy_amount,
+          // Mirror the currencies for the second leg
+          buy_currency: updatedRow.sell_currency,
+          sell_currency: updatedRow.buy_currency
         };
         newRows.splice(rowIndex + 1, 0, secondLeg);
         
@@ -116,23 +134,36 @@ export const useHedgeRequestData = () => {
       }
 
       // Update paired swap row if applicable
-      const isSwap = updatedRow.instrument?.toLowerCase() === 'swap';
-      if (isSwap && updatedRow.swap_id) {
-        // Update the paired swap row if it exists
+      if (updatedRow.swap_id) {
         const pairedIndex = newRows.findIndex(
           row => row.swap_id === updatedRow.swap_id && row.rowId !== updatedRow.rowId
         );
         
         if (pairedIndex >= 0) {
-          newRows[pairedIndex] = {
-            ...newRows[pairedIndex],
-            entity_id: updatedRow.entity_id,
-            entity_name: updatedRow.entity_name,
-            strategy_name: updatedRow.strategy_name,
-            instrument: updatedRow.instrument,
-            counterparty_name: updatedRow.counterparty_name,
-            cost_centre: updatedRow.cost_centre,
-          };
+          const pairedRow = { ...newRows[pairedIndex] };
+          
+          // Mirror updates to the paired row
+          if (updates.buy_currency || updates.sell_currency) {
+            pairedRow.buy_currency = updatedRow.sell_currency;
+            pairedRow.sell_currency = updatedRow.buy_currency;
+          }
+          
+          if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
+            pairedRow.buy_amount = updatedRow.sell_amount;
+            pairedRow.sell_amount = updatedRow.buy_amount;
+          }
+
+          // Keep other fields in sync
+          pairedRow.entity_id = updatedRow.entity_id;
+          pairedRow.entity_name = updatedRow.entity_name;
+          pairedRow.strategy_name = updatedRow.strategy_name;
+          pairedRow.instrument = updatedRow.instrument;
+          pairedRow.counterparty_name = updatedRow.counterparty_name;
+          pairedRow.cost_centre = updatedRow.cost_centre;
+          pairedRow.trade_date = updatedRow.trade_date;
+          pairedRow.settlement_date = updatedRow.settlement_date;
+
+          newRows[pairedIndex] = pairedRow;
         }
       }
 
