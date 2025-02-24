@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { HeaderSection } from "./sections/HeaderSection";
 import { GridSection } from "./sections/GridSection";
@@ -26,8 +27,8 @@ interface HedgedItemProps {
   errors: Record<string, boolean>;
 }
 
-export const HedgedItem = ({ 
-  formData, 
+export const HedgedItem = ({
+  formData,
   handleMonthlyForecastChange,
   handleHedgeLayerChange,
   handleCoverageChange,
