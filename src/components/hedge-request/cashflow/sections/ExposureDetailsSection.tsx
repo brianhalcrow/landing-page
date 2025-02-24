@@ -24,8 +24,8 @@ const ExposureDetailsSection = () => {
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="grid grid-cols-6 gap-4">
-        <div className="col-span-2 space-y-2">
+      <div className="flex gap-8 mb-6">
+        <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Layer Number</label>
           <Select>
             <SelectTrigger>
@@ -39,12 +39,12 @@ const ExposureDetailsSection = () => {
           </Select>
         </div>
 
-        <div className="col-span-2 space-y-2">
+        <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Start Date</label>
           <Input type="date" defaultValue="2025-03" />
         </div>
 
-        <div className="col-span-2 space-y-2">
+        <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Hedge Ratio</label>
           <Input type="text" placeholder="Enter %" />
         </div>
