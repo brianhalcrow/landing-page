@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 
@@ -30,7 +30,7 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
       <div className="sticky top-0 z-10 bg-background">
         <TabsList className="justify-start overflow-x-auto bg-background">
           {tabs.map((tab, index) => (
-            <React.Fragment key={tab.value}>
+            <div key={tab.value} className="flex items-center">
               <TabsTrigger 
                 value={tab.value}
                 className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
@@ -40,7 +40,7 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
               {index < tabs.length - 1 && (
                 <Separator orientation="vertical" className="h-6 mx-1" />
               )}
-            </React.Fragment>
+            </div>
           ))}
         </TabsList>
       </div>

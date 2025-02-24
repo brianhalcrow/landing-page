@@ -14,15 +14,13 @@ const HedgeRequestGrid: React.FC = () => {
 
   const handleCellValueChanged = useCallback(
     (event: any) => {
-      console.log('Cell value changed:', event);
       const { data, rowIndex, colDef, newValue } = event;
       if (colDef.field) {
         const updatedData = { ...data, [colDef.field]: newValue };
         updateRowData(rowIndex, updatedData);
       }
 
-      // Force refresh of the grid
-      if (gridRef.current && gridRef.current.api) {
+      if (gridRef.current?.api) {
         gridRef.current.api.refreshCells({
           force: true,
           rowNodes: [event.node],
@@ -54,7 +52,7 @@ const HedgeRequestGrid: React.FC = () => {
   }, []);
 
   return (
-    <div className="ag-theme-alpine" style={{ width: "100%", height: "600px" }}>
+    <div className="ag-theme-alpine h-[600px] w-full">
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
@@ -69,11 +67,7 @@ const HedgeRequestGrid: React.FC = () => {
           resizable: true,
           suppressSizeToFit: false,
           flex: 1,
-          minWidth: 150,
-          suppressKeyboardEvent: (params) => {
-            const { event } = params;
-            return event.key === 'Tab';
-          }
+          minWidth: 150
         }}
         getRowId={(params) => params.data.rowId}
         rowHeight={45}
@@ -83,7 +77,8 @@ const HedgeRequestGrid: React.FC = () => {
         enableCellTextSelection={true}
         stopEditingWhenCellsLoseFocus={false}
         onCellValueChanged={handleCellValueChanged}
-        suppressMoveWhenRowDragging={true}
+        theme="alpine"
+        cellSelection="multiple"
         getRowStyle={getRowStyle}
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
