@@ -5,8 +5,6 @@ import { GridApi } from "ag-grid-enterprise";
 import { createColumnDefs } from "./config/columnDefs";
 import { useHedgeRequestData } from "./hooks/useHedgeRequestData";
 import { GridActions } from "./components/GridActions";
-import "ag-grid-enterprise/styles/ag-grid.css";
-import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 const HedgeRequestGrid: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -82,6 +80,7 @@ const HedgeRequestGrid: React.FC = () => {
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
         rowSelection="multiple"
+        theme="legacy"
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>
