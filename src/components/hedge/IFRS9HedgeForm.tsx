@@ -1,9 +1,13 @@
+
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormStateProvider } from "./form-sections/FormStateProvider";
 import { FormContent } from "./form-sections/FormContent";
 import { ArchiveContent } from "./form-sections/ArchiveContent";
-import { BalanceSheetContent } from "./balance-sheet/BalanceSheetContent";
+
+const BalanceSheetPlaceholder = () => (
+  <div className="p-8">Balance Sheet functionality coming soon...</div>
+);
 
 export const IFRS9HedgeForm = () => {
   const [currentTab, setCurrentTab] = useState("cashflow");
@@ -35,7 +39,7 @@ export const IFRS9HedgeForm = () => {
           {currentTab === "intramonth" && (
             <div className="p-8">Intramonth content coming soon</div>
           )}
-          {currentTab === "balance-sheet" && <BalanceSheetContent />}
+          {currentTab === "balance-sheet" && <BalanceSheetPlaceholder />}
           {currentTab === "ad-hoc" && (
             <div className="p-8">Ad-Hoc content coming soon</div>
           )}
