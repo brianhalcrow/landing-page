@@ -59,6 +59,9 @@ const HedgeRequestGrid = () => {
           suppressSizeToFit: false,
           flex: 1,
           minWidth: 150,
+          // Move navigation properties here
+          navigateToNextCell: true,
+          tabToNextCell: true
         }}
         getRowId={(params) => {
           if (params.data?.id) {
@@ -78,8 +81,6 @@ const HedgeRequestGrid = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
-        enterMovesDown={true}
-        enterMovesDownAfterEdit={true}
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>
