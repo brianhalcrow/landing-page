@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "@/pages/Auth";
 import Layout from "@/components/Layout";
@@ -7,7 +8,6 @@ import Configuration from "@/pages/Configuration";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "react-hot-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import HedgeRequest from "@/pages/HedgeRequest";
 import Settings from "@/pages/Settings";
@@ -53,7 +53,6 @@ const App = () => {
                 </Route>
               </Routes>
             </WebSocketProvider>
-            <Toaster />
           </CubeProvider>
         </ThemeProvider>
       </AuthProvider>
