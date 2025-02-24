@@ -150,16 +150,10 @@ export const ActionsRenderer = ({
   }, [data, api]);
 
   const handleAddBelow = useCallback(() => {
-    const totalRows = api.getDisplayedRowCount();
-    const isLastRow = rowIndex === totalRows - 1;
-    
-    if (!isLastRow) {
-      toast.error("New rows can only be added at the end");
-      return;
+    if (onAddRow) {
+      onAddRow();
     }
-
-    onAddRow?.();
-  }, [api, rowIndex, onAddRow]);
+  }, [onAddRow]);
 
   return (
     <div className="flex items-center gap-1">
@@ -168,7 +162,7 @@ export const ActionsRenderer = ({
         size="icon"
         onClick={handleAddBelow}
         className="h-8 w-8"
-        disabled={data.isSaved || rowIndex !== api.getDisplayedRowCount() - 1}
+        disabled={data.isSaved}
       >
         <Plus className="h-4 w-4" />
       </Button>
