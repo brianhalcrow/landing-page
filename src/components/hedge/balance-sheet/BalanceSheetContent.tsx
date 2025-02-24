@@ -1,11 +1,15 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { EntitySelector } from "./EntitySelector";
 import { EntityActions } from "./EntityActions";
-import FinancialGrid from "@/components/FinancialGrid/FinancialGrid";
 import { useState } from "react";
-import { hedgeService } from "@/services/hedgeService";
-import type { EntityData } from "@/types/hedge-api";
 import { toast } from "@/components/ui/use-toast";
+
+interface EntityData {
+  entityName: string;
+  entityId: string;
+  functionalCurrency: string;
+}
 
 interface GridInstance {
   selectedEntity: string;
@@ -24,7 +28,10 @@ export const BalanceSheetContent = () => {
 
   const { data: entityData = [], isLoading, error } = useQuery({
     queryKey: ['entities'],
-    queryFn: hedgeService.getEntities,
+    queryFn: async () => {
+      // Placeholder for actual API call
+      return [] as EntityData[];
+    },
     meta: {
       onError: (error: Error) => {
         toast({
@@ -101,10 +108,9 @@ export const BalanceSheetContent = () => {
             onEntityChange={handleEntityChange}
             onEntityIdChange={handleEntityIdChange}
           />
-          <FinancialGrid
-            selectedCurrency={instance.functionalCurrency || "USD"}
-            isEntitySelected={!!instance.selectedEntity}
-          />
+          <div className="p-4 bg-gray-100 rounded mt-4">
+            Grid implementation coming soon...
+          </div>
           <EntityActions
             onAddGrid={addNewGrid}
             onDeleteGrid={deleteGrid}
