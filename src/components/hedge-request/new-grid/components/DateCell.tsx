@@ -19,33 +19,28 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
     value ? new Date(value) : undefined
   );
 
-  // Update local state when the value prop changes
+  // Only update local state when prop value changes significantly
   useEffect(() => {
     const newDate = value ? new Date(value) : undefined;
-    setSelectedDate(newDate);
+    const currentDateStr = selectedDate?.toISOString().split('T')[0];
+    const newDateStr = newDate?.toISOString().split('T')[0];
     
-    // Ensure the grid data is also updated
-    if (context?.updateRowData && value) {
-      context.updateRowData(node.rowIndex, {
-        [column.colDef.field]: format(new Date(value), 'yyyy-MM-dd')
-      });
+    if (newDateStr !== currentDateStr) {
+      setSelectedDate(newDate);
     }
-  }, [value, context, node.rowIndex, column.colDef.field]);
+  }, [value]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date || !context?.updateRowData) return;
 
     const formattedDate = format(date, 'yyyy-MM-dd');
     
-    // Update both the local state and the grid data
-    setSelectedDate(date);
-    context.updateRowData(node.rowIndex, {
-      [column.colDef.field]: formattedDate
-    });
-
-    // Force the grid to refresh this cell
-    if (node.setDataValue) {
-      node.setDataValue(column.colDef.field, formattedDate);
+    // Only update if the date has actually changed
+    if (formattedDate !== value) {
+      setSelectedDate(date);
+      context.updateRowData(node.rowIndex, {
+        [column.colDef.field]: formattedDate
+      });
     }
 
     setOpen(false);
