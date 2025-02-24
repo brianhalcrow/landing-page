@@ -7,10 +7,12 @@ import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
 import { DateCell } from "../components/DateCell";
+import { HedgeRequestRow } from "../types/hedgeRequest.types";
 
 interface Context {
   validConfigs?: any[];
   updateRowData?: (rowIndex: number, updates: any) => void;
+  onRemoveRow?: (row: HedgeRequestRow) => void;
 }
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef[] => {
@@ -136,7 +138,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRenderer: ActionsRenderer,
       cellRendererParams: {
         onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
-        updateRowData: context.updateRowData
+        updateRowData: context.updateRowData,
+        onRemoveRow: context.onRemoveRow
       }
     }
   ];
