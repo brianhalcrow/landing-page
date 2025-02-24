@@ -74,6 +74,11 @@ const Sidebar = () => {
                           "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
                           location.pathname === subItem.href && "bg-white text-primary"
                         )}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.history.pushState({}, '', subItem.href);
+                          window.dispatchEvent(new PopStateEvent('popstate'));
+                        }}
                       >
                         <subItem.icon className="h-5 w-5" />
                         <span className="ml-4">{subItem.label}</span>
@@ -88,6 +93,11 @@ const Sidebar = () => {
                     "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md",
                     location.pathname === item.href && "bg-white text-primary"
                   )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', item.href);
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
                 >
                   <item.icon className="h-5 w-5" />
                   <span className="ml-4">{item.label}</span>
@@ -102,6 +112,11 @@ const Sidebar = () => {
             "flex items-center px-4 py-2 text-gray-400 hover:text-primary transition-colors rounded-md mb-4",
             location.pathname === "/settings" && "bg-white text-primary"
           )}
+          onClick={(e) => {
+            e.preventDefault();
+            window.history.pushState({}, '', '/settings');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }}
         >
           <Settings className="h-5 w-5" />
           <span className="ml-4">Settings</span>
