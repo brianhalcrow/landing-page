@@ -10,7 +10,7 @@ import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 const HedgeRequestGrid: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
-  const { rowData, validConfigs, addNewRow, updateRowData, clearRowData } = useHedgeRequestData();
+  const { rowData, validConfigs, addNewRow, updateRowData, clearRowData, removeRow } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback(
     (event: any) => {
@@ -61,6 +61,7 @@ const HedgeRequestGrid: React.FC = () => {
         columnDefs={createColumnDefs(gridRef.current?.api || null, {
           validConfigs,
           updateRowData,
+          onRemoveRow: removeRow
         })}
         defaultColDef={{
           sortable: false,
@@ -74,12 +75,7 @@ const HedgeRequestGrid: React.FC = () => {
             return event.key === 'Tab';
           }
         }}
-        getRowId={(params) => {
-          if (params.data?.id) {
-            return params.data.id.toString();
-          }
-          return `generated-${Date.now()}-${Math.random()}`;
-        }}
+        getRowId={(params) => params.data.rowId}
         rowHeight={45}
         headerHeight={48}
         animateRows={true}

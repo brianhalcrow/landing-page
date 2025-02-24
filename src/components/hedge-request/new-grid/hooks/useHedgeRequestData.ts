@@ -52,6 +52,17 @@ export const useHedgeRequestData = () => {
     }
   });
 
+  const removeRow = (rowToRemove: HedgeRequestRow) => {
+    setRowData(currentRows => {
+      if (rowToRemove.instrument?.toLowerCase() === 'swap' && rowToRemove.swapId) {
+        // Remove both legs of the swap
+        return currentRows.filter(row => row.swapId !== rowToRemove.swapId);
+      }
+      // Remove single row
+      return currentRows.filter(row => row.rowId !== rowToRemove.rowId);
+    });
+  };
+
   const updateRowData = (rowIndex: number, updates: Partial<HedgeRequestRow>) => {
     if (rowIndex < 0 || !updates) {
       console.error('Invalid row index or updates:', { rowIndex, updates });
@@ -199,6 +210,7 @@ export const useHedgeRequestData = () => {
     validConfigs,
     addNewRow,
     updateRowData,
-    clearRowData
+    clearRowData,
+    removeRow
   };
 };

@@ -27,52 +27,25 @@ export const ActionsRenderer = ({
   const saveMutation = useTradeRequestSave();
 
   const handleDelete = useCallback(() => {
-    // Only allow deletion of unsaved rows
     if (data.isSaved) {
       toast.error("Cannot delete saved trade requests");
       return;
     }
 
-    const isSwap = data.instrument?.toLowerCase() === 'swap';
-    
-    if (isSwap && data.swapId) {
-      // Find all rows with the same swapId
-      const allRows = api.getModel().rowsToDisplay;
-      const swapRows = allRows.filter(row => row.data.swapId === data.swapId);
-      
-      if (swapRows.length) {
-        try {
-          // Get the actual row nodes to remove
-          const rowNodesToRemove = swapRows.map(row => api.getRowNode(row.id));
-          api.applyTransaction({
-            remove: rowNodesToRemove.map(node => node.data)
-          });
-          toast.success("Swap pair removed from grid");
-          api.refreshCells({ force: true });
-        } catch (error) {
-          console.error('Error removing swap rows:', error);
-          toast.error("Failed to remove swap pair from grid");
-        }
+    try {
+      // Remove the row from the parent component's state
+      const colDef = node.column.getColDef();
+      if (colDef.onRemoveRow) {
+        colDef.onRemoveRow(data);
+        toast.success(data.instrument?.toLowerCase() === 'swap' ? "Swap pair removed from grid" : "Row removed from grid");
+      } else {
+        toast.error("Remove row function not found");
       }
-    } else {
-      try {
-        // Use the current row node directly
-        const rowNode = node;
-        if (rowNode) {
-          api.applyTransaction({
-            remove: [rowNode.data]
-          });
-          toast.success("Row removed from grid");
-          api.refreshCells({ force: true });
-        } else {
-          toast.error("Could not find row to remove");
-        }
-      } catch (error) {
-        console.error('Error removing row:', error);
-        toast.error("Failed to remove row from grid");
-      }
+    } catch (error) {
+      console.error('Error removing row:', error);
+      toast.error("Failed to remove row from grid");
     }
-  }, [api, data, node]);
+  }, [data, node]);
 
   const findSwapPair = useCallback(() => {
     if (!data.swapId) return null;
