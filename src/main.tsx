@@ -5,6 +5,7 @@ import { ModuleRegistry, LicenseManager as GridLicenseManager } from 'ag-grid-en
 import { AllEnterpriseModule, RowGroupingModule } from 'ag-grid-enterprise';
 import { AgCharts } from "ag-charts-react";
 import { LicenseManager as ChartsLicenseManager } from "ag-charts-enterprise";
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from './components/ThemeProvider'
@@ -32,7 +33,9 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ThemeProvider>
   </QueryClientProvider>
 );
