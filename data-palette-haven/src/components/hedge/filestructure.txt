@@ -1,0 +1,35 @@
+|-- balance-sheet
+    |-- BalanceSheetContent.tsx
+    |-- EntityActions.tsx
+    |-- EntitySelector.tsx
+|-- CoverageRow.tsx
+|-- CumulativeRow.tsx
+|-- ForecastRow.tsx
+|-- form-sections
+    |-- ArchiveContent.tsx
+    |-- FormContent.tsx
+    |-- FormStateProvider.tsx
+|-- HedgedItem.tsx
+|-- HedgedItemDetails.tsx
+|-- HedgeEffectiveness.tsx
+|-- HedgeFormActions.tsx
+|-- HedgeGeneralInformation.tsx
+|-- HedgeIdentification.tsx
+|-- HedgeLayerRow.tsx
+|-- hedging-instrument
+    |-- BasisSpreadsSelect.tsx
+    |-- ExposedCurrencyInput.tsx
+    |-- ForwardElementSelect.tsx
+    |-- HedgeTypeSelect.tsx
+    |-- InstrumentDescription.tsx
+|-- HedgingInstrument.tsx
+|-- IFRS9HedgeForm.tsx
+|-- MonthlyLabels.tsx
+|-- RiskManagement.tsx
+|-- RiskManagementStrategy.tsx
+|-- sections
+    |-- DescriptionSection.tsx
+    |-- GridSection.tsx
+    |-- HeaderSection.tsx
+    |-- HedgedItemDetailsSection.tsx
+    |-- RiskManagementSection.tsx
