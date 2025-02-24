@@ -61,13 +61,11 @@ export const TradeRequestsGrid = ({
     showRejectButton
   );
 
-  // Group rows by hedge_group_id for swaps
   const getRowId = (params: { data: TradeRequest }) => 
     params.data.request_no.toString();
 
   const isRowSelectable = (params: { data: TradeRequest }) => {
     if (params.data.instrument?.toLowerCase() === 'swap') {
-      // For swaps, only allow selection of the first leg
       return params.data.swap_leg === 1;
     }
     return true;
@@ -105,6 +103,13 @@ export const TradeRequestsGrid = ({
         isRowSelectable={isRowSelectable}
         groupDefaultExpanded={1}
         groupDisplayType="groupRows"
+        theme="legacy"
+        context={{
+          componentParent: this,
+          // Place any Lovable dev properties here
+          'data-lov-id': '',
+          'data-component-line': ''
+        }}
       />
     </div>
   );

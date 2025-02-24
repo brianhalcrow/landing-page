@@ -82,6 +82,12 @@ const HedgeRequestGrid: React.FC = () => {
         suppressScrollOnNewData={true}
         rowSelection="multiple"
         theme="legacy"
+        context={{
+          componentParent: this,
+          // Place any Lovable dev properties here
+          'data-lov-id': '',
+          'data-component-line': ''
+        }}
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>

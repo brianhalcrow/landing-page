@@ -1,3 +1,4 @@
+
 import { AgGridReact } from "ag-grid-react";
 import { Badge } from "@/components/ui/badge";
 import { useDocumentGrid } from "./hooks/useDocumentGrid";
@@ -35,6 +36,13 @@ export function DocumentGrid({ documents, onGridReady }: DocumentGridProps) {
         onGridReady={handleGridReady}
         onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
         getRowHeight={() => 100}
+        theme="legacy"
+        context={{
+          componentParent: this,
+          // Place any Lovable dev properties here
+          'data-lov-id': '',
+          'data-component-line': ''
+        }}
       />
     </div>
   );
