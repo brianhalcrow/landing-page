@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,11 +15,21 @@ interface DateCellProps {
 
 export const DateCell = ({ value, node, column, context }: DateCellProps) => {
   const [open, setOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    value ? new Date(value) : undefined
+  );
+
+  // Update local state when the value prop changes
+  useEffect(() => {
+    setSelectedDate(value ? new Date(value) : undefined);
+  }, [value]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date && context?.updateRowData) {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      setSelectedDate(date);
       context.updateRowData(node.rowIndex, {
-        [column.colDef.field]: format(date, 'yyyy-MM-dd')
+        [column.colDef.field]: formattedDate
       });
       setOpen(false);
     }
@@ -31,10 +41,10 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
       onOpenChange={setOpen}
     >
       <PopoverTrigger
-        className="w-full h-full px-2 py-1 cursor-pointer"
+        className="w-full h-full px-2 py-1 cursor-pointer text-left"
         onMouseEnter={() => setOpen(true)}
       >
-        {value ? format(new Date(value), 'dd/MM/yyyy') : 'Select date'}
+        {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : 'Select date'}
       </PopoverTrigger>
       <PopoverContent 
         className="w-auto p-0" 
@@ -45,7 +55,7 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
       >
         <Calendar
           mode="single"
-          selected={value ? new Date(value) : undefined}
+          selected={selectedDate}
           onSelect={handleDateSelect}
           initialFocus
           className="rounded-md border shadow bg-white p-3"
