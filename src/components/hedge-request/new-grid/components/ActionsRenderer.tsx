@@ -131,12 +131,23 @@ export const ActionsRenderer = ({
   }, [data, api, saveMutation, findSwapPair]);
 
   const handleCopy = useCallback(() => {
-    const { isSaved, ...rowToCopy } = data;
-    onAddRow();
-    const lastRowIndex = api.getDisplayedRowCount() - 1;
-    updateRowData(lastRowIndex, rowToCopy);
-    toast.success("Row copied successfully");
-  }, [data, onAddRow, api, updateRowData]);
+    try {
+      const { isSaved, ...rowToCopy } = data;
+      const newRowId = crypto.randomUUID();
+      const newRow = { ...rowToCopy, rowId: newRowId };
+      
+      // Use AG Grid's transaction API to add the new row
+      api.applyTransaction({
+        add: [newRow],
+        addIndex: api.getDisplayedRowCount()
+      });
+
+      toast.success("Row copied successfully");
+    } catch (error) {
+      console.error('Error copying row:', error);
+      toast.error("Failed to copy row");
+    }
+  }, [data, api]);
 
   const handleAddBelow = useCallback(() => {
     const totalRows = api.getDisplayedRowCount();
@@ -147,7 +158,7 @@ export const ActionsRenderer = ({
       return;
     }
 
-    onAddRow();
+    onAddRow?.();
   }, [api, rowIndex, onAddRow]);
 
   return (
