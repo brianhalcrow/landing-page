@@ -1,3 +1,4 @@
+
 import { GridApi, ColDef } from "ag-grid-enterprise";
 import { ActionsRenderer } from "../components/ActionsRenderer";
 import { EntitySelector } from "../selectors/EntitySelector";
@@ -6,7 +7,6 @@ import { StrategySelector } from "../selectors/StrategySelector";
 import { CounterpartySelector } from "../selectors/CounterpartySelector";
 import { CurrencySelector } from "../selectors/CurrencySelector";
 import { DateCell } from "../components/DateCell";
-import { AmountEditor } from "../components/AmountEditor";
 
 interface Context {
   validConfigs?: any[];
@@ -21,26 +21,9 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     justifyContent: "flex-start" 
   };
 
-  const amountCellStyle = { 
-    display: "flex", 
-    alignItems: "center", 
-    padding: "8px",
-    justifyContent: "center",
-    backgroundColor: "transparent",
-    border: "none !important",
-    outline: "none !important",
-    boxShadow: "none !important",
-    textAlign: "center"
-  };
-
   const amountColumnConfig: Partial<ColDef> = {
+    type: 'numericColumn',
     editable: true,
-    cellEditor: AmountEditor,
-    valueParser: (params) => {
-      if (!params.newValue) return null;
-      const parsed = parseFloat(params.newValue.toString().replace(/[^\d.-]/g, ''));
-      return isNaN(parsed) ? null : parsed;
-    },
     valueFormatter: (params) => {
       if (params.value === null || params.value === undefined) return '';
       return Number(params.value).toLocaleString(undefined, {
@@ -48,17 +31,9 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         maximumFractionDigits: 2
       });
     },
-    cellStyle: amountCellStyle,
-    cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
-    suppressKeyboardEvent: (params) => {
-      const { event } = params;
-      return event.key === 'Enter' || event.key === 'Tab';
-    },
-    valueSetter: (params) => {
-      const newValue = params.newValue;
-      if (newValue === params.oldValue) return false;
-      params.data[params.colDef.field as string] = newValue;
-      return true;
+    cellStyle: {
+      ...commonCellStyle,
+      justifyContent: "flex-end"  // Right-align numbers
     }
   };
 
