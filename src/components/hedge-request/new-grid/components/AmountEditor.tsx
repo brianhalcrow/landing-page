@@ -5,6 +5,11 @@ export const AmountEditor = forwardRef((props: any, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(props.value);
 
+  // Update local state when props.value changes
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+
   useEffect(() => {
     // Focus the input when the editor is mounted
     if (inputRef.current) {
@@ -33,6 +38,11 @@ export const AmountEditor = forwardRef((props: any, ref) => {
     // Only allow numbers, decimal point, and minus sign
     const newValue = event.target.value.replace(/[^\d.-]/g, '');
     setValue(newValue);
+    
+    // Call props.onChange to update the grid's data
+    if (props.onChange) {
+      props.onChange(newValue);
+    }
   };
 
   // Format the displayed value with commas
