@@ -1,5 +1,5 @@
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, memo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { GridApi } from "ag-grid-enterprise";
 import { createColumnDefs } from "./config/columnDefs";
@@ -50,16 +50,22 @@ const HedgeRequestGrid: React.FC = () => {
     }, 100);
   }, []);
 
+  // Memoize the column definitions to prevent unnecessary re-renders
+  const columnDefs = useMemo(() => createColumnDefs(
+    gridRef.current?.api || null, 
+    {
+      validConfigs,
+      updateRowData,
+      onRemoveRow: removeRow
+    }
+  ), [validConfigs, updateRowData, removeRow]);
+
   return (
     <div className="ag-theme-alpine h-[600px] w-full">
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
-        columnDefs={createColumnDefs(gridRef.current?.api || null, {
-          validConfigs,
-          updateRowData,
-          onRemoveRow: removeRow
-        })}
+        columnDefs={columnDefs}
         defaultColDef={{
           sortable: false,
           filter: false,
@@ -80,13 +86,14 @@ const HedgeRequestGrid: React.FC = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
-        rowSelection="multiple"
+        rowSelection={{
+          type: 'multiple'
+        }}
         theme="legacy"
         context={{
           componentParent: this,
-          // Place any Lovable dev properties here
-          'data-lov-id': '',
-          'data-component-line': ''
+          updateRowData,
+          validConfigs
         }}
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
@@ -94,4 +101,5 @@ const HedgeRequestGrid: React.FC = () => {
   );
 };
 
-export default HedgeRequestGrid;
+// Memoize the entire grid component
+export default memo(HedgeRequestGrid);

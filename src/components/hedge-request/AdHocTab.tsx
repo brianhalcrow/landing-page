@@ -1,4 +1,5 @@
 
+import { memo } from "react";
 import HedgeRequestGrid from "./new-grid/HedgeRequestGrid";
 
 const AdHocTab = () => {
@@ -9,4 +10,5 @@ const AdHocTab = () => {
   );
 };
 
-export default AdHocTab;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(AdHocTab);
