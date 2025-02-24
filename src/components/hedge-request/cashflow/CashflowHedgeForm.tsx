@@ -44,7 +44,7 @@ const CashflowHedgeForm = () => {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="max-w-[1800px] mx-auto px-6 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Cashflow Hedge Documentation</h1>
       
       <Card>
@@ -123,3 +123,4 @@ const CashflowHedgeForm = () => {
 };
 
 export default CashflowHedgeForm;
+
