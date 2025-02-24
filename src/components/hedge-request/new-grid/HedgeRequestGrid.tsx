@@ -1,5 +1,5 @@
 
-import React, { useCallback, useRef, memo } from "react";
+import React, { useCallback, useRef, memo, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { GridApi } from "ag-grid-enterprise";
 import { createColumnDefs } from "./config/columnDefs";
@@ -86,9 +86,7 @@ const HedgeRequestGrid: React.FC = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
-        rowSelection={{
-          type: 'multiple'
-        }}
+        rowSelection="multiple"
         theme="legacy"
         context={{
           componentParent: this,
