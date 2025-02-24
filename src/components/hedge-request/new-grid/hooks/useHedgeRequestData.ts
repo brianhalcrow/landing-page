@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,17 +54,7 @@ export const useHedgeRequestData = () => {
   const removeRow = (rowToRemove: HedgeRequestRow) => {
     console.log('Removing row:', rowToRemove);
     setRowData(currentRows => {
-      if (rowToRemove.instrument?.toLowerCase() === 'swap' && rowToRemove.swap_id) {
-        console.log('Removing swap pair with ID:', rowToRemove.swap_id);
-        const filteredRows = currentRows.filter(row => row.swap_id !== rowToRemove.swap_id);
-        console.log('Rows after swap removal:', filteredRows);
-        return filteredRows.length > 0 ? filteredRows : [{ ...defaultRow }];
-      }
-      
-      console.log('Removing single row with ID:', rowToRemove.rowId);
       const filteredRows = currentRows.filter(row => row.rowId !== rowToRemove.rowId);
-      console.log('Rows after single removal:', filteredRows);
-      
       return filteredRows.length > 0 ? filteredRows : [{ ...defaultRow }];
     });
   };
