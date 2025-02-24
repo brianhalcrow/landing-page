@@ -74,6 +74,7 @@ const Sidebar = () => {
                             isActive && "bg-white text-primary"
                           )
                         }
+                        end
                       >
                         <subItem.icon className="h-5 w-5" />
                         <span className="ml-4">{subItem.label}</span>
@@ -90,6 +91,7 @@ const Sidebar = () => {
                       isActive && "bg-white text-primary"
                     )
                   }
+                  end
                 >
                   <item.icon className="h-5 w-5" />
                   <span className="ml-4">{item.label}</span>
@@ -106,6 +108,7 @@ const Sidebar = () => {
               isActive && "bg-white text-primary"
             )
           }
+          end
         >
           <Settings className="h-5 w-5" />
           <span className="ml-4">Settings</span>

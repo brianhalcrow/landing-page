@@ -13,17 +13,18 @@ const HedgeRequestGrid: React.FC = () => {
   const handleCellValueChanged = useCallback(
     (event: any) => {
       const { data, rowIndex, colDef, newValue } = event;
-      if (colDef.field) {
+      if (colDef.field && newValue !== data[colDef.field]) {
         const updatedData = { ...data, [colDef.field]: newValue };
         updateRowData(rowIndex, updatedData);
-      }
 
-      if (gridRef.current?.api) {
-        gridRef.current.api.refreshCells({
-          force: true,
-          rowNodes: [event.node],
-          columns: [event.column.getId()]
-        });
+        // Only refresh the specific cell that changed
+        if (gridRef.current?.api) {
+          gridRef.current.api.refreshCells({
+            force: true,
+            rowNodes: [event.node],
+            columns: [event.column.getId()]
+          });
+        }
       }
     },
     [updateRowData]
