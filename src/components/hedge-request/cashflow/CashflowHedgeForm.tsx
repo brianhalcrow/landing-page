@@ -4,6 +4,8 @@ import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
 import HedgedItemSection from "./sections/HedgedItemSection";
 import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
+import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
+import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import { Minimize2, Maximize2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -14,6 +16,8 @@ const CashflowHedgeForm = () => {
     risk: false,
     hedgedItem: false,
     hedgingInstrument: false,
+    assessment: false,
+    exposure: false,
   });
 
   const toggleSection = (section: string) => {
@@ -88,6 +92,30 @@ const CashflowHedgeForm = () => {
           minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : ""
         )}>
           <HedgingInstrumentSection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <SectionHeader title="Assessment and Monitoring" section="assessment" />
+        </CardHeader>
+        <CardContent className={cn(
+          "transition-all duration-300",
+          minimizedSections.assessment ? "h-0 overflow-hidden p-0" : ""
+        )}>
+          <AssessmentMonitoringSection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <SectionHeader title="Exposure Details" section="exposure" />
+        </CardHeader>
+        <CardContent className={cn(
+          "transition-all duration-300",
+          minimizedSections.exposure ? "h-0 overflow-hidden p-0" : ""
+        )}>
+          <ExposureDetailsSection />
         </CardContent>
       </Card>
     </div>
