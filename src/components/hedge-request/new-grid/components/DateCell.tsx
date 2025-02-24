@@ -21,18 +21,34 @@ export const DateCell = ({ value, node, column, context }: DateCellProps) => {
 
   // Update local state when the value prop changes
   useEffect(() => {
-    setSelectedDate(value ? new Date(value) : undefined);
-  }, [value]);
+    const newDate = value ? new Date(value) : undefined;
+    setSelectedDate(newDate);
+    
+    // Ensure the grid data is also updated
+    if (context?.updateRowData && value) {
+      context.updateRowData(node.rowIndex, {
+        [column.colDef.field]: format(new Date(value), 'yyyy-MM-dd')
+      });
+    }
+  }, [value, context, node.rowIndex, column.colDef.field]);
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (date && context?.updateRowData) {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      setSelectedDate(date);
-      context.updateRowData(node.rowIndex, {
-        [column.colDef.field]: formattedDate
-      });
-      setOpen(false);
+    if (!date || !context?.updateRowData) return;
+
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    
+    // Update both the local state and the grid data
+    setSelectedDate(date);
+    context.updateRowData(node.rowIndex, {
+      [column.colDef.field]: formattedDate
+    });
+
+    // Force the grid to refresh this cell
+    if (node.setDataValue) {
+      node.setDataValue(column.colDef.field, formattedDate);
     }
+
+    setOpen(false);
   };
 
   return (
