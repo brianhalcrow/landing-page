@@ -16,15 +16,8 @@ export default defineConfig(({ mode }) => ({
         secure: false,
       }
     },
-    middleware: (app) => {
-      app.use((req: Connect.IncomingMessage, res: Connect.ServerResponse, next: Connect.NextFunction) => {
-        // SPA fallback for client-side routing
-        if (req.method === 'GET' && !req.url.includes('.')) {
-          req.url = '/index.html';
-        }
-        next();
-      });
-    }
+    // Use historyApiFallback instead of middleware for cleaner setup
+    historyApiFallback: true
   },
   plugins: [
     react(),
