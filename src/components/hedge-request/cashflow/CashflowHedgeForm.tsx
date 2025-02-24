@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
@@ -44,7 +43,7 @@ const CashflowHedgeForm = () => {
   );
 
   return (
-    <div className="max-w-[1800px] mx-auto px-6 space-y-6">
+    <div className="max-w-[2000px] mx-auto px-6 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Cashflow Hedge Documentation</h1>
       
       <Card>
@@ -123,4 +122,3 @@ const CashflowHedgeForm = () => {
 };
 
 export default CashflowHedgeForm;
-
