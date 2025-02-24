@@ -42,17 +42,32 @@ export const ActionsRenderer = ({
       const swapRows = allRows.filter(row => row.data.swapId === data.swapId);
       
       if (swapRows.length) {
-        api.applyTransaction({
+        // Remove the rows from the grid's data
+        const transaction = api.applyTransaction({
           remove: swapRows.map(row => row.data)
         });
-        toast.success("Swap pair removed from grid");
+
+        if (transaction.remove && transaction.remove.length > 0) {
+          toast.success("Swap pair removed from grid");
+          // Force grid refresh
+          api.refreshCells({ force: true });
+        } else {
+          toast.error("Failed to remove swap pair from grid");
+        }
       }
     } else {
       // For non-swaps, remove single row
-      api.applyTransaction({
+      const transaction = api.applyTransaction({
         remove: [data]
       });
-      toast.success("Row removed from grid");
+
+      if (transaction.remove && transaction.remove.length > 0) {
+        toast.success("Row removed from grid");
+        // Force grid refresh
+        api.refreshCells({ force: true });
+      } else {
+        toast.error("Failed to remove row from grid");
+      }
     }
   }, [api, data]);
 
