@@ -1,6 +1,7 @@
+
 import { Search, Moon, Sun, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useNavigate, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -22,7 +23,7 @@ const Layout = () => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/auth");
+      navigate("/auth", { replace: true });
       toast.success("Logged out successfully");
     } catch (error) {
       toast.error("Error logging out");
@@ -38,11 +39,13 @@ const Layout = () => {
       <Toaster position="top-right" richColors />
       <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 w-full z-20">
         <div className="flex-1 flex items-center">
-          <img 
-            src="/lovable-uploads/a53c0673-147d-4736-ab57-107f49a70d72.png" 
-            alt="SenseFX Logo" 
-            className="h-8"
-          />
+          <Link to="/">
+            <img 
+              src="/lovable-uploads/a53c0673-147d-4736-ab57-107f49a70d72.png" 
+              alt="SenseFX Logo" 
+              className="h-8"
+            />
+          </Link>
         </div>
         <div className="flex items-center gap-4 mr-[5cm]">
           <div className="relative w-64">
