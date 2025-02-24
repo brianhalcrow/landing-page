@@ -59,9 +59,10 @@ const HedgeRequestGrid = () => {
           suppressSizeToFit: false,
           flex: 1,
           minWidth: 150,
-          // Move navigation properties here
-          navigateToNextCell: true,
-          tabToNextCell: true
+          suppressKeyboardEvent: (params) => {
+            const { event } = params;
+            return event.key === 'Tab';
+          }
         }}
         getRowId={(params) => {
           if (params.data?.id) {
