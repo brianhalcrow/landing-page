@@ -16,11 +16,26 @@ interface Context {
 }
 
 export const createColumnDefs = (gridApi: GridApi | null, context: Context): ColDef[] => {
-  const commonCellStyle = { 
+  const baseCellStyle = { 
     display: "flex", 
-    alignItems: "center", 
+    alignItems: "center",
     padding: "8px",
-    justifyContent: "flex-end"  // Changed to right-align all cells
+    justifyContent: "flex-start"  // Default left alignment
+  };
+
+  const selectorCellStyle = {
+    ...baseCellStyle,
+    padding: "8px 24px 8px 8px" // Extra right padding for dropdown icon
+  };
+
+  const numberCellStyle = {
+    ...baseCellStyle,
+    justifyContent: "flex-end" // Right alignment for numbers
+  };
+
+  const dateCellStyle = {
+    ...baseCellStyle,
+    justifyContent: "center" // Center alignment for dates
   };
 
   const amountColumnConfig: Partial<ColDef> = {
@@ -33,7 +48,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         maximumFractionDigits: 2
       });
     },
-    cellStyle: commonCellStyle
+    cellStyle: numberCellStyle
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -47,14 +62,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: false,
       flex: 1,
       minWidth: 150,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     { 
       headerName: "Entity ID", 
       field: "entity_id",
       editable: false,
       minWidth: 100,
-      cellStyle: commonCellStyle
+      cellStyle: baseCellStyle
     },
     {
       headerName: "Cost Centre",
@@ -65,7 +80,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       minWidth: 120,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     {
       headerName: "Strategy",
@@ -77,14 +92,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: false,
       flex: 1,
       minWidth: 150,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     { 
       headerName: "Instrument", 
       field: "instrument",
       editable: false,
       minWidth: 120,
-      cellStyle: commonCellStyle
+      cellStyle: baseCellStyle
     },
     {
       headerName: "Counterparty",
@@ -96,7 +111,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       editable: false,
       flex: 1,
       minWidth: 150,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     {
       headerName: "Buy Currency",
@@ -107,7 +122,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       minWidth: 120,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     {
       headerName: "Buy Amount",
@@ -124,7 +139,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       minWidth: 120,
-      cellStyle: commonCellStyle
+      cellStyle: selectorCellStyle
     },
     {
       headerName: "Sell Amount",
@@ -141,7 +156,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       minWidth: 150,
-      cellStyle: commonCellStyle
+      cellStyle: dateCellStyle
     },
     {
       headerName: "Settlement Date",
@@ -152,7 +167,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       minWidth: 150,
-      cellStyle: commonCellStyle
+      cellStyle: dateCellStyle
     },
     {
       headerName: "Actions",
