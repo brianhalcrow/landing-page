@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, Copy, Save, Trash } from "lucide-react";
+import { Plus, Copy, SendHorizontal, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback } from "react";
 import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
@@ -65,7 +65,7 @@ export const ActionsRenderer = ({
       .filter(rowData => rowData.swap_id === data.swap_id && rowData !== data);
   }, [api, data]);
 
-  const handleSave = useCallback(async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       const isSwap = data.instrument?.toLowerCase() === 'swap';
       
@@ -73,7 +73,7 @@ export const ActionsRenderer = ({
         const otherLeg = findSwapPair()?.[0];
         
         if (!otherLeg) {
-          toast.error("Cannot save incomplete swap pair");
+          toast.error("Cannot submit incomplete swap pair");
           return;
         }
 
@@ -93,19 +93,13 @@ export const ActionsRenderer = ({
         const savedSecondLeg = savedData?.[1];
         
         if (savedFirstLeg && savedSecondLeg) {
-          const firstRowNode = api.getRowNode(data.rowId);
-          const secondRowNode = api.getRowNode(otherLeg.rowId);
+          // Remove both legs from the grid
+          api.applyTransaction({
+            remove: [data, otherLeg]
+          });
           
-          if (firstRowNode) {
-            firstRowNode.setData({ ...data, isSaved: true, request_no: savedFirstLeg.request_no });
-          }
-          
-          if (secondRowNode) {
-            secondRowNode.setData({ ...otherLeg, isSaved: true, request_no: savedSecondLeg.request_no });
-          }
+          toast.success(`Request No ${savedFirstLeg.request_no} and ${savedSecondLeg.request_no} have been submitted`);
         }
-        
-        toast.success("Swap trade request saved successfully");
       } else {
         if (!validateTradeRequest(data)) {
           return;
@@ -115,18 +109,18 @@ export const ActionsRenderer = ({
         const savedData = await saveMutation.mutateAsync(tradeToSave);
         
         if (savedData?.[0]) {
-          const rowNode = api.getRowNode(data.rowId);
-          if (rowNode) {
-            rowNode.setData({ ...data, isSaved: true, request_no: savedData[0].request_no });
-          }
+          // Remove the submitted row from the grid
+          api.applyTransaction({
+            remove: [data]
+          });
+          
+          toast.success(`Request No ${savedData[0].request_no} has been submitted`);
         }
-        
-        toast.success("Trade request saved successfully");
       }
 
     } catch (error) {
-      console.error("Error saving trade request:", error);
-      toast.error("Failed to save trade request");
+      console.error("Error submitting trade request:", error);
+      toast.error("Failed to submit trade request");
     }
   }, [data, api, saveMutation, findSwapPair]);
 
@@ -177,11 +171,11 @@ export const ActionsRenderer = ({
       <Button 
         variant="ghost" 
         size="icon"
-        onClick={handleSave}
+        onClick={handleSubmit}
         className="h-8 w-8"
         disabled={data.isSaved || saveMutation.isPending}
       >
-        <Save className="h-4 w-4" />
+        <SendHorizontal className="h-4 w-4" />
       </Button>
       <Button 
         variant="ghost" 
