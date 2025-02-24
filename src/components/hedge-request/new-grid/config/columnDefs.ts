@@ -1,4 +1,3 @@
-
 import { GridApi, ColDef } from "ag-grid-enterprise";
 import { ActionsRenderer } from "../components/ActionsRenderer";
 import { EntitySelector } from "../selectors/EntitySelector";
@@ -32,6 +31,35 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     outline: "none !important",
     boxShadow: "none !important",
     textAlign: "center"
+  };
+
+  const amountColumnConfig: Partial<ColDef> = {
+    editable: true,
+    cellEditor: AmountEditor,
+    valueParser: (params) => {
+      if (!params.newValue) return null;
+      const parsed = parseFloat(params.newValue.toString().replace(/[^\d.-]/g, ''));
+      return isNaN(parsed) ? null : parsed;
+    },
+    valueFormatter: (params) => {
+      if (params.value === null || params.value === undefined) return '';
+      return Number(params.value).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    },
+    cellStyle: amountCellStyle,
+    cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
+    suppressKeyboardEvent: (params) => {
+      const { event } = params;
+      return event.key === 'Enter' || event.key === 'Tab';
+    },
+    valueSetter: (params) => {
+      const newValue = params.newValue;
+      if (newValue === params.oldValue) return false;
+      params.data[params.colDef.field as string] = newValue;
+      return true;
+    }
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -93,16 +121,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Buy Amount",
       field: "buy_amount",
-      editable: true,
-      cellEditor: AmountEditor,
-      valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
-      cellStyle: amountCellStyle,
-      cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
-      cellEditorParams: {
-        cellEditorPopup: false,
-        useFormatter: true
-      }
+      ...amountColumnConfig
     },
     {
       headerName: "Sell Currency",
@@ -116,16 +135,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     {
       headerName: "Sell Amount",
       field: "sell_amount",
-      editable: true,
-      cellEditor: AmountEditor,
-      valueFormatter: params => params.value ? Number(params.value).toLocaleString() : "",
-      valueParser: params => params.newValue ? params.newValue.replace(/,/g, "") : null,
-      cellStyle: amountCellStyle,
-      cellClass: ['ag-cell-no-border', 'no-outline-cell', 'amount-cell'],
-      cellEditorParams: {
-        cellEditorPopup: false,
-        useFormatter: true
-      }
+      ...amountColumnConfig
     },
     {
       headerName: "Trade Date",

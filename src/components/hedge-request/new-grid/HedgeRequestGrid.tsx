@@ -6,14 +6,12 @@ import { GridActions } from "./components/GridActions";
 import { useCallback, useRef } from "react";
 import { GridApi } from "ag-grid-enterprise";
 
-// Import AG Grid styles
 import "ag-grid-enterprise/styles/ag-grid.css";
 import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
 const HedgeRequestGrid = () => {
   const gridRef = useRef<AgGridReact>(null);
-  const { rowData, validConfigs, addNewRow, updateRowData, clearRowData } =
-    useHedgeRequestData();
+  const { rowData, validConfigs, addNewRow, updateRowData, clearRowData } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback(
     (event: any) => {
@@ -40,21 +38,13 @@ const HedgeRequestGrid = () => {
 
   const onGridReady = useCallback((params: { api: GridApi }) => {
     params.api.sizeColumnsToFit();
-    // Force a redraw after grid is ready
     setTimeout(() => {
       params.api.redrawRows();
     }, 100);
   }, []);
 
-  if (!validConfigs) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div 
-      className="ag-theme-alpine" 
-      style={{ width: "100%", height: "600px" }}
-    >
+    <div className="ag-theme-alpine" style={{ width: "100%", height: "600px" }}>
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
@@ -88,6 +78,8 @@ const HedgeRequestGrid = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
+        enterMovesDown={true}
+        enterMovesDownAfterEdit={true}
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>

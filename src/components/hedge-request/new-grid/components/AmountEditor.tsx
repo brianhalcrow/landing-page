@@ -3,18 +3,11 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 
 export const AmountEditor = forwardRef((props: any, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [value, setValue] = useState(props.value);
-
-  // Update local state when props.value changes
-  useEffect(() => {
-    setValue(props.value);
-  }, [props.value]);
+  const [value, setValue] = useState(props.value?.toString() || '');
 
   useEffect(() => {
-    // Focus the input when the editor is mounted
     if (inputRef.current) {
       inputRef.current.focus();
-      // Position cursor at the end of the input
       const len = inputRef.current.value.length;
       inputRef.current.setSelectionRange(len, len);
     }
@@ -22,37 +15,30 @@ export const AmountEditor = forwardRef((props: any, ref) => {
 
   useImperativeHandle(ref, () => ({
     getValue() {
-      return value ? parseFloat(value.toString().replace(/,/g, '')) : null;
+      const numericValue = value ? parseFloat(value.replace(/[^\d.-]/g, '')) : null;
+      return isNaN(numericValue) ? null : numericValue;
     },
-
     isCancelBeforeStart() {
       return false;
     },
-
     isCancelAfterEnd() {
       return false;
     },
   }));
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow numbers, decimal point, and minus sign
     const newValue = event.target.value.replace(/[^\d.-]/g, '');
     setValue(newValue);
-    
-    // Call props.onChange to update the grid's data
     if (props.onChange) {
       props.onChange(newValue);
     }
   };
 
-  // Format the displayed value with commas
-  const displayValue = value ? Number(value).toLocaleString() : '';
-
   return (
     <input
       ref={inputRef}
       className="w-full h-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-center"
-      value={displayValue}
+      value={value}
       type="text"
       onChange={handleChange}
     />
