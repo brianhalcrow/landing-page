@@ -54,7 +54,7 @@ const ExposureDetailsSection = () => {
       <div>
         <div>
           {/* Month Headers */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
             <div></div>
             {months.map((month) => (
               <div key={month} className="text-sm font-medium text-center">
@@ -64,8 +64,11 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Revenues */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Revenues</div>
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+            <div>
+              <div className="text-sm font-medium">Revenues</div>
+              <div className="text-xs text-gray-600">Long</div>
+            </div>
             {Array(12).fill(null).map((_, i) => (
               <Input 
                 key={i}
@@ -83,8 +86,11 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Costs */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Costs</div>
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+            <div>
+              <div className="text-sm font-medium">Costs</div>
+              <div className="text-xs text-gray-600">(Short)</div>
+            </div>
             {Array(12).fill(null).map((_, i) => (
               <Input 
                 key={i}
@@ -101,8 +107,11 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Forecast Exposures */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Forecast Exposures</div>
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+            <div>
+              <div className="text-sm font-medium">Forecast Exposures</div>
+              <div className="text-xs text-gray-600">Long/(Short)</div>
+            </div>
             {Array(12).fill(null).map((_, i) => (
               <Input 
                 key={i}
@@ -120,8 +129,11 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Hedge Layer Amount */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Hedge Layer Amount</div>
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+            <div>
+              <div className="text-sm font-medium">Hedge Layer Amount</div>
+              <div className="text-xs text-gray-600">Buy/(Sell)</div>
+            </div>
             {Array(12).fill(null).map((_, i) => (
               <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
                 {formatNumber(0)}
@@ -130,7 +142,7 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Indicative Coverage */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
             <div className="text-sm font-medium">Indicative Coverage</div>
             {Array(12).fill(null).map((_, i) => (
               <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
@@ -140,7 +152,7 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Cum. Hedge Layer Amounts */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2 mb-2">
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
             <div className="text-sm font-medium">Cum. Hedge Layer Amounts</div>
             {Array(12).fill(null).map((_, i) => (
               <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
@@ -150,7 +162,7 @@ const ExposureDetailsSection = () => {
           </div>
 
           {/* Cum. Indicative Coverage (%) */}
-          <div className="grid grid-cols-[200px_repeat(12,140px)] gap-2">
+          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
             <div className="text-sm font-medium">Cum. Indicative Coverage (%)</div>
             {Array(12).fill(null).map((_, i) => (
               <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
