@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Copy, Save, Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -42,34 +41,38 @@ export const ActionsRenderer = ({
       const swapRows = allRows.filter(row => row.data.swapId === data.swapId);
       
       if (swapRows.length) {
-        // Remove the rows from the grid's data
-        const transaction = api.applyTransaction({
-          remove: swapRows.map(row => row.data)
-        });
-
-        if (transaction.remove && transaction.remove.length > 0) {
+        try {
+          // Get the actual row nodes to remove
+          const rowNodesToRemove = swapRows.map(row => api.getRowNode(row.id));
+          api.applyTransaction({
+            remove: rowNodesToRemove.map(node => node.data)
+          });
           toast.success("Swap pair removed from grid");
-          // Force grid refresh
           api.refreshCells({ force: true });
-        } else {
+        } catch (error) {
+          console.error('Error removing swap rows:', error);
           toast.error("Failed to remove swap pair from grid");
         }
       }
     } else {
-      // For non-swaps, remove single row
-      const transaction = api.applyTransaction({
-        remove: [data]
-      });
-
-      if (transaction.remove && transaction.remove.length > 0) {
-        toast.success("Row removed from grid");
-        // Force grid refresh
-        api.refreshCells({ force: true });
-      } else {
+      try {
+        // Use the current row node directly
+        const rowNode = node;
+        if (rowNode) {
+          api.applyTransaction({
+            remove: [rowNode.data]
+          });
+          toast.success("Row removed from grid");
+          api.refreshCells({ force: true });
+        } else {
+          toast.error("Could not find row to remove");
+        }
+      } catch (error) {
+        console.error('Error removing row:', error);
         toast.error("Failed to remove row from grid");
       }
     }
-  }, [api, data]);
+  }, [api, data, node]);
 
   const findSwapPair = useCallback(() => {
     if (!data.swapId) return null;
