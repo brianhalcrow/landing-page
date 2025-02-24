@@ -13,7 +13,7 @@ import {
   Wallet,
   Coins
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
