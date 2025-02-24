@@ -1,23 +1,33 @@
 
+import React, { useCallback, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { GridApi } from "ag-grid-enterprise";
 import { createColumnDefs } from "./config/columnDefs";
 import { useHedgeRequestData } from "./hooks/useHedgeRequestData";
 import { GridActions } from "./components/GridActions";
-import { useCallback, useRef } from "react";
-import { GridApi } from "ag-grid-enterprise";
-
 import "ag-grid-enterprise/styles/ag-grid.css";
 import "ag-grid-enterprise/styles/ag-theme-alpine.css";
 
-const HedgeRequestGrid = () => {
+const HedgeRequestGrid: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
   const { rowData, validConfigs, addNewRow, updateRowData, clearRowData } = useHedgeRequestData();
 
   const handleCellValueChanged = useCallback(
     (event: any) => {
-      const { rowIndex, colDef, newValue } = event;
+      console.log('Cell value changed:', event);
+      const { data, rowIndex, colDef, newValue } = event;
       if (colDef.field) {
-        updateRowData(rowIndex, { [colDef.field]: newValue });
+        const updatedData = { ...data, [colDef.field]: newValue };
+        updateRowData(rowIndex, updatedData);
+      }
+
+      // Force refresh of the grid
+      if (gridRef.current && gridRef.current.api) {
+        gridRef.current.api.refreshCells({
+          force: true,
+          rowNodes: [event.node],
+          columns: [event.column.getId()]
+        });
       }
     },
     [updateRowData]
@@ -89,3 +99,47 @@ const HedgeRequestGrid = () => {
 };
 
 export default HedgeRequestGrid;
+
+// In hooks/useHedgeRequestData.ts
+
+import { useState, useCallback } from 'react';
+
+interface RowData {
+  id: string | number;
+  // Add other properties as needed
+}
+
+export const useHedgeRequestData = () => {
+  const [rowData, setRowData] = useState<RowData[]>([]);
+
+  const updateRowData = useCallback((rowIndex: number, newData: Partial<RowData>) => {
+    console.log('Updating row data:', rowIndex, newData);
+    setRowData(prevData => 
+      prevData.map((row, index) => 
+        index === rowIndex ? { ...row, ...newData } : row
+      )
+    );
+  }, []);
+
+  const addNewRow = useCallback(() => {
+    const newRow: RowData = {
+      id: `generated-${Date.now()}-${Math.random()}`,
+      // Initialize other properties as needed
+    };
+    setRowData(prevData => [...prevData, newRow]);
+  }, []);
+
+  const clearRowData = useCallback(() => {
+    setRowData([]);
+  }, []);
+
+  // Add validConfigs logic here if needed
+
+  return {
+    rowData,
+    validConfigs: [], // Replace with actual validConfigs logic
+    addNewRow,
+    updateRowData,
+    clearRowData,
+  };
+};
