@@ -7,7 +7,6 @@ import DataSources from "@/pages/DataSources";
 import Configuration from "@/pages/Configuration";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/components/AuthProvider";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import HedgeRequest from "@/pages/HedgeRequest";
 import Settings from "@/pages/Settings";
@@ -22,41 +21,35 @@ import HedgeAccounting from "@/pages/HedgeAccounting";
 import CashManagement from "@/pages/CashManagement";
 import { WebSocketProvider } from '@/trade/contexts/WebSocketContext';
 import { CubeProvider } from '@/integrations/cube/context/CubeContext';
+import Process from "@/pages/Process";
+import Settlement from "@/pages/Settlement";
 
 const websocketUrl = import.meta.env.VITE_WS_URL;
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider>
-          <CubeProvider>
-            <WebSocketProvider url={websocketUrl}>
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/data-sources" element={<DataSources />} />
-                  <Route path="/configuration" element={<Configuration />} />
-                  <Route path="/hedge-request" element={<HedgeRequest />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/monitor" element={<Monitor />} />
-                  <Route path="/review" element={<Review />} />
-                  <Route path="/forecast" element={<Forecast />} />
-                  <Route path="/exposure" element={<Exposure />} />
-                  <Route path="/execution" element={<Execution />} />
-                  <Route path="/confirmation" element={<Confirmation />} />
-                  <Route path="/control" element={<Control />} />
-                  <Route path="/hedge-accounting" element={<HedgeAccounting />} />
-                  <Route path="/cash-management" element={<CashManagement />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
-            </WebSocketProvider>
-          </CubeProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/auth" element={<Auth />} />
+      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route path="/" element={<Index />} />
+        <Route path="/data-sources/*" element={<DataSources />} />
+        <Route path="/configuration/*" element={<Configuration />} />
+        <Route path="/hedge-request/*" element={<HedgeRequest />} />
+        <Route path="/settings/*" element={<Settings />} />
+        <Route path="/monitor/*" element={<Monitor />} />
+        <Route path="/review/*" element={<Review />} />
+        <Route path="/forecast/*" element={<Forecast />} />
+        <Route path="/exposure/*" element={<Exposure />} />
+        <Route path="/execution/*" element={<Execution />} />
+        <Route path="/confirmation/*" element={<Confirmation />} />
+        <Route path="/control/*" element={<Control />} />
+        <Route path="/hedge-accounting/*" element={<HedgeAccounting />} />
+        <Route path="/cash-management/*" element={<CashManagement />} />
+        <Route path="/process/*" element={<Process />} />
+        <Route path="/settlement/*" element={<Settlement />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 };
 
