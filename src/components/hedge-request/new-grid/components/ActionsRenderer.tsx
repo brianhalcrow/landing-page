@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, Copy, SendHorizontal, Trash } from "lucide-react";
+import { Plus, Copy, SendHorizontalIcon, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback } from "react";
 import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
@@ -39,6 +39,12 @@ export const ActionsRenderer = ({
       return;
     }
 
+    // Prevent deletion of the first row
+    if (rowIndex === 0) {
+      toast.error("Cannot delete the first row");
+      return;
+    }
+
     try {
       if (onRemoveRow) {
         onRemoveRow(data);
@@ -54,7 +60,7 @@ export const ActionsRenderer = ({
       console.error('Error removing row:', error);
       toast.error("Failed to remove row from grid");
     }
-  }, [data, onRemoveRow]);
+  }, [data, onRemoveRow, rowIndex]);
 
   const findSwapPair = useCallback(() => {
     if (!data.swap_id) return null;
@@ -149,6 +155,24 @@ export const ActionsRenderer = ({
     }
   }, [onAddRow]);
 
+  // Custom send diagonal icon since it's not available in lucide
+  const SendDiagonalIcon = () => (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    >
+      <path d="M22 2L9 15" />
+      <path d="M22 2L15 22L11 13L2 9L22 2" />
+    </svg>
+  );
+
   return (
     <div className="flex items-center gap-1">
       <Button 
@@ -175,14 +199,14 @@ export const ActionsRenderer = ({
         className="h-8 w-8"
         disabled={data.isSaved || saveMutation.isPending}
       >
-        <SendHorizontal className="h-4 w-4" />
+        <SendDiagonalIcon />
       </Button>
       <Button 
         variant="ghost" 
         size="icon"
         onClick={handleDelete}
         className="h-8 w-8"
-        disabled={data.isSaved}
+        disabled={data.isSaved || rowIndex === 0}
       >
         <Trash className="h-4 w-4" />
       </Button>
