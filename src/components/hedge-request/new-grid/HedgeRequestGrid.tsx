@@ -77,12 +77,11 @@ const HedgeRequestGrid: React.FC = () => {
         enableCellTextSelection={true}
         stopEditingWhenCellsLoseFocus={false}
         onCellValueChanged={handleCellValueChanged}
-        theme="alpine"
-        cellSelection="multiple"
         getRowStyle={getRowStyle}
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
+        rowSelection="multiple"
       />
       <GridActions onAddRow={addNewRow} rowData={rowData} />
     </div>
