@@ -20,7 +20,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     display: "flex", 
     alignItems: "center", 
     padding: "8px",
-    justifyContent: "flex-start" 
+    justifyContent: "flex-end"  // Changed to right-align all cells
   };
 
   const amountColumnConfig: Partial<ColDef> = {
@@ -33,10 +33,7 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         maximumFractionDigits: 2
       });
     },
-    cellStyle: {
-      ...commonCellStyle,
-      justifyContent: "flex-end"  // Right-align numbers
-    }
+    cellStyle: commonCellStyle
   };
 
   const baseColumnDefs: ColDef[] = [
@@ -49,13 +46,26 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       flex: 1,
-      minWidth: 150
+      minWidth: 150,
+      cellStyle: commonCellStyle
     },
     { 
       headerName: "Entity ID", 
       field: "entity_id",
       editable: false,
-      minWidth: 100
+      minWidth: 100,
+      cellStyle: commonCellStyle
+    },
+    {
+      headerName: "Cost Centre",
+      field: "cost_centre",
+      cellRenderer: CostCentreSelector,
+      cellRendererParams: {
+        context
+      },
+      editable: false,
+      minWidth: 120,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Strategy",
@@ -66,13 +76,15 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       flex: 1,
-      minWidth: 150
+      minWidth: 150,
+      cellStyle: commonCellStyle
     },
     { 
       headerName: "Instrument", 
       field: "instrument",
       editable: false,
-      minWidth: 120
+      minWidth: 120,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Counterparty",
@@ -83,17 +95,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       },
       editable: false,
       flex: 1,
-      minWidth: 150
-    },
-    {
-      headerName: "Cost Centre",
-      field: "cost_centre",
-      cellRenderer: CostCentreSelector,
-      cellRendererParams: {
-        context
-      },
-      editable: false,
-      minWidth: 120
+      minWidth: 150,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Buy Currency",
@@ -103,7 +106,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         context
       },
       editable: false,
-      minWidth: 120
+      minWidth: 120,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Buy Amount",
@@ -119,7 +123,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         context
       },
       editable: false,
-      minWidth: 120
+      minWidth: 120,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Sell Amount",
@@ -135,7 +140,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         context
       },
       editable: false,
-      minWidth: 150
+      minWidth: 150,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Settlement Date",
@@ -145,7 +151,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
         context
       },
       editable: false,
-      minWidth: 150
+      minWidth: 150,
+      cellStyle: commonCellStyle
     },
     {
       headerName: "Actions",
