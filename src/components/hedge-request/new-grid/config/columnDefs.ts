@@ -47,21 +47,15 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      flex: 1,
+      minWidth: 150
     },
     { 
       headerName: "Entity ID", 
       field: "entity_id",
-      editable: false
-    },
-    {
-      headerName: "Cost Centre",
-      field: "cost_centre",
-      cellRenderer: CostCentreSelector,
-      cellRendererParams: {
-        context
-      },
-      editable: false
+      editable: false,
+      minWidth: 100
     },
     {
       headerName: "Strategy",
@@ -70,12 +64,15 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      flex: 1,
+      minWidth: 150
     },
     { 
       headerName: "Instrument", 
       field: "instrument",
-      editable: false
+      editable: false,
+      minWidth: 120
     },
     {
       headerName: "Counterparty",
@@ -84,7 +81,19 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      flex: 1,
+      minWidth: 150
+    },
+    {
+      headerName: "Cost Centre",
+      field: "cost_centre",
+      cellRenderer: CostCentreSelector,
+      cellRendererParams: {
+        context
+      },
+      editable: false,
+      minWidth: 120
     },
     {
       headerName: "Buy Currency",
@@ -93,12 +102,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      minWidth: 120
     },
     {
       headerName: "Buy Amount",
       field: "buy_amount",
-      ...amountColumnConfig
+      ...amountColumnConfig,
+      minWidth: 120
     },
     {
       headerName: "Sell Currency",
@@ -107,12 +118,14 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      minWidth: 120
     },
     {
       headerName: "Sell Amount",
       field: "sell_amount",
-      ...amountColumnConfig
+      ...amountColumnConfig,
+      minWidth: 120
     },
     {
       headerName: "Trade Date",
@@ -121,7 +134,8 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      minWidth: 150
     },
     {
       headerName: "Settlement Date",
@@ -130,11 +144,12 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       cellRendererParams: {
         context
       },
-      editable: false
+      editable: false,
+      minWidth: 150
     },
     {
       headerName: "Actions",
-      width: 100,
+      minWidth: 150,
       cellRenderer: ActionsRenderer,
       cellRendererParams: {
         onRemoveRow: context.onRemoveRow,
@@ -148,9 +163,5 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
     }
   ];
 
-  return baseColumnDefs.map(col => ({
-    ...col,
-    minWidth: col.minWidth ?? 150,
-    cellStyle: col.cellStyle ?? commonCellStyle
-  }));
+  return baseColumnDefs;
 };
