@@ -1,17 +1,16 @@
 
-import { useCallback, useMemo } from "react";
+import { memo } from "react";
 import TabsContainer from "@/components/TabsContainer";
 import { tabsConfig } from "@/config/tabsConfig";
 
-const HedgeRequest = () => {
-  // Memoize the tabs configuration to prevent unnecessary re-renders
-  const hedgeRequestTabs = useMemo(() => tabsConfig["hedge-request"], []);
-
+const HedgeRequest = memo(() => {
   return (
     <div className="w-full h-full">
-      <TabsContainer tabs={hedgeRequestTabs} />
+      <TabsContainer tabs={tabsConfig["hedge-request"]} />
     </div>
   );
-};
+});
+
+HedgeRequest.displayName = "HedgeRequest";
 
 export default HedgeRequest;
