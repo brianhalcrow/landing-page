@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 
 interface EntityActionsProps {
   onAddGrid: (index: number) => void;
@@ -8,31 +9,29 @@ interface EntityActionsProps {
   isDeleteDisabled: boolean;
 }
 
-export const EntityActions = ({ 
-  onAddGrid, 
-  onDeleteGrid, 
-  index, 
-  isDeleteDisabled 
+export const EntityActions = ({
+  onAddGrid,
+  onDeleteGrid,
+  index,
+  isDeleteDisabled,
 }: EntityActionsProps) => {
   return (
-    <div className="mt-4 flex gap-4">
+    <div className="flex gap-2 mt-4">
       <Button
-        onClick={() => onAddGrid(index)}
         variant="outline"
         size="sm"
-        className="flex items-center justify-center gap-2"
+        onClick={() => onAddGrid(index)}
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4 mr-2" />
         Add Entity
       </Button>
       <Button
-        onClick={() => onDeleteGrid(index)}
         variant="outline"
         size="sm"
-        className="flex items-center justify-center gap-2"
+        onClick={() => onDeleteGrid(index)}
         disabled={isDeleteDisabled}
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash className="h-4 w-4 mr-2" />
         Delete Entity
       </Button>
     </div>
