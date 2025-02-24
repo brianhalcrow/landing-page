@@ -137,9 +137,13 @@ export const createColumnDefs = (gridApi: GridApi | null, context: Context): Col
       width: 100,
       cellRenderer: ActionsRenderer,
       cellRendererParams: {
-        onAddRow: () => gridApi?.applyTransaction({ add: [{}] }),
+        onRemoveRow: context.onRemoveRow,
         updateRowData: context.updateRowData,
-        onRemoveRow: context.onRemoveRow
+        onAddRow: () => {
+          if (gridApi) {
+            gridApi.applyTransaction({ add: [{ rowId: crypto.randomUUID() }] });
+          }
+        }
       }
     }
   ];

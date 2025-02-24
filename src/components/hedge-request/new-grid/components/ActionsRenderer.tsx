@@ -4,15 +4,16 @@ import { toast } from "sonner";
 import { useCallback } from "react";
 import { validateTradeRequest, transformTradeRequest } from "../utils/tradeRequestUtils";
 import { useTradeRequestSave } from "../hooks/useTradeRequestSave";
+import { HedgeRequestRow } from "../types/hedgeRequest.types";
 
 interface ActionsRendererProps {
-  data: any;
+  data: HedgeRequestRow;
   node: any;
   api: any;
   rowIndex: number;
-  onAddRow: () => void;
-  updateRowData: (rowIndex: number, updates: any) => void;
-  onClearGrid?: () => void;
+  onAddRow?: () => void;
+  updateRowData?: (rowIndex: number, updates: any) => void;
+  onRemoveRow?: (row: HedgeRequestRow) => void;
 }
 
 export const ActionsRenderer = ({ 
@@ -22,30 +23,38 @@ export const ActionsRenderer = ({
   rowIndex,
   onAddRow,
   updateRowData,
-  onClearGrid 
+  onRemoveRow
 }: ActionsRendererProps) => {
   const saveMutation = useTradeRequestSave();
 
   const handleDelete = useCallback(() => {
+    if (!data) {
+      console.error('No data provided for deletion');
+      return;
+    }
+
     if (data.isSaved) {
       toast.error("Cannot delete saved trade requests");
       return;
     }
 
     try {
-      // Remove the row from the parent component's state
-      const colDef = node.column.getColDef();
-      if (colDef.onRemoveRow) {
-        colDef.onRemoveRow(data);
-        toast.success(data.instrument?.toLowerCase() === 'swap' ? "Swap pair removed from grid" : "Row removed from grid");
+      if (onRemoveRow) {
+        // Call the removeRow function directly from props
+        onRemoveRow(data);
+        toast.success(data.instrument?.toLowerCase() === 'swap' ? 
+          "Swap pair removed from grid" : 
+          "Row removed from grid"
+        );
       } else {
-        toast.error("Remove row function not found");
+        console.error('Remove row function not provided');
+        toast.error("Unable to remove row - missing handler");
       }
     } catch (error) {
       console.error('Error removing row:', error);
       toast.error("Failed to remove row from grid");
     }
-  }, [data, node]);
+  }, [data, onRemoveRow]);
 
   const findSwapPair = useCallback(() => {
     if (!data.swapId) return null;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,13 +53,24 @@ export const useHedgeRequestData = () => {
   });
 
   const removeRow = (rowToRemove: HedgeRequestRow) => {
+    console.log('Removing row:', rowToRemove);
     setRowData(currentRows => {
       if (rowToRemove.instrument?.toLowerCase() === 'swap' && rowToRemove.swap_id) {
-        // Remove both legs of the swap
-        return currentRows.filter(row => row.swap_id !== rowToRemove.swap_id);
+        console.log('Removing swap pair with ID:', rowToRemove.swap_id);
+        const filteredRows = currentRows.filter(row => row.swap_id !== rowToRemove.swap_id);
+        console.log('Rows after swap removal:', filteredRows);
+        return filteredRows;
       }
-      // Remove single row
-      return currentRows.filter(row => row.rowId !== rowToRemove.rowId);
+      
+      console.log('Removing single row with ID:', rowToRemove.rowId);
+      const filteredRows = currentRows.filter(row => row.rowId !== rowToRemove.rowId);
+      console.log('Rows after single removal:', filteredRows);
+      
+      if (filteredRows.length === 0) {
+        return [{ ...defaultRow, rowId: crypto.randomUUID() }];
+      }
+      
+      return filteredRows;
     });
   };
 
@@ -76,13 +86,11 @@ export const useHedgeRequestData = () => {
       const newData = [...currentRows];
       const currentRow = newData[rowIndex] || { ...defaultRow };
       
-      // Calculate the final state after updates
       const updatedRow = {
         ...currentRow,
         ...updates
       };
       
-      // Safely check if this is a swap
       const isSwap = (
         (updates.instrument || currentRow.instrument || '')
         .toLowerCase() === 'swap'
@@ -93,15 +101,11 @@ export const useHedgeRequestData = () => {
         (currentRow.instrument || '').toLowerCase() !== 'swap'
       );
       
-      // Handle amount validation for SWAP trades
       if (isSwap && (updates.buy_amount !== undefined || updates.sell_amount !== undefined)) {
-        // For first leg
         if (rowIndex % 2 === 0) {
-          // Calculate the final state after this update
           const finalBuyAmount = updates.buy_amount ?? currentRow.buy_amount;
           const finalSellAmount = updates.sell_amount ?? currentRow.sell_amount;
           
-          // Only validate if we would end up with both amounts
           if (finalBuyAmount !== null && finalSellAmount !== null) {
             toast.error('First leg can only have either buy or sell amount');
             return newData;
@@ -109,21 +113,16 @@ export const useHedgeRequestData = () => {
         }
       }
 
-      // Update the current row
       newData[rowIndex] = updatedRow;
 
-      // If this is a swap, propagate shared fields to the other leg
       if (isSwap) {
         if (rowIndex % 2 === 0) {
-          // For first leg, update second leg
           const nextRowIndex = rowIndex + 1;
           if (nextRowIndex < newData.length) {
             newData[nextRowIndex] = {
               ...newData[nextRowIndex],
-              // Propagate currencies
               buy_currency: updatedRow.sell_currency || '',
               sell_currency: updatedRow.buy_currency || '',
-              // Propagate shared fields
               entity_id: updatedRow.entity_id || '',
               entity_name: updatedRow.entity_name || '',
               strategy_name: updatedRow.strategy_name || '',
@@ -131,22 +130,18 @@ export const useHedgeRequestData = () => {
               counterparty_name: updatedRow.counterparty_name || '',
               cost_centre: updatedRow.cost_centre || '',
             };
-            // Propagate amounts if they exist
             if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
               newData[nextRowIndex].buy_amount = updatedRow.sell_amount;
               newData[nextRowIndex].sell_amount = updatedRow.buy_amount;
             }
           }
         } else {
-          // For second leg, update first leg
           const prevRowIndex = rowIndex - 1;
           if (prevRowIndex >= 0) {
             newData[prevRowIndex] = {
               ...newData[prevRowIndex],
-              // Propagate currencies
               buy_currency: updatedRow.sell_currency || '',
               sell_currency: updatedRow.buy_currency || '',
-              // Propagate shared fields
               entity_id: updatedRow.entity_id || '',
               entity_name: updatedRow.entity_name || '',
               strategy_name: updatedRow.strategy_name || '',
@@ -154,7 +149,6 @@ export const useHedgeRequestData = () => {
               counterparty_name: updatedRow.counterparty_name || '',
               cost_centre: updatedRow.cost_centre || '',
             };
-            // Propagate amounts if they exist
             if (updates.buy_amount !== undefined || updates.sell_amount !== undefined) {
               newData[prevRowIndex].buy_amount = updatedRow.sell_amount;
               newData[prevRowIndex].sell_amount = updatedRow.buy_amount;
@@ -163,13 +157,11 @@ export const useHedgeRequestData = () => {
         }
       }
 
-      // Only add a new row if this is the first time the instrument is being set to swap
       if (isNewSwap && rowIndex === newData.length - 1) {
         console.log('Adding new row for SWAP second leg');
         const secondLegId = crypto.randomUUID();
         const swap_id = crypto.randomUUID();
         
-        // Update first leg with swap information
         newData[rowIndex] = {
           ...updatedRow,
           rowId: crypto.randomUUID(),
@@ -177,7 +169,6 @@ export const useHedgeRequestData = () => {
           swap_leg: 1
         };
         
-        // Add second leg
         newData.push({
           ...defaultRow,
           rowId: secondLegId,
