@@ -25,7 +25,6 @@ import TradingGrid from "@/components/trading/TradingGrid";
 import CalendarTab from "@/components/monitor/CalendarTab";
 import { TrialBalanceGrid } from "@/components/exposure/balance-sheet/TrialBalanceGrid";
 import FxTradingContainer from "@/components/trading/fx/FxTradingContainer";
-import IFRS9HedgeForm from "@/components/hedge/IFRS9HedgeForm";
 
 export const tabsConfig = {
   "monitor": ({ baseCurrency, setBaseCurrency }) => [
@@ -90,7 +89,6 @@ export const tabsConfig = {
   ],
   "execution": [
     { value: "fx-trading", label: "FX Trading", content: <FxTradingContainer /> },
-    { value: "cashflow-hedge", label: "Cashflow Hedge", content: <IFRS9HedgeForm /> },
     { value: "multi-trade", label: "Multi-Trade", content: <div className="p-4"><h2 className="text-2xl font-semibold mb-4">Multi-Trade</h2><p>Multi-trade functionality coming soon.</p></div> }
   ],
   "confirmation": [
