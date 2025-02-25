@@ -23,11 +23,7 @@ const GeneralInformationSection: React.FC<GeneralInformationSectionProps> = ({
   onStrategyChange,
   hedgeId
 }) => {
-  // Pass the entity ID to useEntityData
-  const { entities, entityCounterparty } = useEntityData(generalInfo.entity_id);
-
-  // Since hedgingEntities is not returned from useEntityData, we'll use entities for now
-  const hedgingEntities = entities;
+  const { entities, hedgingEntities } = useEntityData();
 
   const handleEntityChange = (entityId: string, entityName: string) => {
     onChange({
@@ -71,54 +67,34 @@ const GeneralInformationSection: React.FC<GeneralInformationSectionProps> = ({
       />
 
       <DocumentationDateInput
-        documentDate={generalInfo.documentation_date}
-        onDateChange={(value) => onChange({ ...generalInfo, documentation_date: value })}
+        value={generalInfo.documentation_date}
+        onChange={(value) => onChange({ ...generalInfo, documentation_date: value })}
       />
 
       <CurrencySelector
-        currency={generalInfo.transaction_currency}
-        onCurrencyChange={(value) => onChange({ ...generalInfo, transaction_currency: value })}
+        value={generalInfo.transaction_currency}
+        onChange={(value) => onChange({ ...generalInfo, transaction_currency: value })}
       />
 
       <ExposureCategories
-        selectedCategories={{
-          l1: generalInfo.exposure_category_l1,
-          l2: generalInfo.exposure_category_l2,
-          l3: generalInfo.exposure_category_l3,
-          strategy: generalInfo.strategy
+        exposureCategoryL1={generalInfo.exposure_category_l1}
+        exposureCategoryL2={generalInfo.exposure_category_l2}
+        exposureCategoryL3={generalInfo.exposure_category_l3}
+        strategy={generalInfo.strategy}
+        onExposureCategoryL1Change={(value) => onChange({ ...generalInfo, exposure_category_l1: value })}
+        onExposureCategoryL2Change={(value) => {
+          onChange({ ...generalInfo, exposure_category_l2: value });
+          onExposureCategoryL2Change(value);
         }}
-        onCategoryChange={(level, value) => {
-          switch(level) {
-            case 'L1':
-              onChange({ ...generalInfo, exposure_category_l1: value });
-              break;
-            case 'L2':
-              onChange({ ...generalInfo, exposure_category_l2: value });
-              onExposureCategoryL2Change(value);
-              break;
-            case 'L3':
-              onChange({ ...generalInfo, exposure_category_l3: value });
-              break;
-            case 'strategy':
-              onStrategyChange(value, ''); // Passing empty string as instrument for now
-              break;
-          }
-        }}
-        exposureConfigs={null}
-        strategies={null}
-        getCategoryOptions={{
-          l1: () => [],
-          l2: () => [],
-          l3: () => [],
-          strategies: () => []
-        }}
+        onExposureCategoryL3Change={(value) => onChange({ ...generalInfo, exposure_category_l3: value })}
+        onStrategyChange={onStrategyChange}
       />
 
       <HedgingEntityFields
+        entities={hedgingEntities || []}
         selectedHedgingEntity={generalInfo.hedging_entity}
         onHedgingEntityChange={handleHedgingEntityChange}
         hedgingEntityFunctionalCurrency={generalInfo.hedging_entity_fccy}
-        availableHedgingEntities={hedgingEntities}
       />
     </div>
   );
