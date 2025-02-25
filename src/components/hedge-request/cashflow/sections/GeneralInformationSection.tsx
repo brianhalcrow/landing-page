@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EntityInformation } from "../components/EntityInformation";
 import { ExposureCategories } from "../components/ExposureCategories";
 import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ const GeneralInformationSection = () => {
   const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
+  const [documentDate, setDocumentDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   // Use custom hooks
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
@@ -34,25 +36,30 @@ const GeneralInformationSection = () => {
   // Calculate available hedging entities
   const availableHedgingEntities = entities ? entities.filter(entity => 
     entityCounterparty?.length ? 
-      // If there's a treasury relationship, only show treasury and current entity
       [TREASURY_ENTITY_NAME, selectedEntityName].includes(entity.entity_name) :
-      // If no treasury relationship, show all entities
       true
   ) : null;
 
-  // Fetch available currencies
-  const { data: currencies } = useQuery({
-    queryKey: ['available-currencies'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('erp_rates_monthly')
-        .select('quote_currency')
-        .limit(1000);
-      
-      if (error) throw error;
-      return [...new Set(data.map(row => row.quote_currency))].sort();
+  // Reset all fields when entity changes
+  const resetFields = () => {
+    setExposedCurrency("");
+    setSelectedHedgingEntity("");
+    setHedgingEntityFunctionalCurrency("");
+    setSelectedExposureCategoryL1("");
+    setSelectedExposureCategoryL2("");
+    setSelectedExposureCategoryL3("");
+    setSelectedStrategy("");
+    setDocumentDate(format(new Date(), 'yyyy-MM-dd'));
+  };
+
+  // Handlers
+  const handleEntityChange = (entityId: string, entityName: string) => {
+    if (entityId !== selectedEntityId) {
+      setSelectedEntityId(entityId);
+      setSelectedEntityName(entityName);
+      resetFields();
     }
-  });
+  };
 
   // Effect to set default hedging entity when relationships are fetched
   useEffect(() => {
@@ -113,12 +120,6 @@ const GeneralInformationSection = () => {
         ? strategies.filter(s => s.exposure_category_l2 === selectedExposureCategoryL2)
         : strategies;
     }
-  };
-
-  // Handlers
-  const handleEntityChange = (entityId: string, entityName: string) => {
-    setSelectedEntityId(entityId);
-    setSelectedEntityName(entityName);
   };
 
   const handleHedgingEntityChange = (entityName: string) => {
@@ -224,7 +225,11 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Documentation Date</label>
-        <Input type="date" />
+        <Input 
+          type="date" 
+          value={documentDate}
+          onChange={(e) => setDocumentDate(e.target.value)}
+        />
       </div>
 
       <ExposureCategories
