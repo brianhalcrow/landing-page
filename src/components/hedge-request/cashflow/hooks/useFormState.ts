@@ -19,6 +19,8 @@ export const useFormState = () => {
     exposure: false
   });
 
+  const [hedgeId, setHedgeId] = useState<string>("");
+
   const [generalInfo, setGeneralInfo] = useState<GeneralInformationData>({
     entity_id: "",
     entity_name: "",
@@ -74,6 +76,8 @@ export const useFormState = () => {
   return {
     minimizedSections,
     toggleSection,
+    hedgeId,
+    setHedgeId,
     generalInfo,
     setGeneralInfo,
     riskManagement,

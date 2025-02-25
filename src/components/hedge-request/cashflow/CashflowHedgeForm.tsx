@@ -17,9 +17,11 @@ const CashflowHedgeForm = () => {
     setGeneralInfo,
     hedgingInstrument,
     setHedgingInstrument,
+    hedgeId,
+    setHedgeId
   } = useFormState();
 
-  const { handleSaveDraft } = useFormSubmission();
+  const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
   const onSaveDraft = () => handleSaveDraft(generalInfo, hedgingInstrument);
 
@@ -56,6 +58,7 @@ const CashflowHedgeForm = () => {
               instrument
             }));
           }}
+          hedgeId={hedgeId}
         />
       </FormSection>
 

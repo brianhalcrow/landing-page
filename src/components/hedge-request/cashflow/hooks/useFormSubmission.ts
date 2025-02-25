@@ -5,7 +5,7 @@ import { generateHedgeId, saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
 import { HedgingInstrumentData } from "../types";
 
-export const useFormSubmission = () => {
+export const useFormSubmission = (setHedgeId: (id: string) => void) => {
   const { toast } = useToast();
 
   const handleSaveDraft = async (
@@ -53,6 +53,7 @@ export const useFormSubmission = () => {
       };
 
       await saveDraft(hedgeRequest);
+      setHedgeId(hedge_id);
       
       toast({
         title: "Draft Saved",

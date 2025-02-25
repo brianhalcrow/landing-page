@@ -1,4 +1,3 @@
-
 import { EntityData } from "../hooks/useEntityData";
 import {
   Select,
@@ -22,6 +21,7 @@ interface EntityInformationProps {
   availableHedgingEntities: EntityData[] | null;
   costCentre: string;
   onCostCentreChange: (value: string) => void;
+  hedgeId: string;
 }
 
 export const EntityInformation = ({
@@ -35,6 +35,7 @@ export const EntityInformation = ({
   onHedgingEntityChange,
   hedgingEntityFunctionalCurrency,
   availableHedgingEntities,
+  hedgeId
 }: EntityInformationProps) => {
   const { data: costCentres } = useQuery({
     queryKey: ['cost-centres', selectedEntityId],
@@ -83,7 +84,13 @@ export const EntityInformation = ({
     <>
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedge ID</label>
-        <Input type="text" placeholder="Enter hedge ID" />
+        <Input 
+          type="text" 
+          value={hedgeId}
+          disabled
+          className="bg-gray-100"
+          placeholder="Hedge ID will be generated when draft is saved"
+        />
       </div>
 
       <div className="space-y-2">
