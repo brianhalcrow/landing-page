@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -16,15 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { GeneralInformationData } from "../types/general-information";
 
 interface GeneralInformationSectionProps {
   onExposureCategoryL2Change: (value: string) => void;
   onStrategyChange: (value: string, instrument: string) => void;
+  onChange: (data: GeneralInformationData) => void;
+  generalInfo: GeneralInformationData;
 }
 
 const GeneralInformationSection = ({ 
   onExposureCategoryL2Change,
-  onStrategyChange 
+  onStrategyChange,
+  onChange,
+  generalInfo
 }: GeneralInformationSectionProps) => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
@@ -191,6 +195,36 @@ const GeneralInformationSection = ({
         break;
     }
   };
+
+  useEffect(() => {
+    onChange({
+      entity_id: selectedEntityId,
+      entity_name: selectedEntityName,
+      cost_centre: "",  // This will need to be added when implementing cost centre
+      transaction_currency: exposedCurrency,
+      documentation_date: documentDate,
+      exposure_category_l1: selectedExposureCategoryL1,
+      exposure_category_l2: selectedExposureCategoryL2,
+      exposure_category_l3: selectedExposureCategoryL3,
+      strategy: selectedStrategy,
+      hedging_entity: selectedHedgingEntity,
+      hedging_entity_fccy: hedgingEntityFunctionalCurrency,
+      functional_currency: entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ""
+    });
+  }, [
+    selectedEntityId,
+    selectedEntityName,
+    exposedCurrency,
+    documentDate,
+    selectedExposureCategoryL1,
+    selectedExposureCategoryL2,
+    selectedExposureCategoryL3,
+    selectedStrategy,
+    selectedHedgingEntity,
+    hedgingEntityFunctionalCurrency,
+    entities,
+    onChange
+  ]);
 
   return (
     <div className="grid grid-cols-6 gap-4">
