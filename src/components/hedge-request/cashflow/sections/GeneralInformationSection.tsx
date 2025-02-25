@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,9 +24,20 @@ interface EntityCounterparty {
 }
 
 interface ExposureCategory {
+  entity_id: string;
+  exposure_type_id: number;
   exposure_category_l1: string;
   exposure_category_l2: string;
   exposure_category_l3: string;
+  subsystem: string;
+  is_active: boolean;
+}
+
+interface Strategy {
+  strategy_id: string;
+  strategy_name: string;
+  exposure_category_l2: string;
+  instrument: string;
 }
 
 const GeneralInformationSection = () => {
@@ -34,8 +46,10 @@ const GeneralInformationSection = () => {
   const [exposedCurrency, setExposedCurrency] = useState("");
   const [selectedHedgingEntity, setSelectedHedgingEntity] = useState("");
   const [hedgingEntityFunctionalCurrency, setHedgingEntityFunctionalCurrency] = useState("");
+  const [selectedExposureCategoryL1, setSelectedExposureCategoryL1] = useState("");
   const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
+  const [selectedStrategy, setSelectedStrategy] = useState("");
 
   // Fetch entity data
   const { data: entities } = useQuery({
@@ -50,34 +64,46 @@ const GeneralInformationSection = () => {
     }
   });
 
-  // Fetch entity exposure categories
-  const { data: exposureCategories } = useQuery({
-    queryKey: ['entity-exposure-categories', selectedEntityId],
+  // Fetch entity exposure configurations
+  const { data: exposureConfigs } = useQuery({
+    queryKey: ['entity-exposure-config', selectedEntityId],
     queryFn: async () => {
       if (!selectedEntityId) return null;
       const { data, error } = await supabase
         .from('entity_exposure_config')
         .select(`
+          entity_id,
+          exposure_type_id,
           exposure_types (
             exposure_category_l1,
             exposure_category_l2,
-            exposure_category_l3
+            exposure_category_l3,
+            subsystem
           )
         `)
         .eq('entity_id', selectedEntityId)
         .eq('is_active', true);
       
       if (error) throw error;
-      
-      // Extract unique exposure categories
-      const categories = data
-        ?.map(config => config.exposure_types)
-        .filter(type => type.exposure_category_l1 === 'Transaction'); // Filter for Transaction type
-
-      console.log('Exposure categories:', categories);
-      return categories as ExposureCategory[];
+      return data;
     },
     enabled: !!selectedEntityId
+  });
+
+  // Fetch available strategies
+  const { data: strategies } = useQuery({
+    queryKey: ['hedge-strategies', selectedExposureCategoryL2],
+    queryFn: async () => {
+      if (!selectedExposureCategoryL2) return null;
+      const { data, error } = await supabase
+        .from('hedge_strategy')
+        .select('*')
+        .eq('exposure_category_l2', selectedExposureCategoryL2);
+      
+      if (error) throw error;
+      return data as Strategy[];
+    },
+    enabled: !!selectedExposureCategoryL2
   });
 
   // Fetch entity counterparty relationships
@@ -92,7 +118,6 @@ const GeneralInformationSection = () => {
         .eq('counterparty_id', 'SEN1');
       
       if (error) throw error;
-      console.log('Entity-SEN1 relationship data:', data);
       return data as EntityCounterparty[];
     },
     enabled: !!selectedEntityId
@@ -106,7 +131,6 @@ const GeneralInformationSection = () => {
         setSelectedHedgingEntity(treasuryEntity.entity_name);
         setHedgingEntityFunctionalCurrency(treasuryEntity.functional_currency);
       } else {
-        // If no SEN1 relationship or no treasury entity, default to selected entity
         const entity = entities.find(e => e.entity_id === selectedEntityId);
         if (entity) {
           setSelectedHedgingEntity(entity.entity_name);
@@ -132,95 +156,83 @@ const GeneralInformationSection = () => {
     }
   });
 
-  // Find entity by ID or name
-  const selectedEntity = entities?.find(e => 
-    e.entity_id === selectedEntityId || e.entity_name === selectedEntityName
-  );
-
-  // Get available hedging entities
-  const getHedgingEntityOptions = () => {
-    console.log('Getting hedging entity options...');
-    if (!selectedEntity || !entities) return [];
-    
-    // Find NL01/Sense Treasury entity
-    const treasuryEntity = entities.find(e => e.entity_id === 'NL01');
-    let options = [];
-    
-    // If there's a relationship with SEN1 and treasury entity exists, make it the first option
-    if (entityCounterparty && entityCounterparty.length > 0 && treasuryEntity) {
-      options = [treasuryEntity];
-      // Add selected entity as second option if it's not the treasury entity
-      if (selectedEntity.entity_id !== treasuryEntity.entity_id) {
-        options.push(selectedEntity);
-      }
-    } else {
-      // If no SEN1 relationship or no treasury entity, just use selected entity
-      options = [selectedEntity];
-    }
-    
-    console.log('Final hedging entity options:', options);
-    return options;
+  // Helper functions for getting unique categories
+  const getL1Categories = () => {
+    if (!exposureConfigs) return [];
+    return [...new Set(exposureConfigs.map(config => 
+      config.exposure_types.exposure_category_l1
+    ))];
   };
 
-  // Get unique L2 categories
   const getL2Categories = () => {
-    if (!exposureCategories) return [];
-    const uniqueL2 = [...new Set(exposureCategories.map(cat => cat.exposure_category_l2))];
-    console.log('L2 categories:', uniqueL2);
-    return uniqueL2;
+    if (!exposureConfigs || !selectedExposureCategoryL1) return [];
+    return [...new Set(exposureConfigs
+      .filter(config => config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1)
+      .map(config => config.exposure_types.exposure_category_l2)
+    )];
   };
 
-  // Get L3 categories based on selected L2
   const getL3Categories = () => {
-    if (!exposureCategories || !selectedExposureCategoryL2) return [];
-    const l3Categories = exposureCategories
-      .filter(cat => cat.exposure_category_l2 === selectedExposureCategoryL2)
-      .map(cat => cat.exposure_category_l3);
-    console.log('L3 categories for', selectedExposureCategoryL2, ':', l3Categories);
-    return l3Categories;
+    if (!exposureConfigs || !selectedExposureCategoryL2) return [];
+    return [...new Set(exposureConfigs
+      .filter(config => 
+        config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2
+      )
+      .map(config => config.exposure_types.exposure_category_l3)
+    )];
   };
 
-  // Handler for L2 category change
-  const handleL2CategoryChange = (value: string) => {
-    console.log('L2 category changed to:', value);
-    setSelectedExposureCategoryL2(value);
-    setSelectedExposureCategoryL3(''); // Reset L3 when L2 changes
-  };
-
-  // Update both ID and name when either changes
-  const handleEntityIdChange = (newId: string) => {
-    console.log('Entity ID changed to:', newId);
-    setSelectedEntityId(newId);
-    const entity = entities?.find(e => e.entity_id === newId);
-    if (entity) {
-      setSelectedEntityName(entity.entity_name);
-    }
-  };
-
-  const handleEntityNameChange = (newName: string) => {
-    console.log('Entity name changed to:', newName);
-    setSelectedEntityName(newName);
-    const entity = entities?.find(e => e.entity_name === newName);
-    if (entity) {
-      setSelectedEntityId(entity.entity_id);
-    }
-  };
-
-  const handleHedgingEntityChange = (newEntityName: string) => {
-    console.log('Hedging entity changed to:', newEntityName);
-    setSelectedHedgingEntity(newEntityName);
-    const hedgingEntity = entities?.find(e => e.entity_name === newEntityName);
-    if (hedgingEntity) {
-      setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
+  // Handlers for category changes
+  const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
+    switch (level) {
+      case 'L1':
+        setSelectedExposureCategoryL1(value);
+        setSelectedExposureCategoryL2('');
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L2':
+        setSelectedExposureCategoryL2(value);
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L3':
+        setSelectedExposureCategoryL3(value);
+        break;
+      case 'strategy':
+        setSelectedStrategy(value);
+        // Find and set matching exposure categories if not already set
+        if (strategies) {
+          const strategy = strategies.find(s => s.strategy_name === value);
+          if (strategy) {
+            const matchingConfig = exposureConfigs?.find(config => 
+              config.exposure_types.exposure_category_l2 === strategy.exposure_category_l2
+            );
+            if (matchingConfig) {
+              setSelectedExposureCategoryL1(matchingConfig.exposure_types.exposure_category_l1);
+              setSelectedExposureCategoryL2(strategy.exposure_category_l2);
+            }
+          }
+        }
+        break;
     }
   };
 
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="grid grid-cols-6 gap-4">
       {/* Row 1 */}
       <div className="space-y-2">
+        <label className="text-sm font-medium">Hedge ID</label>
+        <Input type="text" placeholder="Enter hedge ID" />
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium">Entity Name</label>
-        <Select value={selectedEntityName} onValueChange={handleEntityNameChange}>
+        <Select value={selectedEntityName} onValueChange={(value) => {
+          setSelectedEntityName(value);
+          const entity = entities?.find(e => e.entity_name === value);
+          if (entity) setSelectedEntityId(entity.entity_id);
+        }}>
           <SelectTrigger>
             <SelectValue placeholder="Select entity" />
           </SelectTrigger>
@@ -236,25 +248,19 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Entity ID</label>
-        <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select entity ID" />
-          </SelectTrigger>
-          <SelectContent>
-            {entities?.map(entity => (
-              <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                {entity.entity_id}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input 
+          type="text" 
+          value={selectedEntityId} 
+          disabled
+          className="bg-gray-100"
+        />
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Functional Currency</label>
         <Input 
           type="text" 
-          value={selectedEntity?.functional_currency || ''} 
+          value={entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ''} 
           disabled
           className="bg-gray-100"
         />
@@ -283,15 +289,33 @@ const GeneralInformationSection = () => {
 
       {/* Row 2 */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Hedge ID</label>
-        <Input type="text" placeholder="Enter hedge ID" />
+        <label className="text-sm font-medium">Exposure Category L1</label>
+        <Select 
+          value={selectedExposureCategoryL1} 
+          onValueChange={(value) => handleCategoryChange('L1', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {getL1Categories().map(category => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Exposure Category</label>
-        <Select value={selectedExposureCategoryL2} onValueChange={handleL2CategoryChange}>
+        <label className="text-sm font-medium">Exposure Category L2</label>
+        <Select 
+          value={selectedExposureCategoryL2} 
+          onValueChange={(value) => handleCategoryChange('L2', value)}
+          disabled={!selectedExposureCategoryL1}
+        >
           <SelectTrigger>
-            <SelectValue placeholder="Select exposure category" />
+            <SelectValue placeholder="Select subcategory" />
           </SelectTrigger>
           <SelectContent>
             {getL2Categories().map(category => (
@@ -304,14 +328,14 @@ const GeneralInformationSection = () => {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Exposure Category Detail</label>
+        <label className="text-sm font-medium">Exposure Category L3</label>
         <Select 
           value={selectedExposureCategoryL3} 
-          onValueChange={setSelectedExposureCategoryL3}
+          onValueChange={(value) => handleCategoryChange('L3', value)}
           disabled={!selectedExposureCategoryL2}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select category detail" />
+            <SelectValue placeholder="Select detail" />
           </SelectTrigger>
           <SelectContent>
             {getL3Categories().map(category => (
@@ -324,19 +348,33 @@ const GeneralInformationSection = () => {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Hedging Entity</label>
-        <Select value={selectedHedgingEntity} onValueChange={handleHedgingEntityChange}>
+        <label className="text-sm font-medium">Strategy</label>
+        <Select 
+          value={selectedStrategy} 
+          onValueChange={(value) => handleCategoryChange('strategy', value)}
+          disabled={!selectedExposureCategoryL2}
+        >
           <SelectTrigger>
-            <SelectValue placeholder="Select hedging entity" />
+            <SelectValue placeholder="Select strategy" />
           </SelectTrigger>
           <SelectContent>
-            {getHedgingEntityOptions().map(entity => (
-              <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                {entity.entity_name}
+            {strategies?.map(strategy => (
+              <SelectItem key={strategy.strategy_id} value={strategy.strategy_name}>
+                {strategy.strategy_name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Hedging Entity</label>
+        <Input 
+          type="text" 
+          value={selectedHedgingEntity} 
+          disabled
+          className="bg-gray-100"
+        />
       </div>
 
       <div className="space-y-2">
