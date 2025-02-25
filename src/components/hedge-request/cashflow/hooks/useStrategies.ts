@@ -15,7 +15,12 @@ export const useStrategies = (entityId: string, exposureCategoryL2?: string) => 
     queryFn: async () => {
       const { data, error } = await supabase
         .from('hedge_strategy')
-        .select('id as strategy_id, strategy_name, exposure_category_l2, instrument')
+        .select(`
+          strategy_id:id,
+          strategy_name,
+          exposure_category_l2,
+          instrument
+        `)
         .eq('exposure_category_l2', exposureCategoryL2 || '')
         .order('strategy_name');
       
