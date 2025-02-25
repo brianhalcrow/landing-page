@@ -53,11 +53,12 @@ const GeneralInformationSection = ({
     }
   });
 
-  const availableHedgingEntities = entities ? entities.filter(entity => 
-    entityCounterparty?.length ? 
-      [TREASURY_ENTITY_NAME, selectedEntityName].includes(entity.entity_name) :
-      true
-  ) : null;
+  const availableHedgingEntities = entities ? entities.filter(entity => {
+    if (entityCounterparty && entityCounterparty.length > 0) {
+      return entity.entity_name === TREASURY_ENTITY_NAME || entity.entity_name === selectedEntityName;
+    }
+    return entity.entity_name === selectedEntityName;
+  }) : null;
 
   const resetFields = () => {
     setExposedCurrency("");
@@ -75,6 +76,9 @@ const GeneralInformationSection = ({
       setSelectedEntityId(entityId);
       setSelectedEntityName(entityName);
       resetFields();
+      
+      setSelectedHedgingEntity("");
+      setHedgingEntityFunctionalCurrency("");
     }
   };
 
@@ -154,7 +158,7 @@ const GeneralInformationSection = ({
         break;
       case 'L2':
         setSelectedExposureCategoryL2(value);
-        onExposureCategoryL2Change(value); // Call the prop function when L2 changes
+        onExposureCategoryL2Change(value);
         const possibleL1 = [...new Set(exposureConfigs
           ?.filter(c => c.exposure_types.exposure_category_l2 === value)
           .map(c => c.exposure_types.exposure_category_l1)
@@ -185,7 +189,7 @@ const GeneralInformationSection = ({
         setSelectedStrategy(value);
         const selectedStrategyData = strategies?.find(s => s.strategy_name === value);
         if (selectedStrategyData) {
-          onStrategyChange(value, selectedStrategyData.instrument); // Call the prop function when strategy changes
+          onStrategyChange(value, selectedStrategyData.instrument);
         }
         break;
     }
