@@ -17,13 +17,15 @@ interface GeneralInformationSectionProps {
   onStrategyChange: (value: string, instrument: string) => void;
   onChange: (data: GeneralInformationData) => void;
   generalInfo: GeneralInformationData;
+  hedgeId?: string;
 }
 
 const GeneralInformationSection = ({ 
   onExposureCategoryL2Change,
   onStrategyChange,
   onChange,
-  generalInfo
+  generalInfo,
+  hedgeId
 }: GeneralInformationSectionProps) => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
@@ -241,6 +243,7 @@ const GeneralInformationSection = ({
         onHedgingEntityChange={handleHedgingEntityChange}
         hedgingEntityFunctionalCurrency={hedgingEntityFunctionalCurrency}
         availableHedgingEntities={availableHedgingEntities}
+        hedgeId={hedgeId}
       />
 
       <CurrencySelector
