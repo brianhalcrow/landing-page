@@ -21,7 +21,7 @@ const AssessmentMonitoringSection = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-6 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Effectiveness Testing Method</label>
           <Select value={effectivenessMethod} onValueChange={setEffectivenessMethod}>
@@ -80,7 +80,7 @@ const AssessmentMonitoringSection = () => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">OCI Reclassification Approach</label>
+          <label className="text-sm font-medium">OCI Reclassification</label>
           <Select value={reclassificationApproach} onValueChange={setReclassificationApproach}>
             <SelectTrigger>
               <SelectValue placeholder="Select approach" />
