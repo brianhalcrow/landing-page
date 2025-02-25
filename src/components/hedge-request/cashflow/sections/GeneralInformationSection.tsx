@@ -9,7 +9,7 @@ import { useExposureConfig } from "../hooks/useExposureConfig";
 import { useStrategies } from "../hooks/useStrategies";
 
 const TREASURY_ENTITY_NAME = "Treasury";
-const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"]; // Add more as needed
+const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"];
 
 interface GeneralInfo {
   entityId: string;
@@ -77,74 +77,82 @@ const GeneralInformationSection = ({
   };
 
   return (
-    <>
-      <EntityInformation
-        entities={entities}
-        selectedEntityId={generalInfo.entityId}
-        selectedEntityName={generalInfo.entityName}
-        onEntityChange={(entityId, entityName) => {
-          onGeneralInfoChange({
-            entityId,
-            entityName,
-          });
-        }}
-        selectedHedgingEntity={generalInfo.hedgingEntity}
-        onHedgingEntityChange={(entityName) => {
-          const entity = entities?.find(e => e.entity_name === entityName);
-          onGeneralInfoChange({
-            hedgingEntity: entityName,
-            hedgingEntityFunctionalCurrency: entity?.functional_currency || ''
-          });
-        }}
-        hedgingEntityFunctionalCurrency={generalInfo.hedgingEntityFunctionalCurrency}
-        availableHedgingEntities={entities ? entities.filter(entity => 
-          entityCounterparty?.length ? 
-          [TREASURY_ENTITY_NAME, generalInfo.entityName].includes(entity.entity_name) :
-          true
-        ) : null}
-      />
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Exposed Currency</label>
-        <Select 
-          value={generalInfo.exposedCurrency} 
-          onValueChange={(value) => onGeneralInfoChange({ exposedCurrency: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select currency" />
-          </SelectTrigger>
-          <SelectContent>
-            {CURRENCIES.map(currency => (
-              <SelectItem key={currency} value={currency}>
-                {currency}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Documentation Date</label>
-        <Input 
-          type="date" 
-          value={generalInfo.documentDate}
-          onChange={(e) => onGeneralInfoChange({ documentDate: e.target.value })}
+    <div className="grid grid-cols-6 gap-4">
+      <div className="col-span-6">
+        <EntityInformation
+          entities={entities}
+          selectedEntityId={generalInfo.entityId}
+          selectedEntityName={generalInfo.entityName}
+          onEntityChange={(entityId, entityName) => {
+            onGeneralInfoChange({
+              entityId,
+              entityName,
+            });
+          }}
+          selectedHedgingEntity={generalInfo.hedgingEntity}
+          onHedgingEntityChange={(entityName) => {
+            const entity = entities?.find(e => e.entity_name === entityName);
+            onGeneralInfoChange({
+              hedgingEntity: entityName,
+              hedgingEntityFunctionalCurrency: entity?.functional_currency || ''
+            });
+          }}
+          hedgingEntityFunctionalCurrency={generalInfo.hedgingEntityFunctionalCurrency}
+          availableHedgingEntities={entities ? entities.filter(entity => 
+            entityCounterparty?.length ? 
+            [TREASURY_ENTITY_NAME, generalInfo.entityName].includes(entity.entity_name) :
+            true
+          ) : null}
         />
       </div>
 
-      <ExposureCategories
-        exposureConfigs={exposureConfigs}
-        strategies={strategies}
-        selectedCategories={{
-          l1: selectedExposureCategoryL1,
-          l2: selectedExposureCategoryL2,
-          l3: selectedExposureCategoryL3,
-          strategy: selectedStrategy
-        }}
-        onCategoryChange={handleCategoryChange}
-        getCategoryOptions={getCategoryOptions}
-      />
-    </>
+      <div className="col-span-3">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Exposed Currency</label>
+          <Select 
+            value={generalInfo.exposedCurrency} 
+            onValueChange={(value) => onGeneralInfoChange({ exposedCurrency: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCIES.map(currency => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="col-span-3">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Documentation Date</label>
+          <Input 
+            type="date" 
+            value={generalInfo.documentDate}
+            onChange={(e) => onGeneralInfoChange({ documentDate: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="col-span-6">
+        <ExposureCategories
+          exposureConfigs={exposureConfigs}
+          strategies={strategies}
+          selectedCategories={{
+            l1: selectedExposureCategoryL1,
+            l2: selectedExposureCategoryL2,
+            l3: selectedExposureCategoryL3,
+            strategy: selectedStrategy
+          }}
+          onCategoryChange={handleCategoryChange}
+          getCategoryOptions={getCategoryOptions}
+        />
+      </div>
+    </div>
   );
 };
 
