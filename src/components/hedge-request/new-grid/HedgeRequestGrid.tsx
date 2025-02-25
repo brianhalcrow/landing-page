@@ -86,7 +86,7 @@ const HedgeRequestGrid: React.FC = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
-        rowSelection="multiple"
+        rowSelection={{ type: 'multiple' }}
         theme="legacy"
         context={{
           componentParent: this,
