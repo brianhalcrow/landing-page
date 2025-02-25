@@ -22,12 +22,20 @@ interface EntityCounterparty {
   relationship_id: string;
 }
 
+interface ExposureCategory {
+  exposure_category_l1: string;
+  exposure_category_l2: string;
+  exposure_category_l3: string;
+}
+
 const GeneralInformationSection = () => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
   const [exposedCurrency, setExposedCurrency] = useState("");
   const [selectedHedgingEntity, setSelectedHedgingEntity] = useState("");
   const [hedgingEntityFunctionalCurrency, setHedgingEntityFunctionalCurrency] = useState("");
+  const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
+  const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
 
   // Fetch entity data
   const { data: entities } = useQuery({
@@ -38,9 +46,38 @@ const GeneralInformationSection = () => {
         .select('entity_id, entity_name, functional_currency');
       
       if (error) throw error;
-      console.log('All entities:', data);
       return data as EntityData[];
     }
+  });
+
+  // Fetch entity exposure categories
+  const { data: exposureCategories } = useQuery({
+    queryKey: ['entity-exposure-categories', selectedEntityId],
+    queryFn: async () => {
+      if (!selectedEntityId) return null;
+      const { data, error } = await supabase
+        .from('entity_exposure_config')
+        .select(`
+          exposure_types (
+            exposure_category_l1,
+            exposure_category_l2,
+            exposure_category_l3
+          )
+        `)
+        .eq('entity_id', selectedEntityId)
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      
+      // Extract unique exposure categories
+      const categories = data
+        ?.map(config => config.exposure_types)
+        .filter(type => type.exposure_category_l1 === 'Transaction'); // Filter for Transaction type
+
+      console.log('Exposure categories:', categories);
+      return categories;
+    },
+    enabled: !!selectedEntityId
   });
 
   // Fetch entity counterparty relationships
@@ -230,27 +267,37 @@ const GeneralInformationSection = () => {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Risk Type</label>
-        <Select>
+        <label className="text-sm font-medium">Exposure Category</label>
+        <Select value={selectedExposureCategoryL2} onValueChange={handleL2CategoryChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Select risk type" />
+            <SelectValue placeholder="Select exposure category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="fx">Foreign Exchange</SelectItem>
-            <SelectItem value="ir">Interest Rate</SelectItem>
+            {getL2Categories().map(category => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Hedge Type</label>
-        <Select>
+        <label className="text-sm font-medium">Exposure Category Detail</label>
+        <Select 
+          value={selectedExposureCategoryL3} 
+          onValueChange={setSelectedExposureCategoryL3}
+          disabled={!selectedExposureCategoryL2}
+        >
           <SelectTrigger>
-            <SelectValue placeholder="Select hedge type" />
+            <SelectValue placeholder="Select category detail" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="cashflow">Cashflow</SelectItem>
-            <SelectItem value="fair-value">Fair Value</SelectItem>
+            {getL3Categories().map(category => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
