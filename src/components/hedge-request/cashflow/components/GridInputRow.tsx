@@ -34,15 +34,17 @@ export const GridInputRow = ({
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
   const handleChange = (index: number, value: string) => {
-    // Allow empty string (deletion)
-    if (value === '') {
-      onChange(index, '');
+    // Allow empty string, negative sign, and decimal point
+    if (value === '' || value === '-' || value === '.') {
+      onChange(index, value);
       return;
     }
 
-    // Only process numeric input
-    if (!/^-?\d*\.?\d*$/.test(value)) return;
-    onChange(index, value);
+    // Handle decimal numbers and negative values
+    const numericRegex = /^-?\d*\.?\d*$/;
+    if (numericRegex.test(value)) {
+      onChange(index, value);
+    }
   };
 
   return (
@@ -60,8 +62,9 @@ export const GridInputRow = ({
           <Input 
             key={i}
             type="text"
+            inputMode="decimal"
             className={baseInputStyles}
-            value={values[i] ? formatValue(values[i]) : ''}
+            value={values[i] !== undefined ? values[i].toString() : ''}
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(e, rowIndex, i)}
             ref={el => inputRefs[refStartIndex + i] = el}
