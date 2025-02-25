@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
@@ -55,9 +54,7 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.general ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <div className="max-w-[1200px]">
-            <GeneralInformationSection />
-          </div>
+          <GeneralInformationSection />
         </CardContent>
       </Card>
 
