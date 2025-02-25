@@ -38,24 +38,36 @@ const ExposureDetailsSection = () => {
   };
 
   useEffect(() => {
+    const newForecasts: Record<number, number> = {};
+    months.forEach((_, index) => {
+      const revenue = revenues[index] || 0;
+      const cost = costs[index] || 0;
+      newForecasts[index] = revenue + cost;
+    });
+    setForecasts(newForecasts);
+  }, [revenues, costs]);
+
+  useEffect(() => {
     const ratio = parseFloat(hedgeRatio) || 0;
     const layer = parseFloat(hedgeLayer) || 0;
+    const newHedgedExposures: Record<number, number> = {};
     const newHedgeAmounts: Record<number, number> = {};
     const newIndicativeCoverage: Record<number, number> = {};
-    const newHedgedExposures: Record<number, number> = {};
 
     months.forEach((_, index) => {
       const forecast = forecasts[index] || 0;
-      const hedgeAmount = (forecast * ratio) / 100;
+      
+      const hedgedExposure = (forecast * ratio) / 100;
+      newHedgedExposures[index] = hedgedExposure;
+      
+      const hedgeAmount = hedgedExposure * layer;
       newHedgeAmounts[index] = hedgeAmount;
-      newHedgedExposures[index] = hedgeAmount * layer;
-
-      // Calculate indicative coverage
+      
       newIndicativeCoverage[index] = forecast !== 0 ? (hedgeAmount / forecast) * 100 : 0;
     });
 
-    setHedgeAmounts(newHedgeAmounts);
     setHedgedExposures(newHedgedExposures);
+    setHedgeAmounts(newHedgeAmounts);
     setIndicativeCoverage(newIndicativeCoverage);
   }, [forecasts, hedgeRatio, hedgeLayer]);
 
@@ -112,7 +124,6 @@ const ExposureDetailsSection = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Controls */}
       <div className="flex gap-8 mb-6">
         <div className="flex gap-4">
           <div className="w-[120px] space-y-2">
@@ -190,9 +201,7 @@ const ExposureDetailsSection = () => {
         </div>
       </div>
 
-      {/* Grid Section */}
       <div>
-        {/* Month Headers */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div></div>
           {months.map((month) => (
@@ -202,7 +211,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Revenues */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Revenues</div>
@@ -219,7 +227,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Costs */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Costs</div>
@@ -241,24 +248,18 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Forecast Exposures */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Forecast Exposures</div>
             <div className="text-xs text-gray-600">Long/(Short)</div>
           </div>
           {Array(12).fill(null).map((_, i) => (
-            <Input 
-              key={i}
-              type="text"
-              className={baseInputStyles}
-              value={forecasts[i] ? formatNumber(forecasts[i]) : '0'}
-              readOnly
-            />
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatNumber(forecasts[i] || 0)}
+            </div>
           ))}
         </div>
 
-        {/* Hedged Exposure */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Hedged Exposure</div>
@@ -271,7 +272,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Hedge Layer Amount */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Hedge Layer Amount</div>
@@ -284,7 +284,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Indicative Coverage */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div className="text-sm font-medium">Indicative Coverage</div>
           {Array(12).fill(null).map((_, i) => (
@@ -294,7 +293,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Cum. Hedge Layer Amounts */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div className="text-sm font-medium">Cum. Hedge Layer Amounts</div>
           {Array(12).fill(null).map((_, i) => (
@@ -304,7 +302,6 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Cum. Indicative Coverage (%) */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
           <div className="text-sm font-medium">Cum. Indicative Coverage (%)</div>
           {Array(12).fill(null).map((_, i) => (
