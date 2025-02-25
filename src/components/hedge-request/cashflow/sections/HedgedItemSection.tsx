@@ -51,7 +51,7 @@ const HedgedItemSection = () => {
         <label className="text-sm font-medium">Description</label>
         <Textarea 
           placeholder="Enter hedged item description"
-          className="h-full min-h-[180px] resize-none"
+          className="h-[132px] resize-none"
         />
       </div>
     </div>

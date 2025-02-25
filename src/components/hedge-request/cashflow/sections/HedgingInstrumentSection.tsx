@@ -59,7 +59,7 @@ const HedgingInstrumentSection = () => {
         <label className="text-sm font-medium">Description</label>
         <Textarea 
           placeholder="Enter hedging instrument description"
-          className="h-full min-h-[180px] resize-none"
+          className="h-[132px] resize-none"
         />
       </div>
     </div>
