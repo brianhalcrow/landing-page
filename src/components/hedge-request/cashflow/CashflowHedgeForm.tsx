@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
 import HedgedItemSection from "./sections/HedgedItemSection";
@@ -10,7 +11,7 @@ import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import { Minimize2, Maximize2, Save } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { useTradeRequestSave } from "../new-grid/hooks/useTradeRequestSave";
 
 interface GeneralInfo {
   entityId: string;
@@ -24,6 +25,8 @@ interface GeneralInfo {
 
 const CashflowHedgeForm = () => {
   const { toast } = useToast();
+  const { mutate: saveTrade } = useTradeRequestSave();
+  
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
     general: false,
     risk: false,
@@ -78,17 +81,38 @@ const CashflowHedgeForm = () => {
     return true;
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!validateGeneralInfo()) {
       return;
     }
 
-    // We'll implement the actual save in the next step
-    console.log("Saving draft with data:", { generalInfo });
-    toast({
-      title: "Validation Passed",
-      description: "All required fields are filled. Ready to implement save functionality.",
-    });
+    try {
+      const tradeRequest = {
+        entity_id: generalInfo.entityId,
+        entity_name: generalInfo.entityName,
+        strategy_name: selectedStrategy,
+        instrument: selectedInstrument,
+        ccy_1: generalInfo.exposedCurrency,
+        ccy_2: generalInfo.hedgingEntityFunctionalCurrency,
+        trade_date: generalInfo.documentDate,
+        settlement_date: generalInfo.documentDate, // This might need to be adjusted based on business logic
+        cost_centre: generalInfo.costCentre,
+        status: 'Draft'
+      };
+
+      await saveTrade(tradeRequest);
+      
+      toast({
+        title: "Success",
+        description: "Draft saved successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = () => {
@@ -110,19 +134,6 @@ const CashflowHedgeForm = () => {
     </div>
   );
 
-  const handleExposureCategoryL2Change = (value: string) => {
-    setSelectedExposureCategoryL2(value);
-  };
-
-  const handleStrategyChange = (value: string, instrument: string) => {
-    setSelectedStrategy(value);
-    setSelectedInstrument(instrument);
-  };
-
-  const handleGeneralInfoChange = (info: Partial<GeneralInfo>) => {
-    setGeneralInfo(prev => ({ ...prev, ...info }));
-  };
-
   return (
     <div className="max-w-[1525px] mx-auto px-4 space-y-6">
       <div className="flex items-center justify-between mb-6">
@@ -139,16 +150,19 @@ const CashflowHedgeForm = () => {
           <Button onClick={handleSubmit}>Submit</Button>
         </div>
       </div>
-      
+
       <Card>
         <CardHeader>
           <SectionHeader title="General Information" section="general" />
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.general ? "h-0 overflow-hidden p-0" : "")}>
           <GeneralInformationSection 
-            onExposureCategoryL2Change={handleExposureCategoryL2Change}
-            onStrategyChange={handleStrategyChange}
-            onGeneralInfoChange={handleGeneralInfoChange}
+            onExposureCategoryL2Change={setSelectedExposureCategoryL2}
+            onStrategyChange={(value, instrument) => {
+              setSelectedStrategy(value);
+              setSelectedInstrument(instrument);
+            }}
+            onGeneralInfoChange={(info) => setGeneralInfo(prev => ({ ...prev, ...info }))}
             generalInfo={generalInfo}
           />
         </CardContent>
