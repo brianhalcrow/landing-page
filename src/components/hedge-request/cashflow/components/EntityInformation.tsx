@@ -94,9 +94,7 @@ export const EntityInformation = ({
       )}
 
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Entity Name <span className="text-red-500">*</span>
-        </Label>
+        <Label className="text-sm font-medium">Entity Name</Label>
         <Select value={selectedEntityName} onValueChange={handleEntityNameChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select entity" />
@@ -113,9 +111,7 @@ export const EntityInformation = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
-            Entity ID <span className="text-red-500">*</span>
-          </Label>
+          <Label className="text-sm font-medium">Entity ID</Label>
           <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select entity ID" />
@@ -131,9 +127,7 @@ export const EntityInformation = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
-            Cost Centre <span className="text-red-500">*</span>
-          </Label>
+          <Label className="text-sm font-medium">Cost Centre</Label>
           <Select value={costCentre} onValueChange={onCostCentreChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select cost centre" />
@@ -150,9 +144,7 @@ export const EntityInformation = ({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Functional Currency <span className="text-red-500">*</span>
-        </Label>
+        <Label className="text-sm font-medium">Functional Currency</Label>
         <Input 
           type="text" 
           value={entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ''} 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -36,6 +35,7 @@ const GeneralInformationSection = ({
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
   const [documentDate, setDocumentDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [costCentre, setCostCentre] = useState("");
 
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
@@ -77,6 +77,10 @@ const GeneralInformationSection = ({
       setSelectedEntityName(entityName);
       resetFields();
     }
+  };
+
+  const handleCostCentreChange = (value: string) => {
+    setCostCentre(value);
   };
 
   useEffect(() => {
@@ -203,6 +207,8 @@ const GeneralInformationSection = ({
         onHedgingEntityChange={handleHedgingEntityChange}
         hedgingEntityFunctionalCurrency={hedgingEntityFunctionalCurrency}
         availableHedgingEntities={availableHedgingEntities}
+        costCentre={costCentre}
+        onCostCentreChange={handleCostCentreChange}
       />
 
       <div className="space-y-2">
