@@ -12,6 +12,7 @@ import { Minimize2, Maximize2, Save } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTradeRequestSave } from "../new-grid/hooks/useTradeRequestSave";
+import { TradeRequest } from "@/components/review/types/trade-request.types";
 
 interface GeneralInfo {
   entityId: string;
@@ -87,17 +88,35 @@ const CashflowHedgeForm = () => {
     }
 
     try {
-      const tradeRequest = {
+      const tradeRequest: TradeRequest = {
+        request_no: 0, // This will be assigned by the backend
+        status: 'Submitted',
         entity_id: generalInfo.entityId,
         entity_name: generalInfo.entityName,
         strategy_name: selectedStrategy,
+        strategy_id: '', // This will be assigned by the backend
         instrument: selectedInstrument,
+        trade_date: generalInfo.documentDate,
+        settlement_date: generalInfo.documentDate,
         ccy_1: generalInfo.exposedCurrency,
         ccy_2: generalInfo.hedgingEntityFunctionalCurrency,
-        trade_date: generalInfo.documentDate,
-        settlement_date: generalInfo.documentDate, // This might need to be adjusted based on business logic
+        ccy_1_amount: null,
+        ccy_2_amount: null,
+        ccy_pair: `${generalInfo.exposedCurrency}/${generalInfo.hedgingEntityFunctionalCurrency}`,
         cost_centre: generalInfo.costCentre,
-        status: 'Draft'
+        counterparty_name: '',
+        submitted_by: '',
+        submitted_at: new Date().toISOString(),
+        reviewed_by: null,
+        reviewed_at: null,
+        approved_by: null,
+        approved_at: null,
+        rejected_by: null,
+        rejected_at: null,
+        rejection_reason: null,
+        hedge_group_id: null,
+        swap_id: null,
+        swap_leg: null
       };
 
       await saveTrade(tradeRequest);
@@ -187,7 +206,6 @@ const CashflowHedgeForm = () => {
           <div className="max-w-[1200px]">
             <HedgedItemSection 
               exposureCategoryL2={selectedExposureCategoryL2}
-              onExposureCategoryL2Change={handleExposureCategoryL2Change}
               selectedStrategy={selectedStrategy}
             />
           </div>
