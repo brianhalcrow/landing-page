@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -92,20 +91,17 @@ const GeneralInformationSection = () => {
 
     if (!selectedEntity || !entities) return [];
     
-    // Start with the selected entity
+    // Start with NL01 if available, otherwise use selected entity
+    const nl01Entity = entities.find(e => e.entity_id === 'NL01');
     const options = [selectedEntity];
-    
-    // If there's a relationship with SEN1, add Sense Treasury B.V.
+
+    // If there's a relationship with SEN1, try to add NL01 first, if not available add selected entity
     if (entityCounterparty && entityCounterparty.length > 0) {
-      // Look for Sense Treasury B.V. case-insensitive
-      const senseTreasury = entities.find(e => 
-        e.entity_name.toLowerCase().includes('treasury')
-      );
-      
-      console.log('Found Sense Treasury:', senseTreasury);
-      
-      if (senseTreasury && !options.some(e => e.entity_id === senseTreasury.entity_id)) {
-        options.push(senseTreasury);
+      if (nl01Entity && !options.some(e => e.entity_id === nl01Entity.entity_id)) {
+        options[0] = nl01Entity; // Replace the selected entity with NL01
+        if (selectedEntity.entity_id !== nl01Entity.entity_id) {
+          options.push(selectedEntity); // Add selected entity as second option if it's not NL01
+        }
       }
     }
     
