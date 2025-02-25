@@ -19,7 +19,9 @@ const ExposureDetailsSection = () => {
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
   const [hedgeRatio, setHedgeRatio] = useState<string>('');
+  const [hedgeLayer, setHedgeLayer] = useState<string>('');
   const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
+  const [hedgedExposures, setHedgedExposures] = useState<Record<number, number>>({});
   const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
 
   const months = Array.from({ length: 12 }, (_, i) => {
@@ -36,32 +38,26 @@ const ExposureDetailsSection = () => {
   };
 
   useEffect(() => {
-    const newForecasts: Record<number, number> = {};
-    months.forEach((_, index) => {
-      const revenue = revenues[index] || 0;
-      const cost = costs[index] || 0;
-      newForecasts[index] = revenue + cost;
-    });
-    setForecasts(newForecasts);
-  }, [revenues, costs]);
-
-  useEffect(() => {
     const ratio = parseFloat(hedgeRatio) || 0;
+    const layer = parseFloat(hedgeLayer) || 0;
     const newHedgeAmounts: Record<number, number> = {};
     const newIndicativeCoverage: Record<number, number> = {};
+    const newHedgedExposures: Record<number, number> = {};
 
     months.forEach((_, index) => {
       const forecast = forecasts[index] || 0;
       const hedgeAmount = (forecast * ratio) / 100;
       newHedgeAmounts[index] = hedgeAmount;
+      newHedgedExposures[index] = hedgeAmount * layer;
 
       // Calculate indicative coverage
       newIndicativeCoverage[index] = forecast !== 0 ? (hedgeAmount / forecast) * 100 : 0;
     });
 
     setHedgeAmounts(newHedgeAmounts);
+    setHedgedExposures(newHedgedExposures);
     setIndicativeCoverage(newIndicativeCoverage);
-  }, [forecasts, hedgeRatio]);
+  }, [forecasts, hedgeRatio, hedgeLayer]);
 
   const handleRevenueChange = (index: number, value: string) => {
     const numericValue = parseFloat(value.replace(/,/g, ''));
@@ -98,25 +94,57 @@ const ExposureDetailsSection = () => {
     }
   };
 
+  const handleHedgeLayerChange = (value: string) => {
+    if (value === '') {
+      setHedgeLayer('');
+      return;
+    }
+
+    const numericValue = parseFloat(value);
+    if (!isNaN(numericValue)) {
+      if (numericValue >= 0) {
+        setHedgeLayer(String(numericValue));
+      }
+    }
+  };
+
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
   return (
     <div className="space-y-6">
       {/* Header Controls */}
       <div className="flex gap-8 mb-6">
-        <div className="w-[120px] space-y-2">
-          <label className="text-sm font-medium">Layer Number</label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select layer" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1</SelectItem>
-              <SelectItem value="2">2</SelectItem>
-              <SelectItem value="3">3</SelectItem>
-              <SelectItem value="4">4</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex gap-4">
+          <div className="w-[120px] space-y-2">
+            <label className="text-sm font-medium">Layer Number</label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select layer" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+                <SelectItem value="4">4</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-[120px] space-y-2">
+            <label className="text-sm font-medium">Hedge Layer</label>
+            <div className="relative">
+              <Input 
+                type="number" 
+                value={hedgeLayer}
+                onChange={(e) => handleHedgeLayerChange(e.target.value)}
+                placeholder="Enter value"
+                min="0"
+                step="1"
+                className="pr-6"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">×</span>
+            </div>
+          </div>
         </div>
 
         <div className="w-[120px] space-y-2">
@@ -227,6 +255,19 @@ const ExposureDetailsSection = () => {
               value={forecasts[i] ? formatNumber(forecasts[i]) : '0'}
               readOnly
             />
+          ))}
+        </div>
+
+        {/* Hedged Exposure */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div>
+            <div className="text-sm font-medium">Hedged Exposure</div>
+            <div className="text-xs text-gray-600">Long/(Short)</div>
+          </div>
+          {Array(12).fill(null).map((_, i) => (
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatNumber(hedgedExposures[i] || 0)}
+            </div>
           ))}
         </div>
 
