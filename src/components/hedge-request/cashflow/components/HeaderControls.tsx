@@ -31,42 +31,43 @@ export const HeaderControls = ({
   onDateChange,
 }: HeaderControlsProps) => {
   return (
-    <div className="flex gap-8 mb-6">
-      <div className="flex gap-4">
-        <div className="w-[120px] space-y-2">
-          <label className="text-sm font-medium">Layer Number</label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select layer" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1</SelectItem>
-              <SelectItem value="2">2</SelectItem>
-              <SelectItem value="3">3</SelectItem>
-              <SelectItem value="4">4</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-6">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Controls</label>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Layer Number</label>
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Select layer" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1</SelectItem>
+            <SelectItem value="2">2</SelectItem>
+            <SelectItem value="3">3</SelectItem>
+            <SelectItem value="4">4</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        <div className="w-[120px] space-y-2">
-          <label className="text-sm font-medium">Layer %</label>
-          <div className="relative">
-            <Input 
-              type="number" 
-              value={hedgeLayer}
-              onChange={(e) => onHedgeLayerChange(e.target.value)}
-              placeholder="Enter %"
-              min="0"
-              max="100"
-              step="1"
-              className="pr-6"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
-          </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Layer %</label>
+        <div className="relative">
+          <Input 
+            type="number" 
+            value={hedgeLayer}
+            onChange={(e) => onHedgeLayerChange(e.target.value)}
+            placeholder="Enter %"
+            min="0"
+            max="100"
+            step="1"
+            className="pr-6"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
       </div>
 
-      <div className="w-[120px] space-y-2">
+      <div className="space-y-2">
         <label className="text-sm font-medium">Start Month</label>
         <Popover>
           <PopoverTrigger asChild>
@@ -91,8 +92,8 @@ export const HeaderControls = ({
               showOutsideDays={false}
               ISOWeek={false}
               captionLayout="dropdown-buttons"
-              formatters={{ formatCaption: () => '' }}
               classNames={{
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",
                 caption: "flex justify-center pt-1 relative items-center",
                 caption_label: "text-sm font-medium",
@@ -103,20 +104,20 @@ export const HeaderControls = ({
                 table: "w-full border-collapse space-y-1",
                 head_row: "hidden",
                 row: "flex w-full mt-2",
-                cell: "text-center text-sm p-0 relative",
-                day: cn(
-                  "h-9 w-9 p-0 font-normal",
-                  "hidden"
-                ),
+                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent",
+                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                 day_today: "bg-accent text-accent-foreground",
                 day_outside: "text-muted-foreground opacity-50",
+                day_disabled: "text-muted-foreground opacity-50",
+                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_hidden: "invisible",
               }}
             />
           </PopoverContent>
         </Popover>
       </div>
 
-      <div className="w-[120px] space-y-2">
+      <div className="space-y-2">
         <label className="text-sm font-medium">Hedge Ratio</label>
         <div className="relative">
           <Input 
@@ -132,6 +133,8 @@ export const HeaderControls = ({
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
       </div>
+
+      <div className="col-span-8" /> {/* Empty space to fill the remaining columns */}
     </div>
   );
 };
