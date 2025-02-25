@@ -75,7 +75,7 @@ const GeneralInformationSection = () => {
         .filter(type => type.exposure_category_l1 === 'Transaction'); // Filter for Transaction type
 
       console.log('Exposure categories:', categories);
-      return categories;
+      return categories as ExposureCategory[];
     },
     enabled: !!selectedEntityId
   });
@@ -140,10 +140,6 @@ const GeneralInformationSection = () => {
   // Get available hedging entities
   const getHedgingEntityOptions = () => {
     console.log('Getting hedging entity options...');
-    console.log('Selected entity:', selectedEntity);
-    console.log('Entity counterparty:', entityCounterparty);
-    console.log('All available entities:', entities);
-
     if (!selectedEntity || !entities) return [];
     
     // Find NL01/Sense Treasury entity
@@ -164,6 +160,31 @@ const GeneralInformationSection = () => {
     
     console.log('Final hedging entity options:', options);
     return options;
+  };
+
+  // Get unique L2 categories
+  const getL2Categories = () => {
+    if (!exposureCategories) return [];
+    const uniqueL2 = [...new Set(exposureCategories.map(cat => cat.exposure_category_l2))];
+    console.log('L2 categories:', uniqueL2);
+    return uniqueL2;
+  };
+
+  // Get L3 categories based on selected L2
+  const getL3Categories = () => {
+    if (!exposureCategories || !selectedExposureCategoryL2) return [];
+    const l3Categories = exposureCategories
+      .filter(cat => cat.exposure_category_l2 === selectedExposureCategoryL2)
+      .map(cat => cat.exposure_category_l3);
+    console.log('L3 categories for', selectedExposureCategoryL2, ':', l3Categories);
+    return l3Categories;
+  };
+
+  // Handler for L2 category change
+  const handleL2CategoryChange = (value: string) => {
+    console.log('L2 category changed to:', value);
+    setSelectedExposureCategoryL2(value);
+    setSelectedExposureCategoryL3(''); // Reset L3 when L2 changes
   };
 
   // Update both ID and name when either changes
