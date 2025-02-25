@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useState } from "react";
 
 interface HeaderControlsProps {
   hedgeLayer: string;
@@ -26,6 +28,8 @@ export const HeaderControls = ({
   onHedgeRatioChange,
   onDateChange,
 }: HeaderControlsProps) => {
+  const [inputValue, setInputValue] = useState('');
+
   const formatMonthInput = (value: string) => {
     // Remove any non-digit characters
     const digitsOnly = value.replace(/\D/g, '');
@@ -39,8 +43,9 @@ export const HeaderControls = ({
   };
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatMonthInput(e.target.value);
-    e.target.value = formattedValue;
+    const raw = e.target.value;
+    const formattedValue = formatMonthInput(raw);
+    setInputValue(formattedValue);
 
     if (formattedValue.length === 5) { // MM-YY format
       const [month, year] = formattedValue.split('-');
@@ -93,8 +98,8 @@ export const HeaderControls = ({
           placeholder="MMYY"
           maxLength={5}
           onChange={handleMonthChange}
+          value={inputValue}
           className="text-left"
-          value={selectedDate ? format(selectedDate, 'MM-yy') : ''}
         />
       </div>
 
