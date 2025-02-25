@@ -104,7 +104,23 @@ const CashflowHedgeForm = () => {
         ...generalInfo,
         status: 'draft',
         created_at: now,
-        updated_at: now
+        updated_at: now,
+        // Add required fields with empty values
+        risk_management_description: "",
+        hedged_item_description: "",
+        instrument: hedgingInstrument.instrument || "",
+        forward_element_designation: "",
+        currency_basis_spreads: "",
+        hedging_instrument_description: "",
+        credit_risk_impact: "",
+        oci_reclassification_approach: "",
+        economic_relationship: "",
+        discontinuation_criteria: "",
+        effectiveness_testing_method: "",
+        testing_frequency: "",
+        assessment_details: "",
+        start_month: now.split('T')[0], // Current date as default
+        end_month: now.split('T')[0], // Current date as default
       };
 
       console.log('Saving hedge request:', hedgeRequest);
