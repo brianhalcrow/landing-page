@@ -1,3 +1,4 @@
+
 import { EntityData } from "../hooks/useEntityData";
 import {
   Select,
@@ -89,7 +90,7 @@ export const EntityInformation = ({
           value={hedgeId}
           disabled
           className="bg-gray-100"
-          placeholder="Hedge ID will be generated when draft is saved"
+          placeholder="Enter hedge ID"
         />
       </div>
 
