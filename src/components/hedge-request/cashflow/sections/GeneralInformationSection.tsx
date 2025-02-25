@@ -41,6 +41,9 @@ interface Strategy {
   instrument: string;
 }
 
+const TREASURY_COUNTERPARTY_ID = 'SEN1';
+const TREASURY_ENTITY_NAME = 'Sense Treasury Centre B.V.';
+
 const GeneralInformationSection = () => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
@@ -98,16 +101,13 @@ const GeneralInformationSection = () => {
   const { data: strategies } = useQuery({
     queryKey: ['hedge-strategies', selectedExposureCategoryL2],
     queryFn: async () => {
-      if (!selectedExposureCategoryL2) return null;
       const { data, error } = await supabase
         .from('hedge_strategy')
-        .select('*')
-        .eq('exposure_category_l2', selectedExposureCategoryL2);
+        .select('*');
       
       if (error) throw error;
       return data as Strategy[];
-    },
-    enabled: !!selectedExposureCategoryL2
+    }
   });
 
   // Fetch entity counterparty relationships
@@ -119,7 +119,7 @@ const GeneralInformationSection = () => {
         .from('entity_counterparty')
         .select('*')
         .eq('entity_id', selectedEntityId)
-        .eq('counterparty_id', 'SEN1');
+        .eq('counterparty_id', TREASURY_COUNTERPARTY_ID);
       
       if (error) throw error;
       return data as EntityCounterparty[];
@@ -130,11 +130,15 @@ const GeneralInformationSection = () => {
   // Effect to set default hedging entity when relationships are fetched
   useEffect(() => {
     if (isRelationshipsFetched && entityCounterparty && entities) {
-      const treasuryEntity = entities.find(e => e.entity_id === 'NL01');
-      if (entityCounterparty.length > 0 && treasuryEntity) {
-        setSelectedHedgingEntity(treasuryEntity.entity_name);
-        setHedgingEntityFunctionalCurrency(treasuryEntity.functional_currency);
+      if (entityCounterparty.length > 0) {
+        // Entity has a relationship with treasury center
+        const treasuryEntity = entities.find(e => e.entity_name === TREASURY_ENTITY_NAME);
+        if (treasuryEntity) {
+          setSelectedHedgingEntity(treasuryEntity.entity_name);
+          setHedgingEntityFunctionalCurrency(treasuryEntity.functional_currency);
+        }
       } else {
+        // No treasury relationship, default to selected entity
         const entity = entities.find(e => e.entity_id === selectedEntityId);
         if (entity) {
           setSelectedHedgingEntity(entity.entity_name);
@@ -160,30 +164,51 @@ const GeneralInformationSection = () => {
     }
   });
 
-  // Helper functions for getting unique categories
+  // Helper functions for getting unique categories with bi-directional support
   const getL1Categories = () => {
     if (!exposureConfigs) return [];
+    if (selectedExposureCategoryL2 || selectedExposureCategoryL3) {
+      return [...new Set(exposureConfigs
+        .filter(config => 
+          (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2) &&
+          (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
+        )
+        .map(config => config.exposure_types.exposure_category_l1)
+      )];
+    }
     return [...new Set(exposureConfigs.map(config => 
       config.exposure_types.exposure_category_l1
     ))];
   };
 
   const getL2Categories = () => {
-    if (!exposureConfigs || !selectedExposureCategoryL1) return [];
+    if (!exposureConfigs) return [];
     return [...new Set(exposureConfigs
-      .filter(config => config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1)
+      .filter(config => 
+        (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
+        (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
+      )
       .map(config => config.exposure_types.exposure_category_l2)
     )];
   };
 
   const getL3Categories = () => {
-    if (!exposureConfigs || !selectedExposureCategoryL2) return [];
+    if (!exposureConfigs) return [];
     return [...new Set(exposureConfigs
       .filter(config => 
-        config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2
+        (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
+        (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2)
       )
       .map(config => config.exposure_types.exposure_category_l3)
     )];
+  };
+
+  const getStrategies = () => {
+    if (!strategies) return [];
+    if (selectedExposureCategoryL2) {
+      return strategies.filter(s => s.exposure_category_l2 === selectedExposureCategoryL2);
+    }
+    return strategies;
   };
 
   // Handlers for category changes
@@ -191,29 +216,62 @@ const GeneralInformationSection = () => {
     switch (level) {
       case 'L1':
         setSelectedExposureCategoryL1(value);
-        setSelectedExposureCategoryL2('');
-        setSelectedExposureCategoryL3('');
-        setSelectedStrategy('');
+        // Only clear L2 and L3 if they're not valid for the new L1
+        const validL2ForNewL1 = exposureConfigs
+          ?.filter(c => c.exposure_types.exposure_category_l1 === value)
+          .map(c => c.exposure_types.exposure_category_l2);
+        if (!validL2ForNewL1?.includes(selectedExposureCategoryL2)) {
+          setSelectedExposureCategoryL2('');
+          setSelectedExposureCategoryL3('');
+          setSelectedStrategy('');
+        }
         break;
       case 'L2':
         setSelectedExposureCategoryL2(value);
-        setSelectedExposureCategoryL3('');
-        setSelectedStrategy('');
+        // Auto-select L1 if there's only one possibility
+        const possibleL1 = [...new Set(exposureConfigs
+          ?.filter(c => c.exposure_types.exposure_category_l2 === value)
+          .map(c => c.exposure_types.exposure_category_l1)
+        )];
+        if (possibleL1.length === 1 && possibleL1[0] !== selectedExposureCategoryL1) {
+          setSelectedExposureCategoryL1(possibleL1[0]);
+        }
+        // Only clear L3 if it's not valid for the new L2
+        const validL3ForNewL2 = exposureConfigs
+          ?.filter(c => c.exposure_types.exposure_category_l2 === value)
+          .map(c => c.exposure_types.exposure_category_l3);
+        if (!validL3ForNewL2?.includes(selectedExposureCategoryL3)) {
+          setSelectedExposureCategoryL3('');
+        }
         break;
       case 'L3':
         setSelectedExposureCategoryL3(value);
+        // Auto-select L1 and L2 if there's only one possibility
+        const config = exposureConfigs?.find(c => 
+          c.exposure_types.exposure_category_l3 === value
+        );
+        if (config) {
+          if (!selectedExposureCategoryL1) {
+            setSelectedExposureCategoryL1(config.exposure_types.exposure_category_l1);
+          }
+          if (!selectedExposureCategoryL2) {
+            setSelectedExposureCategoryL2(config.exposure_types.exposure_category_l2);
+          }
+        }
         break;
       case 'strategy':
         setSelectedStrategy(value);
         // Find and set matching exposure categories if not already set
-        if (strategies) {
-          const strategy = strategies.find(s => s.strategy_name === value);
-          if (strategy) {
-            const matchingConfig = exposureConfigs?.find(config => 
-              config.exposure_types.exposure_category_l2 === strategy.exposure_category_l2
-            );
-            if (matchingConfig) {
+        const strategy = strategies?.find(s => s.strategy_name === value);
+        if (strategy) {
+          const matchingConfig = exposureConfigs?.find(config => 
+            config.exposure_types.exposure_category_l2 === strategy.exposure_category_l2
+          );
+          if (matchingConfig) {
+            if (!selectedExposureCategoryL1) {
               setSelectedExposureCategoryL1(matchingConfig.exposure_types.exposure_category_l1);
+            }
+            if (!selectedExposureCategoryL2) {
               setSelectedExposureCategoryL2(strategy.exposure_category_l2);
             }
           }
@@ -316,7 +374,6 @@ const GeneralInformationSection = () => {
         <Select 
           value={selectedExposureCategoryL2} 
           onValueChange={(value) => handleCategoryChange('L2', value)}
-          disabled={!selectedExposureCategoryL1}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select subcategory" />
@@ -336,7 +393,6 @@ const GeneralInformationSection = () => {
         <Select 
           value={selectedExposureCategoryL3} 
           onValueChange={(value) => handleCategoryChange('L3', value)}
-          disabled={!selectedExposureCategoryL2}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select detail" />
@@ -356,13 +412,12 @@ const GeneralInformationSection = () => {
         <Select 
           value={selectedStrategy} 
           onValueChange={(value) => handleCategoryChange('strategy', value)}
-          disabled={!selectedExposureCategoryL2}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select strategy" />
           </SelectTrigger>
           <SelectContent>
-            {strategies?.map(strategy => (
+            {getStrategies().map(strategy => (
               <SelectItem key={strategy.strategy_id} value={strategy.strategy_name}>
                 {strategy.strategy_name}
               </SelectItem>
@@ -373,27 +428,12 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedging Entity</label>
-        <Select 
+        <Input 
+          type="text" 
           value={selectedHedgingEntity} 
-          onValueChange={(value) => {
-            setSelectedHedgingEntity(value);
-            const entity = entities?.find(e => e.entity_name === value);
-            if (entity) {
-              setHedgingEntityFunctionalCurrency(entity.functional_currency);
-            }
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select hedging entity" />
-          </SelectTrigger>
-          <SelectContent>
-            {entities?.map(entity => (
-              <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                {entity.entity_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          disabled
+          className="bg-gray-100"
+        />
       </div>
 
       <div className="space-y-2">
