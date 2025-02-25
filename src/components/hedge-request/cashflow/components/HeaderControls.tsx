@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -38,8 +37,8 @@ export const HeaderControls = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">Layer Number</label>
         <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Select layer" />
+          <SelectTrigger className="text-left">
+            <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="1">1</SelectItem>

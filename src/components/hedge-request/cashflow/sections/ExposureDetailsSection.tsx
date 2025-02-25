@@ -15,6 +15,8 @@ const ExposureDetailsSection = () => {
   const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
   const [hedgedExposures, setHedgedExposures] = useState<Record<number, number>>({});
   const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
+  const [cumulativeAmounts, setCumulativeAmounts] = useState<Record<number, number>>({});
+  const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const getMonths = (startDate: Date | undefined) => {
@@ -39,6 +41,24 @@ const ExposureDetailsSection = () => {
     setHedgedExposures(newHedgedExposures);
     setHedgeAmounts(newHedgeAmounts);
     setIndicativeCoverage(newIndicativeCoverage);
+
+    // Calculate cumulative values
+    let runningAmount = 0;
+    const newCumulativeAmounts: Record<number, number> = {};
+    const newCumulativeCoverage: Record<number, number> = {};
+
+    Object.keys(newHedgeAmounts).forEach((index) => {
+      const i = parseInt(index);
+      runningAmount += newHedgeAmounts[i] || 0;
+      newCumulativeAmounts[i] = runningAmount;
+      
+      // Calculate cumulative coverage as a percentage of total forecast
+      const totalForecast = forecasts[i] || 0;
+      newCumulativeCoverage[i] = totalForecast !== 0 ? (runningAmount / totalForecast) * 100 : 0;
+    });
+
+    setCumulativeAmounts(newCumulativeAmounts);
+    setCumulativeCoverage(newCumulativeCoverage);
   }, [forecasts, hedgeRatio, hedgeLayer]);
 
   const handleHedgeRatioChange = (value: string) => {
@@ -219,6 +239,34 @@ const ExposureDetailsSection = () => {
           monthCount={12}
           inputRefs={[]}
           refStartIndex={60}
+          formatValue={formatPercentage}
+          readOnly
+        />
+
+        <GridInputRow
+          label="Cum. Layer Amount"
+          sublabel=""
+          values={cumulativeAmounts}
+          onChange={() => {}}
+          onKeyDown={() => {}}
+          rowIndex={6}
+          monthCount={12}
+          inputRefs={[]}
+          refStartIndex={72}
+          formatValue={formatNumber}
+          readOnly
+        />
+
+        <GridInputRow
+          label="Cum. Indicative Coverage"
+          sublabel="(%)"
+          values={cumulativeCoverage}
+          onChange={() => {}}
+          onKeyDown={() => {}}
+          rowIndex={7}
+          monthCount={12}
+          inputRefs={[]}
+          refStartIndex={84}
           formatValue={formatPercentage}
           readOnly
         />
