@@ -91,18 +91,20 @@ const GeneralInformationSection = () => {
 
     if (!selectedEntity || !entities) return [];
     
-    // Start with NL01 if available, otherwise use selected entity
-    const nl01Entity = entities.find(e => e.entity_id === 'NL01');
-    const options = [selectedEntity];
-
-    // If there's a relationship with SEN1, try to add NL01 first, if not available add selected entity
-    if (entityCounterparty && entityCounterparty.length > 0) {
-      if (nl01Entity && !options.some(e => e.entity_id === nl01Entity.entity_id)) {
-        options[0] = nl01Entity; // Replace the selected entity with NL01
-        if (selectedEntity.entity_id !== nl01Entity.entity_id) {
-          options.push(selectedEntity); // Add selected entity as second option if it's not NL01
-        }
+    // Find NL01/Sense Treasury entity
+    const treasuryEntity = entities.find(e => e.entity_id === 'NL01');
+    let options = [];
+    
+    // If there's a relationship with SEN1 and treasury entity exists, make it the first option
+    if (entityCounterparty && entityCounterparty.length > 0 && treasuryEntity) {
+      options = [treasuryEntity];
+      // Add selected entity as second option if it's not the treasury entity
+      if (selectedEntity.entity_id !== treasuryEntity.entity_id) {
+        options.push(selectedEntity);
       }
+    } else {
+      // If no SEN1 relationship or no treasury entity, just use selected entity
+      options = [selectedEntity];
     }
     
     console.log('Final hedging entity options:', options);
