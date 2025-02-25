@@ -18,8 +18,8 @@ const AssessmentMonitoringSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-6 gap-4">
-        <div className="col-span-2 space-y-2">
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-4 space-y-2">
           <label className="text-sm font-medium">Effectiveness Testing Method</label>
           <Select value={effectivenessMethod} onValueChange={setEffectivenessMethod}>
             <SelectTrigger>
@@ -33,7 +33,7 @@ const AssessmentMonitoringSection = () => {
           </Select>
         </div>
 
-        <div className="col-span-2 space-y-2">
+        <div className="col-span-4 space-y-2">
           <label className="text-sm font-medium">Economic Relationship</label>
           <Select value={economicRelationship} onValueChange={setEconomicRelationship}>
             <SelectTrigger>
@@ -46,7 +46,7 @@ const AssessmentMonitoringSection = () => {
           </Select>
         </div>
 
-        <div className="col-span-2 space-y-2">
+        <div className="col-span-4 space-y-2">
           <label className="text-sm font-medium">Credit Risk Impact</label>
           <Select value={creditRisk} onValueChange={setCreditRisk}>
             <SelectTrigger>
