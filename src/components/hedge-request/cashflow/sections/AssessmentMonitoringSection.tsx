@@ -15,6 +15,8 @@ const AssessmentMonitoringSection = () => {
   const [effectivenessMethod, setEffectivenessMethod] = useState("");
   const [economicRelationship, setEconomicRelationship] = useState("");
   const [creditRisk, setCreditRisk] = useState("");
+  const [reclassificationApproach, setReclassificationApproach] = useState("");
+  const [discontinuationCriteria, setDiscontinuationCriteria] = useState("");
 
   return (
     <div className="space-y-6">
@@ -57,6 +59,35 @@ const AssessmentMonitoringSection = () => {
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">OCI Reclassification Approach</label>
+          <Select value={reclassificationApproach} onValueChange={setReclassificationApproach}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select approach" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="basis-adjustment">Basis Adjustment</SelectItem>
+              <SelectItem value="direct-transfer">Direct Transfer to P&L</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Discontinuation Criteria</label>
+          <Select value={discontinuationCriteria} onValueChange={setDiscontinuationCriteria}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select criteria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="no-criteria">Hedge no longer meets criteria</SelectItem>
+              <SelectItem value="not-probable">Forecasted transaction no longer probable</SelectItem>
+              <SelectItem value="terminated">Hedge relationship terminated</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>

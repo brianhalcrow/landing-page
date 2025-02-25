@@ -7,8 +7,6 @@ const RiskManagementSection = () => {
   const [description, setDescription] = useState("");
   const [economicRelationship, setEconomicRelationship] = useState("");
   const [creditRiskImpact, setCreditRiskImpact] = useState("minimal");
-  const [reclassificationApproach, setReclassificationApproach] = useState("");
-  const [discontinuationCriteria, setDiscontinuationCriteria] = useState("");
   
   return (
     <div className="space-y-6">
@@ -24,17 +22,6 @@ const RiskManagementSection = () => {
         />
 
         <FormSelect
-          label="OCI Reclassification Approach"
-          options={[
-            { value: "basis-adjustment", label: "Basis Adjustment" },
-            { value: "direct-transfer", label: "Direct Transfer to P&L" },
-            { value: "other", label: "Other" },
-          ]}
-          value={reclassificationApproach}
-          onChange={setReclassificationApproach}
-        />
-
-        <FormSelect
           label="Economic Relationship"
           options={[
             { value: "yes", label: "Yes" },
@@ -42,18 +29,6 @@ const RiskManagementSection = () => {
           ]}
           value={economicRelationship}
           onChange={setEconomicRelationship}
-        />
-
-        <FormSelect
-          label="Discontinuation Criteria"
-          options={[
-            { value: "no-criteria", label: "Hedge no longer meets criteria" },
-            { value: "not-probable", label: "Forecasted transaction no longer probable" },
-            { value: "terminated", label: "Hedge relationship terminated" },
-            { value: "other", label: "Other" },
-          ]}
-          value={discontinuationCriteria}
-          onChange={setDiscontinuationCriteria}
         />
       </div>
 
