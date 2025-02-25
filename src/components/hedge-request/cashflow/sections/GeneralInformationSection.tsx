@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface EntityData {
   entity_id: string;
@@ -39,13 +39,12 @@ const GeneralInformationSection = () => {
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
+      // Using a raw SQL query to get distinct values
       const { data, error } = await supabase
-        .from('erp_rates_monthly')
-        .select('quote_currency')
-        .distinct();
+        .rpc('get_distinct_currencies');
       
       if (error) throw error;
-      return data.map(row => row.quote_currency);
+      return (data as string[]) || [];
     }
   });
 
