@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -79,8 +80,59 @@ const GeneralInformationSection = ({
     }
   };
 
-  const handleCostCentreChange = (value: string) => {
-    setCostCentre(value);
+  const handleHedgingEntityChange = (entityName: string) => {
+    setSelectedHedgingEntity(entityName);
+    const entity = entities?.find(e => e.entity_name === entityName);
+    if (entity) {
+      setHedgingEntityFunctionalCurrency(entity.functional_currency);
+    }
+  };
+
+  const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
+    switch (level) {
+      case 'L1':
+        setSelectedExposureCategoryL1(value);
+        setSelectedExposureCategoryL2('');
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L2':
+        setSelectedExposureCategoryL2(value);
+        onExposureCategoryL2Change(value);
+        const possibleL1 = [...new Set(exposureConfigs
+          ?.filter(c => c.exposure_types.exposure_category_l2 === value)
+          .map(c => c.exposure_types.exposure_category_l1)
+        )];
+        if (possibleL1.length === 1 && possibleL1[0] !== selectedExposureCategoryL1) {
+          setSelectedExposureCategoryL1(possibleL1[0]);
+        }
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L3':
+        setSelectedExposureCategoryL3(value);
+        const config = exposureConfigs?.find(c => 
+          c.exposure_types.exposure_category_l3 === value
+        );
+        if (config) {
+          if (!selectedExposureCategoryL1) {
+            setSelectedExposureCategoryL1(config.exposure_types.exposure_category_l1);
+          }
+          if (!selectedExposureCategoryL2) {
+            setSelectedExposureCategoryL2(config.exposure_types.exposure_category_l2);
+            onExposureCategoryL2Change(config.exposure_types.exposure_category_l2);
+          }
+        }
+        setSelectedStrategy('');
+        break;
+      case 'strategy':
+        setSelectedStrategy(value);
+        const selectedStrategyData = strategies?.find(s => s.strategy_name === value);
+        if (selectedStrategyData) {
+          onStrategyChange(value, selectedStrategyData.instrument);
+        }
+        break;
+    }
   };
 
   useEffect(() => {
@@ -100,6 +152,10 @@ const GeneralInformationSection = ({
       }
     }
   }, [entityCounterparty, isRelationshipsFetched, entities, selectedEntityId]);
+
+  const handleCostCentreChange = (value: string) => {
+    setCostCentre(value);
+  };
 
   const getCategoryOptions = {
     l1: () => {
@@ -138,61 +194,6 @@ const GeneralInformationSection = ({
     strategies: () => {
       if (!strategies) return [];
       return strategies;
-    }
-  };
-
-  const handleHedgingEntityChange = (entityName: string) => {
-    setSelectedHedgingEntity(entityName);
-    const entity = entities?.find(e => e.entity_name === entityName);
-    if (entity) {
-      setHedgingEntityFunctionalCurrency(entity.functional_currency);
-    }
-  };
-
-  const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
-    switch (level) {
-      case 'L1':
-        setSelectedExposureCategoryL1(value);
-        setSelectedExposureCategoryL2('');
-        setSelectedExposureCategoryL3('');
-        setSelectedStrategy('');
-        break;
-      case 'L2':
-        setSelectedExposureCategoryL2(value);
-        onExposureCategoryL2Change(value); // Call the prop function when L2 changes
-        const possibleL1 = [...new Set(exposureConfigs
-          ?.filter(c => c.exposure_types.exposure_category_l2 === value)
-          .map(c => c.exposure_types.exposure_category_l1)
-        )];
-        if (possibleL1.length === 1 && possibleL1[0] !== selectedExposureCategoryL1) {
-          setSelectedExposureCategoryL1(possibleL1[0]);
-        }
-        setSelectedExposureCategoryL3('');
-        setSelectedStrategy('');
-        break;
-      case 'L3':
-        setSelectedExposureCategoryL3(value);
-        const config = exposureConfigs?.find(c => 
-          c.exposure_types.exposure_category_l3 === value
-        );
-        if (config) {
-          if (!selectedExposureCategoryL1) {
-            setSelectedExposureCategoryL1(config.exposure_types.exposure_category_l1);
-          }
-          if (!selectedExposureCategoryL2) {
-            setSelectedExposureCategoryL2(config.exposure_types.exposure_category_l2);
-            onExposureCategoryL2Change(config.exposure_types.exposure_category_l2);
-          }
-        }
-        setSelectedStrategy('');
-        break;
-      case 'strategy':
-        setSelectedStrategy(value);
-        const selectedStrategyData = strategies?.find(s => s.strategy_name === value);
-        if (selectedStrategyData) {
-          onStrategyChange(value, selectedStrategyData.instrument); // Call the prop function when strategy changes
-        }
-        break;
     }
   };
 
