@@ -18,8 +18,9 @@ const ExposureDetailsSection = () => {
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
-  const [hedgeRatio, setHedgeRatio] = useState<number>(0);
+  const [hedgeRatio, setHedgeRatio] = useState<string>('');
   const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
+  const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
 
   const months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(2025, i + 2, 25);
@@ -28,6 +29,10 @@ const ExposureDetailsSection = () => {
 
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${Math.round(value)}%`;
   };
 
   useEffect(() => {
@@ -41,12 +46,21 @@ const ExposureDetailsSection = () => {
   }, [revenues, costs]);
 
   useEffect(() => {
+    const ratio = parseFloat(hedgeRatio) || 0;
     const newHedgeAmounts: Record<number, number> = {};
+    const newIndicativeCoverage: Record<number, number> = {};
+
     months.forEach((_, index) => {
       const forecast = forecasts[index] || 0;
-      newHedgeAmounts[index] = (forecast * hedgeRatio) / 100;
+      const hedgeAmount = (forecast * ratio) / 100;
+      newHedgeAmounts[index] = hedgeAmount;
+
+      // Calculate indicative coverage
+      newIndicativeCoverage[index] = forecast !== 0 ? (hedgeAmount / forecast) * 100 : 0;
     });
+
     setHedgeAmounts(newHedgeAmounts);
+    setIndicativeCoverage(newIndicativeCoverage);
   }, [forecasts, hedgeRatio]);
 
   const handleRevenueChange = (index: number, value: string) => {
@@ -71,10 +85,16 @@ const ExposureDetailsSection = () => {
   };
 
   const handleHedgeRatioChange = (value: string) => {
-    let numericValue = parseFloat(value);
+    if (value === '') {
+      setHedgeRatio('');
+      return;
+    }
+
+    const numericValue = parseFloat(value);
     if (!isNaN(numericValue)) {
-      numericValue = Math.min(100, Math.max(0, numericValue));
-      setHedgeRatio(numericValue);
+      if (numericValue >= 0) {
+        setHedgeRatio(String(Math.min(100, numericValue)));
+      }
     }
   };
 
@@ -91,10 +111,10 @@ const ExposureDetailsSection = () => {
               <SelectValue placeholder="Select layer" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Layer 1</SelectItem>
-              <SelectItem value="2">Layer 2</SelectItem>
-              <SelectItem value="3">Layer 3</SelectItem>
-              <SelectItem value="4">Layer 4</SelectItem>
+              <SelectItem value="1">1</SelectItem>
+              <SelectItem value="2">2</SelectItem>
+              <SelectItem value="3">3</SelectItem>
+              <SelectItem value="4">4</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -129,7 +149,7 @@ const ExposureDetailsSection = () => {
           <div className="relative">
             <Input 
               type="number" 
-              value={hedgeRatio || ''}
+              value={hedgeRatio}
               onChange={(e) => handleHedgeRatioChange(e.target.value)}
               placeholder="Enter %"
               min="0"
@@ -227,8 +247,8 @@ const ExposureDetailsSection = () => {
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div className="text-sm font-medium">Indicative Coverage</div>
           {Array(12).fill(null).map((_, i) => (
-            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-              0%
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatPercentage(indicativeCoverage[i] || 0)}
             </div>
           ))}
         </div>
@@ -237,7 +257,7 @@ const ExposureDetailsSection = () => {
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div className="text-sm font-medium">Cum. Hedge Layer Amounts</div>
           {Array(12).fill(null).map((_, i) => (
-            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
               {formatNumber(0)}
             </div>
           ))}
@@ -247,7 +267,7 @@ const ExposureDetailsSection = () => {
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
           <div className="text-sm font-medium">Cum. Indicative Coverage (%)</div>
           {Array(12).fill(null).map((_, i) => (
-            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
               0%
             </div>
           ))}
