@@ -35,6 +35,16 @@ const GeneralInformationSection = ({
   const { data: exposureConfigs } = useExposureConfig(generalInfo.entity_id);
   const { data: strategies } = useStrategies(generalInfo.entity_id, generalInfo.exposure_category_l2);
 
+  // Set default documentation date on component mount
+  useEffect(() => {
+    if (!generalInfo.documentation_date) {
+      onChange({
+        ...generalInfo,
+        documentation_date: format(new Date(), 'yyyy-MM-dd')
+      });
+    }
+  }, []);
+
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
@@ -55,10 +65,12 @@ const GeneralInformationSection = ({
   ) : null;
 
   const handleEntityChange = (entityId: string, entityName: string) => {
+    const selectedEntity = entities?.find(e => e.entity_id === entityId);
     onChange({
       ...generalInfo,
       entity_id: entityId,
       entity_name: entityName,
+      functional_currency: selectedEntity?.functional_currency || '',
     });
   };
 
@@ -209,18 +221,6 @@ const GeneralInformationSection = ({
           strategies: () => strategies || []
         }}
       />
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Cost Centre</label>
-        <Input 
-          type="text" 
-          value={generalInfo.cost_centre}
-          onChange={(e) => onChange({
-            ...generalInfo,
-            cost_centre: e.target.value
-          })}
-        />
-      </div>
     </div>
   );
 };
