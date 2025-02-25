@@ -34,7 +34,7 @@ export const GridInputRow = ({
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
   return (
-    <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+    <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-2">
       <div>
         <div className="text-sm font-medium">{label}</div>
         <div className="text-xs text-gray-600">{sublabel}</div>

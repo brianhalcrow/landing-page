@@ -146,7 +146,7 @@ const ExposureDetailsSection = () => {
       />
 
       <div className="space-y-2">
-        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
+        <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
           <div className="h-6"></div>
           {Array(12).fill(null).map((_, index) => (
             <div key={index} className="text-sm font-medium text-center">
