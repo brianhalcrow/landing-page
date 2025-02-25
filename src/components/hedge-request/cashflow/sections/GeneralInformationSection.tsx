@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -31,6 +30,15 @@ const GeneralInformationSection = () => {
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
   const { data: strategies } = useStrategies();
+
+  // Calculate available hedging entities
+  const availableHedgingEntities = entities ? entities.filter(entity => 
+    entityCounterparty?.length ? 
+      // If there's a treasury relationship, only show treasury and current entity
+      [TREASURY_ENTITY_NAME, selectedEntityName].includes(entity.entity_name) :
+      // If no treasury relationship, show all entities
+      true
+  ) : null;
 
   // Fetch available currencies
   const { data: currencies } = useQuery({
@@ -108,10 +116,17 @@ const GeneralInformationSection = () => {
   };
 
   // Handlers
-  const handleEntityChange = (entityName: string) => {
+  const handleEntityChange = (entityId: string, entityName: string) => {
+    setSelectedEntityId(entityId);
     setSelectedEntityName(entityName);
+  };
+
+  const handleHedgingEntityChange = (entityName: string) => {
+    setSelectedHedgingEntity(entityName);
     const entity = entities?.find(e => e.entity_name === entityName);
-    if (entity) setSelectedEntityId(entity.entity_id);
+    if (entity) {
+      setHedgingEntityFunctionalCurrency(entity.functional_currency);
+    }
   };
 
   const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
@@ -185,6 +200,10 @@ const GeneralInformationSection = () => {
         selectedEntityId={selectedEntityId}
         selectedEntityName={selectedEntityName}
         onEntityChange={handleEntityChange}
+        selectedHedgingEntity={selectedHedgingEntity}
+        onHedgingEntityChange={handleHedgingEntityChange}
+        hedgingEntityFunctionalCurrency={hedgingEntityFunctionalCurrency}
+        availableHedgingEntities={availableHedgingEntities}
       />
 
       <div className="space-y-2">
@@ -223,12 +242,18 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedging Entity</label>
-        <Input 
-          type="text" 
-          value={selectedHedgingEntity} 
-          disabled
-          className="bg-gray-100"
-        />
+        <Select value={selectedHedgingEntity} onValueChange={handleHedgingEntityChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select hedging entity" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableHedgingEntities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_name}>
+                {entity.entity_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

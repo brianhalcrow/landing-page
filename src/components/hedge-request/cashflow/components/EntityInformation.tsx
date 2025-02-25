@@ -13,7 +13,11 @@ interface EntityInformationProps {
   entities: EntityData[] | null;
   selectedEntityId: string;
   selectedEntityName: string;
-  onEntityChange: (entityName: string) => void;
+  onEntityChange: (entityId: string, entityName: string) => void;
+  selectedHedgingEntity: string;
+  onHedgingEntityChange: (entityName: string) => void;
+  hedgingEntityFunctionalCurrency: string;
+  availableHedgingEntities: EntityData[] | null;
 }
 
 export const EntityInformation = ({
@@ -21,7 +25,25 @@ export const EntityInformation = ({
   selectedEntityId,
   selectedEntityName,
   onEntityChange,
+  selectedHedgingEntity,
+  onHedgingEntityChange,
+  hedgingEntityFunctionalCurrency,
+  availableHedgingEntities,
 }: EntityInformationProps) => {
+  const handleEntityNameChange = (entityName: string) => {
+    const entity = entities?.find(e => e.entity_name === entityName);
+    if (entity) {
+      onEntityChange(entity.entity_id, entityName);
+    }
+  };
+
+  const handleEntityIdChange = (entityId: string) => {
+    const entity = entities?.find(e => e.entity_id === entityId);
+    if (entity) {
+      onEntityChange(entityId, entity.entity_name);
+    }
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -31,7 +53,7 @@ export const EntityInformation = ({
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Entity Name</label>
-        <Select value={selectedEntityName} onValueChange={onEntityChange}>
+        <Select value={selectedEntityName} onValueChange={handleEntityNameChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select entity" />
           </SelectTrigger>
@@ -47,12 +69,18 @@ export const EntityInformation = ({
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Entity ID</label>
-        <Input 
-          type="text" 
-          value={selectedEntityId} 
-          disabled
-          className="bg-gray-100"
-        />
+        <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select entity ID" />
+          </SelectTrigger>
+          <SelectContent>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_id}>
+                {entity.entity_id}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
