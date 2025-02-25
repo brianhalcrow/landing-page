@@ -44,7 +44,7 @@ const CashflowHedgeForm = () => {
   );
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 space-y-6">
+    <div className="mx-auto px-4 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Cashflow Hedge Documentation</h1>
       
       <Card>
@@ -64,7 +64,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Risk Management Objective and Strategy" section="risk" />
         </CardHeader>
         <CardContent className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 max-w-[1200px]",
           minimizedSections.risk ? "h-0 overflow-hidden p-0" : ""
         )}>
           <RiskManagementSection />
@@ -76,7 +76,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Hedged Item Details" section="hedgedItem" />
         </CardHeader>
         <CardContent className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 max-w-[1200px]",
           minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : ""
         )}>
           <HedgedItemSection />
@@ -88,7 +88,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Hedging Instrument" section="hedgingInstrument" />
         </CardHeader>
         <CardContent className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 max-w-[1200px]",
           minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : ""
         )}>
           <HedgingInstrumentSection />
@@ -100,7 +100,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Assessment and Monitoring" section="assessment" />
         </CardHeader>
         <CardContent className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 max-w-[1200px]",
           minimizedSections.assessment ? "h-0 overflow-hidden p-0" : ""
         )}>
           <AssessmentMonitoringSection />
@@ -112,7 +112,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Exposure Details" section="exposure" />
         </CardHeader>
         <CardContent className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 max-w-[1200px]",
           minimizedSections.exposure ? "h-0 overflow-hidden p-0" : ""
         )}>
           <ExposureDetailsSection />
