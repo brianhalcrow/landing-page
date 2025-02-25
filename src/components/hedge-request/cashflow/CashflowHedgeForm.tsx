@@ -23,6 +23,18 @@ interface GeneralInfo {
   hedgingEntityFunctionalCurrency: string;
 }
 
+interface HedgeAccountingRequest {
+  cost_centre: string;
+  hedge_type: 'Cashflow';
+  start_month: string;
+  status: 'draft';
+  entity_id: string;
+  entity_name: string;
+  hedging_entity: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const CashflowHedgeForm = () => {
   const { toast } = useToast();
   
@@ -86,26 +98,20 @@ const CashflowHedgeForm = () => {
     }
 
     try {
-      // First get a new hedge_id from the sequence
-      const { data: hedgeData, error: hedgeError } = await supabase.rpc('generate_hedge_id', {
-        p_entity_id: generalInfo.entityId,
-        p_hedge_type: 'Cashflow'
-      });
-
-      if (hedgeError) throw hedgeError;
-
-      const { error } = await supabase.from('hedge_accounting_requests').insert({
-        hedge_id: hedgeData,
+      // Create the request object conforming to the database schema
+      const hedgeRequest: HedgeAccountingRequest = {
         cost_centre: generalInfo.costCentre,
         hedge_type: 'Cashflow',
-        start_month: new Date(generalInfo.documentDate), // Using documentDate as start_month
+        start_month: generalInfo.documentDate,
         status: 'draft',
         entity_id: generalInfo.entityId,
         entity_name: generalInfo.entityName,
         hedging_entity: generalInfo.hedgingEntity,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      });
+      };
+
+      const { error } = await supabase.from('hedge_accounting_requests').insert(hedgeRequest);
 
       if (error) throw error;
       
@@ -170,7 +176,6 @@ const CashflowHedgeForm = () => {
               setSelectedStrategy(value);
               setSelectedInstrument(instrument);
             }}
-            generalInfo={generalInfo}
           />
         </CardContent>
       </Card>
