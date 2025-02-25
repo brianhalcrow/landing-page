@@ -6,15 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityInformation } from "../components/EntityInformation";
 import { ExposureCategories } from "../components/ExposureCategories";
-import { Input } from "@/components/ui/input";
+import { CurrencySelector } from "../components/CurrencySelector";
+import { DocumentationDateInput } from "../components/DocumentationDateInput";
+import { HedgingEntityFields } from "../components/HedgingEntityFields";
 import { format } from "date-fns";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { GeneralInformationData } from "../types/general-information";
 
 interface GeneralInformationSectionProps {
@@ -200,7 +195,7 @@ const GeneralInformationSection = ({
     onChange({
       entity_id: selectedEntityId,
       entity_name: selectedEntityName,
-      cost_centre: "",  // This will need to be added when implementing cost centre
+      cost_centre: "",
       transaction_currency: exposedCurrency,
       documentation_date: documentDate,
       exposure_category_l1: selectedExposureCategoryL1,
@@ -239,30 +234,16 @@ const GeneralInformationSection = ({
         availableHedgingEntities={availableHedgingEntities}
       />
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Exposed Currency</label>
-        <Select value={exposedCurrency} onValueChange={setExposedCurrency}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select currency" />
-          </SelectTrigger>
-          <SelectContent>
-            {currencies?.map(currency => (
-              <SelectItem key={currency} value={currency}>
-                {currency}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <CurrencySelector
+        exposedCurrency={exposedCurrency}
+        onCurrencyChange={setExposedCurrency}
+        currencies={currencies}
+      />
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Documentation Date</label>
-        <Input 
-          type="date" 
-          value={documentDate}
-          onChange={(e) => setDocumentDate(e.target.value)}
-        />
-      </div>
+      <DocumentationDateInput
+        documentDate={documentDate}
+        onDateChange={setDocumentDate}
+      />
 
       <ExposureCategories
         exposureConfigs={exposureConfigs}
@@ -277,31 +258,12 @@ const GeneralInformationSection = ({
         getCategoryOptions={getCategoryOptions}
       />
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Hedging Entity</label>
-        <Select value={selectedHedgingEntity} onValueChange={handleHedgingEntityChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select hedging entity" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableHedgingEntities?.map(entity => (
-              <SelectItem key={entity.entity_id} value={entity.entity_name}>
-                {entity.entity_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Hedging Entity Functional Currency</label>
-        <Input 
-          type="text" 
-          value={hedgingEntityFunctionalCurrency} 
-          disabled
-          className="bg-gray-100"
-        />
-      </div>
+      <HedgingEntityFields
+        selectedHedgingEntity={selectedHedgingEntity}
+        onHedgingEntityChange={handleHedgingEntityChange}
+        hedgingEntityFunctionalCurrency={hedgingEntityFunctionalCurrency}
+        availableHedgingEntities={availableHedgingEntities}
+      />
     </div>
   );
 };
