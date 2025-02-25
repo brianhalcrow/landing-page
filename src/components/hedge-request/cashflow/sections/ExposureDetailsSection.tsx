@@ -1,3 +1,4 @@
+
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -125,12 +126,12 @@ const ExposureDetailsSection = () => {
         onDateChange={setSelectedDate}
       />
 
-      <div>
+      <div className="space-y-2">
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
-          <div></div>
-          {months.map((month) => (
-            <div key={month} className="text-sm font-medium text-center">
-              {month}
+          <div className="h-6"></div>
+          {Array(12).fill(null).map((_, index) => (
+            <div key={index} className="text-sm font-medium text-center">
+              {months[index]}
             </div>
           ))}
         </div>
