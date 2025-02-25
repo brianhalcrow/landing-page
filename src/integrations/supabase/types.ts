@@ -1303,7 +1303,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           risk_management_description: string | null
-          start_month: string
+          start_month: string | null
           status: Database["public"]["Enums"]["hedge_status"] | null
           strategy: string
           submitted_at: string | null
@@ -1344,7 +1344,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           risk_management_description?: string | null
-          start_month: string
+          start_month?: string | null
           status?: Database["public"]["Enums"]["hedge_status"] | null
           strategy: string
           submitted_at?: string | null
@@ -1385,7 +1385,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           risk_management_description?: string | null
-          start_month?: string
+          start_month?: string | null
           status?: Database["public"]["Enums"]["hedge_status"] | null
           strategy?: string
           submitted_at?: string | null
