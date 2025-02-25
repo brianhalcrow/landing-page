@@ -55,7 +55,9 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.general ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <GeneralInformationSection />
+          <div className="max-w-[1200px]">
+            <GeneralInformationSection />
+          </div>
         </CardContent>
       </Card>
 
@@ -67,7 +69,9 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.risk ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <RiskManagementSection />
+          <div className="max-w-[1200px]">
+            <RiskManagementSection />
+          </div>
         </CardContent>
       </Card>
 
@@ -79,7 +83,9 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <HedgedItemSection />
+          <div className="max-w-[1200px]">
+            <HedgedItemSection />
+          </div>
         </CardContent>
       </Card>
 
@@ -91,7 +97,9 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <HedgingInstrumentSection />
+          <div className="max-w-[1200px]">
+            <HedgingInstrumentSection />
+          </div>
         </CardContent>
       </Card>
 
@@ -103,7 +111,9 @@ const CashflowHedgeForm = () => {
           "transition-all duration-300",
           minimizedSections.assessment ? "h-0 overflow-hidden p-0" : ""
         )}>
-          <AssessmentMonitoringSection />
+          <div className="max-w-[1200px]">
+            <AssessmentMonitoringSection />
+          </div>
         </CardContent>
       </Card>
 
