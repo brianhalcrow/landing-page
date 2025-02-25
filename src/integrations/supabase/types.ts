@@ -3482,6 +3482,12 @@ export type Database = {
         }
         Returns: string
       }
+      get_distinct_currencies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          quote_currency: string
+        }[]
+      }
       get_draft_with_options: {
         Args: {
           draft_id: string

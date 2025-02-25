@@ -39,12 +39,17 @@ const GeneralInformationSection = () => {
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
-      // Using a raw SQL query to get distinct values
+      // Using a raw SQL query to get distinct values instead of RPC
       const { data, error } = await supabase
-        .rpc('get_distinct_currencies');
+        .from('erp_rates_monthly')
+        .select('quote_currency')
+        .limit(1000);  // Add a reasonable limit
       
       if (error) throw error;
-      return (data as string[]) || [];
+      
+      // Get unique currencies using Set
+      const uniqueCurrencies = [...new Set(data.map(row => row.quote_currency))];
+      return uniqueCurrencies.sort();
     }
   });
 
