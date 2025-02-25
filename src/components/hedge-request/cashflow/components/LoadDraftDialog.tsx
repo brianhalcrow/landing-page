@@ -26,10 +26,13 @@ export const LoadDraftDialog = ({ onDraftSelect }: LoadDraftDialogProps) => {
     queryKey: ['hedge-drafts'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc('get_hedge_request_drafts');
+        .from('hedge_accounting_requests')
+        .select()
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as HedgeAccountingRequest[];
     }
   });
 

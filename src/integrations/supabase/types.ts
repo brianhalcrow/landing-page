@@ -3509,6 +3509,40 @@ export type Database = {
         }
         Returns: Json
       }
+      get_hedge_request_drafts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          hedge_id: string
+          entity_name: string
+          documentation_date: string
+          updated_at: string
+          entity_id: string
+          transaction_currency: string
+          functional_currency: string
+          cost_centre: string
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
+          strategy: string
+          hedging_entity: string
+          hedging_entity_fccy: string
+          risk_management_description: string
+          hedged_item_description: string
+          instrument: string
+          forward_element_designation: string
+          currency_basis_spreads: string
+          hedging_instrument_description: string
+          credit_risk_impact: string
+          oci_reclassification_approach: string
+          economic_relationship: string
+          discontinuation_criteria: string
+          effectiveness_testing_method: string
+          testing_frequency: string
+          assessment_details: string
+          start_month: string
+          end_month: string
+        }[]
+      }
       get_live_schema: {
         Args: Record<PropertyKey, never>
         Returns: Json
