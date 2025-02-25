@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EntityData {
   entity_id: string;
@@ -17,10 +17,18 @@ interface EntityData {
   functional_currency: string;
 }
 
+interface EntityCounterparty {
+  entity_id: string;
+  counterparty_id: string;
+  relationship_id: string;
+}
+
 const GeneralInformationSection = () => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
   const [exposedCurrency, setExposedCurrency] = useState("");
+  const [selectedHedgingEntity, setSelectedHedgingEntity] = useState("");
+  const [hedgingEntityFunctionalCurrency, setHedgingEntityFunctionalCurrency] = useState("");
 
   // Fetch entity data
   const { data: entities } = useQuery({
@@ -35,19 +43,34 @@ const GeneralInformationSection = () => {
     }
   });
 
+  // Fetch entity counterparty relationships
+  const { data: entityCounterparty } = useQuery({
+    queryKey: ['entity-counterparty', selectedEntityId],
+    queryFn: async () => {
+      if (!selectedEntityId) return null;
+      const { data, error } = await supabase
+        .from('entity_counterparty')
+        .select('*')
+        .eq('entity_id', selectedEntityId)
+        .eq('counterparty_id', 'SEN1');
+      
+      if (error) throw error;
+      return data as EntityCounterparty[];
+    },
+    enabled: !!selectedEntityId
+  });
+
   // Fetch available currencies
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
-      // Using a raw SQL query to get distinct values instead of RPC
       const { data, error } = await supabase
         .from('erp_rates_monthly')
         .select('quote_currency')
-        .limit(1000);  // Add a reasonable limit
+        .limit(1000);
       
       if (error) throw error;
       
-      // Get unique currencies using Set
       const uniqueCurrencies = [...new Set(data.map(row => row.quote_currency))];
       return uniqueCurrencies.sort();
     }
@@ -58,12 +81,31 @@ const GeneralInformationSection = () => {
     e.entity_id === selectedEntityId || e.entity_name === selectedEntityName
   );
 
+  // Get available hedging entities
+  const getHedgingEntityOptions = () => {
+    if (!selectedEntity) return [];
+    
+    // Start with the selected entity
+    const options = [selectedEntity];
+    
+    // If there's a relationship with SEN1, add Sense Treasury B.V.
+    if (entityCounterparty && entityCounterparty.length > 0) {
+      const senseTreasury = entities?.find(e => e.entity_id === 'SEN1');
+      if (senseTreasury) {
+        options.push(senseTreasury);
+      }
+    }
+    
+    return options;
+  };
+
   // Update both ID and name when either changes
   const handleEntityIdChange = (newId: string) => {
     setSelectedEntityId(newId);
     const entity = entities?.find(e => e.entity_id === newId);
     if (entity) {
       setSelectedEntityName(entity.entity_name);
+      setSelectedHedgingEntity(entity.entity_name); // Default hedging entity to selected entity
     }
   };
 
@@ -72,8 +114,27 @@ const GeneralInformationSection = () => {
     const entity = entities?.find(e => e.entity_name === newName);
     if (entity) {
       setSelectedEntityId(entity.entity_id);
+      setSelectedHedgingEntity(newName); // Default hedging entity to selected entity
     }
   };
+
+  const handleHedgingEntityChange = (newEntityName: string) => {
+    setSelectedHedgingEntity(newEntityName);
+    const hedgingEntity = entities?.find(e => e.entity_name === newEntityName);
+    if (hedgingEntity) {
+      setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
+    }
+  };
+
+  // Set initial hedging entity functional currency when hedging entity changes
+  useEffect(() => {
+    if (selectedHedgingEntity) {
+      const hedgingEntity = entities?.find(e => e.entity_name === selectedHedgingEntity);
+      if (hedgingEntity) {
+        setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
+      }
+    }
+  }, [selectedHedgingEntity, entities]);
 
   return (
     <div className="grid grid-cols-5 gap-4">
@@ -175,12 +236,12 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedging Entity</label>
-        <Select>
+        <Select value={selectedHedgingEntity} onValueChange={handleHedgingEntityChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select hedging entity" />
           </SelectTrigger>
           <SelectContent>
-            {entities?.map(entity => (
+            {getHedgingEntityOptions().map(entity => (
               <SelectItem key={entity.entity_id} value={entity.entity_name}>
                 {entity.entity_name}
               </SelectItem>
@@ -193,7 +254,7 @@ const GeneralInformationSection = () => {
         <label className="text-sm font-medium">Hedging Entity Functional Currency</label>
         <Input 
           type="text" 
-          value={selectedEntity?.functional_currency || ''} 
+          value={hedgingEntityFunctionalCurrency} 
           disabled
           className="bg-gray-100"
         />
