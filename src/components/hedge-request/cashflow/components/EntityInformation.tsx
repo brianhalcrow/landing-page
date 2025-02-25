@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Label } from "@/components/ui/label";
 
 interface EntityInformationProps {
   entities: EntityData[] | null;
@@ -20,6 +21,10 @@ interface EntityInformationProps {
   onHedgingEntityChange: (entityName: string) => void;
   hedgingEntityFunctionalCurrency: string;
   availableHedgingEntities: EntityData[] | null;
+  costCentre: string;
+  onCostCentreChange: (costCentre: string) => void;
+  showHedgeId?: boolean;
+  hedgeId?: string;
 }
 
 export const EntityInformation = ({
@@ -31,6 +36,10 @@ export const EntityInformation = ({
   onHedgingEntityChange,
   hedgingEntityFunctionalCurrency,
   availableHedgingEntities,
+  costCentre,
+  onCostCentreChange,
+  showHedgeId = false,
+  hedgeId,
 }: EntityInformationProps) => {
   const { data: costCentres } = useQuery({
     queryKey: ['cost-centres', selectedEntityId],
@@ -77,13 +86,17 @@ export const EntityInformation = ({
 
   return (
     <>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Hedge ID</label>
-        <Input type="text" placeholder="Enter hedge ID" />
-      </div>
+      {showHedgeId && (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Hedge ID</Label>
+          <Input type="text" value={hedgeId} disabled className="bg-gray-100" />
+        </div>
+      )}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Entity Name</label>
+        <Label className="text-sm font-medium">
+          Entity Name <span className="text-red-500">*</span>
+        </Label>
         <Select value={selectedEntityName} onValueChange={handleEntityNameChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select entity" />
@@ -100,7 +113,9 @@ export const EntityInformation = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Entity ID</label>
+          <Label className="text-sm font-medium">
+            Entity ID <span className="text-red-500">*</span>
+          </Label>
           <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select entity ID" />
@@ -116,10 +131,12 @@ export const EntityInformation = ({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Cost Centre</label>
-          <Select>
+          <Label className="text-sm font-medium">
+            Cost Centre <span className="text-red-500">*</span>
+          </Label>
+          <Select value={costCentre} onValueChange={onCostCentreChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select" />
+              <SelectValue placeholder="Select cost centre" />
             </SelectTrigger>
             <SelectContent>
               {costCentres?.map(centre => (
@@ -133,7 +150,9 @@ export const EntityInformation = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Functional Currency</label>
+        <Label className="text-sm font-medium">
+          Functional Currency <span className="text-red-500">*</span>
+        </Label>
         <Input 
           type="text" 
           value={entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ''} 
