@@ -46,12 +46,12 @@ const CashflowHedgeForm = () => {
     </div>
   );
 
-  // Handler for when exposure category L2 changes in GeneralInformationSection
+  // Handler for when exposure category L2 changes
   const handleExposureCategoryL2Change = (value: string) => {
     setSelectedExposureCategoryL2(value);
   };
 
-  // Handler for when strategy changes in GeneralInformationSection
+  // Handler for when strategy changes
   const handleStrategyChange = (value: string, instrument: string) => {
     setSelectedStrategy(value);
     setSelectedInstrument(instrument);
@@ -90,7 +90,11 @@ const CashflowHedgeForm = () => {
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
-            <HedgedItemSection />
+            <HedgedItemSection 
+              exposureCategoryL2={selectedExposureCategoryL2}
+              onExposureCategoryL2Change={handleExposureCategoryL2Change}
+              selectedStrategy={selectedStrategy}
+            />
           </div>
         </CardContent>
       </Card>
