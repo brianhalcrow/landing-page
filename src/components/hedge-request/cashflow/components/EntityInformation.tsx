@@ -20,6 +20,8 @@ interface EntityInformationProps {
   onHedgingEntityChange: (entityName: string) => void;
   hedgingEntityFunctionalCurrency: string;
   availableHedgingEntities: EntityData[] | null;
+  costCentre: string;
+  onCostCentreChange: (value: string) => void;
 }
 
 export const EntityInformation = ({
@@ -27,6 +29,8 @@ export const EntityInformation = ({
   selectedEntityId,
   selectedEntityName,
   onEntityChange,
+  costCentre,
+  onCostCentreChange,
   selectedHedgingEntity,
   onHedgingEntityChange,
   hedgingEntityFunctionalCurrency,
@@ -117,7 +121,7 @@ export const EntityInformation = ({
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Cost Centre</label>
-          <Select>
+          <Select value={costCentre} onValueChange={onCostCentreChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select" />
             </SelectTrigger>
