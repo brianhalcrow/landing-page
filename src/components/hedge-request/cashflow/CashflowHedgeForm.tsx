@@ -86,14 +86,23 @@ const CashflowHedgeForm = () => {
     }
 
     try {
+      // First get a new hedge_id from the sequence
+      const { data: hedgeData, error: hedgeError } = await supabase.rpc('generate_hedge_id', {
+        p_entity_id: generalInfo.entityId,
+        p_hedge_type: 'Cashflow'
+      });
+
+      if (hedgeError) throw hedgeError;
+
       const { error } = await supabase.from('hedge_accounting_requests').insert({
+        hedge_id: hedgeData,
+        cost_centre: generalInfo.costCentre,
+        hedge_type: 'Cashflow',
+        start_month: new Date(generalInfo.documentDate), // Using documentDate as start_month
+        status: 'draft',
         entity_id: generalInfo.entityId,
         entity_name: generalInfo.entityName,
-        hedge_type: 'Cashflow',
-        cost_centre: generalInfo.costCentre,
-        status: 'draft',
-        functional_currency: generalInfo.hedgingEntityFunctionalCurrency,
-        created_by: '', // Will be handled by RLS
+        hedging_entity: generalInfo.hedgingEntity,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
@@ -161,7 +170,6 @@ const CashflowHedgeForm = () => {
               setSelectedStrategy(value);
               setSelectedInstrument(instrument);
             }}
-            onGeneralInfoChange={(info) => setGeneralInfo(prev => ({ ...prev, ...info }))}
             generalInfo={generalInfo}
           />
         </CardContent>
