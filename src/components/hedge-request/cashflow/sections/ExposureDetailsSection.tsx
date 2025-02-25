@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -11,8 +10,8 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { format, addMonths } from "date-fns";
+import { useState, useEffect, KeyboardEvent, useRef } from "react";
 
 const ExposureDetailsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -24,11 +23,18 @@ const ExposureDetailsSection = () => {
   const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
   const [hedgedExposures, setHedgedExposures] = useState<Record<number, number>>({});
   const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const date = new Date(2025, i + 2, 25);
-    return date.toLocaleDateString('en-US', { month: '2-digit', year: '2-digit' });
-  });
+  const getMonths = (startDate: Date | undefined) => {
+    if (!startDate) return Array(12).fill('');
+    
+    return Array.from({ length: 12 }, (_, i) => {
+      const date = addMonths(startDate, i);
+      return format(date, 'MM/yy');
+    });
+  };
+
+  const months = getMonths(selectedDate);
 
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat('en-US').format(value);
@@ -61,7 +67,6 @@ const ExposureDetailsSection = () => {
       const hedgedExposure = (forecast * ratio) / 100;
       newHedgedExposures[index] = hedgedExposure;
       
-      // Calculate hedge amount using layer percentage
       const hedgeAmount = (hedgedExposure * layerPercent) / 100;
       newHedgeAmounts[index] = hedgeAmount;
       
@@ -122,6 +127,37 @@ const ExposureDetailsSection = () => {
     }
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
+    const currentInput = event.currentTarget;
+    
+    switch (event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        const upInput = inputRefs.current[colIndex];
+        if (upInput) upInput.focus();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        const downInput = inputRefs.current[colIndex + 12];
+        if (downInput) downInput.focus();
+        break;
+      case 'ArrowLeft':
+        if (currentInput.selectionStart === 0) {
+          event.preventDefault();
+          const prevInput = inputRefs.current[rowIndex * 12 + colIndex - 1];
+          if (prevInput) prevInput.focus();
+        }
+        break;
+      case 'ArrowRight':
+        if (currentInput.selectionStart === currentInput.value.length) {
+          event.preventDefault();
+          const nextInput = inputRefs.current[rowIndex * 12 + colIndex + 1];
+          if (nextInput) nextInput.focus();
+        }
+        break;
+    }
+  };
+
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
   return (
@@ -162,7 +198,7 @@ const ExposureDetailsSection = () => {
         </div>
 
         <div className="w-[120px] space-y-2">
-          <label className="text-sm font-medium">Start Date</label>
+          <label className="text-sm font-medium">Start Month</label>
           <Popover>
             <PopoverTrigger asChild>
               <button
@@ -171,7 +207,7 @@ const ExposureDetailsSection = () => {
                   !selectedDate && "text-muted-foreground"
                 )}
               >
-                {selectedDate ? format(selectedDate, "MMM yyyy") : "Select date"}
+                {selectedDate ? format(selectedDate, "MMM yyyy") : "Select month"}
                 <CalendarIcon className="ml-2 h-4 w-4" />
               </button>
             </PopoverTrigger>
@@ -181,6 +217,31 @@ const ExposureDetailsSection = () => {
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 initialFocus
+                fromMonth={new Date()}
+                defaultMonth={new Date()}
+                showOutsideDays={false}
+                ISOWeek={false}
+                captionLayout="dropdown-buttons"
+                formatters={{ formatCaption: () => '' }}
+                classNames={{
+                  month: "space-y-4",
+                  caption: "flex justify-center pt-1 relative items-center",
+                  caption_label: "text-sm font-medium",
+                  nav: "space-x-1 flex items-center",
+                  nav_button: cn(
+                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+                  ),
+                  table: "w-full border-collapse space-y-1",
+                  head_row: "hidden",
+                  row: "flex w-full mt-2",
+                  cell: "text-center text-sm p-0 relative",
+                  day: cn(
+                    "h-9 w-9 p-0 font-normal",
+                    "hidden"
+                  ),
+                  day_today: "bg-accent text-accent-foreground",
+                  day_outside: "text-muted-foreground opacity-50",
+                }}
               />
             </PopoverContent>
           </Popover>
@@ -226,6 +287,8 @@ const ExposureDetailsSection = () => {
               className={baseInputStyles}
               value={revenues[i] ? formatNumber(revenues[i]) : ''}
               onChange={(e) => handleRevenueChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, 0, i)}
+              ref={el => inputRefs.current[i] = el}
             />
           ))}
         </div>
@@ -242,6 +305,8 @@ const ExposureDetailsSection = () => {
               className={baseInputStyles}
               value={costs[i] ? formatNumber(costs[i]) : ''}
               onChange={(e) => handleCostChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, 1, i)}
+              ref={el => inputRefs.current[i + 12] = el}
               onFocus={(e) => {
                 if (!e.target.value) {
                   e.target.value = '-';
