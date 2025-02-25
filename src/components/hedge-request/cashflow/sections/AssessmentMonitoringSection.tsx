@@ -12,29 +12,13 @@ import { useState } from "react";
 
 const AssessmentMonitoringSection = () => {
   const [assessmentDetails, setAssessmentDetails] = useState("");
-  const [testingFrequency, setTestingFrequency] = useState("");
   const [effectivenessMethod, setEffectivenessMethod] = useState("");
   const [economicRelationship, setEconomicRelationship] = useState("");
   const [creditRisk, setCreditRisk] = useState("");
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Testing Frequency</label>
-          <Select value={testingFrequency} onValueChange={setTestingFrequency}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select frequency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="monthly">Monthly</SelectItem>
-              <SelectItem value="quarterly">Quarterly</SelectItem>
-              <SelectItem value="semi-annual">Semi-Annual</SelectItem>
-              <SelectItem value="annual">Annual</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
+      <div className="grid grid-cols-3 gap-4 max-w-[1200px]">
         <div className="space-y-2">
           <label className="text-sm font-medium">Effectiveness Testing Method</label>
           <Select value={effectivenessMethod} onValueChange={setEffectivenessMethod}>
@@ -78,7 +62,7 @@ const AssessmentMonitoringSection = () => {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 max-w-[1200px]">
         <label className="text-sm font-medium">Assessment Details</label>
         <Textarea 
           placeholder="Enter assessment details"
