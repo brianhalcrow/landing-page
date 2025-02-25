@@ -10,8 +10,20 @@ import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import { Minimize2, Maximize2, Save } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+
+interface GeneralInfo {
+  entityId: string;
+  entityName: string;
+  costCentre: string;
+  exposedCurrency: string;
+  documentDate: string;
+  hedgingEntity: string;
+  hedgingEntityFunctionalCurrency: string;
+}
 
 const CashflowHedgeForm = () => {
+  const { toast } = useToast();
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
     general: false,
     risk: false,
@@ -24,6 +36,15 @@ const CashflowHedgeForm = () => {
   const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
   const [selectedInstrument, setSelectedInstrument] = useState("");
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
+    entityId: "",
+    entityName: "",
+    costCentre: "",
+    exposedCurrency: "",
+    documentDate: "",
+    hedgingEntity: "",
+    hedgingEntityFunctionalCurrency: ""
+  });
 
   const toggleSection = (section: string) => {
     setMinimizedSections(prev => ({
@@ -32,8 +53,42 @@ const CashflowHedgeForm = () => {
     }));
   };
 
+  const validateGeneralInfo = (): boolean => {
+    const requiredFields: (keyof GeneralInfo)[] = [
+      'entityId',
+      'entityName',
+      'costCentre',
+      'exposedCurrency',
+      'documentDate',
+      'hedgingEntity',
+      'hedgingEntityFunctionalCurrency'
+    ];
+
+    const missingFields = requiredFields.filter(field => !generalInfo[field]);
+
+    if (missingFields.length > 0) {
+      toast({
+        title: "Required Fields Missing",
+        description: `Please fill in all required fields in General Information section: ${missingFields.join(', ')}`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSaveDraft = () => {
-    // Save draft functionality will be implemented later
+    if (!validateGeneralInfo()) {
+      return;
+    }
+
+    // We'll implement the actual save in the next step
+    console.log("Saving draft with data:", { generalInfo });
+    toast({
+      title: "Validation Passed",
+      description: "All required fields are filled. Ready to implement save functionality.",
+    });
   };
 
   const handleSubmit = () => {
@@ -55,15 +110,17 @@ const CashflowHedgeForm = () => {
     </div>
   );
 
-  // Handler for when exposure category L2 changes
   const handleExposureCategoryL2Change = (value: string) => {
     setSelectedExposureCategoryL2(value);
   };
 
-  // Handler for when strategy changes
   const handleStrategyChange = (value: string, instrument: string) => {
     setSelectedStrategy(value);
     setSelectedInstrument(instrument);
+  };
+
+  const handleGeneralInfoChange = (info: Partial<GeneralInfo>) => {
+    setGeneralInfo(prev => ({ ...prev, ...info }));
   };
 
   return (
@@ -91,6 +148,8 @@ const CashflowHedgeForm = () => {
           <GeneralInformationSection 
             onExposureCategoryL2Change={handleExposureCategoryL2Change}
             onStrategyChange={handleStrategyChange}
+            onGeneralInfoChange={handleGeneralInfoChange}
+            generalInfo={generalInfo}
           />
         </CardContent>
       </Card>
