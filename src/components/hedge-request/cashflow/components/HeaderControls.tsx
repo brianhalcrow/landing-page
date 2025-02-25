@@ -31,7 +31,6 @@ export const HeaderControls = ({
   const [inputValue, setInputValue] = useState('');
 
   const formatMonthInput = (value: string) => {
-    // Remove any non-digit characters
     const digitsOnly = value.replace(/\D/g, '');
     
     if (digitsOnly.length >= 4) {
@@ -47,7 +46,7 @@ export const HeaderControls = ({
     const formattedValue = formatMonthInput(raw);
     setInputValue(formattedValue);
 
-    if (formattedValue.length === 5) { // MM-YY format
+    if (formattedValue.length === 5) {
       const [month, year] = formattedValue.split('-');
       const date = new Date(2000 + parseInt(year), parseInt(month) - 1);
       onDateChange(date);
@@ -57,7 +56,7 @@ export const HeaderControls = ({
   };
   
   return (
-    <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-6">
+    <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
       <div></div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Layer Number</label>
