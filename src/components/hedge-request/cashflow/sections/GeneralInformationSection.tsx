@@ -39,12 +39,13 @@ const GeneralInformationSection = () => {
         .select('entity_id, entity_name, functional_currency');
       
       if (error) throw error;
+      console.log('All entities:', data);
       return data as EntityData[];
     }
   });
 
   // Fetch entity counterparty relationships
-  const { data: entityCounterparty } = useQuery({
+  const { data: entityCounterparty, isSuccess: isRelationshipsFetched } = useQuery({
     queryKey: ['entity-counterparty', selectedEntityId],
     queryFn: async () => {
       if (!selectedEntityId) return null;
@@ -55,7 +56,7 @@ const GeneralInformationSection = () => {
         .eq('counterparty_id', 'SEN1');
       
       if (error) throw error;
-      console.log('Entity counterparty data:', data); // Debug log
+      console.log('Entity-SEN1 relationship data:', data);
       return data as EntityCounterparty[];
     },
     enabled: !!selectedEntityId
@@ -84,44 +85,57 @@ const GeneralInformationSection = () => {
 
   // Get available hedging entities
   const getHedgingEntityOptions = () => {
-    if (!selectedEntity) return [];
+    console.log('Getting hedging entity options...');
+    console.log('Selected entity:', selectedEntity);
+    console.log('Entity counterparty:', entityCounterparty);
+    console.log('All available entities:', entities);
+
+    if (!selectedEntity || !entities) return [];
     
     // Start with the selected entity
     const options = [selectedEntity];
     
     // If there's a relationship with SEN1, add Sense Treasury B.V.
     if (entityCounterparty && entityCounterparty.length > 0) {
-      const senseTreasury = entities?.find(e => e.entity_name === 'Sense Treasury B.V.');
-      if (senseTreasury) {
-        console.log('Adding Sense Treasury to options:', senseTreasury);
+      // Look for Sense Treasury B.V. case-insensitive
+      const senseTreasury = entities.find(e => 
+        e.entity_name.toLowerCase().includes('treasury')
+      );
+      
+      console.log('Found Sense Treasury:', senseTreasury);
+      
+      if (senseTreasury && !options.some(e => e.entity_id === senseTreasury.entity_id)) {
         options.push(senseTreasury);
       }
     }
     
-    console.log('Available hedging entities:', options);
+    console.log('Final hedging entity options:', options);
     return options;
   };
 
   // Update both ID and name when either changes
   const handleEntityIdChange = (newId: string) => {
+    console.log('Entity ID changed to:', newId);
     setSelectedEntityId(newId);
     const entity = entities?.find(e => e.entity_id === newId);
     if (entity) {
       setSelectedEntityName(entity.entity_name);
-      setSelectedHedgingEntity(entity.entity_name); // Default hedging entity to selected entity
+      setSelectedHedgingEntity(entity.entity_name);
     }
   };
 
   const handleEntityNameChange = (newName: string) => {
+    console.log('Entity name changed to:', newName);
     setSelectedEntityName(newName);
     const entity = entities?.find(e => e.entity_name === newName);
     if (entity) {
       setSelectedEntityId(entity.entity_id);
-      setSelectedHedgingEntity(newName); // Default hedging entity to selected entity
+      setSelectedHedgingEntity(newName);
     }
   };
 
   const handleHedgingEntityChange = (newEntityName: string) => {
+    console.log('Hedging entity changed to:', newEntityName);
     setSelectedHedgingEntity(newEntityName);
     const hedgingEntity = entities?.find(e => e.entity_name === newEntityName);
     if (hedgingEntity) {
@@ -131,8 +145,8 @@ const GeneralInformationSection = () => {
 
   // Set initial hedging entity functional currency when hedging entity changes
   useEffect(() => {
-    if (selectedHedgingEntity) {
-      const hedgingEntity = entities?.find(e => e.entity_name === selectedHedgingEntity);
+    if (selectedHedgingEntity && entities) {
+      const hedgingEntity = entities.find(e => e.entity_name === selectedHedgingEntity);
       if (hedgingEntity) {
         setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
       }
