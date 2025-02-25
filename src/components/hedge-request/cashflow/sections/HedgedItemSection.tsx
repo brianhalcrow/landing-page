@@ -22,7 +22,6 @@ const HedgedItemSection = ({
   onExposureCategoryL2Change,
   selectedStrategy
 }: HedgedItemSectionProps) => {
-  const [timePeriod, setTimePeriod] = useState("");
   const [description, setDescription] = useState("");
   const [exposureCategories, setExposureCategories] = useState<string[]>([]);
 
@@ -56,16 +55,6 @@ const HedgedItemSection = ({
             value={exposureCategoryL2}
             disabled
             className="bg-gray-100"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Time Period</label>
-          <Input 
-            type="text" 
-            placeholder="Enter time period" 
-            value={timePeriod}
-            onChange={(e) => setTimePeriod(e.target.value)}
           />
         </div>
       </div>

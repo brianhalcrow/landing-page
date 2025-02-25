@@ -13,6 +13,7 @@ import { useState } from "react";
 const AssessmentMonitoringSection = () => {
   const [assessmentDetails, setAssessmentDetails] = useState("");
   const [effectivenessMethod, setEffectivenessMethod] = useState("");
+  const [testingFrequency, setTestingFrequency] = useState("");
   const [economicRelationship, setEconomicRelationship] = useState("");
   const [creditRisk, setCreditRisk] = useState("");
   const [reclassificationApproach, setReclassificationApproach] = useState("");
@@ -20,7 +21,7 @@ const AssessmentMonitoringSection = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Effectiveness Testing Method</label>
           <Select value={effectivenessMethod} onValueChange={setEffectivenessMethod}>
@@ -31,6 +32,21 @@ const AssessmentMonitoringSection = () => {
               <SelectItem value="dollar-offset">Dollar Offset</SelectItem>
               <SelectItem value="regression">Regression Analysis</SelectItem>
               <SelectItem value="sensitivity">Sensitivity Analysis</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Testing Frequency</label>
+          <Select value={testingFrequency} onValueChange={setTestingFrequency}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select frequency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="quarterly">Quarterly</SelectItem>
+              <SelectItem value="semi-annual">Semi-Annual</SelectItem>
+              <SelectItem value="annual">Annual</SelectItem>
             </SelectContent>
           </Select>
         </div>
