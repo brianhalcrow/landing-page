@@ -32,7 +32,7 @@ const GeneralInformationSection = () => {
   // Use custom hooks
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
-  const { data: strategies } = useStrategies();
+  const { data: strategies } = useStrategies(selectedEntityId, selectedExposureCategoryL3);
 
   // Fetch available currencies
   const { data: currencies } = useQuery({
@@ -103,7 +103,6 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
-          // Filter out 'Balance Sheet' category
           config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2) &&
           (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
@@ -115,7 +114,6 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
-          // Filter out categories related to 'Balance Sheet'
           config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
           (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
@@ -127,7 +125,6 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
-          // Filter out categories related to 'Balance Sheet'
           config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
           (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2)
@@ -137,16 +134,8 @@ const GeneralInformationSection = () => {
     },
     strategies: () => {
       if (!strategies) return [];
-      return selectedExposureCategoryL2 
-        ? strategies.filter(s => 
-            // Filter out strategies related to 'Balance Sheet' categories
-            s.exposure_category_l2 === selectedExposureCategoryL2 &&
-            exposureConfigs?.some(config => 
-              config.exposure_types.exposure_category_l2 === s.exposure_category_l2 &&
-              config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet'
-            )
-          )
-        : strategies;
+      // Strategies are now pre-filtered by the useStrategies hook based on entity and L3
+      return strategies;
     }
   };
 
@@ -162,15 +151,9 @@ const GeneralInformationSection = () => {
     switch (level) {
       case 'L1':
         setSelectedExposureCategoryL1(value);
-        // Only clear L2 and L3 if they're not valid for the new L1
-        const validL2ForNewL1 = exposureConfigs
-          ?.filter(c => c.exposure_types.exposure_category_l1 === value)
-          .map(c => c.exposure_types.exposure_category_l2);
-        if (!validL2ForNewL1?.includes(selectedExposureCategoryL2)) {
-          setSelectedExposureCategoryL2('');
-          setSelectedExposureCategoryL3('');
-          setSelectedStrategy('');
-        }
+        setSelectedExposureCategoryL2('');
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
         break;
       case 'L2':
         setSelectedExposureCategoryL2(value);
@@ -181,12 +164,8 @@ const GeneralInformationSection = () => {
         if (possibleL1.length === 1 && possibleL1[0] !== selectedExposureCategoryL1) {
           setSelectedExposureCategoryL1(possibleL1[0]);
         }
-        const validL3ForNewL2 = exposureConfigs
-          ?.filter(c => c.exposure_types.exposure_category_l2 === value)
-          .map(c => c.exposure_types.exposure_category_l3);
-        if (!validL3ForNewL2?.includes(selectedExposureCategoryL3)) {
-          setSelectedExposureCategoryL3('');
-        }
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
         break;
       case 'L3':
         setSelectedExposureCategoryL3(value);
@@ -201,23 +180,10 @@ const GeneralInformationSection = () => {
             setSelectedExposureCategoryL2(config.exposure_types.exposure_category_l2);
           }
         }
+        setSelectedStrategy('');
         break;
       case 'strategy':
         setSelectedStrategy(value);
-        const strategy = strategies?.find(s => s.strategy_name === value);
-        if (strategy) {
-          const matchingConfig = exposureConfigs?.find(config => 
-            config.exposure_types.exposure_category_l2 === strategy.exposure_category_l2
-          );
-          if (matchingConfig) {
-            if (!selectedExposureCategoryL1) {
-              setSelectedExposureCategoryL1(matchingConfig.exposure_types.exposure_category_l1);
-            }
-            if (!selectedExposureCategoryL2) {
-              setSelectedExposureCategoryL2(strategy.exposure_category_l2);
-            }
-          }
-        }
         break;
     }
   };
