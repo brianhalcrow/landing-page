@@ -55,6 +55,7 @@ const GeneralInformationSection = () => {
         .eq('counterparty_id', 'SEN1');
       
       if (error) throw error;
+      console.log('Entity counterparty data:', data); // Debug log
       return data as EntityCounterparty[];
     },
     enabled: !!selectedEntityId
@@ -92,10 +93,12 @@ const GeneralInformationSection = () => {
     if (entityCounterparty && entityCounterparty.length > 0) {
       const senseTreasury = entities?.find(e => e.entity_id === 'SEN1');
       if (senseTreasury) {
+        console.log('Adding Sense Treasury to options:', senseTreasury); // Debug log
         options.push(senseTreasury);
       }
     }
     
+    console.log('Available hedging entities:', options); // Debug log
     return options;
   };
 
