@@ -13,24 +13,95 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
-interface GeneralInfo {
-  entityId: string;
-  entityName: string;
-  costCentre: string;
-  exposedCurrency: string;
-  documentDate: string;
-  hedgingEntity: string;
-  hedgingEntityFunctionalCurrency: string;
-}
-
-interface HedgeAccountingRequest {
-  cost_centre: string;
-  hedge_type: 'Cashflow';
-  start_month: string;
-  status: 'draft';
+// Define interfaces for each section
+interface GeneralInformationData {
   entity_id: string;
   entity_name: string;
+  cost_centre: string;
+  transaction_currency: string;
+  documentation_date: string;
+  exposure_category_l1: string;
+  exposure_category_l2: string;
+  exposure_category_l3: string;
+  strategy: string;
   hedging_entity: string;
+  hedging_entity_fccy: string;
+  functional_currency: string;
+}
+
+interface RiskManagementData {
+  risk_management_description: string;
+}
+
+interface HedgedItemData {
+  hedged_item_description: string;
+}
+
+interface HedgingInstrumentData {
+  instrument: string;
+  forward_element_designation: string;
+  currency_basis_spreads: string;
+  hedging_instrument_description: string;
+}
+
+interface AssessmentMonitoringData {
+  credit_risk_impact: string;
+  oci_reclassification_approach: string;
+  economic_relationship: string;
+  discontinuation_criteria: string;
+  effectiveness_testing_method: string;
+  testing_frequency: string;
+  assessment_details: string;
+}
+
+interface ExposureDetailsData {
+  start_month: string;
+  end_month: string;
+}
+
+// Main form data interface
+interface HedgeAccountingRequest {
+  // General Information
+  entity_id: string;
+  entity_name: string;
+  cost_centre: string;
+  transaction_currency: string;
+  documentation_date: string;
+  exposure_category_l1: string;
+  exposure_category_l2: string;
+  exposure_category_l3: string;
+  strategy: string;
+  hedging_entity: string;
+  hedging_entity_fccy: string;
+  functional_currency: string;
+
+  // Risk Management
+  risk_management_description: string;
+
+  // Hedged Item
+  hedged_item_description: string;
+
+  // Hedging Instrument
+  instrument: string;
+  forward_element_designation: string;
+  currency_basis_spreads: string;
+  hedging_instrument_description: string;
+
+  // Assessment & Monitoring
+  credit_risk_impact: string;
+  oci_reclassification_approach: string;
+  economic_relationship: string;
+  discontinuation_criteria: string;
+  effectiveness_testing_method: string;
+  testing_frequency: string;
+  assessment_details: string;
+
+  // Exposure Details
+  start_month: string;
+  end_month: string;
+
+  // System fields
+  status: 'draft';
   created_at: string;
   updated_at: string;
 }
@@ -47,17 +118,50 @@ const CashflowHedgeForm = () => {
     exposure: false
   });
 
-  const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
-  const [selectedStrategy, setSelectedStrategy] = useState("");
-  const [selectedInstrument, setSelectedInstrument] = useState("");
-  const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
-    entityId: "",
-    entityName: "",
-    costCentre: "",
-    exposedCurrency: "",
-    documentDate: "",
-    hedgingEntity: "",
-    hedgingEntityFunctionalCurrency: ""
+  // State for each section
+  const [generalInfo, setGeneralInfo] = useState<GeneralInformationData>({
+    entity_id: "",
+    entity_name: "",
+    cost_centre: "",
+    transaction_currency: "",
+    documentation_date: "",
+    exposure_category_l1: "",
+    exposure_category_l2: "",
+    exposure_category_l3: "",
+    strategy: "",
+    hedging_entity: "",
+    hedging_entity_fccy: "",
+    functional_currency: ""
+  });
+
+  const [riskManagement, setRiskManagement] = useState<RiskManagementData>({
+    risk_management_description: ""
+  });
+
+  const [hedgedItem, setHedgedItem] = useState<HedgedItemData>({
+    hedged_item_description: ""
+  });
+
+  const [hedgingInstrument, setHedgingInstrument] = useState<HedgingInstrumentData>({
+    instrument: "",
+    forward_element_designation: "",
+    currency_basis_spreads: "",
+    hedging_instrument_description: ""
+  });
+
+  const [assessmentMonitoring, setAssessmentMonitoring] = useState<AssessmentMonitoringData>({
+    credit_risk_impact: "",
+    oci_reclassification_approach: "",
+    economic_relationship: "",
+    discontinuation_criteria: "",
+    effectiveness_testing_method: "",
+    testing_frequency: "",
+    assessment_details: ""
+  });
+
+  const [exposureDetails, setExposureDetails] = useState<ExposureDetailsData>({
+    start_month: "",
+    end_month: ""
   });
 
   const toggleSection = (section: string) => {
@@ -68,14 +172,19 @@ const CashflowHedgeForm = () => {
   };
 
   const validateGeneralInfo = (): boolean => {
-    const requiredFields: (keyof GeneralInfo)[] = [
-      'entityId',
-      'entityName',
-      'costCentre',
-      'exposedCurrency',
-      'documentDate',
-      'hedgingEntity',
-      'hedgingEntityFunctionalCurrency'
+    const requiredFields: (keyof GeneralInformationData)[] = [
+      'entity_id',
+      'entity_name',
+      'cost_centre',
+      'transaction_currency',
+      'documentation_date',
+      'exposure_category_l1',
+      'exposure_category_l2',
+      'exposure_category_l3',
+      'strategy',
+      'hedging_entity',
+      'hedging_entity_fccy',
+      'functional_currency'
     ];
 
     const missingFields = requiredFields.filter(field => !generalInfo[field]);
@@ -98,20 +207,21 @@ const CashflowHedgeForm = () => {
     }
 
     try {
-      // Create the request object conforming to the database schema
       const hedgeRequest: HedgeAccountingRequest = {
-        cost_centre: generalInfo.costCentre,
-        hedge_type: 'Cashflow',
-        start_month: generalInfo.documentDate,
+        ...generalInfo,
+        ...riskManagement,
+        ...hedgedItem,
+        ...hedgingInstrument,
+        ...assessmentMonitoring,
+        ...exposureDetails,
         status: 'draft',
-        entity_id: generalInfo.entityId,
-        entity_name: generalInfo.entityName,
-        hedging_entity: generalInfo.hedgingEntity,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase.from('hedge_accounting_requests').insert(hedgeRequest);
+      const { error } = await supabase
+        .from('hedge_accounting_requests')
+        .insert(hedgeRequest);
 
       if (error) throw error;
       
@@ -171,10 +281,21 @@ const CashflowHedgeForm = () => {
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.general ? "h-0 overflow-hidden p-0" : "")}>
           <GeneralInformationSection 
-            onExposureCategoryL2Change={setSelectedExposureCategoryL2}
+            onExposureCategoryL2Change={(value) => {
+              setGeneralInfo(prev => ({
+                ...prev,
+                exposure_category_l2: value
+              }));
+            }}
             onStrategyChange={(value, instrument) => {
-              setSelectedStrategy(value);
-              setSelectedInstrument(instrument);
+              setGeneralInfo(prev => ({
+                ...prev,
+                strategy: value
+              }));
+              setHedgingInstrument(prev => ({
+                ...prev,
+                instrument
+              }));
             }}
           />
         </CardContent>
@@ -185,9 +306,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Risk Management Objective and Strategy" section="risk" />
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.risk ? "h-0 overflow-hidden p-0" : "")}>
-          <div className="max-w-[1200px]">
-            <RiskManagementSection />
-          </div>
+          <RiskManagementSection />
         </CardContent>
       </Card>
 
@@ -196,13 +315,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Hedged Item Details" section="hedgedItem" />
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : "")}>
-          <div className="max-w-[1200px]">
-            <HedgedItemSection 
-              exposureCategoryL2={selectedExposureCategoryL2}
-              selectedStrategy={selectedStrategy}
-              onExposureCategoryL2Change={setSelectedExposureCategoryL2}
-            />
-          </div>
+          <HedgedItemSection />
         </CardContent>
       </Card>
 
@@ -211,12 +324,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Hedging Instrument" section="hedgingInstrument" />
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : "")}>
-          <div className="max-w-[1200px]">
-            <HedgingInstrumentSection 
-              selectedStrategy={selectedStrategy}
-              instrumentType={selectedInstrument}
-            />
-          </div>
+          <HedgingInstrumentSection />
         </CardContent>
       </Card>
 
@@ -225,9 +333,7 @@ const CashflowHedgeForm = () => {
           <SectionHeader title="Assessment, Effectiveness, and Monitoring" section="assessment" />
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.assessment ? "h-0 overflow-hidden p-0" : "")}>
-          <div className="max-w-[1200px]">
-            <AssessmentMonitoringSection />
-          </div>
+          <AssessmentMonitoringSection />
         </CardContent>
       </Card>
 
