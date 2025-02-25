@@ -1526,17 +1526,17 @@ export type Database = {
         Row: {
           current_sequence: number | null
           entity_id: string
-          hedge_type: string
+          exposure_category_l1: string
         }
         Insert: {
           current_sequence?: number | null
           entity_id: string
-          hedge_type: string
+          exposure_category_l1: string
         }
         Update: {
           current_sequence?: number | null
           entity_id?: string
-          hedge_type?: string
+          exposure_category_l1?: string
         }
         Relationships: [
           {

@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FormHeader } from "./components/FormHeader";
@@ -33,6 +34,7 @@ const CashflowHedgeForm = () => {
       .from('hedge_request_sequences')
       .select('current_sequence')
       .eq('entity_id', entityId)
+      .eq('exposure_category_l1', generalInfo.exposure_category_l1)
       .single();
 
     if (sequenceError) {
@@ -44,6 +46,7 @@ const CashflowHedgeForm = () => {
           .from('hedge_request_sequences')
           .insert({
             entity_id: entityId,
+            exposure_category_l1: generalInfo.exposure_category_l1,
             current_sequence: 1
           })
           .select()
@@ -64,7 +67,8 @@ const CashflowHedgeForm = () => {
     const { error: updateError } = await supabase
       .from('hedge_request_sequences')
       .update({ current_sequence: nextSequence })
-      .eq('entity_id', entityId);
+      .eq('entity_id', entityId)
+      .eq('exposure_category_l1', generalInfo.exposure_category_l1);
 
     if (updateError) {
       console.error('Error updating sequence:', updateError);
