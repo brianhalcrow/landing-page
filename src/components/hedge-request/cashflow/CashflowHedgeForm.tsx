@@ -29,6 +29,7 @@ const CashflowHedgeForm = () => {
   } = useFormState();
 
   const generateHedgeId = async (entityId: string): Promise<string> => {
+    console.log('Generating hedge ID for entity:', entityId);
     const { data: sequenceData, error: sequenceError } = await supabase
       .from('hedge_request_sequences')
       .select('current_sequence')
@@ -37,8 +38,10 @@ const CashflowHedgeForm = () => {
       .single();
 
     if (sequenceError) {
+      console.log('Sequence error:', sequenceError);
       // If no sequence exists, create one
       if (sequenceError.code === 'PGRST116') {
+        console.log('Creating new sequence for entity:', entityId);
         const { data: newSequence, error: createError } = await supabase
           .from('hedge_request_sequences')
           .insert({
@@ -49,13 +52,17 @@ const CashflowHedgeForm = () => {
           .select()
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          console.error('Error creating sequence:', createError);
+          throw createError;
+        }
         return `${entityId}-CF-1`;
       }
       throw sequenceError;
     }
 
     const nextSequence = (sequenceData.current_sequence || 0) + 1;
+    console.log('Next sequence number:', nextSequence);
 
     const { error: updateError } = await supabase
       .from('hedge_request_sequences')
@@ -63,15 +70,20 @@ const CashflowHedgeForm = () => {
       .eq('entity_id', entityId)
       .eq('hedge_type', 'cashflow');
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error('Error updating sequence:', updateError);
+      throw updateError;
+    }
 
     return `${entityId}-CF-${nextSequence}`;
   };
 
   const handleSaveDraft = async () => {
+    console.log('Saving draft with general info:', generalInfo);
     const { isValid, missingFields } = validateGeneralInfo(generalInfo);
     
     if (!isValid) {
+      console.log('Validation failed. Missing fields:', missingFields);
       toast({
         title: "Required Fields Missing",
         description: `Please fill in all required fields in General Information section: ${missingFields.join(', ')}`,
@@ -81,7 +93,9 @@ const CashflowHedgeForm = () => {
     }
 
     try {
+      console.log('Generating hedge ID...');
       const hedge_id = await generateHedgeId(generalInfo.entity_id);
+      console.log('Generated hedge ID:', hedge_id);
 
       const hedgeRequest: HedgeAccountingRequest = {
         hedge_id,
@@ -96,11 +110,15 @@ const CashflowHedgeForm = () => {
         updated_at: new Date().toISOString()
       };
 
+      console.log('Saving hedge request:', hedgeRequest);
       const { error } = await supabase
         .from('hedge_accounting_requests')
         .insert(hedgeRequest);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "Success",
@@ -131,6 +149,8 @@ const CashflowHedgeForm = () => {
         onToggle={toggleSection}
       >
         <GeneralInformationSection 
+          generalInfo={generalInfo}
+          onChange={setGeneralInfo}
           onExposureCategoryL2Change={(value) => {
             setGeneralInfo(prev => ({
               ...prev,
