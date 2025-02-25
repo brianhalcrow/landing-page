@@ -50,7 +50,6 @@ const HedgeRequestGrid: React.FC = () => {
     }, 100);
   }, []);
 
-  // Memoize the column definitions to prevent unnecessary re-renders
   const columnDefs = useMemo(() => createColumnDefs(
     gridRef.current?.api || null, 
     {
@@ -86,7 +85,7 @@ const HedgeRequestGrid: React.FC = () => {
         onGridReady={onGridReady}
         suppressHorizontalScroll={false}
         suppressScrollOnNewData={true}
-        rowSelection={{ type: 'multiple' }}
+        rowSelection="multiple"
         theme="legacy"
         context={{
           componentParent: this,
@@ -99,5 +98,4 @@ const HedgeRequestGrid: React.FC = () => {
   );
 };
 
-// Memoize the entire grid component
 export default memo(HedgeRequestGrid);

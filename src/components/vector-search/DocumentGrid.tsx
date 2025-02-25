@@ -36,7 +36,7 @@ export function DocumentGrid({ documents, onGridReady }: DocumentGridProps) {
         onGridReady={handleGridReady}
         onFirstDataRendered={(params) => params.api.sizeColumnsToFit()}
         getRowHeight={() => 100}
-        rowSelection={{ type: 'multiple' }}
+        rowSelection="multiple"
         theme="legacy"
         context={{
           componentParent: this
