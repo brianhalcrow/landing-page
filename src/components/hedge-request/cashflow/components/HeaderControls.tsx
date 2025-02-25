@@ -30,9 +30,12 @@ export const HeaderControls = ({
   onHedgeRatioChange,
   onDateChange,
 }: HeaderControlsProps) => {
+  const currentMonth = format(new Date(), "MM-yy");
+  
   return (
-    <div className="flex gap-4 mb-6">
-      <div className="w-[105px] space-y-2">
+    <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-6">
+      <div></div>
+      <div className="space-y-2">
         <label className="text-sm font-medium">Layer Number</label>
         <Select>
           <SelectTrigger>
@@ -47,7 +50,7 @@ export const HeaderControls = ({
         </Select>
       </div>
 
-      <div className="w-[105px] space-y-2">
+      <div className="space-y-2">
         <label className="text-sm font-medium">Layer %</label>
         <div className="relative">
           <Input 
@@ -64,7 +67,7 @@ export const HeaderControls = ({
         </div>
       </div>
 
-      <div className="w-[105px] space-y-2">
+      <div className="space-y-2">
         <label className="text-sm font-medium">Start Month</label>
         <Popover>
           <PopoverTrigger asChild>
@@ -74,7 +77,7 @@ export const HeaderControls = ({
                 !selectedDate && "text-muted-foreground"
               )}
             >
-              {selectedDate ? format(selectedDate, "MMM yyyy") : "Select month"}
+              {selectedDate ? format(selectedDate, "MM-yy") : currentMonth}
               <CalendarIcon className="ml-2 h-4 w-4" />
             </button>
           </PopoverTrigger>
@@ -114,7 +117,7 @@ export const HeaderControls = ({
         </Popover>
       </div>
 
-      <div className="w-[105px] space-y-2">
+      <div className="space-y-2">
         <label className="text-sm font-medium">Hedge Ratio</label>
         <div className="relative">
           <Input 

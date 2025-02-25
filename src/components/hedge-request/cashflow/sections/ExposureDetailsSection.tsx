@@ -1,4 +1,3 @@
-
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -18,10 +17,10 @@ const ExposureDetailsSection = () => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const getMonths = (startDate: Date | undefined) => {
-    if (!startDate) return Array(12).fill('');
+    const baseDate = startDate || new Date();
     return Array.from({ length: 12 }, (_, i) => {
-      const date = addMonths(startDate, i);
-      return format(date, 'MM/yy');
+      const date = addMonths(baseDate, i);
+      return format(date, 'MM-yy');
     });
   };
 
@@ -127,10 +126,8 @@ const ExposureDetailsSection = () => {
       />
 
       <div>
-        <div className="grid grid-cols-[200px_repeat(12,105px)] -mb-2">
-          {/* Empty space for the label column */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
           <div></div>
-          {/* Month headers aligned with grid columns */}
           {months.map((month) => (
             <div key={month} className="text-sm font-medium text-center">
               {month}
