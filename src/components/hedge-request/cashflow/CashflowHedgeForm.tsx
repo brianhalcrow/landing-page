@@ -8,7 +8,6 @@ import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import { Minimize2, Maximize2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-
 const CashflowHedgeForm = () => {
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
     general: false,
@@ -16,44 +15,34 @@ const CashflowHedgeForm = () => {
     hedgedItem: false,
     hedgingInstrument: false,
     assessment: false,
-    exposure: false,
+    exposure: false
   });
-
   const toggleSection = (section: string) => {
     setMinimizedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
   };
-
-  const SectionHeader = ({ title, section }: { title: string; section: string }) => (
-    <div className="flex justify-between items-center">
+  const SectionHeader = ({
+    title,
+    section
+  }: {
+    title: string;
+    section: string;
+  }) => <div className="flex justify-between items-center">
       <CardTitle>{title}</CardTitle>
-      <button 
-        onClick={() => toggleSection(section)}
-        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-      >
-        {minimizedSections[section] ? (
-          <Maximize2 className="h-4 w-4" />
-        ) : (
-          <Minimize2 className="h-4 w-4" />
-        )}
+      <button onClick={() => toggleSection(section)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+        {minimizedSections[section] ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
       </button>
-    </div>
-  );
-
-  return (
-    <div className="max-w-[1693px] mx-auto px-4 space-y-6">
+    </div>;
+  return <div className="max-w-[1525px] mx-auto px-4 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Cashflow Hedge Documentation</h1>
       
       <Card>
         <CardHeader>
           <SectionHeader title="General Information" section="general" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.general ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.general ? "h-0 overflow-hidden p-0" : "")}>
           <GeneralInformationSection />
         </CardContent>
       </Card>
@@ -62,10 +51,7 @@ const CashflowHedgeForm = () => {
         <CardHeader>
           <SectionHeader title="Risk Management Objective and Strategy" section="risk" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.risk ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.risk ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
             <RiskManagementSection />
           </div>
@@ -76,10 +62,7 @@ const CashflowHedgeForm = () => {
         <CardHeader>
           <SectionHeader title="Hedged Item Details" section="hedgedItem" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.hedgedItem ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
             <HedgedItemSection />
           </div>
@@ -90,10 +73,7 @@ const CashflowHedgeForm = () => {
         <CardHeader>
           <SectionHeader title="Hedging Instrument" section="hedgingInstrument" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
             <HedgingInstrumentSection />
           </div>
@@ -104,10 +84,7 @@ const CashflowHedgeForm = () => {
         <CardHeader>
           <SectionHeader title="Assessment and Monitoring" section="assessment" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.assessment ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.assessment ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
             <AssessmentMonitoringSection />
           </div>
@@ -118,15 +95,10 @@ const CashflowHedgeForm = () => {
         <CardHeader>
           <SectionHeader title="Exposure Details" section="exposure" />
         </CardHeader>
-        <CardContent className={cn(
-          "transition-all duration-300",
-          minimizedSections.exposure ? "h-0 overflow-hidden p-0" : ""
-        )}>
+        <CardContent className={cn("transition-all duration-300", minimizedSections.exposure ? "h-0 overflow-hidden p-0" : "")}>
           <ExposureDetailsSection />
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default CashflowHedgeForm;
