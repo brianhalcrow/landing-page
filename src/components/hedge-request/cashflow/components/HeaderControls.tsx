@@ -31,11 +31,8 @@ export const HeaderControls = ({
   onDateChange,
 }: HeaderControlsProps) => {
   return (
-    <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-6">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Controls</label>
-      </div>
-      <div className="space-y-2">
+    <div className="flex gap-4 mb-6">
+      <div className="w-[105px] space-y-2">
         <label className="text-sm font-medium">Layer Number</label>
         <Select>
           <SelectTrigger>
@@ -50,7 +47,7 @@ export const HeaderControls = ({
         </Select>
       </div>
 
-      <div className="space-y-2">
+      <div className="w-[105px] space-y-2">
         <label className="text-sm font-medium">Layer %</label>
         <div className="relative">
           <Input 
@@ -67,7 +64,7 @@ export const HeaderControls = ({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="w-[105px] space-y-2">
         <label className="text-sm font-medium">Start Month</label>
         <Popover>
           <PopoverTrigger asChild>
@@ -117,7 +114,7 @@ export const HeaderControls = ({
         </Popover>
       </div>
 
-      <div className="space-y-2">
+      <div className="w-[105px] space-y-2">
         <label className="text-sm font-medium">Hedge Ratio</label>
         <div className="relative">
           <Input 
@@ -133,8 +130,6 @@ export const HeaderControls = ({
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
         </div>
       </div>
-
-      <div className="col-span-8" /> {/* Empty space to fill the remaining columns */}
     </div>
   );
 };

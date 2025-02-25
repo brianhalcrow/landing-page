@@ -127,8 +127,10 @@ const ExposureDetailsSection = () => {
       />
 
       <div>
-        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+        <div className="grid grid-cols-[200px_repeat(12,105px)] -mb-2">
+          {/* Empty space for the label column */}
           <div></div>
+          {/* Month headers aligned with grid columns */}
           {months.map((month) => (
             <div key={month} className="text-sm font-medium text-center">
               {month}
