@@ -3493,7 +3493,7 @@ export type Database = {
       generate_hedge_id: {
         Args: {
           p_entity_id: string
-          p_hedge_type: string
+          p_exposure_category_l1: string
         }
         Returns: string
       }
