@@ -1,10 +1,15 @@
 
+import { useState } from "react";
 import { EntityInformation } from "../components/EntityInformation";
 import { useEntityData } from "../hooks/useEntityData";
 import { ExposureCategories } from "../components/ExposureCategories";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { useExposureConfig } from "../hooks/useExposureConfig";
+import { useStrategies } from "../hooks/useStrategies";
+
+const TREASURY_ENTITY_NAME = "Treasury";
+const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"]; // Add more as needed
 
 interface GeneralInfo {
   entityId: string;
@@ -29,9 +34,47 @@ const GeneralInformationSection = ({
   onGeneralInfoChange,
   generalInfo 
 }: GeneralInformationSectionProps) => {
-  const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(generalInfo.entityId);
+  const [selectedExposureCategoryL1, setSelectedExposureCategoryL1] = useState("");
+  const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
+  const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
+  const [selectedStrategy, setSelectedStrategy] = useState("");
+
+  const { entities, entityCounterparty } = useEntityData(generalInfo.entityId);
   const { data: exposureConfigs } = useExposureConfig(generalInfo.entityId);
   const { data: strategies } = useStrategies(generalInfo.entityId, selectedExposureCategoryL2);
+
+  const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
+    switch(level) {
+      case 'L1':
+        setSelectedExposureCategoryL1(value);
+        break;
+      case 'L2':
+        setSelectedExposureCategoryL2(value);
+        onExposureCategoryL2Change(value);
+        break;
+      case 'L3':
+        setSelectedExposureCategoryL3(value);
+        break;
+      case 'strategy':
+        setSelectedStrategy(value);
+        const strategy = strategies?.find(s => s.strategy_name === value);
+        if (strategy) {
+          onStrategyChange(value, strategy.instrument);
+        }
+        break;
+    }
+  };
+
+  const getCategoryOptions = {
+    l1: () => [...new Set(exposureConfigs?.map(config => config.exposure_types.exposure_category_l1) || [])],
+    l2: () => [...new Set(exposureConfigs?.filter(
+      config => config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1
+    ).map(config => config.exposure_types.exposure_category_l2) || [])],
+    l3: () => [...new Set(exposureConfigs?.filter(
+      config => config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2
+    ).map(config => config.exposure_types.exposure_category_l3) || [])],
+    strategies: () => strategies || []
+  };
 
   return (
     <>
@@ -71,7 +114,7 @@ const GeneralInformationSection = ({
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>
           <SelectContent>
-            {currencies?.map(currency => (
+            {CURRENCIES.map(currency => (
               <SelectItem key={currency} value={currency}>
                 {currency}
               </SelectItem>

@@ -13,11 +13,12 @@ export interface ExposureConfig {
   };
 }
 
-export const useExposureConfig = (selectedEntityId: string) => {
+export const useExposureConfig = (entityId: string) => {
   return useQuery({
-    queryKey: ['entity-exposure-config', selectedEntityId],
+    queryKey: ['entity-exposure-config', entityId],
     queryFn: async () => {
-      if (!selectedEntityId) return null;
+      if (!entityId) return null;
+      
       const { data, error } = await supabase
         .from('entity_exposure_config')
         .select(`
@@ -30,12 +31,12 @@ export const useExposureConfig = (selectedEntityId: string) => {
             subsystem
           )
         `)
-        .eq('entity_id', selectedEntityId)
+        .eq('entity_id', entityId)
         .eq('is_active', true);
       
       if (error) throw error;
       return data as ExposureConfig[];
     },
-    enabled: !!selectedEntityId
+    enabled: !!entityId
   });
 };
