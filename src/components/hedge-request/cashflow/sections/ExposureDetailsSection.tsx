@@ -1,4 +1,3 @@
-
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -230,7 +229,7 @@ const ExposureDetailsSection = () => {
         />
 
         <GridInputRow
-          label="Indicative Coverage"
+          label="Indicative Coverage %"
           sublabel=""
           values={indicativeCoverage}
           onChange={() => {}}
@@ -258,8 +257,8 @@ const ExposureDetailsSection = () => {
         />
 
         <GridInputRow
-          label="Cum. Indicative Coverage"
-          sublabel="(%)"
+          label="Cum. Indicative Coverage %"
+          sublabel=""
           values={cumulativeCoverage}
           onChange={() => {}}
           onKeyDown={() => {}}
