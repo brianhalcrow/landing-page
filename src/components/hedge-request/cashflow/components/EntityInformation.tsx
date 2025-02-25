@@ -84,6 +84,11 @@ export const EntityInformation = ({
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium">Cost Centre</label>
+        <Input type="text" placeholder="Enter cost centre" />
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium">Functional Currency</label>
         <Input 
           type="text" 
