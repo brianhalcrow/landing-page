@@ -91,6 +91,30 @@ export const HeaderControls = ({
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium">Start</label>
+        <Input 
+          type="text" 
+          placeholder="MMYY" 
+          maxLength={5} 
+          onChange={handleStartMonthChange} 
+          value={startInputValue} 
+          className="text-left" 
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">End</label>
+        <Input 
+          type="text" 
+          placeholder="MMYY" 
+          maxLength={5}
+          value={endInputValue}
+          onChange={handleEndMonthChange}
+          className="text-left"
+        />
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium">Layer %</label>
         <div className="relative">
           <Input 
@@ -104,30 +128,6 @@ export const HeaderControls = ({
             className="pr-0" 
           />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Start Month</label>
-        <Input 
-          type="text" 
-          placeholder="MMYY" 
-          maxLength={5} 
-          onChange={handleStartMonthChange} 
-          value={startInputValue} 
-          className="text-left" 
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">End Month</label>
-        <Input 
-          type="text" 
-          placeholder="MMYY" 
-          maxLength={5}
-          value={endInputValue}
-          onChange={handleEndMonthChange}
-          className="text-left"
-        />
       </div>
 
       <div className="space-y-2">
