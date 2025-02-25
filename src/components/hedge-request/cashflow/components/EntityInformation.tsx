@@ -119,7 +119,7 @@ export const EntityInformation = ({
           <label className="text-sm font-medium">Cost Centre</label>
           <Select>
             <SelectTrigger>
-              <SelectValue placeholder="Select cost centre" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               {costCentres?.map(centre => (
