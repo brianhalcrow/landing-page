@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -49,10 +50,8 @@ const GeneralInformationSection = () => {
   const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState("");
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
-  const [documentationDate, setDocumentationDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
 
+  // Fetch entity data
   const { data: entities } = useQuery({
     queryKey: ['legal-entities'],
     queryFn: async () => {
@@ -65,6 +64,7 @@ const GeneralInformationSection = () => {
     }
   });
 
+  // Fetch entity exposure configurations
   const { data: exposureConfigs } = useQuery({
     queryKey: ['entity-exposure-config', selectedEntityId],
     queryFn: async () => {
@@ -90,6 +90,7 @@ const GeneralInformationSection = () => {
     enabled: !!selectedEntityId
   });
 
+  // Fetch available strategies
   const { data: strategies } = useQuery({
     queryKey: ['hedge-strategies', selectedExposureCategoryL2],
     queryFn: async () => {
@@ -105,6 +106,7 @@ const GeneralInformationSection = () => {
     enabled: !!selectedExposureCategoryL2
   });
 
+  // Fetch entity counterparty relationships
   const { data: entityCounterparty, isSuccess: isRelationshipsFetched } = useQuery({
     queryKey: ['entity-counterparty', selectedEntityId],
     queryFn: async () => {
@@ -121,6 +123,7 @@ const GeneralInformationSection = () => {
     enabled: !!selectedEntityId
   });
 
+  // Effect to set default hedging entity when relationships are fetched
   useEffect(() => {
     if (isRelationshipsFetched && entityCounterparty && entities) {
       const treasuryEntity = entities.find(e => e.entity_id === 'NL01');
@@ -137,6 +140,7 @@ const GeneralInformationSection = () => {
     }
   }, [entityCounterparty, isRelationshipsFetched, entities, selectedEntityId]);
 
+  // Fetch available currencies
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
@@ -152,6 +156,7 @@ const GeneralInformationSection = () => {
     }
   });
 
+  // Helper functions for getting unique categories
   const getL1Categories = () => {
     if (!exposureConfigs) return [];
     return [...new Set(exposureConfigs.map(config => 
@@ -160,61 +165,43 @@ const GeneralInformationSection = () => {
   };
 
   const getL2Categories = () => {
-    if (!exposureConfigs) return [];
+    if (!exposureConfigs || !selectedExposureCategoryL1) return [];
     return [...new Set(exposureConfigs
-      .filter(config => 
-        !selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1
-      )
+      .filter(config => config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1)
       .map(config => config.exposure_types.exposure_category_l2)
     )];
   };
 
   const getL3Categories = () => {
-    if (!exposureConfigs) return [];
+    if (!exposureConfigs || !selectedExposureCategoryL2) return [];
     return [...new Set(exposureConfigs
       .filter(config => 
-        (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
-        (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2)
+        config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2
       )
       .map(config => config.exposure_types.exposure_category_l3)
     )];
   };
 
+  // Handlers for category changes
   const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
     switch (level) {
       case 'L1':
         setSelectedExposureCategoryL1(value);
-        if (!getL2Categories().includes(selectedExposureCategoryL2)) {
-          setSelectedExposureCategoryL2('');
-          setSelectedExposureCategoryL3('');
-          setSelectedStrategy('');
-        }
+        setSelectedExposureCategoryL2('');
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
         break;
       case 'L2':
         setSelectedExposureCategoryL2(value);
-        if (!getL3Categories().includes(selectedExposureCategoryL3)) {
-          setSelectedExposureCategoryL3('');
-        }
-        const possibleL1 = [...new Set(exposureConfigs
-          ?.filter(config => config.exposure_types.exposure_category_l2 === value)
-          .map(config => config.exposure_types.exposure_category_l1))];
-        if (possibleL1.length === 1) {
-          setSelectedExposureCategoryL1(possibleL1[0]);
-        }
+        setSelectedExposureCategoryL3('');
         setSelectedStrategy('');
         break;
       case 'L3':
         setSelectedExposureCategoryL3(value);
-        const matchingConfigs = exposureConfigs?.filter(config => 
-          config.exposure_types.exposure_category_l3 === value
-        );
-        const uniqueL1 = [...new Set(matchingConfigs?.map(c => c.exposure_types.exposure_category_l1))];
-        const uniqueL2 = [...new Set(matchingConfigs?.map(c => c.exposure_types.exposure_category_l2))];
-        if (uniqueL1.length === 1) setSelectedExposureCategoryL1(uniqueL1[0]);
-        if (uniqueL2.length === 1) setSelectedExposureCategoryL2(uniqueL2[0]);
         break;
       case 'strategy':
         setSelectedStrategy(value);
+        // Find and set matching exposure categories if not already set
         if (strategies) {
           const strategy = strategies.find(s => s.strategy_name === value);
           if (strategy) {
@@ -233,6 +220,7 @@ const GeneralInformationSection = () => {
 
   return (
     <div className="grid grid-cols-6 gap-4">
+      {/* Row 1 */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedge ID</label>
         <Input type="text" placeholder="Enter hedge ID" />
@@ -296,13 +284,10 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Documentation Date</label>
-        <Input 
-          type="date" 
-          value={documentationDate}
-          onChange={(e) => setDocumentationDate(e.target.value)}
-        />
+        <Input type="date" />
       </div>
 
+      {/* Row 2 */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Exposure Category L1</label>
         <Select 
