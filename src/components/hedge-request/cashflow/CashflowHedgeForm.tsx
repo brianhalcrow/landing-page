@@ -97,6 +97,9 @@ const CashflowHedgeForm = () => {
       const hedge_id = await generateHedgeId(generalInfo.entity_id);
       console.log('Generated hedge ID:', hedge_id);
 
+      // Get current date in ISO format
+      const now = new Date().toISOString();
+
       const hedgeRequest: HedgeAccountingRequest = {
         hedge_id,
         ...generalInfo,
@@ -106,8 +109,11 @@ const CashflowHedgeForm = () => {
         ...assessmentMonitoring,
         ...exposureDetails,
         status: 'draft',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        created_at: now,
+        updated_at: now,
+        // Ensure date fields have valid values
+        start_month: exposureDetails.start_month || now.split('T')[0],
+        end_month: exposureDetails.end_month || now.split('T')[0]
       };
 
       console.log('Saving hedge request:', hedgeRequest);
