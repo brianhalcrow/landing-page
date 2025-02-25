@@ -1,4 +1,6 @@
 
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -7,53 +9,125 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+
+interface EntityData {
+  entity_id: string;
+  entity_name: string;
+  functional_currency: string;
+}
 
 const GeneralInformationSection = () => {
+  const [selectedEntityId, setSelectedEntityId] = useState("");
+  const [selectedEntityName, setSelectedEntityName] = useState("");
+  const [exposedCurrency, setExposedCurrency] = useState("");
+
+  // Fetch entity data
+  const { data: entities } = useQuery({
+    queryKey: ['legal-entities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('erp_legal_entity')
+        .select('entity_id, entity_name, functional_currency');
+      
+      if (error) throw error;
+      return data as EntityData[];
+    }
+  });
+
+  // Fetch available currencies
+  const { data: currencies } = useQuery({
+    queryKey: ['available-currencies'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('erp_rates_monthly')
+        .select('quote_currency')
+        .distinct();
+      
+      if (error) throw error;
+      return data.map(row => row.quote_currency);
+    }
+  });
+
+  // Find entity by ID or name
+  const selectedEntity = entities?.find(e => 
+    e.entity_id === selectedEntityId || e.entity_name === selectedEntityName
+  );
+
+  // Update both ID and name when either changes
+  const handleEntityIdChange = (newId: string) => {
+    setSelectedEntityId(newId);
+    const entity = entities?.find(e => e.entity_id === newId);
+    if (entity) {
+      setSelectedEntityName(entity.entity_name);
+    }
+  };
+
+  const handleEntityNameChange = (newName: string) => {
+    setSelectedEntityName(newName);
+    const entity = entities?.find(e => e.entity_name === newName);
+    if (entity) {
+      setSelectedEntityId(entity.entity_id);
+    }
+  };
+
   return (
     <div className="grid grid-cols-5 gap-4">
       {/* Row 1 */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Entity Name</label>
-        <Select>
+        <Select value={selectedEntityName} onValueChange={handleEntityNameChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select entity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="entity1">Entity 1</SelectItem>
-            <SelectItem value="entity2">Entity 2</SelectItem>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_name}>
+                {entity.entity_name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Entity ID</label>
-        <Input type="text" placeholder="Enter entity ID" />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Functional Currency</label>
-        <Select>
+        <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Select currency" />
+            <SelectValue placeholder="Select entity ID" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="usd">USD</SelectItem>
-            <SelectItem value="eur">EUR</SelectItem>
-            <SelectItem value="gbp">GBP</SelectItem>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_id}>
+                {entity.entity_id}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium">Functional Currency</label>
+        <Input 
+          type="text" 
+          value={selectedEntity?.functional_currency || ''} 
+          disabled
+          className="bg-gray-100"
+        />
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium">Exposed Currency</label>
-        <Select>
+        <Select value={exposedCurrency} onValueChange={setExposedCurrency}>
           <SelectTrigger>
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="usd">USD</SelectItem>
-            <SelectItem value="eur">EUR</SelectItem>
-            <SelectItem value="gbp">GBP</SelectItem>
+            {currencies?.map(currency => (
+              <SelectItem key={currency} value={currency}>
+                {currency}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -102,24 +176,23 @@ const GeneralInformationSection = () => {
             <SelectValue placeholder="Select hedging entity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="entity1">Entity 1</SelectItem>
-            <SelectItem value="entity2">Entity 2</SelectItem>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_name}>
+                {entity.entity_name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedging Entity Functional Currency</label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Select currency" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="usd">USD</SelectItem>
-            <SelectItem value="eur">EUR</SelectItem>
-            <SelectItem value="gbp">GBP</SelectItem>
-          </SelectContent>
-        </Select>
+        <Input 
+          type="text" 
+          value={selectedEntity?.functional_currency || ''} 
+          disabled
+          className="bg-gray-100"
+        />
       </div>
     </div>
   );
