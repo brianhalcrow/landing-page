@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -16,7 +17,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const GeneralInformationSection = () => {
+interface GeneralInformationSectionProps {
+  onExposureCategoryL2Change: (value: string) => void;
+  onStrategyChange: (value: string, instrument: string) => void;
+}
+
+const GeneralInformationSection = ({ 
+  onExposureCategoryL2Change,
+  onStrategyChange 
+}: GeneralInformationSectionProps) => {
   const [selectedEntityId, setSelectedEntityId] = useState("");
   const [selectedEntityName, setSelectedEntityName] = useState("");
   const [exposedCurrency, setExposedCurrency] = useState("");
@@ -146,6 +155,7 @@ const GeneralInformationSection = () => {
         break;
       case 'L2':
         setSelectedExposureCategoryL2(value);
+        onExposureCategoryL2Change(value); // Call the prop function when L2 changes
         const possibleL1 = [...new Set(exposureConfigs
           ?.filter(c => c.exposure_types.exposure_category_l2 === value)
           .map(c => c.exposure_types.exposure_category_l1)
@@ -167,12 +177,17 @@ const GeneralInformationSection = () => {
           }
           if (!selectedExposureCategoryL2) {
             setSelectedExposureCategoryL2(config.exposure_types.exposure_category_l2);
+            onExposureCategoryL2Change(config.exposure_types.exposure_category_l2);
           }
         }
         setSelectedStrategy('');
         break;
       case 'strategy':
         setSelectedStrategy(value);
+        const selectedStrategyData = strategies?.find(s => s.strategy_name === value);
+        if (selectedStrategyData) {
+          onStrategyChange(value, selectedStrategyData.instrument); // Call the prop function when strategy changes
+        }
         break;
     }
   };
