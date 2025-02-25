@@ -1282,21 +1282,21 @@ export type Database = {
           credit_risk_impact: string | null
           currency_basis_spreads: string | null
           discontinuation_criteria: string | null
-          documentation_date: string | null
+          documentation_date: string
           economic_relationship: string | null
           effectiveness_testing_method: string | null
           end_month: string | null
           entity_id: string
           entity_name: string
-          exposure_category_l1: string | null
-          exposure_category_l2: string | null
-          exposure_category_l3: string | null
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
           forward_element_designation: string | null
-          functional_currency: string | null
+          functional_currency: string
           hedge_id: string
           hedged_item_description: string | null
-          hedging_entity: string | null
-          hedging_entity_fccy: string | null
+          hedging_entity: string
+          hedging_entity_fccy: string
           hedging_instrument_description: string | null
           instrument: string | null
           oci_reclassification_approach: string | null
@@ -1305,11 +1305,11 @@ export type Database = {
           risk_management_description: string | null
           start_month: string
           status: Database["public"]["Enums"]["hedge_status"] | null
-          strategy: string | null
+          strategy: string
           submitted_at: string | null
           submitted_by: string | null
           testing_frequency: string | null
-          transaction_currency: string | null
+          transaction_currency: string
           updated_at: string | null
           updated_by: string | null
         }
@@ -1323,21 +1323,21 @@ export type Database = {
           credit_risk_impact?: string | null
           currency_basis_spreads?: string | null
           discontinuation_criteria?: string | null
-          documentation_date?: string | null
+          documentation_date: string
           economic_relationship?: string | null
           effectiveness_testing_method?: string | null
           end_month?: string | null
           entity_id: string
           entity_name: string
-          exposure_category_l1?: string | null
-          exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
           forward_element_designation?: string | null
-          functional_currency?: string | null
+          functional_currency: string
           hedge_id: string
           hedged_item_description?: string | null
-          hedging_entity?: string | null
-          hedging_entity_fccy?: string | null
+          hedging_entity: string
+          hedging_entity_fccy: string
           hedging_instrument_description?: string | null
           instrument?: string | null
           oci_reclassification_approach?: string | null
@@ -1346,11 +1346,11 @@ export type Database = {
           risk_management_description?: string | null
           start_month: string
           status?: Database["public"]["Enums"]["hedge_status"] | null
-          strategy?: string | null
+          strategy: string
           submitted_at?: string | null
           submitted_by?: string | null
           testing_frequency?: string | null
-          transaction_currency?: string | null
+          transaction_currency: string
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -1364,21 +1364,21 @@ export type Database = {
           credit_risk_impact?: string | null
           currency_basis_spreads?: string | null
           discontinuation_criteria?: string | null
-          documentation_date?: string | null
+          documentation_date?: string
           economic_relationship?: string | null
           effectiveness_testing_method?: string | null
           end_month?: string | null
           entity_id?: string
           entity_name?: string
-          exposure_category_l1?: string | null
-          exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
+          exposure_category_l1?: string
+          exposure_category_l2?: string
+          exposure_category_l3?: string
           forward_element_designation?: string | null
-          functional_currency?: string | null
+          functional_currency?: string
           hedge_id?: string
           hedged_item_description?: string | null
-          hedging_entity?: string | null
-          hedging_entity_fccy?: string | null
+          hedging_entity?: string
+          hedging_entity_fccy?: string
           hedging_instrument_description?: string | null
           instrument?: string | null
           oci_reclassification_approach?: string | null
@@ -1387,11 +1387,11 @@ export type Database = {
           risk_management_description?: string | null
           start_month?: string
           status?: Database["public"]["Enums"]["hedge_status"] | null
-          strategy?: string | null
+          strategy?: string
           submitted_at?: string | null
           submitted_by?: string | null
           testing_frequency?: string | null
-          transaction_currency?: string | null
+          transaction_currency?: string
           updated_at?: string | null
           updated_by?: string | null
         }
