@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -49,7 +50,7 @@ const ExposureDetailsSection = () => {
 
   useEffect(() => {
     const ratio = parseFloat(hedgeRatio) || 0;
-    const layer = parseFloat(hedgeLayer) || 0;
+    const layerPercent = parseFloat(hedgeLayer) || 0;
     const newHedgedExposures: Record<number, number> = {};
     const newHedgeAmounts: Record<number, number> = {};
     const newIndicativeCoverage: Record<number, number> = {};
@@ -60,7 +61,8 @@ const ExposureDetailsSection = () => {
       const hedgedExposure = (forecast * ratio) / 100;
       newHedgedExposures[index] = hedgedExposure;
       
-      const hedgeAmount = hedgedExposure * layer;
+      // Calculate hedge amount using layer percentage
+      const hedgeAmount = (hedgedExposure * layerPercent) / 100;
       newHedgeAmounts[index] = hedgeAmount;
       
       newIndicativeCoverage[index] = forecast !== 0 ? (hedgeAmount / forecast) * 100 : 0;
@@ -115,7 +117,7 @@ const ExposureDetailsSection = () => {
     const numericValue = parseFloat(value);
     if (!isNaN(numericValue)) {
       if (numericValue >= 0) {
-        setHedgeLayer(String(numericValue));
+        setHedgeLayer(String(Math.min(100, numericValue)));
       }
     }
   };
@@ -142,18 +144,19 @@ const ExposureDetailsSection = () => {
           </div>
 
           <div className="w-[120px] space-y-2">
-            <label className="text-sm font-medium">Hedge Layer</label>
+            <label className="text-sm font-medium">Layer %</label>
             <div className="relative">
               <Input 
                 type="number" 
                 value={hedgeLayer}
                 onChange={(e) => handleHedgeLayerChange(e.target.value)}
-                placeholder="Enter value"
+                placeholder="Enter %"
                 min="0"
+                max="100"
                 step="1"
                 className="pr-6"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">×</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
             </div>
           </div>
         </div>
