@@ -91,14 +91,14 @@ const GeneralInformationSection = () => {
     
     // If there's a relationship with SEN1, add Sense Treasury B.V.
     if (entityCounterparty && entityCounterparty.length > 0) {
-      const senseTreasury = entities?.find(e => e.entity_id === 'SEN1');
+      const senseTreasury = entities?.find(e => e.entity_name === 'Sense Treasury B.V.');
       if (senseTreasury) {
-        console.log('Adding Sense Treasury to options:', senseTreasury); // Debug log
+        console.log('Adding Sense Treasury to options:', senseTreasury);
         options.push(senseTreasury);
       }
     }
     
-    console.log('Available hedging entities:', options); // Debug log
+    console.log('Available hedging entities:', options);
     return options;
   };
 
