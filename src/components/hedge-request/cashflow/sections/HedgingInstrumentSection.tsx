@@ -7,9 +7,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 
-const HedgingInstrumentSection = () => {
+interface HedgingInstrumentSectionProps {
+  selectedStrategy: string;
+  instrumentType: string;
+}
+
+const HedgingInstrumentSection = ({
+  selectedStrategy,
+  instrumentType
+}: HedgingInstrumentSectionProps) => {
   const [type, setType] = useState("");
   const [forwardElement, setForwardElement] = useState("");
   const [currencyBasis, setCurrencyBasis] = useState("");
@@ -20,16 +29,12 @@ const HedgingInstrumentSection = () => {
       <div className="grid grid-cols-5 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Instrument Type</label>
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="forward">Forward Contract</SelectItem>
-              <SelectItem value="option">Option</SelectItem>
-              <SelectItem value="swap">Swap</SelectItem>
-            </SelectContent>
-          </Select>
+          <Input 
+            type="text" 
+            value={instrumentType}
+            disabled
+            className="bg-gray-100"
+          />
         </div>
 
         <div className="space-y-2">

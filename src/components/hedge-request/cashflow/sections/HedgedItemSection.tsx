@@ -26,7 +26,6 @@ const HedgedItemSection = ({
   const [probability, setProbability] = useState("");
   const [description, setDescription] = useState("");
   const [exposureCategories, setExposureCategories] = useState<string[]>([]);
-  const [instrumentType, setInstrumentType] = useState("");
 
   // Fetch exposure categories
   useEffect(() => {
@@ -47,33 +46,6 @@ const HedgedItemSection = ({
 
     fetchExposureCategories();
   }, []);
-
-  // Update instrument type based on selected strategy
-  useEffect(() => {
-    const fetchInstrumentType = async () => {
-      if (!selectedStrategy) {
-        setInstrumentType("");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('hedge_strategy')
-        .select('instrument')
-        .eq('strategy_name', selectedStrategy)
-        .single();
-
-      if (error) {
-        console.error('Error fetching instrument type:', error);
-        return;
-      }
-
-      if (data) {
-        setInstrumentType(data.instrument);
-      }
-    };
-
-    fetchInstrumentType();
-  }, [selectedStrategy]);
 
   return (
     <div className="space-y-6">
@@ -115,16 +87,6 @@ const HedgedItemSection = ({
               <SelectItem value="probable">Probable</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Instrument Type</label>
-          <Input 
-            type="text" 
-            value={instrumentType}
-            disabled
-            className="bg-gray-100"
-          />
         </div>
       </div>
 
