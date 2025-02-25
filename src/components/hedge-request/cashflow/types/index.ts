@@ -1,4 +1,11 @@
 
+export * from './general-information';
+export * from './risk-management';
+export * from './hedged-item';
+export * from './hedging-instrument';
+export * from './assessment-monitoring';
+export * from './exposure-details';
+
 export interface HedgeAccountingRequest {
   hedge_id: string;
   entity_id: string;

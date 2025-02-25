@@ -21,6 +21,6 @@ export const validateGeneralInfo = (generalInfo: GeneralInformationData): { isVa
 
   return {
     isValid: missingFields.length === 0,
-    missingFields
+    missingFields: missingFields as string[]
   };
 };
