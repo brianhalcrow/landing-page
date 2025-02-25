@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FormHeader } from "./components/FormHeader";
@@ -27,6 +28,46 @@ const CashflowHedgeForm = () => {
     exposureDetails
   } = useFormState();
 
+  const generateHedgeId = async (entityId: string): Promise<string> => {
+    const { data: sequenceData, error: sequenceError } = await supabase
+      .from('hedge_request_sequences')
+      .select('current_sequence')
+      .eq('entity_id', entityId)
+      .eq('hedge_type', 'cashflow')
+      .single();
+
+    if (sequenceError) {
+      // If no sequence exists, create one
+      if (sequenceError.code === 'PGRST116') {
+        const { data: newSequence, error: createError } = await supabase
+          .from('hedge_request_sequences')
+          .insert({
+            entity_id: entityId,
+            hedge_type: 'cashflow',
+            current_sequence: 1
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        return `${entityId}-CF-1`;
+      }
+      throw sequenceError;
+    }
+
+    const nextSequence = (sequenceData.current_sequence || 0) + 1;
+
+    const { error: updateError } = await supabase
+      .from('hedge_request_sequences')
+      .update({ current_sequence: nextSequence })
+      .eq('entity_id', entityId)
+      .eq('hedge_type', 'cashflow');
+
+    if (updateError) throw updateError;
+
+    return `${entityId}-CF-${nextSequence}`;
+  };
+
   const handleSaveDraft = async () => {
     const { isValid, missingFields } = validateGeneralInfo(generalInfo);
     
@@ -40,7 +81,10 @@ const CashflowHedgeForm = () => {
     }
 
     try {
-      const hedgeRequest: Omit<HedgeAccountingRequest, 'hedge_id'> = {
+      const hedge_id = await generateHedgeId(generalInfo.entity_id);
+
+      const hedgeRequest: HedgeAccountingRequest = {
+        hedge_id,
         ...generalInfo,
         ...riskManagement,
         ...hedgedItem,

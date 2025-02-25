@@ -7,6 +7,7 @@ export * from './assessment-monitoring';
 export * from './exposure-details';
 
 export interface HedgeAccountingRequest {
+  hedge_id: string;
   entity_id: string;
   entity_name: string;
   cost_centre: string;
@@ -37,5 +38,4 @@ export interface HedgeAccountingRequest {
   status: 'draft';
   created_at: string;
   updated_at: string;
-  hedge_id?: string;
 }
