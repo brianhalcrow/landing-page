@@ -1,4 +1,3 @@
-
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FormHeader } from "./components/FormHeader";
@@ -56,7 +55,8 @@ const CashflowHedgeForm = () => {
           console.error('Error creating sequence:', createError);
           throw createError;
         }
-        return `${entityId}-CF-1`;
+        // Return ID in format: CF-[entity_id]-[sequence]
+        return `CF-${entityId}-1`;
       }
       throw sequenceError;
     }
@@ -75,7 +75,8 @@ const CashflowHedgeForm = () => {
       throw updateError;
     }
 
-    return `${entityId}-CF-${nextSequence}`;
+    // Return ID in format: CF-[entity_id]-[sequence]
+    return `CF-${entityId}-${nextSequence}`;
   };
 
   const handleSaveDraft = async () => {
