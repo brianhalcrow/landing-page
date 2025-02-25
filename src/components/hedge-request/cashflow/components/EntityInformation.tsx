@@ -98,48 +98,36 @@ export const EntityInformation = ({
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Entity ID</label>
-          <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select entity ID" />
-            </SelectTrigger>
-            <SelectContent>
-              {entities?.map(entity => (
-                <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                  {entity.entity_id}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Cost Centre</label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              {costCentres?.map(centre => (
-                <SelectItem key={centre} value={centre}>
-                  {centre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Entity ID</label>
+        <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select entity ID" />
+          </SelectTrigger>
+          <SelectContent>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_id}>
+                {entity.entity_id}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Functional Currency</label>
-        <Input 
-          type="text" 
-          value={entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ''} 
-          disabled
-          className="bg-gray-100"
-        />
+        <label className="text-sm font-medium">Cost Centre</label>
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            {costCentres?.map(centre => (
+              <SelectItem key={centre} value={centre}>
+                {centre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
@@ -163,6 +151,16 @@ export const EntityInformation = ({
         <Input 
           type="text" 
           value={hedgingEntityFunctionalCurrency} 
+          disabled
+          className="bg-gray-100"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Functional Currency</label>
+        <Input 
+          type="text" 
+          value={entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ''} 
           disabled
           className="bg-gray-100"
         />
