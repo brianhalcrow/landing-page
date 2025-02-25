@@ -57,7 +57,7 @@ const CashflowHedgeForm = () => {
       console.log('Validation failed. Missing fields:', missingFields);
       toast({
         title: "Required Fields Missing",
-        description: `Please fill in all required fields in General Information section: ${missingFields.join(', ')}`,
+        description: `Please complete the following fields in General Information: ${missingFields.join(', ')}`,
         variant: "destructive",
       });
       return;
@@ -76,7 +76,6 @@ const CashflowHedgeForm = () => {
         status: 'draft',
         created_at: now,
         updated_at: now,
-        // Add required fields with empty values
         risk_management_description: "",
         hedged_item_description: "",
         instrument: hedgingInstrument.instrument || "",
@@ -89,10 +88,7 @@ const CashflowHedgeForm = () => {
         discontinuation_criteria: "",
         effectiveness_testing_method: "",
         testing_frequency: "",
-        assessment_details: "",
-        // Set start_month and end_month to null explicitly
-        start_month: null,
-        end_month: null
+        assessment_details: ""
       };
 
       console.log('Saving hedge request:', hedgeRequest);
@@ -106,15 +102,18 @@ const CashflowHedgeForm = () => {
       }
       
       toast({
-        title: "Success",
-        description: "Draft saved successfully",
+        title: "Draft Saved",
+        description: `Hedge request ${hedge_id} has been saved as draft successfully.`,
+        variant: "default"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving hedge request:', error);
       toast({
-        title: "Error",
-        description: "Failed to save draft. Please try again.",
-        variant: "destructive",
+        title: "Error Saving Draft",
+        description: error.code === 'PGRST301' 
+          ? "Database connection error. Please check your connection and try again."
+          : `Failed to save draft: ${error.message}. Please try again or contact support if the issue persists.`,
+        variant: "destructive"
       });
     }
   };
