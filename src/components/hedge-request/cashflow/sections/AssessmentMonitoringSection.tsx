@@ -10,17 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
-interface AssessmentMonitoringSectionProps {
-  exposureCategoryL2?: string;
-  instrumentType?: string;
-}
-
-const AssessmentMonitoringSection = ({ 
-  exposureCategoryL2,
-  instrumentType
-}: AssessmentMonitoringSectionProps) => {
-  const [forwardElement, setForwardElement] = useState("");
-  const [currencyBasis, setCurrencyBasis] = useState("");
+const AssessmentMonitoringSection = () => {
   const [assessmentDetails, setAssessmentDetails] = useState("");
   const [testingFrequency, setTestingFrequency] = useState("");
   const [effectivenessMethod, setEffectivenessMethod] = useState("");
@@ -30,50 +20,6 @@ const AssessmentMonitoringSection = ({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Exposure Category L2</label>
-          <Input
-            value={exposureCategoryL2 || ''}
-            disabled
-            className="bg-gray-100"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Instrument Type</label>
-          <Input
-            value={instrumentType || ''}
-            disabled
-            className="bg-gray-100"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Forward Element Designation</label>
-          <Select value={forwardElement} onValueChange={setForwardElement}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select designation" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="included">Included</SelectItem>
-              <SelectItem value="excluded">Excluded</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Foreign Currency Basis Spreads</label>
-          <Select value={currencyBasis} onValueChange={setCurrencyBasis}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select option" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="included">Included</SelectItem>
-              <SelectItem value="excluded">Excluded</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <div className="space-y-2">
           <label className="text-sm font-medium">Testing Frequency</label>
           <Select value={testingFrequency} onValueChange={setTestingFrequency}>
