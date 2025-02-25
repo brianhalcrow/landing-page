@@ -1550,7 +1550,6 @@ export type Database = {
       hedge_strategy: {
         Row: {
           exposure_category_l2: string | null
-          exposure_category_l3: string | null
           id: number
           instrument: string | null
           strategy_id: string | null
@@ -1558,7 +1557,6 @@ export type Database = {
         }
         Insert: {
           exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
           id?: number
           instrument?: string | null
           strategy_id?: string | null
@@ -1566,7 +1564,6 @@ export type Database = {
         }
         Update: {
           exposure_category_l2?: string | null
-          exposure_category_l3?: string | null
           id?: number
           instrument?: string | null
           strategy_id?: string | null
@@ -3342,18 +3339,6 @@ export type Database = {
           transaction_currency: string | null
           year: number | null
           year_period: string | null
-        }
-        Relationships: []
-      }
-      v_valid_entity_strategies: {
-        Row: {
-          entity_id: string | null
-          exposure_category_l1: string | null
-          exposure_category_l2: string | null
-          exposure_category_l3: string | null
-          instrument: string | null
-          strategy_id: string | null
-          strategy_name: string | null
         }
         Relationships: []
       }

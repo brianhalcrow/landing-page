@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -29,12 +28,10 @@ const GeneralInformationSection = () => {
   const [selectedStrategy, setSelectedStrategy] = useState("");
   const [documentDate, setDocumentDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
-  // Use custom hooks
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
-  const { data: strategies } = useStrategies(selectedEntityId, selectedExposureCategoryL3);
+  const { data: strategies } = useStrategies(selectedEntityId, selectedExposureCategoryL2);
 
-  // Fetch available currencies
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
     queryFn: async () => {
@@ -48,14 +45,12 @@ const GeneralInformationSection = () => {
     }
   });
 
-  // Calculate available hedging entities
   const availableHedgingEntities = entities ? entities.filter(entity => 
     entityCounterparty?.length ? 
       [TREASURY_ENTITY_NAME, selectedEntityName].includes(entity.entity_name) :
       true
   ) : null;
 
-  // Reset all fields when entity changes
   const resetFields = () => {
     setExposedCurrency("");
     setSelectedHedgingEntity("");
@@ -67,7 +62,6 @@ const GeneralInformationSection = () => {
     setDocumentDate(format(new Date(), 'yyyy-MM-dd'));
   };
 
-  // Handlers
   const handleEntityChange = (entityId: string, entityName: string) => {
     if (entityId !== selectedEntityId) {
       setSelectedEntityId(entityId);
@@ -76,18 +70,15 @@ const GeneralInformationSection = () => {
     }
   };
 
-  // Effect to set default hedging entity when relationships are fetched
   useEffect(() => {
     if (isRelationshipsFetched && entityCounterparty && entities) {
       if (entityCounterparty.length > 0) {
-        // Entity has a relationship with treasury center
         const treasuryEntity = entities.find(e => e.entity_name === TREASURY_ENTITY_NAME);
         if (treasuryEntity) {
           setSelectedHedgingEntity(treasuryEntity.entity_name);
           setHedgingEntityFunctionalCurrency(treasuryEntity.functional_currency);
         }
       } else {
-        // No treasury relationship, default to selected entity
         const entity = entities.find(e => e.entity_id === selectedEntityId);
         if (entity) {
           setSelectedHedgingEntity(entity.entity_name);
@@ -97,7 +88,6 @@ const GeneralInformationSection = () => {
     }
   }, [entityCounterparty, isRelationshipsFetched, entities, selectedEntityId]);
 
-  // Category helper functions
   const getCategoryOptions = {
     l1: () => {
       if (!exposureConfigs) return [];
@@ -134,7 +124,6 @@ const GeneralInformationSection = () => {
     },
     strategies: () => {
       if (!strategies) return [];
-      // Strategies are now pre-filtered by the useStrategies hook based on entity and L3
       return strategies;
     }
   };
