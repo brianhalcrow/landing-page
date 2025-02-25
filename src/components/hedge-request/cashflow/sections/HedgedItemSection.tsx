@@ -13,7 +13,7 @@ const HedgedItemSection = () => {
   return (
     <div className="grid grid-cols-5 gap-4">
       <div className="col-span-3 space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Hedged Item Type</label>
             <Select>
@@ -51,7 +51,7 @@ const HedgedItemSection = () => {
         <label className="text-sm font-medium">Description</label>
         <Textarea 
           placeholder="Enter hedged item description"
-          className="h-full min-h-[80px] resize-none"
+          className="h-full min-h-[180px] resize-none"
         />
       </div>
     </div>
