@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -8,15 +7,56 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { useState, useEffect } from "react";
 
 const ExposureDetailsSection = () => {
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [revenues, setRevenues] = useState<Record<number, number>>({});
+  const [costs, setCosts] = useState<Record<number, number>>({});
+  const [forecasts, setForecasts] = useState<Record<number, number>>({});
+
   const months = Array.from({ length: 12 }, (_, i) => {
-    const date = new Date(2025, i + 2, 25); // Starting from March 2025
+    const date = new Date(2025, i + 2, 25);
     return date.toLocaleDateString('en-US', { month: '2-digit', year: '2-digit' });
   });
 
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  useEffect(() => {
+    const newForecasts: Record<number, number> = {};
+    months.forEach((_, index) => {
+      const revenue = revenues[index] || 0;
+      const cost = costs[index] || 0;
+      newForecasts[index] = revenue + cost;
+    });
+    setForecasts(newForecasts);
+  }, [revenues, costs]);
+
+  const handleRevenueChange = (index: number, value: string) => {
+    const numericValue = parseFloat(value.replace(/,/g, ''));
+    if (!isNaN(numericValue)) {
+      setRevenues(prev => ({
+        ...prev,
+        [index]: numericValue
+      }));
+    }
+  };
+
+  const handleCostChange = (index: number, value: string) => {
+    const numericValue = parseFloat(value.replace(/,/g, ''));
+    if (!isNaN(numericValue)) {
+      const negativeValue = Math.abs(numericValue) * -1;
+      setCosts(prev => ({
+        ...prev,
+        [index]: negativeValue
+      }));
+    }
   };
 
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
@@ -32,144 +72,160 @@ const ExposureDetailsSection = () => {
               <SelectValue placeholder="Select layer" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="layer1">Layer 1</SelectItem>
-              <SelectItem value="layer2">Layer 2</SelectItem>
-              <SelectItem value="layer3">Layer 3</SelectItem>
+              <SelectItem value="1">Layer 1</SelectItem>
+              <SelectItem value="2">Layer 2</SelectItem>
+              <SelectItem value="3">Layer 3</SelectItem>
+              <SelectItem value="4">Layer 4</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Start Date</label>
-          <Input type="date" defaultValue="2025-03" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "w-full flex items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                {selectedDate ? format(selectedDate, "MMM yyyy") : "Select date"}
+                <CalendarIcon className="ml-2 h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Hedge Ratio</label>
-          <Input type="text" placeholder="Enter %" />
+          <Input 
+            type="number" 
+            placeholder="Enter %" 
+            min="0"
+            max="100"
+            step="1"
+          />
         </div>
       </div>
 
       {/* Grid Section */}
       <div>
-        <div>
-          {/* Month Headers */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div></div>
-            {months.map((month) => (
-              <div key={month} className="text-sm font-medium text-center">
-                {month}
-              </div>
-            ))}
-          </div>
-
-          {/* Revenues */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div>
-              <div className="text-sm font-medium">Revenues</div>
-              <div className="text-xs text-gray-600">Long</div>
+        {/* Month Headers */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div></div>
+          {months.map((month) => (
+            <div key={month} className="text-sm font-medium text-center">
+              {month}
             </div>
-            {Array(12).fill(null).map((_, i) => (
-              <Input 
-                key={i}
-                type="text"
-                className={baseInputStyles}
-                defaultValue={i === 0 ? "5,000,000" : ""}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value.replace(/,/g, ''));
-                  if (!isNaN(value)) {
-                    e.target.value = formatNumber(value);
-                  }
-                }}
-              />
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Costs */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div>
-              <div className="text-sm font-medium">Costs</div>
-              <div className="text-xs text-gray-600">(Short)</div>
+        {/* Revenues */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div>
+            <div className="text-sm font-medium">Revenues</div>
+            <div className="text-xs text-gray-600">Long</div>
+          </div>
+          {Array(12).fill(null).map((_, i) => (
+            <Input 
+              key={i}
+              type="text"
+              className={baseInputStyles}
+              value={revenues[i] ? formatNumber(revenues[i]) : ''}
+              onChange={(e) => handleRevenueChange(i, e.target.value)}
+            />
+          ))}
+        </div>
+
+        {/* Costs */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div>
+            <div className="text-sm font-medium">Costs</div>
+            <div className="text-xs text-gray-600">(Short)</div>
+          </div>
+          {Array(12).fill(null).map((_, i) => (
+            <Input 
+              key={i}
+              type="text"
+              className={baseInputStyles}
+              value={costs[i] ? formatNumber(costs[i]) : ''}
+              onChange={(e) => handleCostChange(i, e.target.value)}
+              onFocus={(e) => {
+                if (!e.target.value) {
+                  e.target.value = '-';
+                }
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Forecast Exposures - Now automatically calculated */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div>
+            <div className="text-sm font-medium">Forecast Exposures</div>
+            <div className="text-xs text-gray-600">Long/(Short)</div>
+          </div>
+          {Array(12).fill(null).map((_, i) => (
+            <Input 
+              key={i}
+              type="text"
+              className={baseInputStyles}
+              value={forecasts[i] ? formatNumber(forecasts[i]) : '0'}
+              readOnly
+            />
+          ))}
+        </div>
+
+        {/* Hedge Layer Amount */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div>
+            <div className="text-sm font-medium">Hedge Layer Amount</div>
+            <div className="text-xs text-gray-600">Buy/(Sell)</div>
+          </div>
+          {Array(12).fill(null).map((_, i) => (
+            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatNumber(0)}
             </div>
-            {Array(12).fill(null).map((_, i) => (
-              <Input 
-                key={i}
-                type="text"
-                className={baseInputStyles}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value.replace(/,/g, ''));
-                  if (!isNaN(value)) {
-                    e.target.value = formatNumber(value);
-                  }
-                }}
-              />
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Forecast Exposures */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div>
-              <div className="text-sm font-medium">Forecast Exposures</div>
-              <div className="text-xs text-gray-600">Long/(Short)</div>
+        {/* Indicative Coverage */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div className="text-sm font-medium">Indicative Coverage</div>
+          {Array(12).fill(null).map((_, i) => (
+            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              0%
             </div>
-            {Array(12).fill(null).map((_, i) => (
-              <Input 
-                key={i}
-                type="text"
-                className={baseInputStyles}
-                defaultValue={i === 0 ? "5,000,000" : "0"}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value.replace(/,/g, ''));
-                  if (!isNaN(value)) {
-                    e.target.value = formatNumber(value);
-                  }
-                }}
-              />
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Hedge Layer Amount */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div>
-              <div className="text-sm font-medium">Hedge Layer Amount</div>
-              <div className="text-xs text-gray-600">Buy/(Sell)</div>
+        {/* Cum. Hedge Layer Amounts */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
+          <div className="text-sm font-medium">Cum. Hedge Layer Amounts</div>
+          {Array(12).fill(null).map((_, i) => (
+            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatNumber(0)}
             </div>
-            {Array(12).fill(null).map((_, i) => (
-              <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-                {formatNumber(0)}
-              </div>
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Indicative Coverage */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Indicative Coverage</div>
-            {Array(12).fill(null).map((_, i) => (
-              <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-                0%
-              </div>
-            ))}
-          </div>
-
-          {/* Cum. Hedge Layer Amounts */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
-            <div className="text-sm font-medium">Cum. Hedge Layer Amounts</div>
-            {Array(12).fill(null).map((_, i) => (
-              <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-                {formatNumber(0)}
-              </div>
-            ))}
-          </div>
-
-          {/* Cum. Indicative Coverage (%) */}
-          <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
-            <div className="text-sm font-medium">Cum. Indicative Coverage (%)</div>
-            {Array(12).fill(null).map((_, i) => (
-              <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-                0%
-              </div>
-            ))}
-          </div>
+        {/* Cum. Indicative Coverage (%) */}
+        <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2">
+          <div className="text-sm font-medium">Cum. Indicative Coverage (%)</div>
+          {Array(12).fill(null).map((_, i) => (
+            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              0%
+            </div>
+          ))}
         </div>
       </div>
     </div>
