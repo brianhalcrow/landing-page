@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { useExposureTypes } from "@/hooks/useExposureTypes";
 
 interface EntityData {
   entity_id: string;
@@ -63,6 +64,9 @@ const GeneralInformationSection = () => {
       return data as EntityData[];
     }
   });
+
+  // Use the exposure types hook
+  const { data: exposureTypes } = useExposureTypes();
 
   // Fetch entity exposure configurations
   const { data: exposureConfigs } = useQuery({
@@ -369,12 +373,27 @@ const GeneralInformationSection = () => {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Hedging Entity</label>
-        <Input 
-          type="text" 
+        <Select 
           value={selectedHedgingEntity} 
-          disabled
-          className="bg-gray-100"
-        />
+          onValueChange={(value) => {
+            setSelectedHedgingEntity(value);
+            const entity = entities?.find(e => e.entity_name === value);
+            if (entity) {
+              setHedgingEntityFunctionalCurrency(entity.functional_currency);
+            }
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select hedging entity" />
+          </SelectTrigger>
+          <SelectContent>
+            {entities?.map(entity => (
+              <SelectItem key={entity.entity_id} value={entity.entity_name}>
+                {entity.entity_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
