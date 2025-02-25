@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -32,6 +33,20 @@ const GeneralInformationSection = () => {
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
   const { data: strategies } = useStrategies();
+
+  // Fetch available currencies
+  const { data: currencies } = useQuery({
+    queryKey: ['available-currencies'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('erp_rates_monthly')
+        .select('quote_currency')
+        .limit(1000);
+      
+      if (error) throw error;
+      return [...new Set(data.map(row => row.quote_currency))].sort();
+    }
+  });
 
   // Calculate available hedging entities
   const availableHedgingEntities = entities ? entities.filter(entity => 
