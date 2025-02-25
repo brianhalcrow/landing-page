@@ -2,12 +2,10 @@
 import { Textarea } from "@/components/ui/textarea";
 import { FormSelect } from "../components/FormSelect";
 import { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 
 const RiskManagementSection = () => {
   const [description, setDescription] = useState("");
-  const [economicRelationship, setEconomicRelationship] = useState("no");
+  const [economicRelationship, setEconomicRelationship] = useState("");
   const [creditRiskImpact, setCreditRiskImpact] = useState("minimal");
   const [reclassificationApproach, setReclassificationApproach] = useState("");
   const [discontinuationCriteria, setDiscontinuationCriteria] = useState("");
@@ -15,21 +13,6 @@ const RiskManagementSection = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-5 gap-4">
-        <div className="flex flex-col justify-end">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="economicRelationship"
-              checked={economicRelationship === "yes"}
-              onCheckedChange={(checked) => 
-                setEconomicRelationship(checked ? "yes" : "no")
-              }
-            />
-            <Label htmlFor="economicRelationship">
-              Economic Relationship Confirmed
-            </Label>
-          </div>
-        </div>
-
         <FormSelect
           label="Credit Risk Impact Assessment"
           options={[
@@ -49,6 +32,16 @@ const RiskManagementSection = () => {
           ]}
           value={reclassificationApproach}
           onChange={setReclassificationApproach}
+        />
+
+        <FormSelect
+          label="Economic Relationship"
+          options={[
+            { value: "yes", label: "Yes" },
+            { value: "no", label: "No" },
+          ]}
+          value={economicRelationship}
+          onChange={setEconomicRelationship}
         />
 
         <FormSelect
