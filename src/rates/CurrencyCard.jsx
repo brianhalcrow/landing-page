@@ -1,8 +1,6 @@
-// CurrencyCard.jsx
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, Typography } from "@mui/material";
-import Grid2 from "@mui/material/Grid2";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const CurrencyCard = ({ symbol, bid, ask, mid, bidSize, askSize, date, ratePrecision = 10000 }) => {
   const [previousBid, setPreviousBid] = useState(null);
@@ -32,129 +30,58 @@ const CurrencyCard = ({ symbol, bid, ask, mid, bidSize, askSize, date, ratePreci
   }, [bid, ask, previousBid, previousAsk]);
 
   return (
-    <Card
-      sx={{
-        minWidth: 250,
-        height: "auto",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        margin: "12px 0",
-        padding: "16px",
-      }}
-    >
-      <CardContent sx={{ padding: "16px" }}>
-        {/* Symbol and Timestamp Row */}
-        <Grid2
-          container
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #ddd",
-            paddingBottom: "8px",
-            marginBottom: "8px"
-          }}
-        >
-          <Typography
-            variant="subtitle1"
-            sx={{
-              color: "#4a90e2",
-              textAlign: "left",
-              fontWeight: "bold",
-              lineHeight: "1.5rem" }}>
-            {symbol.toUpperCase()}
-          </Typography>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{
-              textAlign: "right",
-              fontWeight: "bold",
-            }}
-          >
-            {new Date(date).toLocaleTimeString()}
-          </Typography>
-        </Grid2>
-
-
-
-        {/* Bid and Ask Prices */}
-        <Grid2 container spacing={2} sx={{ mb: 1, borderBottom: "1px solid #ddd" }}>
-          {/* Left Column */}
-          <Grid2
-            xs={6}
-            container
-            direction="column"
-            justifyContent="center"
-            sx={{ padding: "0", pr: "8px" }}
-          >
-            <Typography variant="body2" color="text.secondary" textAlign="center">
-              Bid
-            </Typography>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                textAlign: "left",
-                backgroundColor: bidColor,
-                transition: "background-color 0.3s",
-              }}
+    <Card className="min-w-[250px] h-auto border border-gray-200 rounded-lg shadow-sm text-center m-3 p-4">
+      <CardHeader className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2 p-4">
+        <span className="text-blue-500 text-left font-bold leading-6">
+          {symbol.toUpperCase()}
+        </span>
+        <span className="text-gray-500 text-right font-bold text-sm">
+          {new Date(date).toLocaleTimeString()}
+        </span>
+      </CardHeader>
+      
+      <CardContent className="p-4">
+        <div className="grid grid-cols-2 gap-2 border-b border-gray-200 mb-1">
+          {/* Bid Column */}
+          <div className="flex flex-col justify-center p-0 pr-2">
+            <span className="text-gray-500 text-sm text-center">Bid</span>
+            <span 
+              className="text-xl font-bold text-left transition-colors duration-300"
+              style={{ backgroundColor: bidColor }}
             >
               {bid.toFixed(5)}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "left"}}>
+            </span>
+            <span className="text-gray-500 text-sm text-left">
               Size: {bidSize}
-            </Typography>
-          </Grid2>
+            </span>
+          </div>
 
-          {/* Right Column */}
-          <Grid2
-            xs={6}
-            container
-            direction="column"
-            justifyContent="center"
-            sx={{ padding: "0", pl: "8px" }}
-          >
-            <Typography variant="body2" color="text.secondary" textAlign="center">
-              Ask
-            </Typography>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                textAlign: "right",
-                backgroundColor: askColor,
-                transition: "background-color 0.3s",
-              }}
+          {/* Ask Column */}
+          <div className="flex flex-col justify-center p-0 pl-2">
+            <span className="text-gray-500 text-sm text-center">Ask</span>
+            <span 
+              className="text-xl font-bold text-right transition-colors duration-300"
+              style={{ backgroundColor: askColor }}
             >
               {ask.toFixed(5)}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "right"}}>
+            </span>
+            <span className="text-gray-500 text-sm text-right">
               Size: {askSize}
-            </Typography>
-          </Grid2>
-        </Grid2>
+            </span>
+          </div>
+        </div>
 
-        {/* Centered Column for Mid and Spread */}
-        <Grid2
-          container
-          direction="column"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ mt: 3 }} // Increased margin-top for more space
-        >
-          <Typography variant="body2" color="text.secondary">
+        {/* Mid and Spread */}
+        <div className="flex flex-col items-center justify-center mt-3">
+          <span className="text-gray-500 text-sm">
             Mid: {mid.toFixed(5)}
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#4caf87", fontWeight: "bold", mt: 1 }}>
+          </span>
+          <span className="text-emerald-600 font-bold text-sm mt-1">
             Spread: {spread}
-          </Typography>
-        </Grid2>
+          </span>
+        </div>
       </CardContent>
     </Card>
-
-
   );
 };
 
