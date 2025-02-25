@@ -19,7 +19,7 @@ const AssessmentMonitoringSection = () => {
   const [discontinuationCriteria, setDiscontinuationCriteria] = useState("");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <div className="grid grid-cols-5 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Effectiveness Testing Method</label>
@@ -93,13 +93,14 @@ const AssessmentMonitoringSection = () => {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         <label className="text-sm font-medium">Assessment Details</label>
         <Textarea 
           placeholder="Enter assessment details"
           value={assessmentDetails}
           onChange={(e) => setAssessmentDetails(e.target.value)}
           rows={6}
+          className="w-full"
         />
       </div>
     </div>
