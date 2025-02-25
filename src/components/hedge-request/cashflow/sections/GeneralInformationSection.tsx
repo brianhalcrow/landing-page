@@ -61,6 +61,24 @@ const GeneralInformationSection = () => {
     enabled: !!selectedEntityId
   });
 
+  // Effect to set default hedging entity when relationships are fetched
+  useEffect(() => {
+    if (isRelationshipsFetched && entityCounterparty && entities) {
+      const treasuryEntity = entities.find(e => e.entity_id === 'NL01');
+      if (entityCounterparty.length > 0 && treasuryEntity) {
+        setSelectedHedgingEntity(treasuryEntity.entity_name);
+        setHedgingEntityFunctionalCurrency(treasuryEntity.functional_currency);
+      } else {
+        // If no SEN1 relationship or no treasury entity, default to selected entity
+        const entity = entities.find(e => e.entity_id === selectedEntityId);
+        if (entity) {
+          setSelectedHedgingEntity(entity.entity_name);
+          setHedgingEntityFunctionalCurrency(entity.functional_currency);
+        }
+      }
+    }
+  }, [entityCounterparty, isRelationshipsFetched, entities, selectedEntityId]);
+
   // Fetch available currencies
   const { data: currencies } = useQuery({
     queryKey: ['available-currencies'],
@@ -118,7 +136,6 @@ const GeneralInformationSection = () => {
     const entity = entities?.find(e => e.entity_id === newId);
     if (entity) {
       setSelectedEntityName(entity.entity_name);
-      setSelectedHedgingEntity(entity.entity_name);
     }
   };
 
@@ -128,7 +145,6 @@ const GeneralInformationSection = () => {
     const entity = entities?.find(e => e.entity_name === newName);
     if (entity) {
       setSelectedEntityId(entity.entity_id);
-      setSelectedHedgingEntity(newName);
     }
   };
 
@@ -140,16 +156,6 @@ const GeneralInformationSection = () => {
       setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
     }
   };
-
-  // Set initial hedging entity functional currency when hedging entity changes
-  useEffect(() => {
-    if (selectedHedgingEntity && entities) {
-      const hedgingEntity = entities.find(e => e.entity_name === selectedHedgingEntity);
-      if (hedgingEntity) {
-        setHedgingEntityFunctionalCurrency(hedgingEntity.functional_currency);
-      }
-    }
-  }, [selectedHedgingEntity, entities]);
 
   return (
     <div className="grid grid-cols-5 gap-4">
