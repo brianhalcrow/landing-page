@@ -56,6 +56,12 @@ export const HeaderControls = ({
     }
   };
 
+  const handleEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const formattedValue = formatMonthInput(raw);
+    setEndInputValue(formattedValue);
+  };
+
   // Update end date when selected date changes
   useEffect(() => {
     if (selectedDate) {
@@ -117,9 +123,10 @@ export const HeaderControls = ({
         <Input 
           type="text" 
           placeholder="MMYY" 
+          maxLength={5}
           value={endInputValue}
-          disabled
-          className="text-left bg-gray-100"
+          onChange={handleEndMonthChange}
+          className="text-left"
         />
       </div>
 
