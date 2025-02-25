@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FormHeader } from "./components/FormHeader";
@@ -29,54 +30,23 @@ const CashflowHedgeForm = () => {
 
   const generateHedgeId = async (entityId: string): Promise<string> => {
     console.log('Generating hedge ID for entity:', entityId);
-    const { data: sequenceData, error: sequenceError } = await supabase
-      .from('hedge_request_sequences')
-      .select('current_sequence')
-      .eq('entity_id', entityId)
-      .eq('exposure_category_l1', generalInfo.exposure_category_l1)
-      .single();
+    try {
+      const { data, error } = await supabase.rpc('generate_hedge_id', {
+        p_entity_id: entityId,
+        p_exposure_category_l1: generalInfo.exposure_category_l1
+      });
 
-    if (sequenceError) {
-      console.log('Sequence error:', sequenceError);
-      // If no sequence exists, create one
-      if (sequenceError.code === 'PGRST116') {
-        console.log('Creating new sequence for entity:', entityId);
-        const { data: newSequence, error: createError } = await supabase
-          .from('hedge_request_sequences')
-          .insert({
-            entity_id: entityId,
-            exposure_category_l1: generalInfo.exposure_category_l1,
-            current_sequence: 1
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating sequence:', createError);
-          throw createError;
-        }
-        // Return ID in format: CF-[entity_id]-[sequence]
-        return `CF-${entityId}-1`;
+      if (error) {
+        console.error('Error generating hedge ID:', error);
+        throw error;
       }
-      throw sequenceError;
+
+      console.log('Generated hedge ID:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to generate hedge ID:', error);
+      throw error;
     }
-
-    const nextSequence = (sequenceData.current_sequence || 0) + 1;
-    console.log('Next sequence number:', nextSequence);
-
-    const { error: updateError } = await supabase
-      .from('hedge_request_sequences')
-      .update({ current_sequence: nextSequence })
-      .eq('entity_id', entityId)
-      .eq('exposure_category_l1', generalInfo.exposure_category_l1);
-
-    if (updateError) {
-      console.error('Error updating sequence:', updateError);
-      throw updateError;
-    }
-
-    // Return ID in format: CF-[entity_id]-[sequence]
-    return `CF-${entityId}-${nextSequence}`;
   };
 
   const handleSaveDraft = async () => {
@@ -155,7 +125,7 @@ const CashflowHedgeForm = () => {
   return (
     <div className="max-w-[1525px] mx-auto px-4 space-y-6">
       <FormHeader onSaveDraft={handleSaveDraft} onSubmit={handleSubmit} />
-
+      
       <FormSection 
         title="General Information" 
         section="general"
