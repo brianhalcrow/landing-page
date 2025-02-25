@@ -18,6 +18,8 @@ const ExposureDetailsSection = () => {
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
+  const [hedgeRatio, setHedgeRatio] = useState<number>(0);
+  const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
 
   const months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(2025, i + 2, 25);
@@ -38,6 +40,15 @@ const ExposureDetailsSection = () => {
     setForecasts(newForecasts);
   }, [revenues, costs]);
 
+  useEffect(() => {
+    const newHedgeAmounts: Record<number, number> = {};
+    months.forEach((_, index) => {
+      const forecast = forecasts[index] || 0;
+      newHedgeAmounts[index] = (forecast * hedgeRatio) / 100;
+    });
+    setHedgeAmounts(newHedgeAmounts);
+  }, [forecasts, hedgeRatio]);
+
   const handleRevenueChange = (index: number, value: string) => {
     const numericValue = parseFloat(value.replace(/,/g, ''));
     if (!isNaN(numericValue)) {
@@ -56,6 +67,14 @@ const ExposureDetailsSection = () => {
         ...prev,
         [index]: negativeValue
       }));
+    }
+  };
+
+  const handleHedgeRatioChange = (value: string) => {
+    let numericValue = parseFloat(value);
+    if (!isNaN(numericValue)) {
+      numericValue = Math.min(100, Math.max(0, numericValue));
+      setHedgeRatio(numericValue);
     }
   };
 
@@ -107,13 +126,19 @@ const ExposureDetailsSection = () => {
 
         <div className="w-[120px] space-y-2">
           <label className="text-sm font-medium">Hedge Ratio</label>
-          <Input 
-            type="number" 
-            placeholder="Enter %" 
-            min="0"
-            max="100"
-            step="1"
-          />
+          <div className="relative">
+            <Input 
+              type="number" 
+              value={hedgeRatio || ''}
+              onChange={(e) => handleHedgeRatioChange(e.target.value)}
+              placeholder="Enter %"
+              min="0"
+              max="100"
+              step="1"
+              className="pr-6"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+          </div>
         </div>
       </div>
 
@@ -168,7 +193,7 @@ const ExposureDetailsSection = () => {
           ))}
         </div>
 
-        {/* Forecast Exposures - Now automatically calculated */}
+        {/* Forecast Exposures */}
         <div className="grid grid-cols-[200px_repeat(12,105px)] gap-2 mb-2">
           <div>
             <div className="text-sm font-medium">Forecast Exposures</div>
@@ -192,8 +217,8 @@ const ExposureDetailsSection = () => {
             <div className="text-xs text-gray-600">Buy/(Sell)</div>
           </div>
           {Array(12).fill(null).map((_, i) => (
-            <div className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
-              {formatNumber(0)}
+            <div key={i} className="flex items-center justify-end px-3 py-2 text-sm bg-gray-50 rounded-md">
+              {formatNumber(hedgeAmounts[i] || 0)}
             </div>
           ))}
         </div>
