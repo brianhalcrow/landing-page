@@ -105,7 +105,10 @@ const CashflowHedgeForm = () => {
         </CardHeader>
         <CardContent className={cn("transition-all duration-300", minimizedSections.hedgingInstrument ? "h-0 overflow-hidden p-0" : "")}>
           <div className="max-w-[1200px]">
-            <HedgingInstrumentSection />
+            <HedgingInstrumentSection 
+              selectedStrategy={selectedStrategy}
+              instrumentType={selectedInstrument}
+            />
           </div>
         </CardContent>
       </Card>
