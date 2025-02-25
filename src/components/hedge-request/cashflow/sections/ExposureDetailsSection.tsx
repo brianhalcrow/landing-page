@@ -4,7 +4,12 @@ import { HeaderControls } from "../components/HeaderControls";
 import { GridInputRow } from "../components/GridInputRow";
 import { calculateForecasts, calculateHedgeValues, formatNumber, formatPercentage } from "../utils/calculations";
 
-const ExposureDetailsSection = () => {
+interface ExposureDetailsSectionProps {
+  value?: ExposureDetailsData;
+  onChange?: (value: ExposureDetailsData) => void;
+}
+
+const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
@@ -59,6 +64,18 @@ const ExposureDetailsSection = () => {
     setCumulativeAmounts(newCumulativeAmounts);
     setCumulativeCoverage(newCumulativeCoverage);
   }, [forecasts, hedgeRatio, hedgeLayer]);
+
+  useEffect(() => {
+    if (value) {
+      console.log('ExposureDetails - Updating from props:', value);
+      if (value.start_month) {
+        const [month, year] = value.start_month.split('-').map(Number);
+        if (!isNaN(month) && !isNaN(year)) {
+          setSelectedDate(new Date(2000 + year, month - 1));
+        }
+      }
+    }
+  }, [value]);
 
   const handleHedgeRatioChange = (value: string) => {
     if (value === '') {
@@ -133,6 +150,13 @@ const ExposureDetailsSection = () => {
         break;
     }
   };
+
+  useEffect(() => {
+    onChange?.({
+      start_month: selectedDate ? format(selectedDate, 'MM-yy') : '',
+      end_month: selectedDate ? format(addMonths(selectedDate, 11), 'MM-yy') : ''
+    });
+  }, [selectedDate, onChange]);
 
   return (
     <div className="space-y-6">
