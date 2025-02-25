@@ -1,12 +1,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
 import HedgedItemSection from "./sections/HedgedItemSection";
 import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
-import { Minimize2, Maximize2 } from "lucide-react";
+import { Minimize2, Maximize2, Save } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,14 @@ const CashflowHedgeForm = () => {
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  const handleSaveDraft = () => {
+    // Save draft functionality will be implemented later
+  };
+
+  const handleSubmit = () => {
+    // Submit functionality will be implemented later
   };
 
   const SectionHeader = ({
@@ -59,7 +68,20 @@ const CashflowHedgeForm = () => {
 
   return (
     <div className="max-w-[1525px] mx-auto px-4 space-y-6">
-      <h1 className="text-2xl font-bold mb-6">Cashflow Hedge Documentation</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Cashflow Hedge Documentation</h1>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleSaveDraft}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            Save Draft
+          </Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+        </div>
+      </div>
       
       <Card>
         <CardHeader>
