@@ -20,8 +20,8 @@ const HedgingInstrumentSection = ({
   instrumentType
 }: HedgingInstrumentSectionProps) => {
   const [type, setType] = useState("");
-  const [forwardElement, setForwardElement] = useState("");
-  const [currencyBasis, setCurrencyBasis] = useState("");
+  const [forwardElement, setForwardElement] = useState("included"); // Set default to included
+  const [currencyBasis, setCurrencyBasis] = useState("included"); // Set default to included
   const [description, setDescription] = useState("");
 
   return (

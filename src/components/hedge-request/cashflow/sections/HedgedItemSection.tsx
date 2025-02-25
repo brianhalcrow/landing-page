@@ -23,7 +23,6 @@ const HedgedItemSection = ({
   selectedStrategy
 }: HedgedItemSectionProps) => {
   const [timePeriod, setTimePeriod] = useState("");
-  const [probability, setProbability] = useState("");
   const [description, setDescription] = useState("");
   const [exposureCategories, setExposureCategories] = useState<string[]>([]);
 
@@ -68,19 +67,6 @@ const HedgedItemSection = ({
             value={timePeriod}
             onChange={(e) => setTimePeriod(e.target.value)}
           />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Probability Assessment</label>
-          <Select value={probability} onValueChange={setProbability}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select probability" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="highly-probable">Highly Probable</SelectItem>
-              <SelectItem value="probable">Probable</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
