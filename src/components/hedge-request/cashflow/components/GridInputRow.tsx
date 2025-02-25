@@ -33,6 +33,18 @@ export const GridInputRow = ({
 }: GridInputRowProps) => {
   const baseInputStyles = "text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
+  const handleChange = (index: number, value: string) => {
+    // Allow empty string (deletion)
+    if (value === '') {
+      onChange(index, '');
+      return;
+    }
+
+    // Only process numeric input
+    if (!/^-?\d*\.?\d*$/.test(value)) return;
+    onChange(index, value);
+  };
+
   return (
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-2">
       <div>
@@ -50,7 +62,7 @@ export const GridInputRow = ({
             type="text"
             className={baseInputStyles}
             value={values[i] ? formatValue(values[i]) : ''}
-            onChange={(e) => onChange(i, e.target.value)}
+            onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(e, rowIndex, i)}
             ref={el => inputRefs[refStartIndex + i] = el}
             onFocus={onFocus}

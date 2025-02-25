@@ -103,6 +103,8 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
+          // Filter out 'Balance Sheet' category
+          config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2) &&
           (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
         )
@@ -113,6 +115,8 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
+          // Filter out categories related to 'Balance Sheet'
+          config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
           (!selectedExposureCategoryL3 || config.exposure_types.exposure_category_l3 === selectedExposureCategoryL3)
         )
@@ -123,6 +127,8 @@ const GeneralInformationSection = () => {
       if (!exposureConfigs) return [];
       return [...new Set(exposureConfigs
         .filter(config => 
+          // Filter out categories related to 'Balance Sheet'
+          config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet' &&
           (!selectedExposureCategoryL1 || config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1) &&
           (!selectedExposureCategoryL2 || config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2)
         )
@@ -132,7 +138,14 @@ const GeneralInformationSection = () => {
     strategies: () => {
       if (!strategies) return [];
       return selectedExposureCategoryL2 
-        ? strategies.filter(s => s.exposure_category_l2 === selectedExposureCategoryL2)
+        ? strategies.filter(s => 
+            // Filter out strategies related to 'Balance Sheet' categories
+            s.exposure_category_l2 === selectedExposureCategoryL2 &&
+            exposureConfigs?.some(config => 
+              config.exposure_types.exposure_category_l2 === s.exposure_category_l2 &&
+              config.exposure_types.exposure_category_l1.toLowerCase() !== 'balance sheet'
+            )
+          )
         : strategies;
     }
   };
