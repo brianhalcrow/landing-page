@@ -1,7 +1,5 @@
-// SpotRatesStreaming.tsx
 
 import React, { useState, useEffect } from "react";
-import Grid2 from "@mui/material/Grid2";
 import CurrencyCard from "./CurrencyCard";
 import useTiingoSpotRates from "./SpotRatesWs"; // Hook for streaming data
 
@@ -55,32 +53,21 @@ const SpotRatesStreaming = ({ baseCurrency }) => {
   console.log("SpotRates:", spotRates);
 
   return (
-      <Grid2
-        container
-        spacing={0}
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "4px",
-          maxWidth: "1240px",
-          justifyItems: "center",
-        }}
-      >
-        {Object.entries(spotRates).map(([currencyPair, data]) => (
-            <CurrencyCard
-              key={currencyPair}
-              symbol={data.symbol.toUpperCase()}
-              bid={data.bidPrice}
-              ask={data.askPrice}
-              mid={data.midPrice}
-              bidSize={data.bidSize}
-              askSize={data.askSize}
-              date={data.timestamp}
-            />
-        ))}
-      </Grid2>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-1 max-w-[1240px] justify-items-center">
+      {Object.entries(spotRates).map(([currencyPair, data]) => (
+        <CurrencyCard
+          key={currencyPair}
+          symbol={data.symbol.toUpperCase()}
+          bid={data.bidPrice}
+          ask={data.askPrice}
+          mid={data.midPrice}
+          bidSize={data.bidSize}
+          askSize={data.askSize}
+          date={data.timestamp}
+        />
+      ))}
+    </div>
   );
 };
 
 export default SpotRatesStreaming;
-

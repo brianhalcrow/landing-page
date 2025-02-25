@@ -78,7 +78,7 @@ const Layout = () => {
         <div className="w-64 border-r border-gray-200">
           <Sidebar />
         </div>
-        <main className="flex-1 bg-white overflow-y-auto">
+        <main className="flex-1 bg-white overflow-y-auto px-4">
           <Outlet />
         </main>
       </div>
@@ -88,3 +88,4 @@ const Layout = () => {
 };
 
 export default Layout;
+

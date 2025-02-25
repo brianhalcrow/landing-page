@@ -1,3 +1,4 @@
+
 import React from "react";
 import PendingTab from "@/components/monitor/PendingTab";
 import CompletedTab from "@/components/monitor/CompletedTab";
@@ -13,6 +14,7 @@ import ReadyToTradeTab from "@/components/review/ReadyToTradeTab";
 import RejectedTradesTab from "@/components/review/RejectedTab";
 import ForecastAdHocTab from "@/components/forecast/AdHocTab";
 import HedgeRequestAdHocTab from "@/components/hedge-request/AdHocTab";
+import CashflowHedgeForm from "@/components/hedge-request/cashflow/CashflowHedgeForm";
 import DocumentsTab from "@/components/data-sources/DocumentsTab";
 import ConnectionsTab from "@/components/data-sources/ConnectionsTab";
 import ChatFXTab from "@/components/data-sources/ChatFXTab";
@@ -36,6 +38,12 @@ export const tabsConfig = {
     { value: "fx-rates", label: "FX Rates", content: <FxRatesTab baseCurrency={baseCurrency} setBaseCurrency={setBaseCurrency} /> },
     { value: "spot-rates", label: "Spot Rates", content: <SpotRatesStreaming baseCurrency={baseCurrency} /> },
     { value: "calendar", label: "Calendar", content: <CalendarTab /> },
+  ],
+  "hedge-request": [
+    { value: "ad-hoc", label: "Ad-Hoc", content: <HedgeRequestAdHocTab /> },
+    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Hedge Request</div> },
+    { value: "cashflow", label: "Cashflow", content: <CashflowHedgeForm /> },
+    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
   ],
   "cash-management": [
     { value: "overview", label: "Overview", content: <CashManagementOverviewTab /> },
@@ -70,12 +78,6 @@ export const tabsConfig = {
     { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Forecast</div> },
     { value: "cashflow", label: "Cashflow", content: <div>Cashflow Forecast</div> },
     { value: "intramonth", label: "Intramonth", content: <div>Intramonth Forecast</div> },
-  ],
-  "hedge-request": [
-    { value: "ad-hoc", label: "Ad-Hoc", content: <HedgeRequestAdHocTab /> },
-    { value: "balance-sheet", label: "Balance Sheet", content: <div>Balance Sheet Hedge Request</div> },
-    { value: "cashflow", label: "Cashflow", content: <div>Cashflow Hedge Requests</div> },
-    { value: "intramonth", label: "Intramonth", content: <div>Intramonth Hedge Requests</div> },
   ],
   "review": [
     { value: "overview", label: "Overview", content: <OverviewTab /> },

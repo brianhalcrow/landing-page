@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+
+import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import useWebSocketConnection from '../handlers/handleWebSocketConnection.js';
 import incomingMessage from '../handlers/handleIncomingMessage.js';
@@ -7,7 +8,6 @@ import outgoingMessage from '../handlers/handleOutgoingMessage.js';
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ url, children }) => {
-
     // local state variable for incoming quotes
     const [quote, setQuote] = useState({
         transactionType: '',
@@ -18,7 +18,7 @@ export const WebSocketProvider = ({ url, children }) => {
         quoteRequestID: '',
         clientID: '',
         legs: []
-      });
+    });
 
     // local state variable for incoming deals
     const [executionReport, setExecutionReport] = useState({
@@ -32,7 +32,7 @@ export const WebSocketProvider = ({ url, children }) => {
         dealID: '',
         clientID: '',
         legs: []
-      });
+    });
 
     // local state variable for incoming errors
     const [error, setError] = useState({
@@ -47,15 +47,27 @@ export const WebSocketProvider = ({ url, children }) => {
         clientID: '',
         message: '',
         legs: []
-      });
+    });
 
     // Show panels or not depending on incoming messages
     const [showQuote, setShowQuote] = useState(false);
     const [showExecutionReport, setShowExecutionReport] = useState(false);
     const [showError, setShowError] = useState(false);
 
-    const socketRef = useWebSocketConnection(url, (data) => incomingMessage(data, setQuote, setShowQuote, setExecutionReport, setShowExecutionReport, setError, setShowError));
-    const sendMessage = outgoingMessage(socketRef);
+    const handleIncomingMessageCallback = useCallback((data) => {
+        incomingMessage(
+            data,
+            setQuote,
+            setShowQuote,
+            setExecutionReport,
+            setShowExecutionReport,
+            setError,
+            setShowError
+        );
+    }, []);
+
+    const socketRef = useWebSocketConnection(url, handleIncomingMessageCallback);
+    const sendMessage = useMemo(() => outgoingMessage(socketRef), [socketRef]);
 
     const contextValue = useMemo(() => ({
         sendMessage,
@@ -71,7 +83,15 @@ export const WebSocketProvider = ({ url, children }) => {
         setError,
         showError,
         setShowError
-    }), [sendMessage, quote, showQuote, executionReport, showExecutionReport, error, showError]);
+    }), [
+        sendMessage,
+        quote,
+        showQuote,
+        executionReport,
+        showExecutionReport,
+        error,
+        showError
+    ]);
 
     return (
         <WebSocketContext.Provider value={contextValue}>
@@ -86,6 +106,11 @@ WebSocketProvider.propTypes = {
 };
 
 export const useWebSocket = () => {
-    return useContext(WebSocketContext);
+    const context = useContext(WebSocketContext);
+    if (!context) {
+        throw new Error('useWebSocket must be used within a WebSocketProvider');
+    }
+    return context;
 };
 
+export default WebSocketContext;
