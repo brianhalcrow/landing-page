@@ -11,8 +11,7 @@ import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import { Minimize2, Maximize2, Save } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useTradeRequestSave } from "../new-grid/hooks/useTradeRequestSave";
-import { TradeRequest } from "@/components/review/types/trade-request.types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GeneralInfo {
   entityId: string;
@@ -26,7 +25,6 @@ interface GeneralInfo {
 
 const CashflowHedgeForm = () => {
   const { toast } = useToast();
-  const { mutate: saveTrade } = useTradeRequestSave();
   
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
     general: false,
@@ -88,44 +86,26 @@ const CashflowHedgeForm = () => {
     }
 
     try {
-      const tradeRequest: TradeRequest = {
-        request_no: 0, // This will be assigned by the backend
-        status: 'Submitted',
+      const { error } = await supabase.from('hedge_accounting_requests').insert({
         entity_id: generalInfo.entityId,
         entity_name: generalInfo.entityName,
-        strategy_name: selectedStrategy,
-        strategy_id: '', // This will be assigned by the backend
-        instrument: selectedInstrument,
-        trade_date: generalInfo.documentDate,
-        settlement_date: generalInfo.documentDate,
-        ccy_1: generalInfo.exposedCurrency,
-        ccy_2: generalInfo.hedgingEntityFunctionalCurrency,
-        ccy_1_amount: null,
-        ccy_2_amount: null,
-        ccy_pair: `${generalInfo.exposedCurrency}/${generalInfo.hedgingEntityFunctionalCurrency}`,
+        hedge_type: 'Cashflow',
         cost_centre: generalInfo.costCentre,
-        counterparty_name: '',
-        submitted_by: '',
-        submitted_at: new Date().toISOString(),
-        reviewed_by: null,
-        reviewed_at: null,
-        approved_by: null,
-        approved_at: null,
-        rejected_by: null,
-        rejected_at: null,
-        rejection_reason: null,
-        hedge_group_id: null,
-        swap_id: null,
-        swap_leg: null
-      };
+        status: 'draft',
+        functional_currency: generalInfo.hedgingEntityFunctionalCurrency,
+        created_by: '', // Will be handled by RLS
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
 
-      await saveTrade(tradeRequest);
+      if (error) throw error;
       
       toast({
         title: "Success",
         description: "Draft saved successfully",
       });
     } catch (error) {
+      console.error('Error saving hedge request:', error);
       toast({
         title: "Error",
         description: "Failed to save draft. Please try again.",
@@ -207,6 +187,7 @@ const CashflowHedgeForm = () => {
             <HedgedItemSection 
               exposureCategoryL2={selectedExposureCategoryL2}
               selectedStrategy={selectedStrategy}
+              onExposureCategoryL2Change={setSelectedExposureCategoryL2}
             />
           </div>
         </CardContent>
