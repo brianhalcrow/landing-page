@@ -89,8 +89,10 @@ const CashflowHedgeForm = () => {
         discontinuation_criteria: "",
         effectiveness_testing_method: "",
         testing_frequency: "",
-        assessment_details: ""
-        // Removed start_month and end_month as they should be set only when exposure details are saved
+        assessment_details: "",
+        // Set start_month and end_month to null explicitly
+        start_month: null,
+        end_month: null
       };
 
       console.log('Saving hedge request:', hedgeRequest);
