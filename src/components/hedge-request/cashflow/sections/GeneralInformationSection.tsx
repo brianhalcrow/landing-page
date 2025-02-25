@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useEntityData, TREASURY_ENTITY_NAME } from "../hooks/useEntityData";
 import { useExposureConfig } from "../hooks/useExposureConfig";
@@ -17,7 +18,7 @@ interface GeneralInformationSectionProps {
   onStrategyChange: (value: string, instrument: string) => void;
   onChange: (data: GeneralInformationData) => void;
   generalInfo: GeneralInformationData;
-  hedgeId?: string;
+  hedgeId: string;  // Changed to required
 }
 
 const GeneralInformationSection = ({ 
