@@ -52,18 +52,12 @@ const HedgedItemSection = ({
       <div className="grid grid-cols-5 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Exposure Category L2</label>
-          <Select value={exposureCategoryL2} onValueChange={onExposureCategoryL2Change}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {exposureCategories.map(category => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input 
+            type="text" 
+            value={exposureCategoryL2}
+            disabled
+            className="bg-gray-100"
+          />
         </div>
 
         <div className="space-y-2">
