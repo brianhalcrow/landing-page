@@ -34,7 +34,6 @@ const CashflowHedgeForm = () => {
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
   const handleLoadDraft = (draft: HedgeAccountingRequest) => {
-    // Update all form sections with draft data
     setHedgeId(draft.hedge_id);
     setGeneralInfo({
       entity_id: draft.entity_id,
@@ -131,7 +130,10 @@ const CashflowHedgeForm = () => {
         isMinimized={minimizedSections.risk}
         onToggle={toggleSection}
       >
-        <RiskManagementSection />
+        <RiskManagementSection 
+          value={riskManagement.risk_management_description}
+          onChange={(value) => setRiskManagement({ risk_management_description: value })}
+        />
       </FormSection>
 
       <FormSection 
@@ -149,6 +151,8 @@ const CashflowHedgeForm = () => {
             }));
           }}
           selectedStrategy={generalInfo.strategy}
+          value={hedgedItem.hedged_item_description}
+          onChange={(value) => setHedgedItem({ hedged_item_description: value })}
         />
       </FormSection>
 
@@ -161,6 +165,8 @@ const CashflowHedgeForm = () => {
         <HedgingInstrumentSection 
           selectedStrategy={generalInfo.strategy}
           instrumentType={hedgingInstrument.instrument}
+          value={hedgingInstrument}
+          onChange={setHedgingInstrument}
         />
       </FormSection>
 

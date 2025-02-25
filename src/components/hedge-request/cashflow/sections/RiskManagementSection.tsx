@@ -1,9 +1,23 @@
 
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const RiskManagementSection = () => {
-  const [description, setDescription] = useState("");
+interface RiskManagementSectionProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+const RiskManagementSection = ({ value, onChange }: RiskManagementSectionProps) => {
+  const [description, setDescription] = useState(value || "");
+  
+  useEffect(() => {
+    setDescription(value || "");
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+    onChange?.(e.target.value);
+  };
   
   return (
     <div className="space-y-6 w-full">
@@ -12,7 +26,7 @@ const RiskManagementSection = () => {
         <Textarea 
           placeholder="Enter risk management objective and strategy description"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={handleChange}
           rows={6}
           className="w-full"
         />
