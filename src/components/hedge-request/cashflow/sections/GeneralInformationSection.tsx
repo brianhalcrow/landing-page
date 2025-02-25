@@ -35,6 +35,7 @@ const GeneralInformationSection = ({
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
   const [documentDate, setDocumentDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [costCentre, setCostCentre] = useState("");
 
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
   const { data: exposureConfigs } = useExposureConfig(selectedEntityId);
@@ -69,6 +70,7 @@ const GeneralInformationSection = ({
     setSelectedExposureCategoryL3("");
     setSelectedStrategy("");
     setDocumentDate(format(new Date(), 'yyyy-MM-dd'));
+    setCostCentre("");
   };
 
   const handleEntityChange = (entityId: string, entityName: string) => {
@@ -199,7 +201,7 @@ const GeneralInformationSection = ({
     onChange({
       entity_id: selectedEntityId,
       entity_name: selectedEntityName,
-      cost_centre: "",
+      cost_centre: costCentre,
       transaction_currency: exposedCurrency,
       documentation_date: documentDate,
       exposure_category_l1: selectedExposureCategoryL1,
@@ -213,6 +215,7 @@ const GeneralInformationSection = ({
   }, [
     selectedEntityId,
     selectedEntityName,
+    costCentre,
     exposedCurrency,
     documentDate,
     selectedExposureCategoryL1,
@@ -232,6 +235,8 @@ const GeneralInformationSection = ({
         selectedEntityId={selectedEntityId}
         selectedEntityName={selectedEntityName}
         onEntityChange={handleEntityChange}
+        costCentre={costCentre}
+        onCostCentreChange={setCostCentre}
         selectedHedgingEntity={selectedHedgingEntity}
         onHedgingEntityChange={handleHedgingEntityChange}
         hedgingEntityFunctionalCurrency={hedgingEntityFunctionalCurrency}
