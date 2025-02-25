@@ -67,25 +67,27 @@ export const EntityInformation = ({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Entity ID</label>
-        <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select entity ID" />
-          </SelectTrigger>
-          <SelectContent>
-            {entities?.map(entity => (
-              <SelectItem key={entity.entity_id} value={entity.entity_id}>
-                {entity.entity_id}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Entity ID</label>
+          <Select value={selectedEntityId} onValueChange={handleEntityIdChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select entity ID" />
+            </SelectTrigger>
+            <SelectContent>
+              {entities?.map(entity => (
+                <SelectItem key={entity.entity_id} value={entity.entity_id}>
+                  {entity.entity_id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Cost Centre</label>
-        <Input type="text" placeholder="Enter cost centre" />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Cost Centre</label>
+          <Input type="text" placeholder="Enter cost centre" />
+        </div>
       </div>
 
       <div className="space-y-2">
