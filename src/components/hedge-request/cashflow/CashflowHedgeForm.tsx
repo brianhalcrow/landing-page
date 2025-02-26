@@ -1,4 +1,3 @@
-
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -76,11 +75,6 @@ const CashflowHedgeForm = () => {
         effectiveness_testing_method: draft.effectiveness_testing_method,
         testing_frequency: draft.testing_frequency,
         assessment_details: draft.assessment_details
-      });
-
-      setExposureDetails({
-        start_month: draft.start_month,
-        end_month: draft.end_month
       });
 
       toast.success('Draft loaded successfully');
@@ -200,6 +194,7 @@ const CashflowHedgeForm = () => {
         <ExposureDetailsSection 
           value={exposureDetails}
           onChange={setExposureDetails}
+          documentationDate={generalInfo.documentation_date}
         />
       </FormSection>
     </div>

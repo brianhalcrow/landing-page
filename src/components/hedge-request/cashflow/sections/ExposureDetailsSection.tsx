@@ -1,6 +1,6 @@
 
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
-import { addMonths, format } from "date-fns";
+import { addMonths, format, parse } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
 import { GridInputRow } from "../components/GridInputRow";
@@ -9,9 +9,10 @@ import { calculateForecasts, calculateHedgeValues, formatNumber, formatPercentag
 interface ExposureDetailsSectionProps {
   value?: ExposureDetailsData;
   onChange?: (value: ExposureDetailsData) => void;
+  documentationDate?: string;
 }
 
-const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps) => {
+const ExposureDetailsSection = ({ value, onChange, documentationDate }: ExposureDetailsSectionProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
@@ -24,6 +25,18 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
   const [cumulativeAmounts, setCumulativeAmounts] = useState<Record<number, number>>({});
   const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Initialize the selected date from documentation date
+  useEffect(() => {
+    if (documentationDate) {
+      try {
+        const date = parse(documentationDate, 'yyyy-MM-dd', new Date());
+        setSelectedDate(date);
+      } catch (error) {
+        console.error('Failed to parse documentation date:', error);
+      }
+    }
+  }, [documentationDate]);
 
   const getMonths = (startDate: Date | undefined) => {
     const baseDate = startDate || new Date();
@@ -48,7 +61,6 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
     setHedgeAmounts(newHedgeAmounts);
     setIndicativeCoverage(newIndicativeCoverage);
 
-    // Calculate cumulative values
     let runningAmount = 0;
     const newCumulativeAmounts: Record<number, number> = {};
     const newCumulativeCoverage: Record<number, number> = {};
