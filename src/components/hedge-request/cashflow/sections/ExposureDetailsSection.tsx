@@ -21,7 +21,7 @@ interface ExposureDetailsSectionProps {
 
 export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => HedgeLayerDetails | null }, ExposureDetailsSectionProps>(
   ({ value, onChange, documentationDate, hedgeId }, ref) => {
-    const exposureConfig = useExposureConfig();
+    const exposureConfig = useExposureConfig('');
     const calculations = useExposureCalculations(hedgeId || '');
 
     useImperativeHandle(ref, () => ({
@@ -79,14 +79,12 @@ export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => He
         <div className="grid grid-cols-2 gap-4">
           <div>
             <DocumentationDateInput
-              label="Start Month"
               documentDate={value.start_month || ''}
               onDateChange={(newDate) => handleStartMonthChange(newDate ? new Date(newDate) : null)}
             />
           </div>
           <div>
             <DocumentationDateInput
-              label="End Month"
               documentDate={value.end_month || ''}
               onDateChange={(newDate) => handleEndMonthChange(newDate ? new Date(newDate) : null)}
             />
@@ -95,7 +93,7 @@ export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => He
 
         {value.start_month && value.end_month && exposureConfig.data && (
           <ExposureGrid
-            months={calculations.months}
+            months={Object.keys(calculations.revenues)}
             revenues={calculations.revenues}
             costs={calculations.costs}
             forecasts={calculations.forecasts}
@@ -104,8 +102,8 @@ export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => He
             indicativeCoverage={calculations.indicativeCoverage}
             cumulativeAmounts={calculations.cumulativeAmounts}
             cumulativeCoverage={calculations.cumulativeCoverage}
-            onRevenueChange={calculations.setRevenue}
-            onCostChange={calculations.setCost}
+            onRevenueChange={calculations.setRevenues}
+            onCostChange={calculations.setCosts}
             onKeyDown={(event, rowIndex, colIndex) => {
               // Handle key down events
             }}
