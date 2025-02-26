@@ -1,4 +1,3 @@
-
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -11,7 +10,7 @@ import HedgedItemSection from "./sections/HedgedItemSection";
 import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
-import type { HedgeAccountingRequest } from "./types";
+import type { ExistingHedgeRequest } from "./types";
 import { useEffect, useState } from "react";
 
 const CashflowHedgeForm = () => {
@@ -39,7 +38,6 @@ const CashflowHedgeForm = () => {
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
-  // Calculate progress whenever form data changes
   useEffect(() => {
     const currentProgress = calculateProgress(
       generalInfo,
@@ -68,7 +66,7 @@ const CashflowHedgeForm = () => {
     // Submit functionality will be implemented later
   };
 
-  const handleLoadDraft = async (draft: HedgeAccountingRequest) => {
+  const handleLoadDraft = async (draft: ExistingHedgeRequest) => {
     try {
       setIsLoading(true);
       console.log('Loading draft data:', draft);

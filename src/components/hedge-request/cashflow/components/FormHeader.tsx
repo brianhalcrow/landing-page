@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Save } from "lucide-react";
 import { LoadDraftDialog } from "./LoadDraftDialog";
-import type { HedgeAccountingRequest } from "../types";
+import type { ExistingHedgeRequest } from "../types";
 
 interface FormHeaderProps {
   onSaveDraft: () => void;
   onSubmit: () => void;
-  onLoadDraft: (draft: HedgeAccountingRequest) => void;
+  onLoadDraft: (draft: ExistingHedgeRequest) => void;
   progress: number;
 }
 

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import {
@@ -13,10 +12,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { HedgeAccountingRequest } from "../types";
+import type { ExistingHedgeRequest } from "../types";
 
 interface LoadDraftDialogProps {
-  onDraftSelect: (draft: HedgeAccountingRequest) => void;
+  onDraftSelect: (draft: ExistingHedgeRequest) => void;
 }
 
 export const LoadDraftDialog = ({ onDraftSelect }: LoadDraftDialogProps) => {
@@ -32,11 +31,11 @@ export const LoadDraftDialog = ({ onDraftSelect }: LoadDraftDialogProps) => {
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
-      return data as HedgeAccountingRequest[];
+      return data as ExistingHedgeRequest[];
     }
   });
 
-  const handleDraftSelect = (draft: HedgeAccountingRequest) => {
+  const handleDraftSelect = (draft: ExistingHedgeRequest) => {
     onDraftSelect(draft);
     setOpen(false);
   };

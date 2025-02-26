@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NewHedgeRequest, ExistingHedgeRequest } from "../types";
+import { BaseHedgeRequest, ExistingHedgeRequest } from "../types";
 
 export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
   console.log('Checking if hedge ID exists:', hedgeId);
@@ -17,7 +17,7 @@ export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
   return count ? count > 0 : false;
 };
 
-export const saveDraft = async (hedgeRequest: NewHedgeRequest | ExistingHedgeRequest) => {
+export const saveDraft = async (hedgeRequest: BaseHedgeRequest | ExistingHedgeRequest) => {
   console.log('Starting save draft operation for hedge request');
   
   try {
@@ -39,10 +39,10 @@ export const saveDraft = async (hedgeRequest: NewHedgeRequest | ExistingHedgeReq
       result = { hedge_id: hedgeId };
     } else {
       console.log('Creating new draft');
-      // For inserts, we use NewHedgeRequest type which doesn't include hedge_id
+      // For inserts, we use BaseHedgeRequest
       const { data, error } = await supabase
         .from('hedge_accounting_requests')
-        .insert(hedgeRequest as NewHedgeRequest)
+        .insert(hedgeRequest as BaseHedgeRequest)
         .select('hedge_id')
         .single();
         

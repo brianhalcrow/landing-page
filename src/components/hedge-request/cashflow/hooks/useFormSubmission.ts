@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateGeneralInfo } from "../utils/validation";
 import { saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
-import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData, NewHedgeRequest } from "../types";
+import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData, BaseHedgeRequest } from "../types";
 import { convertToDBDate } from "../utils/dateTransformations";
 
 export const useFormSubmission = (setHedgeId: (id: string) => void) => {
