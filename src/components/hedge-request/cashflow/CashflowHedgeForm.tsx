@@ -1,46 +1,31 @@
-
 import { FormHeader } from "./components/FormHeader";
-import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
 import { useFormSubmission } from "./hooks/useFormSubmission";
 import { toast } from "sonner";
 import { calculateProgress } from "./utils/validation";
-import GeneralInformationSection from "./sections/GeneralInformationSection";
-import RiskManagementSection from "./sections/RiskManagementSection";
-import HedgedItemSection from "./sections/HedgedItemSection";
-import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
-import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
-import ExposureForecastSection from "./sections/ExposureForecastSection";
-import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import type { ExistingHedgeRequest } from "./types";
 import type { HedgeLayerDetails } from "./types/hedge-layer";
 import { useState, useRef } from "react";
+import { FormContent } from "./components/FormContent";
 
 const CashflowHedgeForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const exposureDetailsRef = useRef<{ getCurrentLayerData: () => HedgeLayerDetails | null }>();
   
+  const formState = useFormState();
   const {
     minimizedSections,
     toggleSection,
     generalInfo,
-    setGeneralInfo,
     hedgingInstrument,
-    setHedgingInstrument,
     riskManagement,
-    setRiskManagement,
     hedgedItem,
-    setHedgedItem,
     assessmentMonitoring,
-    setAssessmentMonitoring,
-    exposureForecast,
-    setExposureForecast,
     exposureDetails,
-    setExposureDetails,
     hedgeId,
     setHedgeId
-  } = useFormState();
+  } = formState;
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
@@ -82,6 +67,15 @@ const CashflowHedgeForm = () => {
     try {
       setIsLoading(true);
       console.log('Loading draft data:', draft);
+
+      const {
+        setGeneralInfo,
+        setHedgingInstrument,
+        setRiskManagement,
+        setHedgedItem,
+        setAssessmentMonitoring,
+        setExposureDetails
+      } = formState;
 
       await Promise.all([
         setHedgeId(draft.hedge_id),
@@ -127,28 +121,12 @@ const CashflowHedgeForm = () => {
       ]);
 
       const currentProgress = calculateProgress(
-        draft,
-        { risk_management_description: draft.risk_management_description },
-        { hedged_item_description: draft.hedged_item_description },
-        {
-          instrument: draft.instrument,
-          forward_element_designation: draft.forward_element_designation,
-          currency_basis_spreads: draft.currency_basis_spreads,
-          hedging_instrument_description: draft.hedging_instrument_description
-        },
-        {
-          credit_risk_impact: draft.credit_risk_impact,
-          oci_reclassification_approach: draft.oci_reclassification_approach,
-          economic_relationship: draft.economic_relationship,
-          discontinuation_criteria: draft.discontinuation_criteria,
-          effectiveness_testing_method: draft.effectiveness_testing_method,
-          testing_frequency: draft.testing_frequency,
-          assessment_details: draft.assessment_details
-        },
-        {
-          start_month: draft.start_month,
-          end_month: draft.end_month
-        }
+        generalInfo,
+        riskManagement,
+        hedgedItem,
+        hedgingInstrument,
+        assessmentMonitoring,
+        exposureDetails
       );
       setProgress(currentProgress);
 
@@ -174,121 +152,14 @@ const CashflowHedgeForm = () => {
         progress={progress}
       />
       
-      <FormSection 
-        title="General Information" 
-        section="general"
-        isMinimized={minimizedSections.general}
-        onToggle={toggleSection}
-      >
-        <GeneralInformationSection 
-          generalInfo={generalInfo}
-          onChange={setGeneralInfo}
-          onExposureCategoryL2Change={(value) => {
-            setGeneralInfo(prev => ({
-              ...prev,
-              exposure_category_l2: value
-            }));
-          }}
-          onStrategyChange={(value, instrument) => {
-            setGeneralInfo(prev => ({
-              ...prev,
-              strategy: value
-            }));
-            setHedgingInstrument(prev => ({
-              ...prev,
-              instrument
-            }));
-          }}
-          hedgeId={hedgeId}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Risk Management Objective and Strategy" 
-        section="risk"
-        isMinimized={minimizedSections.risk}
-        onToggle={toggleSection}
-      >
-        <RiskManagementSection 
-          value={riskManagement.risk_management_description}
-          onChange={(value) => setRiskManagement({ risk_management_description: value })}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Hedged Item Details" 
-        section="hedgedItem"
-        isMinimized={minimizedSections.hedgedItem}
-        onToggle={toggleSection}
-      >
-        <HedgedItemSection 
-          exposureCategoryL2={generalInfo.exposure_category_l2}
-          onExposureCategoryL2Change={(value) => {
-            setGeneralInfo(prev => ({
-              ...prev,
-              exposure_category_l2: value
-            }));
-          }}
-          selectedStrategy={generalInfo.strategy}
-          value={hedgedItem.hedged_item_description}
-          onChange={(value) => setHedgedItem({ hedged_item_description: value })}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Hedging Instrument" 
-        section="hedgingInstrument"
-        isMinimized={minimizedSections.hedgingInstrument}
-        onToggle={toggleSection}
-      >
-        <HedgingInstrumentSection 
-          selectedStrategy={generalInfo.strategy}
-          instrumentType={hedgingInstrument.instrument}
-          value={hedgingInstrument}
-          onChange={setHedgingInstrument}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Assessment, Effectiveness, and Monitoring" 
-        section="assessment"
-        isMinimized={minimizedSections.assessment}
-        onToggle={toggleSection}
-      >
-        <AssessmentMonitoringSection 
-          value={assessmentMonitoring}
-          onChange={setAssessmentMonitoring}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Exposure Forecast" 
-        section="forecast"
-        isMinimized={minimizedSections.forecast}
-        onToggle={toggleSection}
-      >
-        <ExposureForecastSection 
-          value={exposureForecast}
-          onChange={setExposureForecast}
-          documentationDate={generalInfo.documentation_date}
-          hedgeId={hedgeId}
-        />
-      </FormSection>
-
-      <FormSection 
-        title="Exposure Details" 
-        section="exposure"
-        isMinimized={minimizedSections.exposure}
-        onToggle={toggleSection}
-      >
-        <ExposureDetailsSection 
-          ref={exposureDetailsRef}
-          value={exposureDetails}
-          onChange={setExposureDetails}
-          documentationDate={generalInfo.documentation_date}
-          hedgeId={hedgeId}
-        />
-      </FormSection>
+      <FormContent
+        formState={formState}
+        exposureDetailsRef={exposureDetailsRef}
+        minimizedSections={minimizedSections}
+        onToggleSection={toggleSection}
+        onUpdateGeneralInfo={formState.setGeneralInfo}
+        onUpdateHedgingInstrument={formState.setHedgingInstrument}
+      />
     </div>
   );
 };
