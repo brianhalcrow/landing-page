@@ -38,9 +38,8 @@ const CashflowHedgeForm = () => {
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
-  // Calculate progress whenever form data changes
-  useEffect(() => {
-    const currentProgress = calculateProgress(
+  const onSaveDraft = async () => {
+    const updatedProgress = calculateProgress(
       generalInfo,
       riskManagement,
       hedgedItem,
@@ -48,36 +47,28 @@ const CashflowHedgeForm = () => {
       assessmentMonitoring,
       exposureDetails
     );
-    setProgress(currentProgress);
-  }, [generalInfo, riskManagement, hedgedItem, hedgingInstrument, assessmentMonitoring, exposureDetails]);
+    setProgress(updatedProgress);
 
-  // Debug useEffect for each section
-  useEffect(() => {
-    console.log('General Info updated:', generalInfo);
-  }, [generalInfo]);
+    await handleSaveDraft(
+      generalInfo, 
+      hedgingInstrument,
+      riskManagement,
+      hedgedItem,
+      assessmentMonitoring,
+      exposureDetails,
+      hedgeId
+    );
+  };
 
-  useEffect(() => {
-    console.log('Hedging Instrument updated:', hedgingInstrument);
-  }, [hedgingInstrument]);
-
-  useEffect(() => {
-    console.log('Risk Management updated:', riskManagement);
-  }, [riskManagement]);
-
-  useEffect(() => {
-    console.log('Hedged Item updated:', hedgedItem);
-  }, [hedgedItem]);
-
-  useEffect(() => {
-    console.log('Assessment Monitoring updated:', assessmentMonitoring);
-  }, [assessmentMonitoring]);
+  const handleSubmit = () => {
+    // Submit functionality will be implemented later
+  };
 
   const handleLoadDraft = async (draft: HedgeAccountingRequest) => {
     try {
       setIsLoading(true);
       console.log('Loading draft data:', draft);
 
-      // Update all form sections sequentially
       await Promise.all([
         setHedgeId(draft.hedge_id),
         setGeneralInfo({
@@ -128,20 +119,6 @@ const CashflowHedgeForm = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const onSaveDraft = () => handleSaveDraft(
-    generalInfo, 
-    hedgingInstrument,
-    riskManagement,
-    hedgedItem,
-    assessmentMonitoring,
-    exposureDetails,
-    hedgeId
-  );
-
-  const handleSubmit = () => {
-    // Submit functionality will be implemented later
   };
 
   if (isLoading) {

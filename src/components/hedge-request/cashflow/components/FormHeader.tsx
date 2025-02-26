@@ -15,8 +15,7 @@ interface FormHeaderProps {
 export const FormHeader = ({ onSaveDraft, onSubmit, onLoadDraft, progress }: FormHeaderProps) => {
   return (
     <div className="space-y-4 mb-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Cashflow Hedge Documentation</h1>
+      <div className="flex flex-col items-end gap-4">
         <div className="flex gap-3">
           <LoadDraftDialog onDraftSelect={onLoadDraft} />
           <Button
@@ -29,10 +28,10 @@ export const FormHeader = ({ onSaveDraft, onSubmit, onLoadDraft, progress }: For
           </Button>
           <Button onClick={onSubmit}>Submit</Button>
         </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <Progress value={progress} className="flex-1" />
-        <span className="text-sm text-gray-500 min-w-[4ch]">{progress}%</span>
+        <div className="flex items-center gap-2 w-[332px]"> {/* Width matches the 3 buttons above */}
+          <Progress value={progress} className="flex-1" />
+          <span className="text-sm text-gray-500 min-w-[4ch]">{progress}%</span>
+        </div>
       </div>
     </div>
   );
