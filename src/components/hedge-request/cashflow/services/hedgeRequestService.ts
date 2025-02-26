@@ -2,6 +2,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BaseHedgeRequest, ExistingHedgeRequest } from "../types";
 
+// Type that matches exactly what Supabase expects for hedge_accounting_requests table
+type HedgeRequestDB = Omit<ExistingHedgeRequest, 'hedge_id'> & {
+  hedge_id?: string;  // Optional for insert, required for update
+};
+
 export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
   console.log('Checking if hedge ID exists:', hedgeId);
   const { count, error } = await supabase
@@ -29,20 +34,21 @@ export const saveDraft = async (hedgeRequest: BaseHedgeRequest | ExistingHedgeRe
     let result;
     if (exists) {
       console.log('Updating existing draft:', hedgeId);
-      // For updates, we know it's an ExistingHedgeRequest
+      // For updates, we use the request as is since it's an ExistingHedgeRequest
       const { error } = await supabase
         .from('hedge_accounting_requests')
-        .update(hedgeRequest as ExistingHedgeRequest)
+        .update(hedgeRequest)
         .eq('hedge_id', hedgeId);
         
       if (error) throw error;
       result = { hedge_id: hedgeId };
     } else {
       console.log('Creating new draft');
-      // For inserts, we use BaseHedgeRequest
+      // For inserts, we cast to our DB type which makes hedge_id optional
+      const dbRequest: HedgeRequestDB = hedgeRequest;
       const { data, error } = await supabase
         .from('hedge_accounting_requests')
-        .insert(hedgeRequest as BaseHedgeRequest)
+        .insert(dbRequest)
         .select('hedge_id')
         .single();
         
