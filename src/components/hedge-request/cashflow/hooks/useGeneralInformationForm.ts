@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useEntityData, TREASURY_ENTITY_NAME } from "./useEntityData";
@@ -8,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { GeneralInformationData } from "../types/general-information";
 import type { Entity } from "./useEntityData";
+import type { Strategy } from "./useStrategies";
 
 export const useGeneralInformationForm = (onChange: (data: GeneralInformationData) => void, initialData?: GeneralInformationData) => {
   const [selectedEntityId, setSelectedEntityId] = useState(initialData?.entity_id || "");
@@ -39,7 +39,6 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
     }
   });
 
-  // Effect to handle initialData updates
   useEffect(() => {
     if (initialData) {
       setSelectedEntityId(initialData.entity_id);
@@ -117,31 +116,35 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
     }
   };
 
-  const getCategoryOptions = (level: 'L1' | 'L2' | 'L3' | 'strategy') => {
-    if (!exposureConfigs) return [];
-
-    switch (level) {
-      case 'L1':
-        return [...new Set(exposureConfigs.map(config => config.exposure_category_l1))];
-      case 'L2':
-        return [...new Set(exposureConfigs
-          .filter(config => config.exposure_category_l1 === selectedExposureCategoryL1)
-          .map(config => config.exposure_category_l2))];
-      case 'L3':
-        return [...new Set(exposureConfigs
-          .filter(config => 
-            config.exposure_category_l1 === selectedExposureCategoryL1 &&
-            config.exposure_category_l2 === selectedExposureCategoryL2
-          )
-          .map(config => config.exposure_category_l3))];
-      case 'strategy':
-        return strategies?.map(s => s.strategy_name) || [];
-      default:
-        return [];
+  const getCategoryOptions = {
+    l1: () => {
+      if (!exposureConfigs) return [];
+      return [...new Set(exposureConfigs.map(config => 
+        config.exposure_types.exposure_category_l1
+      ))];
+    },
+    l2: () => {
+      if (!exposureConfigs) return [];
+      return [...new Set(exposureConfigs
+        .filter(config => 
+          config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1
+        )
+        .map(config => config.exposure_types.exposure_category_l2))];
+    },
+    l3: () => {
+      if (!exposureConfigs) return [];
+      return [...new Set(exposureConfigs
+        .filter(config => 
+          config.exposure_types.exposure_category_l1 === selectedExposureCategoryL1 &&
+          config.exposure_types.exposure_category_l2 === selectedExposureCategoryL2
+        )
+        .map(config => config.exposure_types.exposure_category_l3))];
+    },
+    strategies: () => {
+      return strategies?.map(s => s.strategy_name) || [];
     }
   };
 
-  // Effect to update parent component
   useEffect(() => {
     onChange({
       entity_id: selectedEntityId,
