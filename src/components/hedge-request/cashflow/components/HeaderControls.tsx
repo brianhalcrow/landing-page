@@ -50,7 +50,7 @@ export const HeaderControls = ({
     }
   };
 
-  // Update end date when selected date changes
+  // Update end date only when selectedDate changes and is valid
   useEffect(() => {
     if (selectedDate) {
       const endDate = addMonths(selectedDate, 11);
@@ -98,7 +98,10 @@ export const HeaderControls = ({
           maxLength={5}
           value={endInputValue}
           readOnly
-          className="text-left bg-gray-50 cursor-not-allowed"
+          className={cn(
+            "text-left",
+            !selectedDate ? "bg-gray-50 text-gray-400" : "bg-gray-50"
+          )}
         />
       </div>
 

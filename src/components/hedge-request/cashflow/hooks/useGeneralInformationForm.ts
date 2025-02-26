@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { useEntityData, TREASURY_ENTITY_NAME } from "./useEntityData";
 import { useExposureConfig } from "./useExposureConfig";
@@ -10,6 +10,7 @@ import type { Entity } from "./useEntityData";
 import type { Strategy } from "./useStrategies";
 
 export const useGeneralInformationForm = (onChange: (data: GeneralInformationData) => void, initialData?: GeneralInformationData) => {
+  const isInitialMount = useRef(true);
   const [selectedEntityId, setSelectedEntityId] = useState(initialData?.entity_id || "");
   const [selectedEntityName, setSelectedEntityName] = useState(initialData?.entity_name || "");
   const [exposedCurrency, setExposedCurrency] = useState(initialData?.transaction_currency || "");
@@ -19,7 +20,7 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
   const [selectedExposureCategoryL2, setSelectedExposureCategoryL2] = useState(initialData?.exposure_category_l2 || "");
   const [selectedExposureCategoryL3, setSelectedExposureCategoryL3] = useState(initialData?.exposure_category_l3 || "");
   const [selectedStrategy, setSelectedStrategy] = useState(initialData?.strategy || "");
-  const [documentDate, setDocumentDate] = useState(initialData?.documentation_date || format(new Date(), 'yyyy-MM-dd'));
+  const [documentDate, setDocumentDate] = useState(initialData?.documentation_date || "");
   const [costCentre, setCostCentre] = useState(initialData?.cost_centre || "");
 
   const { entities, entityCounterparty, isRelationshipsFetched } = useEntityData(selectedEntityId);
@@ -40,7 +41,7 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
   });
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && isInitialMount.current) {
       setSelectedEntityId(initialData.entity_id);
       setSelectedEntityName(initialData.entity_name);
       setExposedCurrency(initialData.transaction_currency);
@@ -53,6 +54,7 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
       setDocumentDate(initialData.documentation_date);
       setCostCentre(initialData.cost_centre);
     }
+    isInitialMount.current = false;
   }, [initialData]);
 
   const availableHedgingEntities = entities ? entities.filter(entity => {
@@ -141,25 +143,28 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
         .map(config => config.exposure_types.exposure_category_l3))];
     },
     strategies: () => {
-      return strategies?.map(s => s.strategy_name) || [];
+      if (!strategies) return [];
+      return strategies
     }
   };
 
   useEffect(() => {
-    onChange({
-      entity_id: selectedEntityId,
-      entity_name: selectedEntityName,
-      cost_centre: costCentre,
-      transaction_currency: exposedCurrency,
-      documentation_date: documentDate,
-      exposure_category_l1: selectedExposureCategoryL1,
-      exposure_category_l2: selectedExposureCategoryL2,
-      exposure_category_l3: selectedExposureCategoryL3,
-      strategy: selectedStrategy,
-      hedging_entity: selectedHedgingEntity,
-      hedging_entity_fccy: hedgingEntityFunctionalCurrency,
-      functional_currency: entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ""
-    });
+    if (!isInitialMount.current) {
+      onChange({
+        entity_id: selectedEntityId,
+        entity_name: selectedEntityName,
+        cost_centre: costCentre,
+        transaction_currency: exposedCurrency,
+        documentation_date: documentDate,
+        exposure_category_l1: selectedExposureCategoryL1,
+        exposure_category_l2: selectedExposureCategoryL2,
+        exposure_category_l3: selectedExposureCategoryL3,
+        strategy: selectedStrategy,
+        hedging_entity: selectedHedgingEntity,
+        hedging_entity_fccy: hedgingEntityFunctionalCurrency,
+        functional_currency: entities?.find(e => e.entity_id === selectedEntityId)?.functional_currency || ""
+      });
+    }
   }, [
     selectedEntityId,
     selectedEntityName,
