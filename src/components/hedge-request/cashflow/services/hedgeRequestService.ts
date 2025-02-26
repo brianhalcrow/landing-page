@@ -3,14 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { HedgeAccountingRequest } from "../types";
 
 export const generateHedgeId = async (entityId: string, exposureCategoryL1: string): Promise<string> => {
-  console.log('Generating hedge ID for entity:', entityId);
+  console.log('Generating hedge ID for entity:', entityId, 'category:', exposureCategoryL1);
   try {
-    // Ensure consistent case when calling the function
-    const categoryCase = exposureCategoryL1.charAt(0).toUpperCase() + exposureCategoryL1.slice(1).toLowerCase();
-    
+    // Start a new transaction
     const { data, error } = await supabase.rpc('generate_hedge_id', {
       p_entity_id: entityId,
-      p_exposure_category_l1: categoryCase
+      p_exposure_category_l1: 'Cashflow' // Always use correct case
     });
 
     if (error) {
@@ -46,26 +44,35 @@ export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
 };
 
 export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
-  console.log('Saving hedge request with ID:', hedgeRequest.hedge_id);
+  console.log('Starting save draft operation for hedge request');
   
   try {
-    // First check if this hedge_id already exists
-    const exists = await checkHedgeIdExists(hedgeRequest.hedge_id);
+    let hedgeId = hedgeRequest.hedge_id;
+    
+    if (!hedgeId) {
+      // Generate new hedge ID if not provided
+      hedgeId = await generateHedgeId(hedgeRequest.entity_id, 'Cashflow');
+      hedgeRequest.hedge_id = hedgeId;
+    }
+    
+    console.log('Using hedge ID for save operation:', hedgeId);
+    
+    // Check if record exists
+    const exists = await checkHedgeIdExists(hedgeId);
     
     let error;
     if (exists) {
-      console.log('Updating existing draft with hedge_id:', hedgeRequest.hedge_id);
-      const { created_at, ...updateData } = hedgeRequest; // Remove created_at from update
-      // Update existing draft - only update relevant fields
+      console.log('Updating existing draft:', hedgeId);
+      const { created_at, ...updateData } = hedgeRequest;
       ({ error } = await supabase
         .from('hedge_accounting_requests')
         .update({
           ...updateData,
           updated_at: new Date().toISOString()
         })
-        .eq('hedge_id', hedgeRequest.hedge_id));
+        .eq('hedge_id', hedgeId));
     } else {
-      console.log('Creating new draft with hedge_id:', hedgeRequest.hedge_id);
+      console.log('Creating new draft:', hedgeId);
       const { error: insertError } = await supabase
         .from('hedge_accounting_requests')
         .insert([{
@@ -77,13 +84,13 @@ export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
     }
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Database operation failed:', error);
       throw error;
     }
 
-    return { success: true, hedgeId: hedgeRequest.hedge_id };
+    return { success: true, hedgeId };
   } catch (error) {
-    console.error('Error saving draft:', error);
+    console.error('Error in saveDraft:', error);
     throw error;
   }
 };
