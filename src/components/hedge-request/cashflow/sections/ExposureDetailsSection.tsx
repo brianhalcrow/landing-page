@@ -1,4 +1,5 @@
-import { forwardRef, useImperativeHandle, KeyboardEvent } from "react";
+
+import { forwardRef, useImperativeHandle, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
@@ -23,6 +24,8 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
   documentationDate,
   hedgeId 
 }, ref) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   const {
     revenues,
     setRevenues,
@@ -45,7 +48,17 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
   } = useExposureCalculations(hedgeId);
 
   useImperativeHandle(ref, () => ({
-    getCurrentLayerData
+    getCurrentLayerData: () => {
+      if (!selectedDate || !hedgeId) return null;
+
+      const baseData = getCurrentLayerData();
+      if (!baseData) return null;
+
+      return {
+        ...baseData,
+        hedge_id: hedgeId
+      };
+    }
   }));
 
   const getMonths = (startDate: Date | undefined) => {
@@ -170,6 +183,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
             onRevenueChange={handleRevenueChange}
             onCostChange={handleCostChange}
             onKeyDown={handleKeyDown}
+            inputRefs={inputRefs.current}
           />
         )}
       </div>
