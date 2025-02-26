@@ -1,3 +1,4 @@
+
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -34,10 +35,8 @@ const CashflowHedgeForm = () => {
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
   const handleLoadDraft = (draft: HedgeAccountingRequest) => {
-    console.log('Loading draft:', draft);
     try {
-      setHedgeId(draft.hedge_id);
-      setGeneralInfo({
+      const updatedGeneralInfo = {
         entity_id: draft.entity_id,
         entity_name: draft.entity_name,
         cost_centre: draft.cost_centre,
@@ -50,24 +49,24 @@ const CashflowHedgeForm = () => {
         hedging_entity: draft.hedging_entity,
         hedging_entity_fccy: draft.hedging_entity_fccy,
         functional_currency: draft.functional_currency
-      });
+      };
 
-      setHedgingInstrument({
+      const updatedHedgingInstrument = {
         instrument: draft.instrument,
         forward_element_designation: draft.forward_element_designation,
         currency_basis_spreads: draft.currency_basis_spreads,
         hedging_instrument_description: draft.hedging_instrument_description
-      });
+      };
 
-      setRiskManagement({
+      const updatedRiskManagement = {
         risk_management_description: draft.risk_management_description
-      });
+      };
 
-      setHedgedItem({
+      const updatedHedgedItem = {
         hedged_item_description: draft.hedged_item_description
-      });
+      };
 
-      setAssessmentMonitoring({
+      const updatedAssessmentMonitoring = {
         credit_risk_impact: draft.credit_risk_impact,
         oci_reclassification_approach: draft.oci_reclassification_approach,
         economic_relationship: draft.economic_relationship,
@@ -75,7 +74,14 @@ const CashflowHedgeForm = () => {
         effectiveness_testing_method: draft.effectiveness_testing_method,
         testing_frequency: draft.testing_frequency,
         assessment_details: draft.assessment_details
-      });
+      };
+
+      setHedgeId(draft.hedge_id);
+      setGeneralInfo(updatedGeneralInfo);
+      setHedgingInstrument(updatedHedgingInstrument);
+      setRiskManagement(updatedRiskManagement);
+      setHedgedItem(updatedHedgedItem);
+      setAssessmentMonitoring(updatedAssessmentMonitoring);
 
       toast.success('Draft loaded successfully');
     } catch (error) {

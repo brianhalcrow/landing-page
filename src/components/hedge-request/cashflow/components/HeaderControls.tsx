@@ -2,8 +2,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { format, addMonths } from "date-fns";
-import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { useState } from "react";
 
 interface HeaderControlsProps {
   hedgeLayer: string;
@@ -44,33 +44,11 @@ export const HeaderControls = ({
       const [month, year] = formattedValue.split('-');
       const startDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
       onDateChange(startDate);
-      
-      // Calculate and set end date (11 months later)
-      const endDate = addMonths(startDate, 11);
-      const endMonth = format(endDate, 'MM');
-      const endYear = format(endDate, 'yy');
-      setEndInputValue(`${endMonth}-${endYear}`);
     } else {
       onDateChange(undefined);
       setEndInputValue('');
     }
   };
-
-  const handleEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    const formattedValue = formatMonthInput(raw);
-    setEndInputValue(formattedValue);
-  };
-
-  // Update end date when selected date changes
-  useEffect(() => {
-    if (selectedDate) {
-      const endDate = addMonths(selectedDate, 11);
-      const endMonth = format(endDate, 'MM');
-      const endYear = format(endDate, 'yy');
-      setEndInputValue(`${endMonth}-${endYear}`);
-    }
-  }, [selectedDate]);
 
   return (
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
@@ -109,8 +87,8 @@ export const HeaderControls = ({
           placeholder="MMYY" 
           maxLength={5}
           value={endInputValue}
-          onChange={handleEndMonthChange}
-          className="text-left"
+          disabled
+          className="text-left bg-gray-100"
         />
       </div>
 
