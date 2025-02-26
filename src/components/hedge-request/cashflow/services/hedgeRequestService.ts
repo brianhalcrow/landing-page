@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { HedgeAccountingRequest } from "../types";
 
@@ -31,10 +32,7 @@ export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
       const { created_at, ...updateData } = hedgeRequest;
       ({ error } = await supabase
         .from('hedge_accounting_requests')
-        .update({
-          ...updateData,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('hedge_id', hedgeId));
     } else {
       console.log('Creating new draft');
@@ -42,11 +40,7 @@ export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
       const { hedge_id, ...insertData } = hedgeRequest;
       const { data, error: insertError } = await supabase
         .from('hedge_accounting_requests')
-        .insert([{
-          ...insertData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
+        .insert(insertData)
         .select('hedge_id')
         .single();
         

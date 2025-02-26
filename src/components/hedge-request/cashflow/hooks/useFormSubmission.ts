@@ -1,7 +1,7 @@
 
 import { useToast } from "@/hooks/use-toast";
 import { validateGeneralInfo } from "../utils/validation";
-import { generateHedgeId, saveDraft } from "../services/hedgeRequestService";
+import { saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
 import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
 import { convertToDBDate } from "../utils/dateTransformations";
@@ -32,21 +32,17 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     }
 
     try {
-      const hedge_id = existingHedgeId || await generateHedgeId(generalInfo.entity_id, generalInfo.exposure_category_l1);
-      const now = new Date().toISOString();
-
       const dbStartMonth = convertToDBDate(exposureDetails.start_month);
       const dbEndMonth = convertToDBDate(exposureDetails.end_month);
 
       const hedgeRequest = {
-        hedge_id,
+        hedge_id: existingHedgeId,
         ...generalInfo,
         ...riskManagement,
         ...hedgedItem,
         ...hedgingInstrument,
         ...assessmentMonitoring,
         status: 'draft' as const,
-        updated_at: now,
         start_month: dbStartMonth,
         end_month: dbEndMonth
       };
@@ -54,13 +50,13 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
       const result = await saveDraft(hedgeRequest);
       
       // Only set the hedge ID if this is a new draft
-      if (!existingHedgeId) {
-        setHedgeId(hedge_id);
+      if (!existingHedgeId && result.hedgeId) {
+        setHedgeId(result.hedgeId);
       }
       
       toast({
         title: existingHedgeId ? "Draft Updated" : "Draft Saved",
-        description: `Hedge request ${hedge_id} has been ${existingHedgeId ? 'updated' : 'saved'} successfully.`,
+        description: `Hedge request ${result.hedgeId} has been ${existingHedgeId ? 'updated' : 'saved'} successfully.`,
         variant: "default"
       });
     } catch (error: any) {
