@@ -1,7 +1,7 @@
 
 import { KeyboardEvent } from 'react';
 import { GridInputRow } from './GridInputRow';
-import { formatNumber, formatPercentage } from '../utils/calculations';
+import { formatNumber } from '../utils/calculations';
 
 interface ExposureGridProps {
   months: string[];
@@ -24,11 +24,6 @@ export const ExposureGrid = ({
   revenues,
   costs,
   forecasts,
-  hedgedExposures,
-  hedgeAmounts,
-  indicativeCoverage,
-  cumulativeAmounts,
-  cumulativeCoverage,
   onRevenueChange,
   onCostChange,
   onKeyDown,
@@ -87,76 +82,6 @@ export const ExposureGrid = ({
         inputRefs={[]}
         refStartIndex={24}
         formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Hedged Exposure"
-        sublabel="Long/(Short)"
-        values={hedgedExposures}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={3}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={36}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Hedge Layer Amount"
-        sublabel="Buy/(Sell)"
-        values={hedgeAmounts}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={4}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={48}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Indicative Coverage %"
-        sublabel=""
-        values={indicativeCoverage}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={5}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={60}
-        formatValue={formatPercentage}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Cum. Layer Amount"
-        sublabel=""
-        values={cumulativeAmounts}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={6}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={72}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Cum. Indicative Coverage %"
-        sublabel=""
-        values={cumulativeCoverage}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={7}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={84}
-        formatValue={formatPercentage}
         readOnly
       />
     </>

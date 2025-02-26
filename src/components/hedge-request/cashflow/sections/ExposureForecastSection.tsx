@@ -1,10 +1,9 @@
 
 import { forwardRef, useImperativeHandle, KeyboardEvent, useRef, useState } from "react";
-import { addMonths, format, differenceInMonths } from "date-fns";
+import { format, differenceInMonths } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
 import { ExposureGrid } from "../components/ExposureGrid";
 import { useExposureCalculations } from "../hooks/useExposureCalculations";
-import type { HedgeLayerDetails } from "../types/hedge-layer";
 
 interface ExposureForecastValue {
   start_month: string | null;
@@ -21,7 +20,6 @@ interface ExposureForecastSectionProps {
 export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionProps>(
   ({ value, onChange, documentationDate, hedgeId }, ref) => {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-    const [selectedLayer, setSelectedLayer] = useState<number>(1);
     const [endDate, setEndDate] = useState<Date>();
 
     const {
@@ -30,19 +28,9 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
       costs,
       setCosts,
       forecasts,
-      hedgeRatio,
-      setHedgeRatio,
-      hedgeLayer,
-      setHedgeLayer,
-      hedgeAmounts,
-      hedgedExposures,
-      indicativeCoverage,
-      cumulativeAmounts,
-      cumulativeCoverage,
       selectedDate,
       setSelectedDate,
       loading,
-      getCurrentLayerData
     } = useExposureCalculations(hedgeId);
 
     const getMonths = (startDate: Date | undefined, endDate: Date | undefined) => {
@@ -78,28 +66,6 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
       }
     };
 
-    const handleHedgeRatioChange = (value: string) => {
-      if (value === '') {
-        setHedgeRatio('');
-        return;
-      }
-      const numericValue = parseFloat(value);
-      if (!isNaN(numericValue) && numericValue >= 0) {
-        setHedgeRatio(String(Math.min(100, numericValue)));
-      }
-    };
-
-    const handleHedgeLayerChange = (value: string) => {
-      if (value === '') {
-        setHedgeLayer('');
-        return;
-      }
-      const numericValue = parseFloat(value);
-      if (!isNaN(numericValue) && numericValue >= 0) {
-        setHedgeLayer(String(Math.min(100, numericValue)));
-      }
-    };
-
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
       const currentInput = event.currentTarget;
       
@@ -131,26 +97,12 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
       }
     };
 
-    const handleLayerChange = (value: number) => {
-      setSelectedLayer(value);
-      setRevenues({});
-      setCosts({});
-      setHedgeRatio('');
-      setHedgeLayer('');
-    };
-
     const months = getMonths(selectedDate, endDate);
 
     return (
       <div className="space-y-6">
         <HeaderControls
-          hedgeLayer={hedgeLayer}
-          hedgeRatio={hedgeRatio}
           selectedDate={selectedDate}
-          selectedLayerNumber={selectedLayer}
-          onLayerChange={handleLayerChange}
-          onHedgeLayerChange={handleHedgeLayerChange}
-          onHedgeRatioChange={handleHedgeRatioChange}
           onDateChange={(startDate, endDate) => {
             setSelectedDate(startDate);
             setEndDate(endDate);
@@ -174,11 +126,11 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
               revenues={revenues}
               costs={costs}
               forecasts={forecasts}
-              hedgedExposures={hedgedExposures}
-              hedgeAmounts={hedgeAmounts}
-              indicativeCoverage={indicativeCoverage}
-              cumulativeAmounts={cumulativeAmounts}
-              cumulativeCoverage={cumulativeCoverage}
+              hedgedExposures={{}}
+              hedgeAmounts={{}}
+              indicativeCoverage={{}}
+              cumulativeAmounts={{}}
+              cumulativeCoverage={{}}
               onRevenueChange={handleRevenueChange}
               onCostChange={handleCostChange}
               onKeyDown={handleKeyDown}

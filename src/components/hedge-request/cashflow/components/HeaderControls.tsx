@@ -1,31 +1,18 @@
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { format, addMonths, differenceInMonths, parse } from "date-fns";
+import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
 import { toast } from "sonner";
 
 interface HeaderControlsProps {
-  hedgeLayer: string;
-  hedgeRatio: string;
   selectedDate: Date | undefined;
-  selectedLayerNumber: number;
-  onHedgeLayerChange: (value: string) => void;
-  onHedgeRatioChange: (value: string) => void;
   onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
-  onLayerChange: (value: number) => void;
 }
 
 export const HeaderControls = ({
-  hedgeLayer,
-  hedgeRatio,
   selectedDate,
-  selectedLayerNumber,
-  onHedgeLayerChange,
-  onHedgeRatioChange,
   onDateChange,
-  onLayerChange
 }: HeaderControlsProps) => {
   const [startInputValue, setStartInputValue] = useState('');
   const [endInputValue, setEndInputValue] = useState('');
@@ -142,24 +129,6 @@ export const HeaderControls = ({
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
       <div></div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Layer Number</label>
-        <Select 
-          value={selectedLayerNumber.toString()} 
-          onValueChange={(value) => onLayerChange(parseInt(value))}
-        >
-          <SelectTrigger className="text-left">
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">1</SelectItem>
-            <SelectItem value="2">2</SelectItem>
-            <SelectItem value="3">3</SelectItem>
-            <SelectItem value="4">4</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
         <label className="text-sm font-medium">Start</label>
         <Input 
           type="text" 
@@ -181,38 +150,6 @@ export const HeaderControls = ({
           onChange={handleEndMonthChange}
           className="text-left"
         />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Layer %</label>
-        <div className="relative">
-          <Input 
-            type="number" 
-            value={hedgeLayer} 
-            onChange={e => onHedgeLayerChange(e.target.value)} 
-            placeholder="Enter %" 
-            min="0" 
-            max="100" 
-            step="1" 
-            className="pr-0" 
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Hedge Ratio %</label>
-        <div className="relative">
-          <Input 
-            type="number" 
-            value={hedgeRatio} 
-            onChange={e => onHedgeRatioChange(e.target.value)} 
-            placeholder="Enter %" 
-            min="0" 
-            max="100" 
-            step="1" 
-            className="pr-0" 
-          />
-        </div>
       </div>
     </div>
   );
