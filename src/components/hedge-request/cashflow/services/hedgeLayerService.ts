@@ -11,19 +11,19 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
   });
 
   try {
-    // First delete existing entries for this hedge_id and layer_number
+    // First delete existing entries for this hedge_id AND layer_number combination
     const { error: deleteError } = await supabase
       .from('hedge_layer_details')
       .delete()
       .eq('hedge_id', layerDetails.hedge_id)
-      .eq('layer_number', layerDetails.layer_number);
+      .eq('layer_number', layerDetails.layer_number); // Only delete the current layer
 
     if (deleteError) {
       console.error('Error deleting existing hedge layer details:', deleteError);
       throw deleteError;
     }
 
-    console.log('Successfully deleted existing layer details');
+    console.log('Successfully deleted existing layer details for layer', layerDetails.layer_number);
 
     // Transform the data into the database format
     const dbRows = layerDetails.monthly_data.map((monthData) => ({
@@ -44,7 +44,7 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       cumulative_coverage_percentage: monthData.cumulative_coverage_percentage,
     }));
 
-    console.log('Inserting new layer details, row count:', dbRows.length);
+    console.log('Inserting new layer details for layer', layerDetails.layer_number, 'row count:', dbRows.length);
 
     const { error: insertError } = await supabase
       .from('hedge_layer_details')
@@ -55,7 +55,7 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       throw insertError;
     }
 
-    console.log('Successfully saved hedge layer details');
+    console.log('Successfully saved hedge layer details for layer', layerDetails.layer_number);
     return true;
   } catch (error) {
     console.error('Error in saveHedgeLayerDetails:', error);
