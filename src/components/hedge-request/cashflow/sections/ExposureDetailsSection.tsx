@@ -182,6 +182,134 @@ const ExposureDetailsSection = ({
     }
   };
 
+  const renderGrid = () => (
+    <>
+      <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
+        <div className="h-6"></div>
+        {Array(12).fill(null).map((_, index) => (
+          <div key={index} className="text-sm font-medium text-center">
+            {months[index]}
+          </div>
+        ))}
+      </div>
+
+      <GridInputRow
+        label="Revenues"
+        sublabel="Long"
+        values={revenues}
+        onChange={handleRevenueChange}
+        onKeyDown={handleKeyDown}
+        rowIndex={0}
+        monthCount={12}
+        inputRefs={inputRefs.current}
+        refStartIndex={0}
+        formatValue={formatNumber}
+      />
+
+      <GridInputRow
+        label="Costs"
+        sublabel="(Short)"
+        values={costs}
+        onChange={handleCostChange}
+        onKeyDown={handleKeyDown}
+        rowIndex={1}
+        monthCount={12}
+        inputRefs={inputRefs.current}
+        refStartIndex={12}
+        formatValue={formatNumber}
+        onFocus={(e) => {
+          if (!e.target.value) {
+            e.target.value = '-';
+          }
+        }}
+      />
+
+      <GridInputRow
+        label="Forecast Exposures"
+        sublabel="Long/(Short)"
+        values={forecasts}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={2}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={24}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Hedged Exposure"
+        sublabel="Long/(Short)"
+        values={hedgedExposures}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={3}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={36}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Hedge Layer Amount"
+        sublabel="Buy/(Sell)"
+        values={hedgeAmounts}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={4}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={48}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Indicative Coverage %"
+        sublabel=""
+        values={indicativeCoverage}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={5}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={60}
+        formatValue={formatPercentage}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Cum. Layer Amount"
+        sublabel=""
+        values={cumulativeAmounts}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={6}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={72}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Cum. Indicative Coverage %"
+        sublabel=""
+        values={cumulativeCoverage}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={7}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={84}
+        formatValue={formatPercentage}
+        readOnly
+      />
+    </>
+  );
+
   return (
     <div className="space-y-6">
       <HeaderControls
@@ -206,131 +334,7 @@ const ExposureDetailsSection = ({
           <div className="flex items-center justify-center p-4">
             <span className="text-sm text-gray-500">Loading hedge layer data...</span>
           </div>
-        ) : (
-          <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
-            <div className="h-6"></div>
-            {Array(12).fill(null).map((_, index) => (
-              <div key={index} className="text-sm font-medium text-center">
-                {months[index]}
-              </div>
-            ))}
-          </div>
-
-          <GridInputRow
-            label="Revenues"
-            sublabel="Long"
-            values={revenues}
-            onChange={handleRevenueChange}
-            onKeyDown={handleKeyDown}
-            rowIndex={0}
-            monthCount={12}
-            inputRefs={inputRefs.current}
-            refStartIndex={0}
-            formatValue={formatNumber}
-          />
-
-          <GridInputRow
-            label="Costs"
-            sublabel="(Short)"
-            values={costs}
-            onChange={handleCostChange}
-            onKeyDown={handleKeyDown}
-            rowIndex={1}
-            monthCount={12}
-            inputRefs={inputRefs.current}
-            refStartIndex={12}
-            formatValue={formatNumber}
-            onFocus={(e) => {
-              if (!e.target.value) {
-                e.target.value = '-';
-              }
-            }}
-          />
-
-          <GridInputRow
-            label="Forecast Exposures"
-            sublabel="Long/(Short)"
-            values={forecasts}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={2}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={24}
-            formatValue={formatNumber}
-            readOnly
-          />
-
-          <GridInputRow
-            label="Hedged Exposure"
-            sublabel="Long/(Short)"
-            values={hedgedExposures}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={3}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={36}
-            formatValue={formatNumber}
-            readOnly
-          />
-
-          <GridInputRow
-            label="Hedge Layer Amount"
-            sublabel="Buy/(Sell)"
-            values={hedgeAmounts}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={4}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={48}
-            formatValue={formatNumber}
-            readOnly
-          />
-
-          <GridInputRow
-            label="Indicative Coverage %"
-            sublabel=""
-            values={indicativeCoverage}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={5}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={60}
-            formatValue={formatPercentage}
-            readOnly
-          />
-
-          <GridInputRow
-            label="Cum. Layer Amount"
-            sublabel=""
-            values={cumulativeAmounts}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={6}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={72}
-            formatValue={formatNumber}
-            readOnly
-          />
-
-          <GridInputRow
-            label="Cum. Indicative Coverage %"
-            sublabel=""
-            values={cumulativeCoverage}
-            onChange={() => {}}
-            onKeyDown={() => {}}
-            rowIndex={7}
-            monthCount={12}
-            inputRefs={[]}
-            refStartIndex={84}
-            formatValue={formatPercentage}
-            readOnly
-          />
-        )}
+        ) : renderGrid()}
       </div>
     </div>
   );
