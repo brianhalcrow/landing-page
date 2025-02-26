@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, KeyboardEvent, useRef, useState } from "react";
-import { addMonths, format } from "date-fns";
+import { addMonths, format, differenceInMonths } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
 import { ExposureGrid } from "../components/ExposureGrid";
@@ -25,6 +25,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
 }, ref) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<number>(1);
+  const [endDate, setEndDate] = useState<Date>();
 
   const {
     revenues,
@@ -62,10 +63,14 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
     }
   }));
 
-  const getMonths = (startDate: Date | undefined) => {
-    const baseDate = startDate || new Date();
-    return Array.from({ length: 12 }, (_, i) => {
-      const date = addMonths(baseDate, i);
+  const getMonths = (startDate: Date | undefined, endDate: Date | undefined) => {
+    if (!startDate || !endDate) return [];
+    
+    const monthDiff = differenceInMonths(endDate, startDate);
+    const numMonths = Math.min(monthDiff + 1, 12);
+    
+    return Array.from({ length: numMonths }, (_, i) => {
+      const date = addMonths(startDate, i);
       return format(date, 'MM-yy');
     });
   };
@@ -152,7 +157,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
     setHedgeLayer('');
   };
 
-  const months = getMonths(selectedDate);
+  const months = getMonths(selectedDate, endDate);
 
   return (
     <div className="space-y-6">
@@ -166,6 +171,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
         onHedgeRatioChange={handleHedgeRatioChange}
         onDateChange={(startDate, endDate) => {
           setSelectedDate(startDate);
+          setEndDate(endDate);
           if (onChange) {
             onChange({
               start_month: startDate ? format(startDate, 'yyyy-MM-dd') : '',

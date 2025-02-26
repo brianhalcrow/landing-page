@@ -1,8 +1,10 @@
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { format, addMonths, differenceInMonths, parse } from "date-fns";
 import { useState, useEffect } from "react";
 import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
+import { toast } from "sonner";
 
 interface HeaderControlsProps {
   hedgeLayer: string;
@@ -38,6 +40,21 @@ export const HeaderControls = ({
     return digitsOnly;
   };
 
+  const validateDateRange = (startDate: Date | undefined, endDate: Date | undefined): boolean => {
+    if (!startDate || !endDate) return true;
+    
+    const monthsDiff = differenceInMonths(endDate, startDate);
+    if (monthsDiff < 0) {
+      toast.error("End date must be after start date");
+      return false;
+    }
+    if (monthsDiff > 11) {
+      toast.error("Date range cannot exceed 12 months");
+      return false;
+    }
+    return true;
+  };
+
   const handleStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     const formattedValue = formatMonthInput(raw);
@@ -47,9 +64,12 @@ export const HeaderControls = ({
       const dbStartDate = convertToDBDate(formattedValue);
       if (dbStartDate) {
         const startDate = new Date(dbStartDate);
-        updateDates(startDate, endInputValue);
-      } else {
-        updateDates(undefined, endInputValue);
+        const dbEndDate = endInputValue.length === 5 ? convertToDBDate(endInputValue) : null;
+        const endDate = dbEndDate ? new Date(dbEndDate) : undefined;
+        
+        if (validateDateRange(startDate, endDate)) {
+          updateDates(startDate, endInputValue);
+        }
       }
     } else if (!formattedValue) {
       updateDates(undefined, endInputValue);
@@ -68,7 +88,10 @@ export const HeaderControls = ({
         if (startInputValue) {
           const dbStartDate = convertToDBDate(startInputValue);
           const startDate = dbStartDate ? new Date(dbStartDate) : undefined;
-          updateDates(startDate, formattedValue);
+          
+          if (validateDateRange(startDate, endDate)) {
+            updateDates(startDate, formattedValue);
+          }
         } else {
           updateDates(undefined, formattedValue);
         }
