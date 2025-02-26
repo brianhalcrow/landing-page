@@ -1,7 +1,12 @@
 
 import { GeneralInformationData, RiskManagementData, HedgedItemData, HedgingInstrumentData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
 
-export const validateGeneralInfo = (data: GeneralInformationData) => {
+interface ValidationResult {
+  isValid: boolean;
+  missingFields: string[];
+}
+
+export const validateGeneralInfo = (data: GeneralInformationData): ValidationResult => {
   const requiredFields: (keyof GeneralInformationData)[] = [
     'entity_id',
     'entity_name',
@@ -16,7 +21,12 @@ export const validateGeneralInfo = (data: GeneralInformationData) => {
     'hedging_entity_fccy',
     'functional_currency'
   ];
-  return requiredFields.every(field => !!data[field]);
+  
+  const missingFields = requiredFields.filter(field => !data[field]);
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
+  };
 };
 
 export const validateRiskManagement = (data: RiskManagementData) => {
@@ -42,7 +52,7 @@ export const validateAssessment = (data: AssessmentMonitoringData) => {
 };
 
 export const validateExposure = (exposureDetails: ExposureDetailsData) => {
-  return exposureDetails.start_month !== undefined && exposureDetails.start_month !== "";
+  return !!exposureDetails.start_month;
 };
 
 export const calculateProgress = (
@@ -55,7 +65,7 @@ export const calculateProgress = (
 ) => {
   let completeSections = 0;
   
-  if (validateGeneralInfo(generalInfo)) completeSections++;
+  if (validateGeneralInfo(generalInfo).isValid) completeSections++;
   if (validateRiskManagement(riskManagement)) completeSections++;
   if (validateHedgedItem(hedgedItem)) completeSections++;
   if (validateHedgingInstrument(hedgingInstrument)) completeSections++;

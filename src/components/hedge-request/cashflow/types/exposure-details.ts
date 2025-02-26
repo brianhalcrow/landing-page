@@ -1,4 +1,5 @@
 
 export interface ExposureDetailsData {
-  // Intentionally empty - dates are handled internally by ExposureDetailsSection
+  start_month: string;
+  end_month: string;
 }

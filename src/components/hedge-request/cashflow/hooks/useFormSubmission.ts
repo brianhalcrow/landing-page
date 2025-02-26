@@ -18,13 +18,13 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     existingHedgeId?: string
   ) => {
     console.log('Saving draft with general info:', generalInfo);
-    const { isValid, missingFields } = validateGeneralInfo(generalInfo);
+    const validationResult = validateGeneralInfo(generalInfo);
     
-    if (!isValid) {
-      console.log('Validation failed. Missing fields:', missingFields);
+    if (!validationResult.isValid) {
+      console.log('Validation failed. Missing fields:', validationResult.missingFields);
       toast({
         title: "Required Fields Missing",
-        description: `Please complete the following fields in General Information: ${missingFields.join(', ')}`,
+        description: `Please complete the following fields in General Information: ${validationResult.missingFields.join(', ')}`,
         variant: "destructive",
       });
       return;
@@ -44,7 +44,9 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         ...exposureDetails,
         status: 'draft' as const,
         created_at: existingHedgeId ? undefined : now,
-        updated_at: now
+        updated_at: now,
+        start_month: exposureDetails.start_month || "",
+        end_month: exposureDetails.end_month || ""
       };
 
       await saveDraft(hedgeRequest);
