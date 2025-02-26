@@ -1,5 +1,4 @@
-
-import { forwardRef, useImperativeHandle, KeyboardEvent, useRef } from "react";
+import { forwardRef, useImperativeHandle, KeyboardEvent, useRef, useState } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
@@ -25,6 +24,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
   hedgeId 
 }, ref) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [selectedLayer, setSelectedLayer] = useState<number>(1);
 
   const {
     revenues,
@@ -56,7 +56,8 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
 
       return {
         ...baseData,
-        hedge_id: hedgeId
+        hedge_id: hedgeId,
+        layer_number: selectedLayer
       };
     }
   }));
@@ -143,6 +144,14 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
     }
   };
 
+  const handleLayerChange = (value: number) => {
+    setSelectedLayer(value);
+    setRevenues({});
+    setCosts({});
+    setHedgeRatio('');
+    setHedgeLayer('');
+  };
+
   const months = getMonths(selectedDate);
 
   return (
@@ -151,6 +160,8 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
         hedgeLayer={hedgeLayer}
         hedgeRatio={hedgeRatio}
         selectedDate={selectedDate}
+        selectedLayerNumber={selectedLayer}
+        onLayerChange={handleLayerChange}
         onHedgeLayerChange={handleHedgeLayerChange}
         onHedgeRatioChange={handleHedgeRatioChange}
         onDateChange={(startDate, endDate) => {

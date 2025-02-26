@@ -1,8 +1,6 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { format, addMonths, parse } from "date-fns";
+import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
 
@@ -10,18 +8,22 @@ interface HeaderControlsProps {
   hedgeLayer: string;
   hedgeRatio: string;
   selectedDate: Date | undefined;
+  selectedLayerNumber: number;
   onHedgeLayerChange: (value: string) => void;
   onHedgeRatioChange: (value: string) => void;
   onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
+  onLayerChange: (value: number) => void;
 }
 
 export const HeaderControls = ({
   hedgeLayer,
   hedgeRatio,
   selectedDate,
+  selectedLayerNumber,
   onHedgeLayerChange,
   onHedgeRatioChange,
-  onDateChange
+  onDateChange,
+  onLayerChange
 }: HeaderControlsProps) => {
   const [startInputValue, setStartInputValue] = useState('');
   const [endInputValue, setEndInputValue] = useState('');
@@ -118,7 +120,10 @@ export const HeaderControls = ({
       <div></div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Layer Number</label>
-        <Select>
+        <Select 
+          value={selectedLayerNumber.toString()} 
+          onValueChange={(value) => onLayerChange(parseInt(value))}
+        >
           <SelectTrigger className="text-left">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
