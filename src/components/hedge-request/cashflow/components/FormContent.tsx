@@ -6,6 +6,7 @@ import HedgedItemSection from "../sections/HedgedItemSection";
 import HedgingInstrumentSection from "../sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "../sections/AssessmentMonitoringSection";
 import ExposureForecastSection from "../sections/ExposureForecastSection";
+import ExposureActualsSection from "../sections/ExposureActualsSection";
 import ExposureDetailsSection from "../sections/ExposureDetailsSection";
 import type { HedgeLayerDetails } from "../types/hedge-layer";
 import { RefObject } from "react";
@@ -30,15 +31,10 @@ export const FormContent = ({
 }: FormContentProps) => {
   const {
     generalInfo,
-    setGeneralInfo,
     hedgingInstrument,
-    setHedgingInstrument,
     riskManagement,
-    setRiskManagement,
     hedgedItem,
-    setHedgedItem,
     assessmentMonitoring,
-    setAssessmentMonitoring,
     exposureForecast,
     setExposureForecast,
     exposureDetails,
@@ -129,6 +125,18 @@ export const FormContent = ({
         <AssessmentMonitoringSection 
           value={assessmentMonitoring}
           onChange={setAssessmentMonitoring}
+        />
+      </FormSection>
+
+      <FormSection 
+        title="Exposure Actuals" 
+        section="actuals"
+        isMinimized={minimizedSections.actuals}
+        onToggle={onToggleSection}
+      >
+        <ExposureActualsSection 
+          documentationDate={generalInfo.documentation_date}
+          hedgeId={hedgeId}
         />
       </FormSection>
 
