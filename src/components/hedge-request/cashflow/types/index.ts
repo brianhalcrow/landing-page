@@ -6,8 +6,8 @@ export * from './hedging-instrument';
 export * from './assessment-monitoring';
 export * from './exposure-details';
 
-export interface HedgeAccountingRequest {
-  hedge_id: string;
+// Base type without database-managed fields
+interface BaseHedgeRequest {
   entity_id: string;
   entity_name: string;
   cost_centre: string;
@@ -33,10 +33,18 @@ export interface HedgeAccountingRequest {
   effectiveness_testing_method: string;
   testing_frequency: string;
   assessment_details: string;
-  start_month: string;
-  end_month: string;
+  start_month: string | null;
+  end_month: string | null;
   status: 'draft';
-  updated_at: string;
-  created_at?: string; // Make created_at optional
 }
 
+// Type for new hedge requests (no hedge_id required)
+export interface NewHedgeRequest extends BaseHedgeRequest {}
+
+// Type for existing hedge requests (hedge_id required)
+export interface ExistingHedgeRequest extends BaseHedgeRequest {
+  hedge_id: string;
+}
+
+// Combined type for all hedge accounting requests
+export type HedgeAccountingRequest = NewHedgeRequest | ExistingHedgeRequest;

@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateGeneralInfo } from "../utils/validation";
 import { saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
-import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
+import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData, NewHedgeRequest } from "../types";
 import { convertToDBDate } from "../utils/dateTransformations";
 
 export const useFormSubmission = (setHedgeId: (id: string) => void) => {
@@ -32,12 +32,10 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     }
 
     try {
-      const now = new Date().toISOString();
       const dbStartMonth = convertToDBDate(exposureDetails.start_month);
       const dbEndMonth = convertToDBDate(exposureDetails.end_month);
 
       const hedgeRequest = {
-        hedge_id: existingHedgeId,
         ...generalInfo,
         ...riskManagement,
         ...hedgedItem,
@@ -46,9 +44,12 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         status: 'draft' as const,
         start_month: dbStartMonth,
         end_month: dbEndMonth,
-        updated_at: now,
-        created_at: now
       };
+
+      // Add hedge_id only if it exists (for updates)
+      if (existingHedgeId) {
+        Object.assign(hedgeRequest, { hedge_id: existingHedgeId });
+      }
 
       const result = await saveDraft(hedgeRequest);
       
