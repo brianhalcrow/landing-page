@@ -4,6 +4,12 @@ import type { HedgeLayerDetails, HedgeLayerMonthlyData } from "../types/hedge-la
 import { toast } from "sonner";
 
 export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Promise<boolean> => {
+  console.log('Attempting to save hedge layer details:', { 
+    hedgeId: layerDetails.hedge_id,
+    layerNumber: layerDetails.layer_number,
+    monthCount: layerDetails.monthly_data.length
+  });
+
   try {
     // First delete existing entries for this hedge_id and layer_number
     const { error: deleteError } = await supabase
@@ -16,6 +22,8 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       console.error('Error deleting existing hedge layer details:', deleteError);
       throw deleteError;
     }
+
+    console.log('Successfully deleted existing layer details');
 
     // Transform the data into the database format
     const dbRows = layerDetails.monthly_data.map((monthData) => ({
@@ -36,6 +44,8 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       cumulative_coverage_percentage: monthData.cumulative_coverage_percentage,
     }));
 
+    console.log('Inserting new layer details, row count:', dbRows.length);
+
     const { error: insertError } = await supabase
       .from('hedge_layer_details')
       .insert(dbRows);
@@ -45,6 +55,7 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       throw insertError;
     }
 
+    console.log('Successfully saved hedge layer details');
     return true;
   } catch (error) {
     console.error('Error in saveHedgeLayerDetails:', error);
@@ -54,6 +65,8 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
 };
 
 export const getHedgeLayerDetails = async (hedgeId: string): Promise<HedgeLayerDetails[]> => {
+  console.log('Fetching hedge layer details for hedge ID:', hedgeId);
+
   try {
     const { data, error } = await supabase
       .from('hedge_layer_details')
@@ -65,6 +78,8 @@ export const getHedgeLayerDetails = async (hedgeId: string): Promise<HedgeLayerD
       console.error('Error fetching hedge layer details:', error);
       throw error;
     }
+
+    console.log(`Found ${data?.length || 0} hedge layer detail records`);
 
     // Transform database rows into HedgeLayerDetails structure
     const layerMap = new Map<number, HedgeLayerDetails>();
@@ -97,7 +112,9 @@ export const getHedgeLayerDetails = async (hedgeId: string): Promise<HedgeLayerD
       layerMap.get(row.layer_number)?.monthly_data.push(monthlyData);
     });
 
-    return Array.from(layerMap.values());
+    const result = Array.from(layerMap.values());
+    console.log(`Transformed data into ${result.length} hedge layers`);
+    return result;
   } catch (error) {
     console.error('Error in getHedgeLayerDetails:', error);
     toast.error('Failed to load hedge layer details');

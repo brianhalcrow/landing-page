@@ -265,6 +265,7 @@ const CashflowHedgeForm = () => {
           value={exposureDetails}
           onChange={setExposureDetails}
           documentationDate={generalInfo.documentation_date}
+          hedgeId={hedgeId}  {/* Added hedgeId prop here */}
         />
       </FormSection>
     </div>
