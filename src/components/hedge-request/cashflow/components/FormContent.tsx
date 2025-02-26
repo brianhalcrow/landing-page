@@ -31,10 +31,15 @@ export const FormContent = ({
 }: FormContentProps) => {
   const {
     generalInfo,
+    setGeneralInfo,
     hedgingInstrument,
+    setHedgingInstrument,
     riskManagement,
+    setRiskManagement,
     hedgedItem,
+    setHedgedItem,
     assessmentMonitoring,
+    setAssessmentMonitoring,
     exposureForecast,
     setExposureForecast,
     exposureDetails,
