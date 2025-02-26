@@ -1,10 +1,10 @@
-
-import { useRef, KeyboardEvent } from "react";
+import { forwardRef, useImperativeHandle, KeyboardEvent } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
 import { ExposureGrid } from "../components/ExposureGrid";
 import { useExposureCalculations } from "../hooks/useExposureCalculations";
+import type { HedgeLayerDetails } from "../types/hedge-layer";
 
 interface ExposureDetailsSectionProps {
   value?: ExposureDetailsData;
@@ -13,14 +13,16 @@ interface ExposureDetailsSectionProps {
   hedgeId?: string;
 }
 
-const ExposureDetailsSection = ({ 
+export interface ExposureDetailsSectionRef {
+  getCurrentLayerData: () => HedgeLayerDetails | null;
+}
+
+const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDetailsSectionProps>(({ 
   value, 
   onChange, 
   documentationDate,
   hedgeId 
-}: ExposureDetailsSectionProps) => {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  
+}, ref) => {
   const {
     revenues,
     setRevenues,
@@ -38,8 +40,13 @@ const ExposureDetailsSection = ({
     cumulativeCoverage,
     selectedDate,
     setSelectedDate,
-    loading
+    loading,
+    getCurrentLayerData
   } = useExposureCalculations(hedgeId);
+
+  useImperativeHandle(ref, () => ({
+    getCurrentLayerData
+  }));
 
   const getMonths = (startDate: Date | undefined) => {
     const baseDate = startDate || new Date();
@@ -163,12 +170,13 @@ const ExposureDetailsSection = ({
             onRevenueChange={handleRevenueChange}
             onCostChange={handleCostChange}
             onKeyDown={handleKeyDown}
-            inputRefs={inputRefs.current}
           />
         )}
       </div>
     </div>
   );
-};
+});
+
+ExposureDetailsSection.displayName = "ExposureDetailsSection";
 
 export default ExposureDetailsSection;

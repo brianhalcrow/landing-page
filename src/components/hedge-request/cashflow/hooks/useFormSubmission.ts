@@ -24,11 +24,7 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     
     if (!validationResult.isValid) {
       console.log('Validation failed. Missing fields:', validationResult.missingFields);
-      toast({
-        title: "Required Fields Missing",
-        description: `Please complete the following fields in General Information: ${validationResult.missingFields.join(', ')}`,
-        variant: "destructive",
-      });
+      toast.error(`Please complete the following fields in General Information: ${validationResult.missingFields.join(', ')}`);
       return;
     }
 
@@ -73,20 +69,13 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         }
       }
       
-      toast({
-        title: existingHedgeId ? "Draft Updated" : "Draft Saved",
-        description: `Hedge request ${result.hedgeId} has been ${existingHedgeId ? 'updated' : 'saved'} successfully.`,
-        variant: "default"
-      });
+      toast.success(`Hedge request ${result.hedgeId} has been ${existingHedgeId ? 'updated' : 'saved'} successfully.`);
     } catch (error: any) {
       console.error('Error saving hedge request:', error);
-      toast({
-        title: "Error Saving Draft",
-        description: error.code === 'PGRST301' 
-          ? "Database connection error. Please check your connection and try again."
-          : `Failed to save draft: ${error.message}. Please try again or contact support if the issue persists.`,
-        variant: "destructive"
-      });
+      const errorMessage = error.code === 'PGRST301' 
+        ? "Database connection error. Please check your connection and try again."
+        : `Failed to save draft: ${error.message}. Please try again or contact support if the issue persists.`;
+      toast.error(errorMessage);
     }
   };
 
