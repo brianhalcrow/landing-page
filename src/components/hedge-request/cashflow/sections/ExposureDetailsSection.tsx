@@ -1,3 +1,4 @@
+
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
@@ -11,7 +12,7 @@ interface ExposureDetailsSectionProps {
 }
 
 const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
