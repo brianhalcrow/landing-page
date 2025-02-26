@@ -1532,6 +1532,13 @@ export type Database = {
             referencedRelation: "hedge_accounting_requests"
             referencedColumns: ["hedge_id"]
           },
+          {
+            foreignKeyName: "fk_hedge_layer_hedge_id"
+            columns: ["hedge_id"]
+            isOneToOne: false
+            referencedRelation: "hedge_accounting_requests"
+            referencedColumns: ["hedge_id"]
+          },
         ]
       }
       hedge_request_sequences: {
