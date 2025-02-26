@@ -32,6 +32,7 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     }
 
     try {
+      const now = new Date().toISOString();
       const dbStartMonth = convertToDBDate(exposureDetails.start_month);
       const dbEndMonth = convertToDBDate(exposureDetails.end_month);
 
@@ -44,7 +45,9 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         ...assessmentMonitoring,
         status: 'draft' as const,
         start_month: dbStartMonth,
-        end_month: dbEndMonth
+        end_month: dbEndMonth,
+        updated_at: now,
+        created_at: now
       };
 
       const result = await saveDraft(hedgeRequest);
