@@ -1,4 +1,3 @@
-
 import { forwardRef, useState, useRef } from "react";
 import { format } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -13,7 +12,7 @@ interface ExposureActualsSectionProps {
 }
 
 export const ExposureActualsSection = forwardRef<{}, ExposureActualsSectionProps>(
-  ({ documentationDate }, ref) => {
+  ({ documentationDate, hedgeId }, ref) => {
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [revenues, setRevenues] = useState<Record<number, number>>({});
     const [costs, setCosts] = useState<Record<number, number>>({});
@@ -81,6 +80,37 @@ export const ExposureActualsSection = forwardRef<{}, ExposureActualsSectionProps
         <div className="space-y-6">
           <div className="p-4">
             <div className="space-y-6">
+              <HeaderControls
+                selectedDate={selectedDate}
+                onDateChange={(startDate, endDate) => {
+                  setSelectedDate(startDate);
+                }}
+              />
+
+              <div className="flex space-x-4">
+                <EntityInformation
+                  entities={[]}
+                  selectedEntityId={selectedEntityId}
+                  selectedEntityName={selectedEntityName}
+                  onEntityChange={(entityId, entityName) => {
+                    setSelectedEntityId(entityId);
+                    setSelectedEntityName(entityName);
+                  }}
+                  costCentre={costCentre}
+                  onCostCentreChange={setCostCentre}
+                  selectedHedgingEntity=""
+                  onHedgingEntityChange={() => {}}
+                  hedgingEntityFunctionalCurrency=""
+                  availableHedgingEntities={[]}
+                  hedgeId={hedgeId || ""}
+                />
+                <CurrencySelector
+                  exposedCurrency={exposedCurrency}
+                  onCurrencyChange={setExposedCurrency}
+                  currencies={[]}
+                />
+              </div>
+
               <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
                 <div></div>
                 {Array(12).fill(null).map((_, index) => (
@@ -88,43 +118,6 @@ export const ExposureActualsSection = forwardRef<{}, ExposureActualsSectionProps
                     {selectedDate ? format(new Date(selectedDate), 'MM-yy') : '--'}
                   </div>
                 ))}
-              </div>
-
-              <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
-                <div></div>
-                <div className="col-span-4">
-                  <EntityInformation
-                    entities={[]}
-                    selectedEntityId={selectedEntityId}
-                    selectedEntityName={selectedEntityName}
-                    onEntityChange={(entityId, entityName) => {
-                      setSelectedEntityId(entityId);
-                      setSelectedEntityName(entityName);
-                    }}
-                    costCentre={costCentre}
-                    onCostCentreChange={setCostCentre}
-                    selectedHedgingEntity=""
-                    onHedgingEntityChange={() => {}}
-                    hedgingEntityFunctionalCurrency=""
-                    availableHedgingEntities={[]}
-                    hedgeId=""
-                  />
-                </div>
-                <div className="col-span-4">
-                  <CurrencySelector
-                    exposedCurrency={exposedCurrency}
-                    onCurrencyChange={setExposedCurrency}
-                    currencies={[]}
-                  />
-                </div>
-                <div className="col-span-4">
-                  <HeaderControls
-                    selectedDate={selectedDate}
-                    onDateChange={(startDate, endDate) => {
-                      setSelectedDate(startDate);
-                    }}
-                  />
-                </div>
               </div>
 
               <div>
