@@ -36,6 +36,7 @@ export interface HedgeAccountingRequest {
   start_month: string;
   end_month: string;
   status: 'draft';
-  created_at: string;
   updated_at: string;
+  created_at?: string; // Make created_at optional
 }
+
