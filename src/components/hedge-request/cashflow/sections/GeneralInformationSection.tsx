@@ -23,38 +23,7 @@ const GeneralInformationSection = ({
   generalInfo,
   hedgeId
 }: GeneralInformationSectionProps) => {
-  const { state, actions } = useGeneralInformationForm(onChange);
-
-  useEffect(() => {
-    onChange({
-      entity_id: state.selectedEntityId,
-      entity_name: state.selectedEntityName,
-      cost_centre: state.costCentre,
-      transaction_currency: state.exposedCurrency,
-      documentation_date: state.documentDate,
-      exposure_category_l1: state.selectedExposureCategoryL1,
-      exposure_category_l2: state.selectedExposureCategoryL2,
-      exposure_category_l3: state.selectedExposureCategoryL3,
-      strategy: state.selectedStrategy,
-      hedging_entity: state.selectedHedgingEntity,
-      hedging_entity_fccy: state.hedgingEntityFunctionalCurrency,
-      functional_currency: state.entities?.find(e => e.entity_id === state.selectedEntityId)?.functional_currency || ""
-    });
-  }, [
-    state.selectedEntityId,
-    state.selectedEntityName,
-    state.costCentre,
-    state.exposedCurrency,
-    state.documentDate,
-    state.selectedExposureCategoryL1,
-    state.selectedExposureCategoryL2,
-    state.selectedExposureCategoryL3,
-    state.selectedStrategy,
-    state.selectedHedgingEntity,
-    state.hedgingEntityFunctionalCurrency,
-    state.entities,
-    onChange
-  ]);
+  const { state, actions } = useGeneralInformationForm(onChange, generalInfo);
 
   const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
     actions.handleCategoryChange(level, value);
