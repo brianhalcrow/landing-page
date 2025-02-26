@@ -1477,7 +1477,6 @@ export type Database = {
           hedge_layer_amount: number | null
           hedge_ratio: number | null
           hedged_exposure: number | null
-          id: number
           indicative_coverage_percentage: number | null
           layer_number: number
           layer_percentage: number | null
@@ -1497,7 +1496,6 @@ export type Database = {
           hedge_layer_amount?: number | null
           hedge_ratio?: number | null
           hedged_exposure?: number | null
-          id?: never
           indicative_coverage_percentage?: number | null
           layer_number: number
           layer_percentage?: number | null
@@ -1517,7 +1515,6 @@ export type Database = {
           hedge_layer_amount?: number | null
           hedge_ratio?: number | null
           hedged_exposure?: number | null
-          id?: never
           indicative_coverage_percentage?: number | null
           layer_number?: number
           layer_percentage?: number | null
