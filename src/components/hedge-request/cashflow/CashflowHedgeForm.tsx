@@ -1,3 +1,4 @@
+
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -38,8 +39,9 @@ const CashflowHedgeForm = () => {
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
-  const onSaveDraft = async () => {
-    const updatedProgress = calculateProgress(
+  // Calculate progress whenever form data changes
+  useEffect(() => {
+    const currentProgress = calculateProgress(
       generalInfo,
       riskManagement,
       hedgedItem,
@@ -47,8 +49,10 @@ const CashflowHedgeForm = () => {
       assessmentMonitoring,
       exposureDetails
     );
-    setProgress(updatedProgress);
+    setProgress(currentProgress);
+  }, [generalInfo, riskManagement, hedgedItem, hedgingInstrument, assessmentMonitoring, exposureDetails]);
 
+  const onSaveDraft = async () => {
     await handleSaveDraft(
       generalInfo, 
       hedgingInstrument,

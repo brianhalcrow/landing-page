@@ -22,7 +22,8 @@ interface DatabaseFields {
 }
 
 // Base type with common fields
-interface BaseHedgeRequest {
+export interface BaseHedgeRequest {
+  hedge_id?: string; // Make hedge_id optional in base type
   entity_id: string;
   entity_name: string;
   cost_centre: string;
