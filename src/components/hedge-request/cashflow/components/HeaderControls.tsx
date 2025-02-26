@@ -67,11 +67,11 @@ export const HeaderControls = ({
         const endDate = dbEndDate ? new Date(dbEndDate) : undefined;
         
         if (validateDateRange(startDate, endDate)) {
-          updateDates(startDate, endInputValue);
+          onDateChange(startDate, endDate);
         }
       }
     } else if (!formattedValue) {
-      updateDates(undefined, endInputValue);
+      onDateChange(undefined, undefined);
     }
   };
 
@@ -84,85 +84,89 @@ export const HeaderControls = ({
       const dbEndDate = convertToDBDate(formattedValue);
       if (dbEndDate) {
         const endDate = new Date(dbEndDate);
-        if (startInputValue) {
-          const dbStartDate = convertToDBDate(startInputValue);
-          const startDate = dbStartDate ? new Date(dbStartDate) : undefined;
-          
-          if (validateDateRange(startDate, endDate)) {
-            updateDates(startDate, formattedValue);
-          }
-        } else {
-          updateDates(undefined, formattedValue);
+        const dbStartDate = convertToDBDate(startInputValue);
+        const startDate = dbStartDate ? new Date(dbStartDate) : undefined;
+        
+        if (validateDateRange(startDate, endDate)) {
+          onDateChange(startDate, endDate);
         }
       }
     } else if (!formattedValue) {
-      if (startInputValue) {
-        const dbStartDate = convertToDBDate(startInputValue);
-        const startDate = dbStartDate ? new Date(dbStartDate) : undefined;
-        updateDates(startDate, undefined);
-      } else {
-        updateDates(undefined, undefined);
-      }
+      onDateChange(selectedDate, undefined);
     }
-  };
-
-  const updateDates = (startDate: Date | undefined, endMonthValue: string | undefined) => {
-    let endDate: Date | undefined;
-    
-    if (endMonthValue) {
-      const dbEndDate = convertToDBDate(endMonthValue);
-      if (dbEndDate) {
-        endDate = new Date(dbEndDate);
-      }
-    }
-    
-    onDateChange(startDate, endDate);
   };
 
   useEffect(() => {
     if (selectedDate) {
-      const displayStart = format(selectedDate, 'MM-yy');
-      setStartInputValue(displayStart);
-      
-      if (endInputValue) {
-        const dbEndDate = convertToDBDate(endInputValue);
-        if (dbEndDate) {
-          const endDate = new Date(dbEndDate);
-          setEndInputValue(format(endDate, 'MM-yy'));
-        }
-      }
-    } else {
-      setStartInputValue('');
-      setEndInputValue('');
+      setStartInputValue(format(selectedDate, 'MM-yy'));
     }
   }, [selectedDate]);
 
   return (
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
       <div></div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Start</label>
-        <Input 
-          type="text" 
-          placeholder="MMYY" 
-          maxLength={5} 
-          onChange={handleStartMonthChange} 
-          value={startInputValue} 
-          className="text-left" 
-        />
+      <div className="col-span-2 space-y-2">
+        <div className="flex space-x-4">
+          <div className="flex-1">
+            <label className="text-sm font-medium">Start</label>
+            <Input 
+              type="text" 
+              placeholder="MMYY" 
+              maxLength={5} 
+              onChange={handleStartMonthChange} 
+              value={startInputValue} 
+              className="text-left"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="text-sm font-medium">End</label>
+            <Input 
+              type="text" 
+              placeholder="MMYY" 
+              maxLength={5}
+              value={endInputValue}
+              onChange={handleEndMonthChange}
+              className="text-left"
+            />
+          </div>
+        </div>
       </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">End</label>
-        <Input 
-          type="text" 
-          placeholder="MMYY" 
-          maxLength={5}
-          value={endInputValue}
-          onChange={handleEndMonthChange}
-          className="text-left"
-        />
-      </div>
+      {selectedLayerNumber !== undefined && (
+        <div className="col-span-2 space-y-2">
+          <label className="text-sm font-medium">Layer Number</label>
+          <Input 
+            type="number" 
+            value={selectedLayerNumber}
+            onChange={(e) => onLayerChange?.(parseInt(e.target.value))}
+            min={1}
+            className="text-right"
+          />
+        </div>
+      )}
+      {hedgeRatio !== undefined && (
+        <div className="col-span-2 space-y-2">
+          <label className="text-sm font-medium">Hedge Ratio (%)</label>
+          <Input 
+            type="text"
+            value={hedgeRatio}
+            onChange={(e) => onHedgeRatioChange?.(e.target.value)}
+            placeholder="0.00"
+            className="text-right"
+          />
+        </div>
+      )}
+      {hedgeLayer !== undefined && (
+        <div className="col-span-2 space-y-2">
+          <label className="text-sm font-medium">Layer Coverage (%)</label>
+          <Input 
+            type="text"
+            value={hedgeLayer}
+            onChange={(e) => onHedgeLayerChange?.(e.target.value)}
+            placeholder="0.00"
+            className="text-right"
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { format } from 'date-fns';
 import { HeaderControls } from './HeaderControls';
 
 interface LayerControlsProps {
@@ -10,7 +9,7 @@ interface LayerControlsProps {
   onLayerChange: (value: number) => void;
   onHedgeLayerChange: (value: string) => void;
   onHedgeRatioChange: (value: string) => void;
-  onDateChange: (startDate: Date | null, endDate: Date | null) => void;
+  onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
 }
 
 export const LayerControls = ({
@@ -31,9 +30,9 @@ export const LayerControls = ({
 
   return (
     <HeaderControls
+      selectedDate={selectedDate}
       hedgeLayer={hedgeLayer}
       hedgeRatio={hedgeRatio}
-      selectedDate={selectedDate}
       selectedLayerNumber={selectedLayer}
       onLayerChange={handleLayerChange}
       onHedgeLayerChange={onHedgeLayerChange}
