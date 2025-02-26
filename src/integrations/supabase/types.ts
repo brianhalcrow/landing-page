@@ -1470,8 +1470,8 @@ export type Database = {
         Row: {
           costs: number | null
           created_at: string | null
-          cumulative_amount: number | null
           cumulative_coverage_percentage: number | null
+          cumulative_layer_amount: number | null
           end_month: string | null
           hedge_id: string
           hedge_layer_amount: number | null
@@ -1490,8 +1490,8 @@ export type Database = {
         Insert: {
           costs?: number | null
           created_at?: string | null
-          cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
+          cumulative_layer_amount?: number | null
           end_month?: string | null
           hedge_id: string
           hedge_layer_amount?: number | null
@@ -1510,8 +1510,8 @@ export type Database = {
         Update: {
           costs?: number | null
           created_at?: string | null
-          cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
+          cumulative_layer_amount?: number | null
           end_month?: string | null
           hedge_id?: string
           hedge_layer_amount?: number | null
