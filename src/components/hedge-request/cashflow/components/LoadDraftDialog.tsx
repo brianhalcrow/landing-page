@@ -68,7 +68,7 @@ export const LoadDraftDialog = ({ onDraftSelect }: LoadDraftDialogProps) => {
                   <div className="flex justify-between items-start mb-2">
                     <span className="font-medium">{draft.hedge_id}</span>
                     <span className="text-sm text-muted-foreground">
-                      {format(new Date(draft.updated_at), "MMM d, yyyy HH:mm")}
+                      {format(new Date(draft.updated_at || new Date()), "MMM d, yyyy HH:mm")}
                     </span>
                   </div>
                   <div className="text-sm text-muted-foreground">

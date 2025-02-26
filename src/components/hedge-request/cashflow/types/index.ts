@@ -6,7 +6,22 @@ export * from './hedging-instrument';
 export * from './assessment-monitoring';
 export * from './exposure-details';
 
-// Base type without database-managed fields
+// Database fields type
+interface DatabaseFields {
+  hedge_id: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  approved_at?: string;
+  approved_by?: string;
+  submitted_at?: string;
+  submitted_by?: string;
+  reviewed_at?: string;
+  reviewed_by?: string;
+}
+
+// Base type with common fields
 interface BaseHedgeRequest {
   entity_id: string;
   entity_name: string;
@@ -38,13 +53,11 @@ interface BaseHedgeRequest {
   status: 'draft';
 }
 
-// Type for new hedge requests (no hedge_id required)
-export interface NewHedgeRequest extends BaseHedgeRequest {}
+// Type for database records (includes all fields)
+export interface HedgeAccountingRequest extends BaseHedgeRequest, DatabaseFields {}
 
-// Type for existing hedge requests (hedge_id required)
-export interface ExistingHedgeRequest extends BaseHedgeRequest {
-  hedge_id: string;
-}
+// Type for new hedge requests (hedge_id is optional)
+export type NewHedgeRequest = Omit<HedgeAccountingRequest, 'hedge_id'> & { hedge_id?: string };
 
-// Combined type for all hedge accounting requests
-export type HedgeAccountingRequest = NewHedgeRequest | ExistingHedgeRequest;
+// Type for existing hedge requests (hedge_id is required)
+export type ExistingHedgeRequest = HedgeAccountingRequest;

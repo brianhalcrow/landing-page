@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { HedgeAccountingRequest, NewHedgeRequest, ExistingHedgeRequest } from "../types";
+import { NewHedgeRequest, ExistingHedgeRequest } from "../types";
 
 export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
   console.log('Checking if hedge ID exists:', hedgeId);
@@ -21,39 +21,35 @@ export const saveDraft = async (hedgeRequest: NewHedgeRequest | ExistingHedgeReq
   console.log('Starting save draft operation for hedge request');
   
   try {
-    const hedgeId = 'hedge_id' in hedgeRequest ? hedgeRequest.hedge_id : undefined;
+    const hedgeId = ('hedge_id' in hedgeRequest) ? hedgeRequest.hedge_id : undefined;
     
     // Check if record exists (only if we have a hedge_id)
     const exists = hedgeId ? await checkHedgeIdExists(hedgeId) : false;
     
-    let error;
+    let result;
     if (exists) {
       console.log('Updating existing draft:', hedgeId);
-      ({ error } = await supabase
+      const { error } = await supabase
         .from('hedge_accounting_requests')
         .update(hedgeRequest)
-        .eq('hedge_id', hedgeId));
+        .eq('hedge_id', hedgeId);
+        
+      if (error) throw error;
+      result = { hedge_id: hedgeId };
     } else {
       console.log('Creating new draft');
-      // Let the database handle hedge_id generation
-      const { data, error: insertError } = await supabase
+      const { data, error } = await supabase
         .from('hedge_accounting_requests')
         .insert(hedgeRequest)
         .select('hedge_id')
         .single();
         
-      error = insertError;
-      if (!error && data) {
-        hedgeId = data.hedge_id;
-      }
+      if (error) throw error;
+      if (!data) throw new Error('No data returned from insert');
+      result = data;
     }
 
-    if (error) {
-      console.error('Database operation failed:', error);
-      throw error;
-    }
-
-    return { success: true, hedgeId };
+    return { success: true, hedgeId: result.hedge_id };
   } catch (error) {
     console.error('Error in saveDraft:', error);
     throw error;
