@@ -261,11 +261,12 @@ const CashflowHedgeForm = () => {
         isMinimized={minimizedSections.exposure}
         onToggle={toggleSection}
       >
+        {/* Exposure Details Section with hedgeId prop */}
         <ExposureDetailsSection 
           value={exposureDetails}
           onChange={setExposureDetails}
           documentationDate={generalInfo.documentation_date}
-          hedgeId={hedgeId}  {/* Added hedgeId prop here */}
+          hedgeId={hedgeId}
         />
       </FormSection>
     </div>
