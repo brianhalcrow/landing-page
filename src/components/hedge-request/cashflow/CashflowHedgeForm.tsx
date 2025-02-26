@@ -1,3 +1,4 @@
+
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -11,7 +12,7 @@ import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import type { ExistingHedgeRequest } from "./types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const CashflowHedgeForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,28 +39,32 @@ const CashflowHedgeForm = () => {
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
-  useEffect(() => {
-    const currentProgress = calculateProgress(
-      generalInfo,
-      riskManagement,
-      hedgedItem,
-      hedgingInstrument,
-      assessmentMonitoring,
-      exposureDetails
-    );
-    setProgress(currentProgress);
-  }, [generalInfo, riskManagement, hedgedItem, hedgingInstrument, assessmentMonitoring, exposureDetails]);
-
   const onSaveDraft = async () => {
-    await handleSaveDraft(
-      generalInfo, 
-      hedgingInstrument,
-      riskManagement,
-      hedgedItem,
-      assessmentMonitoring,
-      exposureDetails,
-      hedgeId
-    );
+    try {
+      await handleSaveDraft(
+        generalInfo, 
+        hedgingInstrument,
+        riskManagement,
+        hedgedItem,
+        assessmentMonitoring,
+        exposureDetails,
+        hedgeId
+      );
+      
+      // Update progress only after successful save
+      const currentProgress = calculateProgress(
+        generalInfo,
+        riskManagement,
+        hedgedItem,
+        hedgingInstrument,
+        assessmentMonitoring,
+        exposureDetails
+      );
+      setProgress(currentProgress);
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft');
+    }
   };
 
   const handleSubmit = () => {
@@ -113,6 +118,33 @@ const CashflowHedgeForm = () => {
           end_month: draft.end_month
         })
       ]);
+
+      // Update progress after loading draft
+      const currentProgress = calculateProgress(
+        draft,
+        { risk_management_description: draft.risk_management_description },
+        { hedged_item_description: draft.hedged_item_description },
+        {
+          instrument: draft.instrument,
+          forward_element_designation: draft.forward_element_designation,
+          currency_basis_spreads: draft.currency_basis_spreads,
+          hedging_instrument_description: draft.hedging_instrument_description
+        },
+        {
+          credit_risk_impact: draft.credit_risk_impact,
+          oci_reclassification_approach: draft.oci_reclassification_approach,
+          economic_relationship: draft.economic_relationship,
+          discontinuation_criteria: draft.discontinuation_criteria,
+          effectiveness_testing_method: draft.effectiveness_testing_method,
+          testing_frequency: draft.testing_frequency,
+          assessment_details: draft.assessment_details
+        },
+        {
+          start_month: draft.start_month,
+          end_month: draft.end_month
+        }
+      );
+      setProgress(currentProgress);
 
       toast.success('Draft loaded successfully');
     } catch (error) {
