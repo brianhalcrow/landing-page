@@ -1468,48 +1468,63 @@ export type Database = {
       }
       hedge_layer_details: {
         Row: {
+          costs: number | null
           created_at: string | null
           cumulative_amount: number | null
           cumulative_coverage_percentage: number | null
-          hedge_amount: number | null
+          end_month: string | null
           hedge_id: string
+          hedge_layer_amount: number | null
           hedge_ratio: number | null
+          hedged_exposure: number | null
           id: number
           indicative_coverage_percentage: number | null
           layer_number: number
           layer_percentage: number | null
-          month_date: string
           month_index: number
+          net_income: number | null
+          revenue: number | null
+          start_month: string | null
           updated_at: string | null
         }
         Insert: {
+          costs?: number | null
           created_at?: string | null
           cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
-          hedge_amount?: number | null
+          end_month?: string | null
           hedge_id: string
+          hedge_layer_amount?: number | null
           hedge_ratio?: number | null
+          hedged_exposure?: number | null
           id?: never
           indicative_coverage_percentage?: number | null
           layer_number: number
           layer_percentage?: number | null
-          month_date: string
           month_index: number
+          net_income?: number | null
+          revenue?: number | null
+          start_month?: string | null
           updated_at?: string | null
         }
         Update: {
+          costs?: number | null
           created_at?: string | null
           cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
-          hedge_amount?: number | null
+          end_month?: string | null
           hedge_id?: string
+          hedge_layer_amount?: number | null
           hedge_ratio?: number | null
+          hedged_exposure?: number | null
           id?: never
           indicative_coverage_percentage?: number | null
           layer_number?: number
           layer_percentage?: number | null
-          month_date?: string
           month_index?: number
+          net_income?: number | null
+          revenue?: number | null
+          start_month?: string | null
           updated_at?: string | null
         }
         Relationships: [
