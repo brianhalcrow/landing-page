@@ -3,14 +3,19 @@ import { useToast } from "@/hooks/use-toast";
 import { validateGeneralInfo } from "../utils/validation";
 import { generateHedgeId, saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
-import { HedgingInstrumentData } from "../types";
+import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
 
 export const useFormSubmission = (setHedgeId: (id: string) => void) => {
   const { toast } = useToast();
 
   const handleSaveDraft = async (
     generalInfo: GeneralInformationData,
-    hedgingInstrument: HedgingInstrumentData
+    hedgingInstrument: HedgingInstrumentData,
+    riskManagement: RiskManagementData,
+    hedgedItem: HedgedItemData,
+    assessmentMonitoring: AssessmentMonitoringData,
+    exposureDetails: ExposureDetailsData,
+    existingHedgeId?: string
   ) => {
     console.log('Saving draft with general info:', generalInfo);
     const { isValid, missingFields } = validateGeneralInfo(generalInfo);
@@ -26,38 +31,30 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     }
 
     try {
-      const hedge_id = await generateHedgeId(generalInfo.entity_id, generalInfo.exposure_category_l1);
+      const hedge_id = existingHedgeId || await generateHedgeId(generalInfo.entity_id, generalInfo.exposure_category_l1);
       const now = new Date().toISOString();
 
       const hedgeRequest = {
         hedge_id,
         ...generalInfo,
+        ...riskManagement,
+        ...hedgedItem,
+        ...hedgingInstrument,
+        ...assessmentMonitoring,
+        ...exposureDetails,
         status: 'draft' as const,
-        created_at: now,
-        updated_at: now,
-        risk_management_description: "",
-        hedged_item_description: "",
-        instrument: hedgingInstrument.instrument || "",
-        forward_element_designation: "",
-        currency_basis_spreads: "",
-        hedging_instrument_description: "",
-        credit_risk_impact: "",
-        oci_reclassification_approach: "",
-        economic_relationship: "",
-        discontinuation_criteria: "",
-        effectiveness_testing_method: "",
-        testing_frequency: "",
-        assessment_details: "",
-        start_month: null,
-        end_month: null
+        created_at: existingHedgeId ? undefined : now,
+        updated_at: now
       };
 
       await saveDraft(hedgeRequest);
-      setHedgeId(hedge_id);
+      if (!existingHedgeId) {
+        setHedgeId(hedge_id);
+      }
       
       toast({
-        title: "Draft Saved",
-        description: `Hedge request ${hedge_id} has been saved as draft successfully.`,
+        title: existingHedgeId ? "Draft Updated" : "Draft Saved",
+        description: `Hedge request ${hedge_id} has been ${existingHedgeId ? 'updated' : 'saved'} successfully.`,
         variant: "default"
       });
     } catch (error: any) {

@@ -1,9 +1,9 @@
-
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
 import { useFormSubmission } from "./hooks/useFormSubmission";
 import { toast } from "sonner";
+import { calculateProgress } from "./utils/validation";
 import GeneralInformationSection from "./sections/GeneralInformationSection";
 import RiskManagementSection from "./sections/RiskManagementSection";
 import HedgedItemSection from "./sections/HedgedItemSection";
@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 
 const CashflowHedgeForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  
   const {
     minimizedSections,
     toggleSection,
@@ -35,6 +37,19 @@ const CashflowHedgeForm = () => {
   } = useFormState();
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
+
+  // Calculate progress whenever form data changes
+  useEffect(() => {
+    const currentProgress = calculateProgress(
+      generalInfo,
+      riskManagement,
+      hedgedItem,
+      hedgingInstrument,
+      assessmentMonitoring,
+      exposureDetails
+    );
+    setProgress(currentProgress);
+  }, [generalInfo, riskManagement, hedgedItem, hedgingInstrument, assessmentMonitoring, exposureDetails]);
 
   // Debug useEffect for each section
   useEffect(() => {
@@ -99,6 +114,10 @@ const CashflowHedgeForm = () => {
           effectiveness_testing_method: draft.effectiveness_testing_method,
           testing_frequency: draft.testing_frequency,
           assessment_details: draft.assessment_details
+        }),
+        setExposureDetails({
+          start_month: draft.start_month,
+          end_month: draft.end_month
         })
       ]);
 
@@ -111,7 +130,15 @@ const CashflowHedgeForm = () => {
     }
   };
 
-  const onSaveDraft = () => handleSaveDraft(generalInfo, hedgingInstrument);
+  const onSaveDraft = () => handleSaveDraft(
+    generalInfo, 
+    hedgingInstrument,
+    riskManagement,
+    hedgedItem,
+    assessmentMonitoring,
+    exposureDetails,
+    hedgeId
+  );
 
   const handleSubmit = () => {
     // Submit functionality will be implemented later
@@ -127,6 +154,7 @@ const CashflowHedgeForm = () => {
         onSaveDraft={onSaveDraft} 
         onSubmit={handleSubmit}
         onLoadDraft={handleLoadDraft}
+        progress={progress}
       />
       
       <FormSection 
