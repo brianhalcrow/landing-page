@@ -1,3 +1,4 @@
+
 import { forwardRef, useState, useRef } from "react";
 import { format } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -78,8 +79,17 @@ export const ExposureActualsSection = forwardRef<{}, ExposureActualsSectionProps
     return (
       <div className="border border-gray-200 rounded-md">
         <div className="p-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-[140px]">
+          <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
+            <div></div>
+            {Array(12).fill(null).map((_, index) => (
+              <div key={index} className="text-sm font-medium text-center text-gray-600">
+                {selectedDate ? format(new Date(selectedDate), 'MM-yy') : '--'}
+              </div>
+            ))}
+
+            {/* Row 1 with fields */}
+            <div></div>
+            <div className="col-span-4">
               <EntityInformation
                 entities={[]}
                 selectedEntityId={selectedEntityId}
@@ -97,31 +107,24 @@ export const ExposureActualsSection = forwardRef<{}, ExposureActualsSectionProps
                 hedgeId={hedgeId || ""}
               />
             </div>
-            <div className="w-[140px]">
+            <div className="col-span-4">
               <CurrencySelector
                 exposedCurrency={exposedCurrency}
                 onCurrencyChange={setExposedCurrency}
                 currencies={[]}
               />
             </div>
-            <HeaderControls
-              selectedDate={selectedDate}
-              onDateChange={(startDate, endDate) => {
-                setSelectedDate(startDate);
-              }}
-            />
-          </div>
-
-          <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 items-center">
-            <div className="h-8"></div>
-            {Array(12).fill(null).map((_, index) => (
-              <div key={index} className="text-sm font-medium text-center text-gray-600">
-                {selectedDate ? format(new Date(selectedDate), 'MM-yy') : '--'}
-              </div>
-            ))}
+            <div className="col-span-4">
+              <HeaderControls
+                selectedDate={selectedDate}
+                onDateChange={(startDate, endDate) => {
+                  setSelectedDate(startDate);
+                }}
+              />
+            </div>
           </div>
           
-          <div>
+          <div className="mt-6">
             <GridInputRow
               label="Revenues"
               sublabel="Long"
