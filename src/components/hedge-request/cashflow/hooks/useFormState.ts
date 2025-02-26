@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   GeneralInformationData,
@@ -16,6 +17,11 @@ export interface HedgeLayerState {
   selectedDate?: Date;
 }
 
+export interface ExposureForecastData {
+  start_month: string;
+  end_month: string;
+}
+
 export const useFormState = () => {
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
     general: false,
@@ -23,6 +29,7 @@ export const useFormState = () => {
     hedgedItem: false,
     hedgingInstrument: false,
     assessment: false,
+    forecast: false,
     exposure: false
   });
 
@@ -76,6 +83,11 @@ export const useFormState = () => {
     assessment_details: ""
   });
 
+  const [exposureForecast, setExposureForecast] = useState<ExposureForecastData>({
+    start_month: "",
+    end_month: ""
+  });
+
   const [exposureDetails, setExposureDetails] = useState<ExposureDetailsData>({
     start_month: "",
     end_month: ""
@@ -103,6 +115,8 @@ export const useFormState = () => {
     setHedgingInstrument,
     assessmentMonitoring,
     setAssessmentMonitoring,
+    exposureForecast,
+    setExposureForecast,
     exposureDetails,
     setExposureDetails,
     hedgeLayerData,

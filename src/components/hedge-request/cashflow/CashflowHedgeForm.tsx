@@ -1,3 +1,4 @@
+
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -9,6 +10,7 @@ import RiskManagementSection from "./sections/RiskManagementSection";
 import HedgedItemSection from "./sections/HedgedItemSection";
 import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
+import ExposureForecastSection from "./sections/ExposureForecastSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import type { ExistingHedgeRequest } from "./types";
 import type { HedgeLayerDetails } from "./types/hedge-layer";
@@ -32,6 +34,8 @@ const CashflowHedgeForm = () => {
     setHedgedItem,
     assessmentMonitoring,
     setAssessmentMonitoring,
+    exposureForecast,
+    setExposureForecast,
     exposureDetails,
     setExposureDetails,
     hedgeId,
@@ -254,6 +258,20 @@ const CashflowHedgeForm = () => {
         <AssessmentMonitoringSection 
           value={assessmentMonitoring}
           onChange={setAssessmentMonitoring}
+        />
+      </FormSection>
+
+      <FormSection 
+        title="Exposure Forecast" 
+        section="forecast"
+        isMinimized={minimizedSections.forecast}
+        onToggle={toggleSection}
+      >
+        <ExposureForecastSection 
+          value={exposureForecast}
+          onChange={setExposureForecast}
+          documentationDate={generalInfo.documentation_date}
+          hedgeId={hedgeId}
         />
       </FormSection>
 
