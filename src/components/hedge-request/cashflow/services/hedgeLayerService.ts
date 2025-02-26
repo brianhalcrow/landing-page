@@ -7,23 +7,48 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
   console.log('Attempting to save hedge layer details:', { 
     hedgeId: layerDetails.hedge_id,
     layerNumber: layerDetails.layer_number,
-    monthCount: layerDetails.monthly_data.length
+    monthCount: layerDetails.monthly_data.length,
+    startMonth: layerDetails.start_month,
+    endMonth: layerDetails.end_month,
+    hedgeRatio: layerDetails.hedge_ratio,
+    layerPercentage: layerDetails.layer_percentage
   });
+
+  // Validate layer details before saving
+  if (!layerDetails.monthly_data.length) {
+    console.error('No monthly data to save for layer', layerDetails.layer_number);
+    toast.error('No data to save for this layer');
+    return false;
+  }
 
   try {
     // First delete existing entries for this hedge_id AND layer_number combination
-    const { error: deleteError } = await supabase
+    const { data: existingData, error: fetchError } = await supabase
       .from('hedge_layer_details')
-      .delete()
+      .select('*')
       .eq('hedge_id', layerDetails.hedge_id)
-      .eq('layer_number', layerDetails.layer_number); // Only delete the current layer
+      .eq('layer_number', layerDetails.layer_number);
 
-    if (deleteError) {
-      console.error('Error deleting existing hedge layer details:', deleteError);
-      throw deleteError;
+    if (fetchError) {
+      console.error('Error checking existing layer details:', fetchError);
+      throw fetchError;
     }
 
-    console.log('Successfully deleted existing layer details for layer', layerDetails.layer_number);
+    console.log(`Found ${existingData?.length || 0} existing records for layer ${layerDetails.layer_number}`);
+
+    if (existingData && existingData.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('hedge_layer_details')
+        .delete()
+        .eq('hedge_id', layerDetails.hedge_id)
+        .eq('layer_number', layerDetails.layer_number);
+
+      if (deleteError) {
+        console.error('Error deleting existing hedge layer details:', deleteError);
+        throw deleteError;
+      }
+      console.log('Successfully deleted existing layer details for layer', layerDetails.layer_number);
+    }
 
     // Transform the data into the database format
     const dbRows = layerDetails.monthly_data.map((monthData) => ({
@@ -44,7 +69,11 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
       cumulative_coverage_percentage: monthData.cumulative_coverage_percentage,
     }));
 
-    console.log('Inserting new layer details for layer', layerDetails.layer_number, 'row count:', dbRows.length);
+    console.log('Prepared data rows for insertion:', {
+      layer: layerDetails.layer_number,
+      rowCount: dbRows.length,
+      sampleRow: dbRows[0]
+    });
 
     const { error: insertError } = await supabase
       .from('hedge_layer_details')
@@ -56,6 +85,20 @@ export const saveHedgeLayerDetails = async (layerDetails: HedgeLayerDetails): Pr
     }
 
     console.log('Successfully saved hedge layer details for layer', layerDetails.layer_number);
+    
+    // Verify the insertion
+    const { data: verifyData, error: verifyError } = await supabase
+      .from('hedge_layer_details')
+      .select('*')
+      .eq('hedge_id', layerDetails.hedge_id)
+      .eq('layer_number', layerDetails.layer_number);
+
+    if (verifyError) {
+      console.error('Error verifying saved data:', verifyError);
+    } else {
+      console.log(`Verified ${verifyData?.length || 0} rows saved for layer ${layerDetails.layer_number}`);
+    }
+
     return true;
   } catch (error) {
     console.error('Error in saveHedgeLayerDetails:', error);
@@ -113,7 +156,14 @@ export const getHedgeLayerDetails = async (hedgeId: string): Promise<HedgeLayerD
     });
 
     const result = Array.from(layerMap.values());
-    console.log(`Transformed data into ${result.length} hedge layers`);
+    console.log(`Transformed data into ${result.length} hedge layers with details:`, 
+      result.map(layer => ({
+        layerNumber: layer.layer_number,
+        monthCount: layer.monthly_data.length,
+        startMonth: layer.start_month,
+        endMonth: layer.end_month
+      }))
+    );
     return result;
   } catch (error) {
     console.error('Error in getHedgeLayerDetails:', error);
