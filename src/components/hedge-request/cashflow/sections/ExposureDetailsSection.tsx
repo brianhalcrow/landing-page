@@ -1,6 +1,4 @@
-
-import { useState, useEffect, KeyboardEvent, useRef } from "react";
-import { addMonths, format, parse } from "date-fns";
+import { useState, KeyboardEvent, useRef } from "react";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
 import { GridInputRow } from "../components/GridInputRow";
@@ -13,7 +11,7 @@ interface ExposureDetailsSectionProps {
 }
 
 const ExposureDetailsSection = ({ value, onChange, documentationDate }: ExposureDetailsSectionProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
@@ -25,18 +23,6 @@ const ExposureDetailsSection = ({ value, onChange, documentationDate }: Exposure
   const [cumulativeAmounts, setCumulativeAmounts] = useState<Record<number, number>>({});
   const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Initialize the selected date from documentation date
-  useEffect(() => {
-    if (documentationDate) {
-      try {
-        const date = parse(documentationDate, 'yyyy-MM-dd', new Date());
-        setSelectedDate(date);
-      } catch (error) {
-        console.error('Failed to parse documentation date:', error);
-      }
-    }
-  }, [documentationDate]);
 
   const getMonths = (startDate: Date | undefined) => {
     const baseDate = startDate || new Date();
@@ -160,7 +146,15 @@ const ExposureDetailsSection = ({ value, onChange, documentationDate }: Exposure
         selectedDate={selectedDate}
         onHedgeLayerChange={handleHedgeLayerChange}
         onHedgeRatioChange={handleHedgeRatioChange}
-        onDateChange={setSelectedDate}
+        onDateChange={(startDate, endDate) => {
+          setSelectedDate(startDate);
+          if (onChange) {
+            onChange({
+              start_month: startDate ? format(startDate, 'yyyy-MM-dd') : '',
+              end_month: endDate ? format(endDate, 'yyyy-MM-dd') : ''
+            });
+          }
+        }}
       />
 
       <div className="space-y-2">
