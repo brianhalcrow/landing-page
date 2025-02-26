@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export interface TabItem {
   value: string;
@@ -15,7 +16,18 @@ interface TabsContainerProps {
 }
 
 const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
-  const [currentTab, setCurrentTab] = useState(defaultTab || tabs[0]?.value);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tabFromUrl = searchParams.get("tab");
+  const [currentTab, setCurrentTab] = useState(tabFromUrl || defaultTab || tabs[0]?.value);
+
+  useEffect(() => {
+    if (tabFromUrl && tabs.some(tab => tab.value === tabFromUrl)) {
+      setCurrentTab(tabFromUrl);
+    } else if (currentTab) {
+      setSearchParams({ tab: currentTab });
+    }
+  }, [tabFromUrl, currentTab, tabs, setSearchParams]);
 
   if (!tabs || tabs.length === 0) {
     return <div>No tabs configured</div>;
@@ -23,6 +35,7 @@ const TabsContainer = ({ tabs, defaultTab }: TabsContainerProps) => {
 
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
+    setSearchParams({ tab: value });
   };
 
   return (

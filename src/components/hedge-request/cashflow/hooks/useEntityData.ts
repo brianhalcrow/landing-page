@@ -8,6 +8,8 @@ export interface EntityData {
   functional_currency: string;
 }
 
+export type Entity = EntityData; // Alias for clarity when used in components
+
 export const TREASURY_COUNTERPARTY_ID = 'SEN1';
 export const TREASURY_ENTITY_NAME = 'Sense Treasury Centre B.V.';
 

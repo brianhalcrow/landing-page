@@ -1282,29 +1282,34 @@ export type Database = {
           credit_risk_impact: string | null
           currency_basis_spreads: string | null
           discontinuation_criteria: string | null
+          documentation_date: string
           economic_relationship: string | null
           effectiveness_testing_method: string | null
+          end_month: string | null
           entity_id: string
           entity_name: string
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
           forward_element_designation: string | null
-          functional_currency: string | null
+          functional_currency: string
           hedge_id: string
-          hedge_type: Database["public"]["Enums"]["hedge_type"]
           hedged_item_description: string | null
-          hedged_item_type: string | null
+          hedging_entity: string
+          hedging_entity_fccy: string
           hedging_instrument_description: string | null
-          instrument_type: string | null
+          instrument: string | null
           oci_reclassification_approach: string | null
-          probability_assessment: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           risk_management_description: string | null
-          start_month: string
+          start_month: string | null
           status: Database["public"]["Enums"]["hedge_status"] | null
+          strategy: string
           submitted_at: string | null
           submitted_by: string | null
           testing_frequency: string | null
-          time_period: string | null
+          transaction_currency: string
           updated_at: string | null
           updated_by: string | null
         }
@@ -1318,29 +1323,34 @@ export type Database = {
           credit_risk_impact?: string | null
           currency_basis_spreads?: string | null
           discontinuation_criteria?: string | null
+          documentation_date: string
           economic_relationship?: string | null
           effectiveness_testing_method?: string | null
+          end_month?: string | null
           entity_id: string
           entity_name: string
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
           forward_element_designation?: string | null
-          functional_currency?: string | null
+          functional_currency: string
           hedge_id: string
-          hedge_type: Database["public"]["Enums"]["hedge_type"]
           hedged_item_description?: string | null
-          hedged_item_type?: string | null
+          hedging_entity: string
+          hedging_entity_fccy: string
           hedging_instrument_description?: string | null
-          instrument_type?: string | null
+          instrument?: string | null
           oci_reclassification_approach?: string | null
-          probability_assessment?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           risk_management_description?: string | null
-          start_month: string
+          start_month?: string | null
           status?: Database["public"]["Enums"]["hedge_status"] | null
+          strategy: string
           submitted_at?: string | null
           submitted_by?: string | null
           testing_frequency?: string | null
-          time_period?: string | null
+          transaction_currency: string
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -1354,29 +1364,34 @@ export type Database = {
           credit_risk_impact?: string | null
           currency_basis_spreads?: string | null
           discontinuation_criteria?: string | null
+          documentation_date?: string
           economic_relationship?: string | null
           effectiveness_testing_method?: string | null
+          end_month?: string | null
           entity_id?: string
           entity_name?: string
+          exposure_category_l1?: string
+          exposure_category_l2?: string
+          exposure_category_l3?: string
           forward_element_designation?: string | null
-          functional_currency?: string | null
+          functional_currency?: string
           hedge_id?: string
-          hedge_type?: Database["public"]["Enums"]["hedge_type"]
           hedged_item_description?: string | null
-          hedged_item_type?: string | null
+          hedging_entity?: string
+          hedging_entity_fccy?: string
           hedging_instrument_description?: string | null
-          instrument_type?: string | null
+          instrument?: string | null
           oci_reclassification_approach?: string | null
-          probability_assessment?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           risk_management_description?: string | null
-          start_month?: string
+          start_month?: string | null
           status?: Database["public"]["Enums"]["hedge_status"] | null
+          strategy?: string
           submitted_at?: string | null
           submitted_by?: string | null
           testing_frequency?: string | null
-          time_period?: string | null
+          transaction_currency?: string
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -1453,53 +1468,72 @@ export type Database = {
       }
       hedge_layer_details: {
         Row: {
+          costs: number | null
           created_at: string | null
-          cumulative_amount: number | null
           cumulative_coverage_percentage: number | null
-          hedge_amount: number | null
+          cumulative_layer_amount: number | null
+          end_month: string | null
           hedge_id: string
+          hedge_layer_amount: number | null
           hedge_ratio: number | null
-          id: number
+          hedged_exposure: number | null
           indicative_coverage_percentage: number | null
           layer_number: number
           layer_percentage: number | null
-          month_date: string
           month_index: number
+          net_income: number | null
+          revenue: number | null
+          start_month: string | null
           updated_at: string | null
         }
         Insert: {
+          costs?: number | null
           created_at?: string | null
-          cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
-          hedge_amount?: number | null
+          cumulative_layer_amount?: number | null
+          end_month?: string | null
           hedge_id: string
+          hedge_layer_amount?: number | null
           hedge_ratio?: number | null
-          id?: never
+          hedged_exposure?: number | null
           indicative_coverage_percentage?: number | null
           layer_number: number
           layer_percentage?: number | null
-          month_date: string
           month_index: number
+          net_income?: number | null
+          revenue?: number | null
+          start_month?: string | null
           updated_at?: string | null
         }
         Update: {
+          costs?: number | null
           created_at?: string | null
-          cumulative_amount?: number | null
           cumulative_coverage_percentage?: number | null
-          hedge_amount?: number | null
+          cumulative_layer_amount?: number | null
+          end_month?: string | null
           hedge_id?: string
+          hedge_layer_amount?: number | null
           hedge_ratio?: number | null
-          id?: never
+          hedged_exposure?: number | null
           indicative_coverage_percentage?: number | null
           layer_number?: number
           layer_percentage?: number | null
-          month_date?: string
           month_index?: number
+          net_income?: number | null
+          revenue?: number | null
+          start_month?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "fk_hedge"
+            columns: ["hedge_id"]
+            isOneToOne: false
+            referencedRelation: "hedge_accounting_requests"
+            referencedColumns: ["hedge_id"]
+          },
+          {
+            foreignKeyName: "fk_hedge_layer_hedge_id"
             columns: ["hedge_id"]
             isOneToOne: false
             referencedRelation: "hedge_accounting_requests"
@@ -1511,17 +1545,17 @@ export type Database = {
         Row: {
           current_sequence: number | null
           entity_id: string
-          hedge_type: string
+          exposure_category_l1: string
         }
         Insert: {
           current_sequence?: number | null
           entity_id: string
-          hedge_type: string
+          exposure_category_l1: string
         }
         Update: {
           current_sequence?: number | null
           entity_id?: string
-          hedge_type?: string
+          exposure_category_l1?: string
         }
         Relationships: [
           {
@@ -3478,7 +3512,7 @@ export type Database = {
       generate_hedge_id: {
         Args: {
           p_entity_id: string
-          p_hedge_type: string
+          p_exposure_category_l1: string
         }
         Returns: string
       }
@@ -3493,6 +3527,40 @@ export type Database = {
           draft_id: string
         }
         Returns: Json
+      }
+      get_hedge_request_drafts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          hedge_id: string
+          entity_name: string
+          documentation_date: string
+          updated_at: string
+          entity_id: string
+          transaction_currency: string
+          functional_currency: string
+          cost_centre: string
+          exposure_category_l1: string
+          exposure_category_l2: string
+          exposure_category_l3: string
+          strategy: string
+          hedging_entity: string
+          hedging_entity_fccy: string
+          risk_management_description: string
+          hedged_item_description: string
+          instrument: string
+          forward_element_designation: string
+          currency_basis_spreads: string
+          hedging_instrument_description: string
+          credit_risk_impact: string
+          oci_reclassification_approach: string
+          economic_relationship: string
+          discontinuation_criteria: string
+          effectiveness_testing_method: string
+          testing_frequency: string
+          assessment_details: string
+          start_month: string
+          end_month: string
+        }[]
       }
       get_live_schema: {
         Args: Record<PropertyKey, never>

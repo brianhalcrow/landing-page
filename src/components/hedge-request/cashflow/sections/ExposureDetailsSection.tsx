@@ -1,86 +1,74 @@
-import { useState, useEffect, KeyboardEvent, useRef } from "react";
-import { addMonths, format } from "date-fns";
-import { HeaderControls } from "../components/HeaderControls";
-import { GridInputRow } from "../components/GridInputRow";
-import { calculateForecasts, calculateHedgeValues, formatNumber, formatPercentage } from "../utils/calculations";
 
-const ExposureDetailsSection = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>();
-  const [revenues, setRevenues] = useState<Record<number, number>>({});
-  const [costs, setCosts] = useState<Record<number, number>>({});
-  const [forecasts, setForecasts] = useState<Record<number, number>>({});
-  const [hedgeRatio, setHedgeRatio] = useState<string>('');
-  const [hedgeLayer, setHedgeLayer] = useState<string>('');
-  const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
-  const [hedgedExposures, setHedgedExposures] = useState<Record<number, number>>({});
-  const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
-  const [cumulativeAmounts, setCumulativeAmounts] = useState<Record<number, number>>({});
-  const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { format } from "date-fns";
+import { ExposureGrid } from "../components/ExposureGrid";
+import { useExposureCalculations } from "../hooks/useExposureCalculations";
+import { LayerControls } from "../components/LayerControls";
+import { useGridInputHandler } from "../components/GridInputHandler";
+import type { HedgeLayerDetails } from "../types/hedge-layer";
+
+interface ExposureDetailsData {
+  start_month: string;
+  end_month: string;
+}
+
+interface ExposureDetailsSectionProps {
+  value?: ExposureDetailsData;
+  onChange?: (value: ExposureDetailsData) => void;
+  documentationDate?: string;
+  hedgeId?: string;
+}
+
+export interface ExposureDetailsSectionRef {
+  getCurrentLayerData: () => HedgeLayerDetails | null;
+}
+
+const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDetailsSectionProps>(({ 
+  value, 
+  onChange, 
+  documentationDate,
+  hedgeId 
+}, ref) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [endDate, setEndDate] = useState<Date>();
 
-  const getMonths = (startDate: Date | undefined) => {
-    const baseDate = startDate || new Date();
-    return Array.from({ length: 12 }, (_, i) => {
-      const date = addMonths(baseDate, i);
-      return format(date, 'MM-yy');
-    });
-  };
+  const {
+    revenues,
+    setRevenues,
+    costs,
+    setCosts,
+    forecasts,
+    hedgeRatio,
+    setHedgeRatio,
+    hedgeLayer,
+    setHedgeLayer,
+    hedgeAmounts,
+    hedgedExposures,
+    indicativeCoverage,
+    cumulativeAmounts,
+    cumulativeCoverage,
+    selectedDate,
+    setSelectedDate,
+    loading,
+    getCurrentLayerData
+  } = useExposureCalculations(hedgeId);
 
-  const months = getMonths(selectedDate);
+  const { handleKeyDown } = useGridInputHandler({ inputRefs });
 
-  useEffect(() => {
-    const newForecasts = calculateForecasts(revenues, costs);
-    setForecasts(newForecasts);
-  }, [revenues, costs]);
+  useImperativeHandle(ref, () => ({
+    getCurrentLayerData: () => {
+      if (!selectedDate || !hedgeId) return null;
 
-  useEffect(() => {
-    const { hedgedExposures: newHedgedExposures, hedgeAmounts: newHedgeAmounts, indicativeCoverage: newIndicativeCoverage } = 
-      calculateHedgeValues(forecasts, hedgeRatio, hedgeLayer);
+      const baseData = getCurrentLayerData();
+      if (!baseData) return null;
 
-    setHedgedExposures(newHedgedExposures);
-    setHedgeAmounts(newHedgeAmounts);
-    setIndicativeCoverage(newIndicativeCoverage);
-
-    // Calculate cumulative values
-    let runningAmount = 0;
-    const newCumulativeAmounts: Record<number, number> = {};
-    const newCumulativeCoverage: Record<number, number> = {};
-
-    Object.keys(newHedgeAmounts).forEach((index) => {
-      const i = parseInt(index);
-      runningAmount += newHedgeAmounts[i] || 0;
-      newCumulativeAmounts[i] = runningAmount;
-      
-      // Calculate cumulative coverage as a percentage of total forecast
-      const totalForecast = forecasts[i] || 0;
-      newCumulativeCoverage[i] = totalForecast !== 0 ? (runningAmount / totalForecast) * 100 : 0;
-    });
-
-    setCumulativeAmounts(newCumulativeAmounts);
-    setCumulativeCoverage(newCumulativeCoverage);
-  }, [forecasts, hedgeRatio, hedgeLayer]);
-
-  const handleHedgeRatioChange = (value: string) => {
-    if (value === '') {
-      setHedgeRatio('');
-      return;
+      return {
+        ...baseData,
+        hedge_id: hedgeId,
+        layer_number: 1  // Default to first layer
+      };
     }
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setHedgeRatio(String(Math.min(100, numericValue)));
-    }
-  };
-
-  const handleHedgeLayerChange = (value: string) => {
-    if (value === '') {
-      setHedgeLayer('');
-      return;
-    }
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setHedgeLayer(String(Math.min(100, numericValue)));
-    }
-  };
+  }));
 
   const handleRevenueChange = (index: number, value: string) => {
     const numericValue = parseFloat(value.replace(/,/g, ''));
@@ -103,175 +91,61 @@ const ExposureDetailsSection = () => {
     }
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
-    const currentInput = event.currentTarget;
-    
-    switch (event.key) {
-      case 'ArrowUp':
-        event.preventDefault();
-        const upInput = inputRefs.current[colIndex];
-        if (upInput) upInput.focus();
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        const downInput = inputRefs.current[colIndex + 12];
-        if (downInput) downInput.focus();
-        break;
-      case 'ArrowLeft':
-        if (currentInput.selectionStart === 0) {
-          event.preventDefault();
-          const prevInput = inputRefs.current[rowIndex * 12 + colIndex - 1];
-          if (prevInput) prevInput.focus();
-        }
-        break;
-      case 'ArrowRight':
-        if (currentInput.selectionStart === currentInput.value.length) {
-          event.preventDefault();
-          const nextInput = inputRefs.current[rowIndex * 12 + colIndex + 1];
-          if (nextInput) nextInput.focus();
-        }
-        break;
-    }
+  const handleLayerChange = (value: number) => {
+    setRevenues({});
+    setCosts({});
+    setHedgeRatio('');
+    setHedgeLayer('');
   };
 
   return (
     <div className="space-y-6">
-      <HeaderControls
+      <LayerControls
         hedgeLayer={hedgeLayer}
         hedgeRatio={hedgeRatio}
         selectedDate={selectedDate}
-        onHedgeLayerChange={handleHedgeLayerChange}
-        onHedgeRatioChange={handleHedgeRatioChange}
-        onDateChange={setSelectedDate}
+        onLayerChange={handleLayerChange}
+        onHedgeLayerChange={setHedgeLayer}
+        onHedgeRatioChange={setHedgeRatio}
+        onDateChange={(startDate, endDate) => {
+          setSelectedDate(startDate);
+          setEndDate(endDate);
+          if (onChange && startDate && endDate) {
+            onChange({
+              start_month: format(startDate, 'yyyy-MM-dd'),
+              end_month: format(endDate, 'yyyy-MM-dd')
+            });
+          }
+        }}
       />
 
       <div className="space-y-2">
-        <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
-          <div className="h-6"></div>
-          {Array(12).fill(null).map((_, index) => (
-            <div key={index} className="text-sm font-medium text-center">
-              {months[index]}
-            </div>
-          ))}
-        </div>
-
-        <GridInputRow
-          label="Revenues"
-          sublabel="Long"
-          values={revenues}
-          onChange={handleRevenueChange}
-          onKeyDown={handleKeyDown}
-          rowIndex={0}
-          monthCount={12}
-          inputRefs={inputRefs.current}
-          refStartIndex={0}
-          formatValue={formatNumber}
-        />
-
-        <GridInputRow
-          label="Costs"
-          sublabel="(Short)"
-          values={costs}
-          onChange={handleCostChange}
-          onKeyDown={handleKeyDown}
-          rowIndex={1}
-          monthCount={12}
-          inputRefs={inputRefs.current}
-          refStartIndex={12}
-          formatValue={formatNumber}
-          onFocus={(e) => {
-            if (!e.target.value) {
-              e.target.value = '-';
-            }
-          }}
-        />
-
-        <GridInputRow
-          label="Forecast Exposures"
-          sublabel="Long/(Short)"
-          values={forecasts}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={2}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={24}
-          formatValue={formatNumber}
-          readOnly
-        />
-
-        <GridInputRow
-          label="Hedged Exposure"
-          sublabel="Long/(Short)"
-          values={hedgedExposures}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={3}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={36}
-          formatValue={formatNumber}
-          readOnly
-        />
-
-        <GridInputRow
-          label="Hedge Layer Amount"
-          sublabel="Buy/(Sell)"
-          values={hedgeAmounts}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={4}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={48}
-          formatValue={formatNumber}
-          readOnly
-        />
-
-        <GridInputRow
-          label="Indicative Coverage %"
-          sublabel=""
-          values={indicativeCoverage}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={5}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={60}
-          formatValue={formatPercentage}
-          readOnly
-        />
-
-        <GridInputRow
-          label="Cum. Layer Amount"
-          sublabel=""
-          values={cumulativeAmounts}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={6}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={72}
-          formatValue={formatNumber}
-          readOnly
-        />
-
-        <GridInputRow
-          label="Cum. Indicative Coverage %"
-          sublabel=""
-          values={cumulativeCoverage}
-          onChange={() => {}}
-          onKeyDown={() => {}}
-          rowIndex={7}
-          monthCount={12}
-          inputRefs={[]}
-          refStartIndex={84}
-          formatValue={formatPercentage}
-          readOnly
-        />
+        {loading ? (
+          <div className="flex items-center justify-center p-4">
+            <span className="text-sm text-gray-500">Loading hedge layer data...</span>
+          </div>
+        ) : (
+          <ExposureGrid
+            months={Object.keys(revenues)}
+            revenues={revenues}
+            costs={costs}
+            forecasts={forecasts}
+            hedgedExposures={hedgedExposures}
+            hedgeAmounts={hedgeAmounts}
+            indicativeCoverage={indicativeCoverage}
+            cumulativeAmounts={cumulativeAmounts}
+            cumulativeCoverage={cumulativeCoverage}
+            onRevenueChange={handleRevenueChange}
+            onCostChange={handleCostChange}
+            onKeyDown={handleKeyDown}
+            inputRefs={inputRefs.current}
+          />
+        )}
       </div>
     </div>
   );
-};
+});
+
+ExposureDetailsSection.displayName = "ExposureDetailsSection";
 
 export default ExposureDetailsSection;

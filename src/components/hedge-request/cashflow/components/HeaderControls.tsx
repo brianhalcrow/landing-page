@@ -1,26 +1,29 @@
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { format, addMonths } from "date-fns";
+import { format, differenceInMonths } from "date-fns";
 import { useState, useEffect } from "react";
+import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
+import { toast } from "sonner";
 
 interface HeaderControlsProps {
-  hedgeLayer: string;
-  hedgeRatio: string;
   selectedDate: Date | undefined;
-  onHedgeLayerChange: (value: string) => void;
-  onHedgeRatioChange: (value: string) => void;
-  onDateChange: (date: Date | undefined) => void;
+  hedgeLayer?: string;
+  hedgeRatio?: string;
+  selectedLayerNumber?: number;
+  onLayerChange?: (value: number) => void;
+  onHedgeLayerChange?: (value: string) => void;
+  onHedgeRatioChange?: (value: string) => void;
+  onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
 }
 
 export const HeaderControls = ({
+  selectedDate,
   hedgeLayer,
   hedgeRatio,
-  selectedDate,
+  selectedLayerNumber,
+  onLayerChange,
   onHedgeLayerChange,
   onHedgeRatioChange,
-  onDateChange
+  onDateChange,
 }: HeaderControlsProps) => {
   const [startInputValue, setStartInputValue] = useState('');
   const [endInputValue, setEndInputValue] = useState('');
@@ -35,24 +38,39 @@ export const HeaderControls = ({
     return digitsOnly;
   };
 
+  const validateDateRange = (startDate: Date | undefined, endDate: Date | undefined): boolean => {
+    if (!startDate || !endDate) return true;
+    
+    const monthsDiff = differenceInMonths(endDate, startDate);
+    if (monthsDiff < 0) {
+      toast.error("End date must be after start date");
+      return false;
+    }
+    if (monthsDiff > 11) {
+      toast.error("Date range cannot exceed 12 months");
+      return false;
+    }
+    return true;
+  };
+
   const handleStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     const formattedValue = formatMonthInput(raw);
     setStartInputValue(formattedValue);
     
     if (formattedValue.length === 5) {
-      const [month, year] = formattedValue.split('-');
-      const startDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
-      onDateChange(startDate);
-      
-      // Calculate and set end date (11 months later)
-      const endDate = addMonths(startDate, 11);
-      const endMonth = format(endDate, 'MM');
-      const endYear = format(endDate, 'yy');
-      setEndInputValue(`${endMonth}-${endYear}`);
-    } else {
-      onDateChange(undefined);
-      setEndInputValue('');
+      const dbStartDate = convertToDBDate(formattedValue);
+      if (dbStartDate) {
+        const startDate = new Date(dbStartDate);
+        const dbEndDate = endInputValue.length === 5 ? convertToDBDate(endInputValue) : null;
+        const endDate = dbEndDate ? new Date(dbEndDate) : undefined;
+        
+        if (validateDateRange(startDate, endDate)) {
+          onDateChange(startDate, endDate);
+        }
+      }
+    } else if (!formattedValue) {
+      onDateChange(undefined, undefined);
     }
   };
 
@@ -60,36 +78,44 @@ export const HeaderControls = ({
     const raw = e.target.value;
     const formattedValue = formatMonthInput(raw);
     setEndInputValue(formattedValue);
+    
+    if (formattedValue.length === 5) {
+      const dbEndDate = convertToDBDate(formattedValue);
+      if (dbEndDate) {
+        const endDate = new Date(dbEndDate);
+        const dbStartDate = convertToDBDate(startInputValue);
+        const startDate = dbStartDate ? new Date(dbStartDate) : undefined;
+        
+        if (validateDateRange(startDate, endDate)) {
+          onDateChange(startDate, endDate);
+        }
+      }
+    } else if (!formattedValue) {
+      onDateChange(selectedDate, undefined);
+    }
   };
 
-  // Update end date when selected date changes
   useEffect(() => {
     if (selectedDate) {
-      const endDate = addMonths(selectedDate, 11);
-      const endMonth = format(endDate, 'MM');
-      const endYear = format(endDate, 'yy');
-      setEndInputValue(`${endMonth}-${endYear}`);
+      setStartInputValue(format(selectedDate, 'MM-yy'));
     }
   }, [selectedDate]);
 
   return (
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
       <div></div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Layer Number</label>
-        <Select>
-          <SelectTrigger className="text-left">
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">1</SelectItem>
-            <SelectItem value="2">2</SelectItem>
-            <SelectItem value="3">3</SelectItem>
-            <SelectItem value="4">4</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
+      {selectedLayerNumber !== undefined && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Layer</label>
+          <Input 
+            type="number" 
+            value={selectedLayerNumber}
+            onChange={(e) => onLayerChange?.(parseInt(e.target.value))}
+            min={1}
+            className="text-right w-full"
+          />
+        </div>
+      )}
       <div className="space-y-2">
         <label className="text-sm font-medium">Start</label>
         <Input 
@@ -98,10 +124,9 @@ export const HeaderControls = ({
           maxLength={5} 
           onChange={handleStartMonthChange} 
           value={startInputValue} 
-          className="text-left" 
+          className="text-left w-full"
         />
       </div>
-
       <div className="space-y-2">
         <label className="text-sm font-medium">End</label>
         <Input 
@@ -110,41 +135,33 @@ export const HeaderControls = ({
           maxLength={5}
           value={endInputValue}
           onChange={handleEndMonthChange}
-          className="text-left"
+          className="text-left w-full"
         />
       </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Layer %</label>
-        <div className="relative">
+      {hedgeRatio !== undefined && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Ratio %</label>
           <Input 
-            type="number" 
-            value={hedgeLayer} 
-            onChange={e => onHedgeLayerChange(e.target.value)} 
-            placeholder="Enter %" 
-            min="0" 
-            max="100" 
-            step="1" 
-            className="pr-0" 
+            type="text"
+            value={hedgeRatio}
+            onChange={(e) => onHedgeRatioChange?.(e.target.value)}
+            placeholder="0.00"
+            className="text-right w-full"
           />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Hedge Ratio %</label>
-        <div className="relative">
+      )}
+      {hedgeLayer !== undefined && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Coverage %</label>
           <Input 
-            type="number" 
-            value={hedgeRatio} 
-            onChange={e => onHedgeRatioChange(e.target.value)} 
-            placeholder="Enter %" 
-            min="0" 
-            max="100" 
-            step="1" 
-            className="pr-0" 
+            type="text"
+            value={hedgeLayer}
+            onChange={(e) => onHedgeLayerChange?.(e.target.value)}
+            placeholder="0.00"
+            className="text-right w-full"
           />
         </div>
-      </div>
+      )}
     </div>
   );
 };
