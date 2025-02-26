@@ -1,4 +1,3 @@
-
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
@@ -12,7 +11,7 @@ interface ExposureDetailsSectionProps {
 }
 
 const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [revenues, setRevenues] = useState<Record<number, number>>({});
   const [costs, setCosts] = useState<Record<number, number>>({});
   const [forecasts, setForecasts] = useState<Record<number, number>>({});
@@ -154,9 +153,14 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
   };
 
   useEffect(() => {
+    const startMonth = selectedDate ? format(selectedDate, 'MM-yy') : '';
+    const endMonth = selectedDate ? format(addMonths(selectedDate, 11), 'MM-yy') : '';
+    
+    console.log('Updating parent with dates:', { startMonth, endMonth });
+    
     onChange?.({
-      start_month: selectedDate ? format(selectedDate, 'MM-yy') : '',
-      end_month: selectedDate ? format(addMonths(selectedDate, 11), 'MM-yy') : ''
+      start_month: startMonth,
+      end_month: endMonth
     });
   }, [selectedDate, onChange]);
 
