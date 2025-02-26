@@ -62,8 +62,8 @@ const HedgingInstrumentSection = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-5 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-6 gap-4">
+        <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium">Instrument Type</label>
           <Input 
             type="text" 
@@ -73,7 +73,7 @@ const HedgingInstrumentSection = ({
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium">Forward Element Designation</label>
           <Select 
             value={forwardElement} 
@@ -89,7 +89,7 @@ const HedgingInstrumentSection = ({
           </Select>
         </div>
 
-        <div className="space-y-2">
+        <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium">Foreign Currency Basis Spreads</label>
           <Select 
             value={currencyBasis} 
