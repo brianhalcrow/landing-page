@@ -1,4 +1,3 @@
-
 import { forwardRef, useRef, useState } from "react";
 import { format, differenceInMonths, addMonths } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
@@ -66,7 +65,7 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
       }
     };
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
       const currentInput = event.currentTarget;
       
       switch (event.key) {

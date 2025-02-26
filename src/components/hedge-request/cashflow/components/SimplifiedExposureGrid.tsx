@@ -1,5 +1,5 @@
 
-import { KeyboardEvent } from 'react';
+import React from 'react';
 import { GridInputRow } from './GridInputRow';
 import { formatNumber } from '../utils/calculations';
 
@@ -10,7 +10,7 @@ interface SimplifiedExposureGridProps {
   forecasts: Record<number, number>;
   onRevenueChange: (index: number, value: string) => void;
   onCostChange: (index: number, value: string) => void;
-  onKeyDown: (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => void;
   inputRefs: (HTMLInputElement | null)[];
 }
 

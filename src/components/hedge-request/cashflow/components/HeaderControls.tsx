@@ -1,17 +1,29 @@
 
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { format, differenceInMonths } from "date-fns";
 import { useState, useEffect } from "react";
 import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
 import { toast } from "sonner";
 
 interface HeaderControlsProps {
   selectedDate: Date | undefined;
+  hedgeLayer?: string;
+  hedgeRatio?: string;
+  selectedLayerNumber?: number;
+  onLayerChange?: (value: number) => void;
+  onHedgeLayerChange?: (value: string) => void;
+  onHedgeRatioChange?: (value: string) => void;
   onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
 }
 
 export const HeaderControls = ({
   selectedDate,
+  hedgeLayer,
+  hedgeRatio,
+  selectedLayerNumber,
+  onLayerChange,
+  onHedgeLayerChange,
+  onHedgeRatioChange,
   onDateChange,
 }: HeaderControlsProps) => {
   const [startInputValue, setStartInputValue] = useState('');
