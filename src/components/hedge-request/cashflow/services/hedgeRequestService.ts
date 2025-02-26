@@ -21,7 +21,7 @@ export const saveDraft = async (hedgeRequest: NewHedgeRequest | ExistingHedgeReq
   console.log('Starting save draft operation for hedge request');
   
   try {
-    const hedgeId = ('hedge_id' in hedgeRequest) ? hedgeRequest.hedge_id : undefined;
+    const hedgeId = 'hedge_id' in hedgeRequest ? hedgeRequest.hedge_id : undefined;
     
     // Check if record exists (only if we have a hedge_id)
     const exists = hedgeId ? await checkHedgeIdExists(hedgeId) : false;
@@ -29,18 +29,20 @@ export const saveDraft = async (hedgeRequest: NewHedgeRequest | ExistingHedgeReq
     let result;
     if (exists) {
       console.log('Updating existing draft:', hedgeId);
+      // For updates, we know it's an ExistingHedgeRequest
       const { error } = await supabase
         .from('hedge_accounting_requests')
-        .update(hedgeRequest)
+        .update(hedgeRequest as ExistingHedgeRequest)
         .eq('hedge_id', hedgeId);
         
       if (error) throw error;
       result = { hedge_id: hedgeId };
     } else {
       console.log('Creating new draft');
+      // For inserts, we use NewHedgeRequest type which doesn't include hedge_id
       const { data, error } = await supabase
         .from('hedge_accounting_requests')
-        .insert(hedgeRequest)
+        .insert(hedgeRequest as NewHedgeRequest)
         .select('hedge_id')
         .single();
         

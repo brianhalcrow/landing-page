@@ -56,8 +56,8 @@ interface BaseHedgeRequest {
 // Type for database records (includes all fields)
 export interface HedgeAccountingRequest extends BaseHedgeRequest, DatabaseFields {}
 
-// Type for new hedge requests (hedge_id is optional)
-export type NewHedgeRequest = Omit<HedgeAccountingRequest, 'hedge_id'> & { hedge_id?: string };
+// Type for new hedge requests (no database fields)
+export type NewHedgeRequest = BaseHedgeRequest;
 
-// Type for existing hedge requests (hedge_id is required)
+// Type for existing hedge requests (all fields required)
 export type ExistingHedgeRequest = HedgeAccountingRequest;
