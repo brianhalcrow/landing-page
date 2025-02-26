@@ -11,8 +11,10 @@ import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import type { HedgeAccountingRequest } from "./types";
+import { useEffect, useState } from "react";
 
 const CashflowHedgeForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const {
     minimizedSections,
     toggleSection,
@@ -34,59 +36,78 @@ const CashflowHedgeForm = () => {
 
   const { handleSaveDraft } = useFormSubmission(setHedgeId);
 
-  const handleLoadDraft = (draft: HedgeAccountingRequest) => {
+  // Debug useEffect for each section
+  useEffect(() => {
+    console.log('General Info updated:', generalInfo);
+  }, [generalInfo]);
+
+  useEffect(() => {
+    console.log('Hedging Instrument updated:', hedgingInstrument);
+  }, [hedgingInstrument]);
+
+  useEffect(() => {
+    console.log('Risk Management updated:', riskManagement);
+  }, [riskManagement]);
+
+  useEffect(() => {
+    console.log('Hedged Item updated:', hedgedItem);
+  }, [hedgedItem]);
+
+  useEffect(() => {
+    console.log('Assessment Monitoring updated:', assessmentMonitoring);
+  }, [assessmentMonitoring]);
+
+  const handleLoadDraft = async (draft: HedgeAccountingRequest) => {
     try {
-      const updatedGeneralInfo = {
-        entity_id: draft.entity_id,
-        entity_name: draft.entity_name,
-        cost_centre: draft.cost_centre,
-        transaction_currency: draft.transaction_currency,
-        documentation_date: draft.documentation_date,
-        exposure_category_l1: draft.exposure_category_l1,
-        exposure_category_l2: draft.exposure_category_l2,
-        exposure_category_l3: draft.exposure_category_l3,
-        strategy: draft.strategy,
-        hedging_entity: draft.hedging_entity,
-        hedging_entity_fccy: draft.hedging_entity_fccy,
-        functional_currency: draft.functional_currency
-      };
+      setIsLoading(true);
+      console.log('Loading draft data:', draft);
 
-      const updatedHedgingInstrument = {
-        instrument: draft.instrument,
-        forward_element_designation: draft.forward_element_designation,
-        currency_basis_spreads: draft.currency_basis_spreads,
-        hedging_instrument_description: draft.hedging_instrument_description
-      };
-
-      const updatedRiskManagement = {
-        risk_management_description: draft.risk_management_description
-      };
-
-      const updatedHedgedItem = {
-        hedged_item_description: draft.hedged_item_description
-      };
-
-      const updatedAssessmentMonitoring = {
-        credit_risk_impact: draft.credit_risk_impact,
-        oci_reclassification_approach: draft.oci_reclassification_approach,
-        economic_relationship: draft.economic_relationship,
-        discontinuation_criteria: draft.discontinuation_criteria,
-        effectiveness_testing_method: draft.effectiveness_testing_method,
-        testing_frequency: draft.testing_frequency,
-        assessment_details: draft.assessment_details
-      };
-
-      setHedgeId(draft.hedge_id);
-      setGeneralInfo(updatedGeneralInfo);
-      setHedgingInstrument(updatedHedgingInstrument);
-      setRiskManagement(updatedRiskManagement);
-      setHedgedItem(updatedHedgedItem);
-      setAssessmentMonitoring(updatedAssessmentMonitoring);
+      // Update all form sections sequentially
+      await Promise.all([
+        setHedgeId(draft.hedge_id),
+        setGeneralInfo({
+          entity_id: draft.entity_id,
+          entity_name: draft.entity_name,
+          cost_centre: draft.cost_centre,
+          transaction_currency: draft.transaction_currency,
+          documentation_date: draft.documentation_date,
+          exposure_category_l1: draft.exposure_category_l1,
+          exposure_category_l2: draft.exposure_category_l2,
+          exposure_category_l3: draft.exposure_category_l3,
+          strategy: draft.strategy,
+          hedging_entity: draft.hedging_entity,
+          hedging_entity_fccy: draft.hedging_entity_fccy,
+          functional_currency: draft.functional_currency
+        }),
+        setHedgingInstrument({
+          instrument: draft.instrument,
+          forward_element_designation: draft.forward_element_designation,
+          currency_basis_spreads: draft.currency_basis_spreads,
+          hedging_instrument_description: draft.hedging_instrument_description
+        }),
+        setRiskManagement({
+          risk_management_description: draft.risk_management_description
+        }),
+        setHedgedItem({
+          hedged_item_description: draft.hedged_item_description
+        }),
+        setAssessmentMonitoring({
+          credit_risk_impact: draft.credit_risk_impact,
+          oci_reclassification_approach: draft.oci_reclassification_approach,
+          economic_relationship: draft.economic_relationship,
+          discontinuation_criteria: draft.discontinuation_criteria,
+          effectiveness_testing_method: draft.effectiveness_testing_method,
+          testing_frequency: draft.testing_frequency,
+          assessment_details: draft.assessment_details
+        })
+      ]);
 
       toast.success('Draft loaded successfully');
     } catch (error) {
       console.error('Error loading draft:', error);
       toast.error('Failed to load draft');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,6 +116,10 @@ const CashflowHedgeForm = () => {
   const handleSubmit = () => {
     // Submit functionality will be implemented later
   };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-full">Loading draft...</div>;
+  }
 
   return (
     <div className="max-w-[1525px] mx-auto px-4 space-y-6">

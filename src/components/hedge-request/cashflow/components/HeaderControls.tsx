@@ -2,8 +2,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { useState } from "react";
+import { format, addMonths } from "date-fns";
+import { useState, useEffect } from "react";
 
 interface HeaderControlsProps {
   hedgeLayer: string;
@@ -50,6 +50,16 @@ export const HeaderControls = ({
     }
   };
 
+  // Update end date when selected date changes
+  useEffect(() => {
+    if (selectedDate) {
+      const endDate = addMonths(selectedDate, 11);
+      const endMonth = format(endDate, 'MM');
+      const endYear = format(endDate, 'yy');
+      setEndInputValue(`${endMonth}-${endYear}`);
+    }
+  }, [selectedDate]);
+
   return (
     <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2 mb-6">
       <div></div>
@@ -87,8 +97,8 @@ export const HeaderControls = ({
           placeholder="MMYY" 
           maxLength={5}
           value={endInputValue}
-          disabled
-          className="text-left bg-gray-100"
+          readOnly
+          className="text-left bg-gray-50 cursor-not-allowed"
         />
       </div>
 
