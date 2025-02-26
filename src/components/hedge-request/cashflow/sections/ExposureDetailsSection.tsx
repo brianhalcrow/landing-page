@@ -1,10 +1,16 @@
-import { forwardRef, useImperativeHandle, KeyboardEvent, useRef, useState } from "react";
-import { addMonths, format, differenceInMonths } from "date-fns";
-import type { ExposureDetailsData } from "../types";
-import { HeaderControls } from "../components/HeaderControls";
+
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { format } from "date-fns";
 import { ExposureGrid } from "../components/ExposureGrid";
 import { useExposureCalculations } from "../hooks/useExposureCalculations";
+import { LayerControls } from "../components/LayerControls";
+import { useGridInputHandler } from "../components/GridInputHandler";
 import type { HedgeLayerDetails } from "../types/hedge-layer";
+
+interface ExposureDetailsData {
+  start_month: string;
+  end_month: string;
+}
 
 interface ExposureDetailsSectionProps {
   value?: ExposureDetailsData;
@@ -24,7 +30,6 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
   hedgeId 
 }, ref) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [selectedLayer, setSelectedLayer] = useState<number>(1);
   const [endDate, setEndDate] = useState<Date>();
 
   const {
@@ -48,6 +53,8 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
     getCurrentLayerData
   } = useExposureCalculations(hedgeId);
 
+  const { handleKeyDown } = useGridInputHandler({ inputRefs });
+
   useImperativeHandle(ref, () => ({
     getCurrentLayerData: () => {
       if (!selectedDate || !hedgeId) return null;
@@ -58,44 +65,10 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
       return {
         ...baseData,
         hedge_id: hedgeId,
-        layer_number: selectedLayer
+        layer_number: 1  // Default to first layer
       };
     }
   }));
-
-  const getMonths = (startDate: Date | undefined, endDate: Date | undefined) => {
-    if (!startDate || !endDate) return [];
-    
-    const monthDiff = differenceInMonths(endDate, startDate);
-    const numMonths = Math.min(monthDiff + 1, 12);
-    
-    return Array.from({ length: numMonths }, (_, i) => {
-      const date = addMonths(startDate, i);
-      return format(date, 'MM-yy');
-    });
-  };
-
-  const handleHedgeRatioChange = (value: string) => {
-    if (value === '') {
-      setHedgeRatio('');
-      return;
-    }
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setHedgeRatio(String(Math.min(100, numericValue)));
-    }
-  };
-
-  const handleHedgeLayerChange = (value: string) => {
-    if (value === '') {
-      setHedgeLayer('');
-      return;
-    }
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setHedgeLayer(String(Math.min(100, numericValue)));
-    }
-  };
 
   const handleRevenueChange = (index: number, value: string) => {
     const numericValue = parseFloat(value.replace(/,/g, ''));
@@ -118,64 +91,29 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
     }
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, rowIndex: number, colIndex: number) => {
-    const currentInput = event.currentTarget;
-    
-    switch (event.key) {
-      case 'ArrowUp':
-        event.preventDefault();
-        const upInput = inputRefs.current[colIndex];
-        if (upInput) upInput.focus();
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        const downInput = inputRefs.current[colIndex + 12];
-        if (downInput) downInput.focus();
-        break;
-      case 'ArrowLeft':
-        if (currentInput.selectionStart === 0) {
-          event.preventDefault();
-          const prevInput = inputRefs.current[rowIndex * 12 + colIndex - 1];
-          if (prevInput) prevInput.focus();
-        }
-        break;
-      case 'ArrowRight':
-        if (currentInput.selectionStart === currentInput.value.length) {
-          event.preventDefault();
-          const nextInput = inputRefs.current[rowIndex * 12 + colIndex + 1];
-          if (nextInput) nextInput.focus();
-        }
-        break;
-    }
-  };
-
   const handleLayerChange = (value: number) => {
-    setSelectedLayer(value);
     setRevenues({});
     setCosts({});
     setHedgeRatio('');
     setHedgeLayer('');
   };
 
-  const months = getMonths(selectedDate, endDate);
-
   return (
     <div className="space-y-6">
-      <HeaderControls
+      <LayerControls
         hedgeLayer={hedgeLayer}
         hedgeRatio={hedgeRatio}
         selectedDate={selectedDate}
-        selectedLayerNumber={selectedLayer}
         onLayerChange={handleLayerChange}
-        onHedgeLayerChange={handleHedgeLayerChange}
-        onHedgeRatioChange={handleHedgeRatioChange}
+        onHedgeLayerChange={setHedgeLayer}
+        onHedgeRatioChange={setHedgeRatio}
         onDateChange={(startDate, endDate) => {
           setSelectedDate(startDate);
           setEndDate(endDate);
-          if (onChange) {
+          if (onChange && startDate && endDate) {
             onChange({
-              start_month: startDate ? format(startDate, 'yyyy-MM-dd') : '',
-              end_month: endDate ? format(endDate, 'yyyy-MM-dd') : ''
+              start_month: format(startDate, 'yyyy-MM-dd'),
+              end_month: format(endDate, 'yyyy-MM-dd')
             });
           }
         }}
@@ -188,7 +126,7 @@ const ExposureDetailsSection = forwardRef<ExposureDetailsSectionRef, ExposureDet
           </div>
         ) : (
           <ExposureGrid
-            months={months}
+            months={Object.keys(revenues)}
             revenues={revenues}
             costs={costs}
             forecasts={forecasts}
