@@ -1,6 +1,6 @@
 
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
-import { DateInput } from '../components/DocumentationDateInput';
+import { DocumentationDateInput } from '../components/DocumentationDateInput';
 import { ExposureGrid } from '../components/ExposureGrid';
 import { useExposureConfig } from '../hooks/useExposureConfig';
 import { useExposureCalculations } from '../hooks/useExposureCalculations';
@@ -22,24 +22,29 @@ interface ExposureDetailsSectionProps {
 export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => HedgeLayerDetails | null }, ExposureDetailsSectionProps>(
   ({ value, onChange, documentationDate, hedgeId }, ref) => {
     const exposureConfig = useExposureConfig();
-    const calculations = useExposureCalculations(hedgeId);
+    const calculations = useExposureCalculations(hedgeId || '');
 
     useImperativeHandle(ref, () => ({
       getCurrentLayerData: () => {
         console.log('Getting current layer data...');
         const data = calculations.getCurrentLayerData();
         if (data && hedgeId) {
-          data.hedge_id = hedgeId;
+          const layerDetails: HedgeLayerDetails = {
+            ...data,
+            hedge_id: hedgeId,
+            layer_number: 1, // You might want to make this dynamic based on your needs
+          };
           // Attempt to save the layer details immediately
-          saveHedgeLayerDetails(data).then(success => {
+          saveHedgeLayerDetails(layerDetails).then(success => {
             if (success) {
               console.log('Successfully saved layer details');
             } else {
               console.error('Failed to save layer details');
             }
           });
+          return layerDetails;
         }
-        return data;
+        return null;
       }
     }));
 
@@ -47,7 +52,7 @@ export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => He
       if (documentationDate) {
         calculations.setSelectedDate(new Date(documentationDate));
       }
-    }, [documentationDate]);
+    }, [documentationDate, calculations]);
 
     const handleStartMonthChange = (date: Date | null) => {
       onChange({
@@ -73,28 +78,38 @@ export const ExposureDetailsSection = forwardRef<{ getCurrentLayerData: () => He
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <DateInput
+            <DocumentationDateInput
               label="Start Month"
-              value={value.start_month ? new Date(value.start_month) : null}
-              onChange={handleStartMonthChange}
+              documentDate={value.start_month || ''}
+              onDateChange={(newDate) => handleStartMonthChange(newDate ? new Date(newDate) : null)}
             />
           </div>
           <div>
-            <DateInput
+            <DocumentationDateInput
               label="End Month"
-              value={value.end_month ? new Date(value.end_month) : null}
-              onChange={handleEndMonthChange}
-              minDate={value.start_month ? new Date(value.start_month) : undefined}
+              documentDate={value.end_month || ''}
+              onDateChange={(newDate) => handleEndMonthChange(newDate ? new Date(newDate) : null)}
             />
           </div>
         </div>
 
-        {value.start_month && value.end_month && (
+        {value.start_month && value.end_month && exposureConfig.data && (
           <ExposureGrid
-            config={exposureConfig}
-            startMonth={new Date(value.start_month)}
-            endMonth={new Date(value.end_month)}
-            calculations={calculations}
+            months={calculations.months}
+            revenues={calculations.revenues}
+            costs={calculations.costs}
+            forecasts={calculations.forecasts}
+            hedgedExposures={calculations.hedgedExposures}
+            hedgeAmounts={calculations.hedgeAmounts}
+            indicativeCoverage={calculations.indicativeCoverage}
+            cumulativeAmounts={calculations.cumulativeAmounts}
+            cumulativeCoverage={calculations.cumulativeCoverage}
+            onRevenueChange={calculations.setRevenue}
+            onCostChange={calculations.setCost}
+            onKeyDown={(event, rowIndex, colIndex) => {
+              // Handle key down events
+            }}
+            inputRefs={[]}
           />
         )}
       </div>
