@@ -58,7 +58,6 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
       runningAmount += newHedgeAmounts[i] || 0;
       newCumulativeAmounts[i] = runningAmount;
       
-      // Calculate cumulative coverage as a percentage of total forecast
       const totalForecast = forecasts[i] || 0;
       newCumulativeCoverage[i] = totalForecast !== 0 ? (runningAmount / totalForecast) * 100 : 0;
     });
@@ -66,18 +65,6 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
     setCumulativeAmounts(newCumulativeAmounts);
     setCumulativeCoverage(newCumulativeCoverage);
   }, [forecasts, hedgeRatio, hedgeLayer]);
-
-  useEffect(() => {
-    if (value) {
-      console.log('ExposureDetails - Updating from props:', value);
-      if (value.start_month) {
-        const [month, year] = value.start_month.split('-').map(Number);
-        if (!isNaN(month) && !isNaN(year)) {
-          setSelectedDate(new Date(2000 + year, month - 1));
-        }
-      }
-    }
-  }, [value]);
 
   const handleHedgeRatioChange = (value: string) => {
     if (value === '') {
@@ -152,18 +139,6 @@ const ExposureDetailsSection = ({ value, onChange }: ExposureDetailsSectionProps
         break;
     }
   };
-
-  useEffect(() => {
-    const startMonth = selectedDate ? format(selectedDate, 'MM-yy') : '';
-    const endMonth = selectedDate ? format(addMonths(selectedDate, 11), 'MM-yy') : '';
-    
-    console.log('Updating parent with dates:', { startMonth, endMonth });
-    
-    onChange?.({
-      start_month: startMonth,
-      end_month: endMonth
-    });
-  }, [selectedDate, onChange]);
 
   return (
     <div className="space-y-6">
