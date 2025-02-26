@@ -1,11 +1,10 @@
-import { useState, useEffect, KeyboardEvent, useRef } from "react";
+
+import { useRef, KeyboardEvent } from "react";
 import { addMonths, format } from "date-fns";
 import type { ExposureDetailsData } from "../types";
 import { HeaderControls } from "../components/HeaderControls";
-import { GridInputRow } from "../components/GridInputRow";
-import { calculateForecasts, calculateHedgeValues, formatNumber, formatPercentage } from "../utils/calculations";
-import { useHedgeLayer } from "../hooks/useHedgeLayer";
-import { toast } from "sonner";
+import { ExposureGrid } from "../components/ExposureGrid";
+import { useExposureCalculations } from "../hooks/useExposureCalculations";
 
 interface ExposureDetailsSectionProps {
   value?: ExposureDetailsData;
@@ -20,26 +19,27 @@ const ExposureDetailsSection = ({
   documentationDate,
   hedgeId 
 }: ExposureDetailsSectionProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [revenues, setRevenues] = useState<Record<number, number>>({});
-  const [costs, setCosts] = useState<Record<number, number>>({});
-  const [forecasts, setForecasts] = useState<Record<number, number>>({});
-  const [hedgeRatio, setHedgeRatio] = useState<string>('');
-  const [hedgeLayer, setHedgeLayer] = useState<string>('');
-  const [hedgeAmounts, setHedgeAmounts] = useState<Record<number, number>>({});
-  const [hedgedExposures, setHedgedExposures] = useState<Record<number, number>>({});
-  const [indicativeCoverage, setIndicativeCoverage] = useState<Record<number, number>>({});
-  const [cumulativeAmounts, setCumulativeAmounts] = useState<Record<number, number>>({});
-  const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const { layers, loading, loadLayers, saveLayer } = useHedgeLayer(hedgeId || '');
-
-  useEffect(() => {
-    if (hedgeId) {
-      loadLayers().catch(console.error);
-    }
-  }, [hedgeId, loadLayers]);
+  
+  const {
+    revenues,
+    setRevenues,
+    costs,
+    setCosts,
+    forecasts,
+    hedgeRatio,
+    setHedgeRatio,
+    hedgeLayer,
+    setHedgeLayer,
+    hedgeAmounts,
+    hedgedExposures,
+    indicativeCoverage,
+    cumulativeAmounts,
+    cumulativeCoverage,
+    selectedDate,
+    setSelectedDate,
+    loading
+  } = useExposureCalculations(hedgeId);
 
   const getMonths = (startDate: Date | undefined) => {
     const baseDate = startDate || new Date();
@@ -48,65 +48,6 @@ const ExposureDetailsSection = ({
       return format(date, 'MM-yy');
     });
   };
-
-  const months = getMonths(selectedDate);
-
-  useEffect(() => {
-    const newForecasts = calculateForecasts(revenues, costs);
-    setForecasts(newForecasts);
-  }, [revenues, costs]);
-
-  useEffect(() => {
-    const { hedgedExposures: newHedgedExposures, hedgeAmounts: newHedgeAmounts, indicativeCoverage: newIndicativeCoverage } = 
-      calculateHedgeValues(forecasts, hedgeRatio, hedgeLayer);
-
-    setHedgedExposures(newHedgedExposures);
-    setHedgeAmounts(newHedgeAmounts);
-    setIndicativeCoverage(newIndicativeCoverage);
-
-    let runningAmount = 0;
-    const newCumulativeAmounts: Record<number, number> = {};
-    const newCumulativeCoverage: Record<number, number> = {};
-
-    Object.keys(newHedgeAmounts).forEach((index) => {
-      const i = parseInt(index);
-      runningAmount += newHedgeAmounts[i] || 0;
-      newCumulativeAmounts[i] = runningAmount;
-      
-      const totalForecast = forecasts[i] || 0;
-      newCumulativeCoverage[i] = totalForecast !== 0 ? (runningAmount / totalForecast) * 100 : 0;
-    });
-
-    setCumulativeAmounts(newCumulativeAmounts);
-    setCumulativeCoverage(newCumulativeCoverage);
-
-    if (hedgeId && hedgeRatio && hedgeLayer) {
-      const layerData = {
-        hedge_id: hedgeId,
-        layer_number: 1,
-        layer_percentage: parseFloat(hedgeLayer),
-        hedge_ratio: parseFloat(hedgeRatio),
-        start_month: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '',
-        end_month: selectedDate ? format(addMonths(selectedDate, 11), 'yyyy-MM-dd') : '',
-        monthly_data: Object.keys(forecasts).map(index => ({
-          month_index: parseInt(index),
-          revenue: revenues[parseInt(index)] || 0,
-          costs: costs[parseInt(index)] || 0,
-          net_income: forecasts[parseInt(index)] || 0,
-          hedged_exposure: newHedgedExposures[parseInt(index)] || 0,
-          hedge_layer_amount: newHedgeAmounts[parseInt(index)] || 0,
-          indicative_coverage_percentage: newIndicativeCoverage[parseInt(index)] || 0,
-          cumulative_layer_amount: newCumulativeAmounts[parseInt(index)] || 0,
-          cumulative_coverage_percentage: newCumulativeCoverage[parseInt(index)] || 0
-        }))
-      };
-
-      saveLayer(layerData).catch(error => {
-        console.error('Error saving layer:', error);
-        toast.error('Failed to save hedge layer data');
-      });
-    }
-  }, [forecasts, hedgeRatio, hedgeLayer, hedgeId, selectedDate, saveLayer, revenues, costs]);
 
   const handleHedgeRatioChange = (value: string) => {
     if (value === '') {
@@ -182,133 +123,7 @@ const ExposureDetailsSection = ({
     }
   };
 
-  const renderGrid = () => (
-    <>
-      <div className="grid grid-cols-[200px_repeat(12,95px)] gap-2">
-        <div className="h-6"></div>
-        {Array(12).fill(null).map((_, index) => (
-          <div key={index} className="text-sm font-medium text-center">
-            {months[index]}
-          </div>
-        ))}
-      </div>
-
-      <GridInputRow
-        label="Revenues"
-        sublabel="Long"
-        values={revenues}
-        onChange={handleRevenueChange}
-        onKeyDown={handleKeyDown}
-        rowIndex={0}
-        monthCount={12}
-        inputRefs={inputRefs.current}
-        refStartIndex={0}
-        formatValue={formatNumber}
-      />
-
-      <GridInputRow
-        label="Costs"
-        sublabel="(Short)"
-        values={costs}
-        onChange={handleCostChange}
-        onKeyDown={handleKeyDown}
-        rowIndex={1}
-        monthCount={12}
-        inputRefs={inputRefs.current}
-        refStartIndex={12}
-        formatValue={formatNumber}
-        onFocus={(e) => {
-          if (!e.target.value) {
-            e.target.value = '-';
-          }
-        }}
-      />
-
-      <GridInputRow
-        label="Forecast Exposures"
-        sublabel="Long/(Short)"
-        values={forecasts}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={2}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={24}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Hedged Exposure"
-        sublabel="Long/(Short)"
-        values={hedgedExposures}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={3}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={36}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Hedge Layer Amount"
-        sublabel="Buy/(Sell)"
-        values={hedgeAmounts}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={4}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={48}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Indicative Coverage %"
-        sublabel=""
-        values={indicativeCoverage}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={5}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={60}
-        formatValue={formatPercentage}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Cum. Layer Amount"
-        sublabel=""
-        values={cumulativeAmounts}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={6}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={72}
-        formatValue={formatNumber}
-        readOnly
-      />
-
-      <GridInputRow
-        label="Cum. Indicative Coverage %"
-        sublabel=""
-        values={cumulativeCoverage}
-        onChange={() => {}}
-        onKeyDown={() => {}}
-        rowIndex={7}
-        monthCount={12}
-        inputRefs={[]}
-        refStartIndex={84}
-        formatValue={formatPercentage}
-        readOnly
-      />
-    </>
-  );
+  const months = getMonths(selectedDate);
 
   return (
     <div className="space-y-6">
@@ -334,7 +149,23 @@ const ExposureDetailsSection = ({
           <div className="flex items-center justify-center p-4">
             <span className="text-sm text-gray-500">Loading hedge layer data...</span>
           </div>
-        ) : renderGrid()}
+        ) : (
+          <ExposureGrid
+            months={months}
+            revenues={revenues}
+            costs={costs}
+            forecasts={forecasts}
+            hedgedExposures={hedgedExposures}
+            hedgeAmounts={hedgeAmounts}
+            indicativeCoverage={indicativeCoverage}
+            cumulativeAmounts={cumulativeAmounts}
+            cumulativeCoverage={cumulativeCoverage}
+            onRevenueChange={handleRevenueChange}
+            onCostChange={handleCostChange}
+            onKeyDown={handleKeyDown}
+            inputRefs={inputRefs.current}
+          />
+        )}
       </div>
     </div>
   );
