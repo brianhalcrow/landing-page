@@ -2,6 +2,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BaseHedgeRequest, ExistingHedgeRequest } from "../types";
 
+type HedgeStatus = "draft" | "submitted" | "reviewed" | "approved" | "rejected";
+
 // Type matching Supabase's expected structure
 interface SupabaseHedgeRequest {
   hedge_id?: string;
@@ -32,7 +34,7 @@ interface SupabaseHedgeRequest {
   assessment_details: string;
   start_month: string | null;
   end_month: string | null;
-  status: 'draft';
+  status: HedgeStatus;
   created_at?: string;
   updated_at?: string;
   created_by?: string;
@@ -72,10 +74,14 @@ export const saveDraft = async (hedgeRequest: BaseHedgeRequest | ExistingHedgeRe
     let result;
     if (exists) {
       console.log('Updating existing draft:', hedgeId);
-      // For updates, use the request as is with hedgeId
+      const updateData = {
+        ...hedgeRequest,
+        status: 'draft' as const
+      };
+      
       const { error } = await supabase
         .from('hedge_accounting_requests')
-        .update(hedgeRequest as SupabaseHedgeRequest)
+        .update(updateData)
         .eq('hedge_id', hedgeId);
         
       if (error) throw error;
@@ -84,18 +90,17 @@ export const saveDraft = async (hedgeRequest: BaseHedgeRequest | ExistingHedgeRe
       console.log('Creating new draft');
       
       // For new records, explicitly remove the hedge_id field if it exists
-      // TypeScript will remove it from hedgeRequest when spreading
       const { hedge_id, ...requestWithoutId } = hedgeRequest as any;
       
       // Create request with all required fields, without hedge_id
-      const supabaseRequest = {
+      const insertData = {
         ...requestWithoutId,
-        status: 'draft'
-      } as SupabaseHedgeRequest;
+        status: 'draft' as const
+      };
 
       const { data, error } = await supabase
         .from('hedge_accounting_requests')
-        .insert(supabaseRequest)
+        .insert(insertData)
         .select('hedge_id')
         .single();
         
@@ -111,7 +116,6 @@ export const saveDraft = async (hedgeRequest: BaseHedgeRequest | ExistingHedgeRe
   }
 };
 
-// If you need to retrieve hedge requests
 export const getHedgeRequest = async (hedgeId: string): Promise<SupabaseHedgeRequest | null> => {
   const { data, error } = await supabase
     .from('hedge_accounting_requests')
@@ -127,8 +131,7 @@ export const getHedgeRequest = async (hedgeId: string): Promise<SupabaseHedgeReq
   return data;
 };
 
-// If you need to list hedge requests (e.g., drafts)
-export const listHedgeRequests = async (status?: string): Promise<SupabaseHedgeRequest[]> => {
+export const listHedgeRequests = async (status?: HedgeStatus): Promise<SupabaseHedgeRequest[]> => {
   let query = supabase
     .from('hedge_accounting_requests')
     .select('*');
@@ -147,7 +150,6 @@ export const listHedgeRequests = async (status?: string): Promise<SupabaseHedgeR
   return data || [];
 };
 
-// If you need to delete a hedge request
 export const deleteHedgeRequest = async (hedgeId: string): Promise<void> => {
   const { error } = await supabase
     .from('hedge_accounting_requests')
