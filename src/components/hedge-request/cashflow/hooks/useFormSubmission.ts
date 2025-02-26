@@ -47,7 +47,6 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         ...assessmentMonitoring,
         status: 'draft' as const,
         updated_at: now,
-        created_at: now, // Add created_at field
         start_month: dbStartMonth,
         end_month: dbEndMonth
       };

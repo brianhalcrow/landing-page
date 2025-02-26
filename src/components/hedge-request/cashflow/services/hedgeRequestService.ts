@@ -49,17 +49,18 @@ export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
     let error;
     if (exists) {
       console.log('Updating existing draft with hedge_id:', hedgeRequest.hedge_id);
-      // Update existing draft
+      const { created_at, ...updateData } = hedgeRequest; // Remove created_at from update
+      // Update existing draft - only update relevant fields
       ({ error } = await supabase
         .from('hedge_accounting_requests')
         .update({
-          ...hedgeRequest,
+          ...updateData,
           updated_at: new Date().toISOString()
         })
         .eq('hedge_id', hedgeRequest.hedge_id));
     } else {
       console.log('Creating new draft with hedge_id:', hedgeRequest.hedge_id);
-      // Insert new draft
+      // Insert new draft with both timestamps
       ({ error } = await supabase
         .from('hedge_accounting_requests')
         .insert({
