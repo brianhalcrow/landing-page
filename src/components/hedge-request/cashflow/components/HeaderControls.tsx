@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format, addMonths } from "date-fns";
 import { useState, useEffect } from "react";
+import { convertToDBDate, convertToDisplayFormat } from "../utils/dateTransformations";
 
 interface HeaderControlsProps {
   hedgeLayer: string;
@@ -11,7 +12,7 @@ interface HeaderControlsProps {
   selectedDate: Date | undefined;
   onHedgeLayerChange: (value: string) => void;
   onHedgeRatioChange: (value: string) => void;
-  onDateChange: (date: Date | undefined) => void;
+  onDateChange: (date: Date | undefined, endDate: Date | undefined) => void;
 }
 
 export const HeaderControls = ({
@@ -41,22 +42,31 @@ export const HeaderControls = ({
     setStartInputValue(formattedValue);
     
     if (formattedValue.length === 5) {
-      const [month, year] = formattedValue.split('-');
-      const startDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
-      onDateChange(startDate);
+      const dbStartDate = convertToDBDate(formattedValue);
+      if (dbStartDate) {
+        const startDate = new Date(dbStartDate);
+        const endDate = addMonths(startDate, 11);
+        onDateChange(startDate, endDate);
+      } else {
+        onDateChange(undefined, undefined);
+        setEndInputValue('');
+      }
     } else {
-      onDateChange(undefined);
+      onDateChange(undefined, undefined);
       setEndInputValue('');
     }
   };
 
-  // Update end date only when selectedDate changes and is valid
   useEffect(() => {
     if (selectedDate) {
+      const displayStart = format(selectedDate, 'MM-yy');
       const endDate = addMonths(selectedDate, 11);
-      const endMonth = format(endDate, 'MM');
-      const endYear = format(endDate, 'yy');
-      setEndInputValue(`${endMonth}-${endYear}`);
+      const displayEnd = format(endDate, 'MM-yy');
+      setStartInputValue(displayStart);
+      setEndInputValue(displayEnd);
+    } else {
+      setStartInputValue('');
+      setEndInputValue('');
     }
   }, [selectedDate]);
 

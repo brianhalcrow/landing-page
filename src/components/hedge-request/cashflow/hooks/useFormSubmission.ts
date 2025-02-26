@@ -4,6 +4,7 @@ import { validateGeneralInfo } from "../utils/validation";
 import { generateHedgeId, saveDraft } from "../services/hedgeRequestService";
 import { GeneralInformationData } from "../types/general-information";
 import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
+import { convertToDBDate } from "../utils/dateTransformations";
 
 export const useFormSubmission = (setHedgeId: (id: string) => void) => {
   const { toast } = useToast();
@@ -34,6 +35,9 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
       const hedge_id = existingHedgeId || await generateHedgeId(generalInfo.entity_id, generalInfo.exposure_category_l1);
       const now = new Date().toISOString();
 
+      const dbStartMonth = convertToDBDate(exposureDetails.start_month);
+      const dbEndMonth = convertToDBDate(exposureDetails.end_month);
+
       const hedgeRequest = {
         hedge_id,
         ...generalInfo,
@@ -41,12 +45,11 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         ...hedgedItem,
         ...hedgingInstrument,
         ...assessmentMonitoring,
-        ...exposureDetails,
         status: 'draft' as const,
         created_at: existingHedgeId ? undefined : now,
         updated_at: now,
-        start_month: exposureDetails.start_month || "",
-        end_month: exposureDetails.end_month || ""
+        start_month: dbStartMonth,
+        end_month: dbEndMonth
       };
 
       await saveDraft(hedgeRequest);
