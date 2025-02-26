@@ -15,6 +15,10 @@ export const generateHedgeId = async (entityId: string, exposureCategoryL1: stri
       throw error;
     }
 
+    if (!data) {
+      throw new Error('No hedge ID was generated');
+    }
+
     console.log('Generated hedge ID:', data);
     return data;
   } catch (error) {
@@ -40,7 +44,7 @@ export const checkHedgeIdExists = async (hedgeId: string): Promise<boolean> => {
 };
 
 export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
-  console.log('Saving hedge request:', hedgeRequest);
+  console.log('Saving hedge request with ID:', hedgeRequest.hedge_id);
   
   try {
     // First check if this hedge_id already exists
@@ -60,19 +64,40 @@ export const saveDraft = async (hedgeRequest: HedgeAccountingRequest) => {
         .eq('hedge_id', hedgeRequest.hedge_id));
     } else {
       console.log('Creating new draft with hedge_id:', hedgeRequest.hedge_id);
-      // Insert new draft with both timestamps
-      ({ error } = await supabase
+      // Make sure we don't generate a new ID during insert
+      const { error: insertError } = await supabase
         .from('hedge_accounting_requests')
-        .insert({
+        .insert([{
           ...hedgeRequest,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        }));
+        }]);
+      error = insertError;
     }
 
     if (error) {
       console.error('Supabase error:', error);
       throw error;
+    }
+
+    // Double check the saved hedge_id
+    const { data: savedData, error: checkError } = await supabase
+      .from('hedge_accounting_requests')
+      .select('hedge_id')
+      .eq('hedge_id', hedgeRequest.hedge_id)
+      .single();
+
+    if (checkError) {
+      console.error('Error verifying saved hedge_id:', checkError);
+      throw checkError;
+    }
+
+    if (savedData.hedge_id !== hedgeRequest.hedge_id) {
+      console.error('Hedge ID mismatch:', { 
+        requested: hedgeRequest.hedge_id, 
+        saved: savedData.hedge_id 
+      });
+      throw new Error('Hedge ID mismatch detected');
     }
 
     return { success: true, hedgeId: hedgeRequest.hedge_id };
