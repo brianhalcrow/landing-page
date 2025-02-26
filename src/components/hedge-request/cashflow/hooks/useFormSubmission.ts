@@ -46,13 +46,14 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         ...hedgingInstrument,
         ...assessmentMonitoring,
         status: 'draft' as const,
-        created_at: existingHedgeId ? undefined : now,
         updated_at: now,
         start_month: dbStartMonth,
         end_month: dbEndMonth
       };
 
-      await saveDraft(hedgeRequest);
+      const result = await saveDraft(hedgeRequest);
+      
+      // Only set the hedge ID if this is a new draft
       if (!existingHedgeId) {
         setHedgeId(hedge_id);
       }
