@@ -21,9 +21,8 @@ interface DatabaseFields {
   reviewed_by?: string;
 }
 
-// Base type with common fields
+// Base type with common fields (for new hedge requests)
 export interface BaseHedgeRequest {
-  hedge_id?: string; // Make hedge_id optional in base type
   entity_id: string;
   entity_name: string;
   cost_centre: string;
@@ -54,11 +53,5 @@ export interface BaseHedgeRequest {
   status: 'draft';
 }
 
-// Type for database records (includes all fields)
-export interface HedgeAccountingRequest extends BaseHedgeRequest, DatabaseFields {}
-
-// Type for new hedge requests (no database fields)
-export type NewHedgeRequest = BaseHedgeRequest;
-
-// Type for existing hedge requests (all fields required)
-export type ExistingHedgeRequest = HedgeAccountingRequest;
+// Type for existing hedge requests (includes database fields)
+export type ExistingHedgeRequest = BaseHedgeRequest & DatabaseFields;
