@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   GeneralInformationData,
@@ -8,6 +7,14 @@ import {
   AssessmentMonitoringData,
   ExposureDetailsData
 } from '../types';
+
+export interface HedgeLayerState {
+  hedgeRatio: string;
+  hedgeLayerPercentage: string;
+  revenues: Record<number, number>;
+  costs: Record<number, number>;
+  selectedDate?: Date;
+}
 
 export const useFormState = () => {
   const [minimizedSections, setMinimizedSections] = useState<Record<string, boolean>>({
@@ -34,6 +41,14 @@ export const useFormState = () => {
     hedging_entity: "",
     hedging_entity_fccy: "",
     functional_currency: ""
+  });
+
+  const [hedgeLayerData, setHedgeLayerData] = useState<HedgeLayerState>({
+    hedgeRatio: '',
+    hedgeLayerPercentage: '',
+    revenues: {},
+    costs: {},
+    selectedDate: undefined
   });
 
   const [riskManagement, setRiskManagement] = useState<RiskManagementData>({
@@ -89,6 +104,8 @@ export const useFormState = () => {
     assessmentMonitoring,
     setAssessmentMonitoring,
     exposureDetails,
-    setExposureDetails
+    setExposureDetails,
+    hedgeLayerData,
+    setHedgeLayerData
   };
 };

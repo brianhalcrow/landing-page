@@ -1,14 +1,14 @@
 
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { validateGeneralInfo } from "../utils/validation";
 import { saveDraft } from "../services/hedgeRequestService";
+import { saveHedgeLayerDetails } from "../services/hedgeLayerService";
 import { GeneralInformationData } from "../types/general-information";
-import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData, BaseHedgeRequest } from "../types";
+import { HedgingInstrumentData, RiskManagementData, HedgedItemData, AssessmentMonitoringData, ExposureDetailsData } from "../types";
 import { convertToDBDate } from "../utils/dateTransformations";
+import type { HedgeLayerDetails } from "../types/hedge-layer";
 
 export const useFormSubmission = (setHedgeId: (id: string) => void) => {
-  const { toast } = useToast();
-
   const handleSaveDraft = async (
     generalInfo: GeneralInformationData,
     hedgingInstrument: HedgingInstrumentData,
@@ -16,7 +16,8 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
     hedgedItem: HedgedItemData,
     assessmentMonitoring: AssessmentMonitoringData,
     exposureDetails: ExposureDetailsData,
-    existingHedgeId?: string
+    existingHedgeId?: string,
+    hedgeLayerData?: HedgeLayerDetails
   ) => {
     console.log('Saving draft with general info:', generalInfo);
     const validationResult = validateGeneralInfo(generalInfo);
@@ -46,16 +47,30 @@ export const useFormSubmission = (setHedgeId: (id: string) => void) => {
         end_month: dbEndMonth,
       };
 
-      // Add hedge_id only if it exists (for updates)
       if (existingHedgeId) {
         Object.assign(hedgeRequest, { hedge_id: existingHedgeId });
       }
 
+      // Save hedge request first
       const result = await saveDraft(hedgeRequest);
+      const hedgeRequestId = result.hedgeId;
       
       // Only set the hedge ID if this is a new draft
-      if (!existingHedgeId && result.hedgeId) {
-        setHedgeId(result.hedgeId);
+      if (!existingHedgeId && hedgeRequestId) {
+        setHedgeId(hedgeRequestId);
+      }
+
+      // If we have hedge layer data and a valid hedge ID, save it
+      if (hedgeLayerData && hedgeRequestId) {
+        const layerData = {
+          ...hedgeLayerData,
+          hedge_id: hedgeRequestId
+        };
+        
+        const layerSaveResult = await saveHedgeLayerDetails(layerData);
+        if (!layerSaveResult) {
+          throw new Error('Failed to save hedge layer details');
+        }
       }
       
       toast({

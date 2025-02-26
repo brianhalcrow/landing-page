@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { calculateForecasts, calculateHedgeValues } from '../utils/calculations';
 import { format, addMonths } from 'date-fns';
 import { useHedgeLayer } from './useHedgeLayer';
-import { toast } from 'sonner';
+import type { HedgeLayerMonthlyData } from '../types/hedge-layer';
 
 export const useExposureCalculations = (hedgeId: string | undefined) => {
   const [revenues, setRevenues] = useState<Record<number, number>>({});
@@ -18,7 +18,7 @@ export const useExposureCalculations = (hedgeId: string | undefined) => {
   const [cumulativeCoverage, setCumulativeCoverage] = useState<Record<number, number>>({});
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
-  const { layers, loading, loadLayers, saveLayer } = useHedgeLayer(hedgeId || '');
+  const { layers, loading, loadLayers } = useHedgeLayer(hedgeId || '');
 
   useEffect(() => {
     if (hedgeId) {
@@ -54,34 +54,30 @@ export const useExposureCalculations = (hedgeId: string | undefined) => {
 
     setCumulativeAmounts(newCumulativeAmounts);
     setCumulativeCoverage(newCumulativeCoverage);
+  }, [forecasts, hedgeRatio, hedgeLayer]);
 
-    if (hedgeId && hedgeRatio && hedgeLayer) {
-      const layerData = {
-        hedge_id: hedgeId,
-        layer_number: 1,
-        layer_percentage: parseFloat(hedgeLayer),
-        hedge_ratio: parseFloat(hedgeRatio),
-        start_month: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '',
-        end_month: selectedDate ? format(addMonths(selectedDate, 11), 'yyyy-MM-dd') : '',
-        monthly_data: Object.keys(forecasts).map(index => ({
-          month_index: parseInt(index),
-          revenue: revenues[parseInt(index)] || 0,
-          costs: costs[parseInt(index)] || 0,
-          net_income: forecasts[parseInt(index)] || 0,
-          hedged_exposure: newHedgedExposures[parseInt(index)] || 0,
-          hedge_layer_amount: newHedgeAmounts[parseInt(index)] || 0,
-          indicative_coverage_percentage: newIndicativeCoverage[parseInt(index)] || 0,
-          cumulative_layer_amount: newCumulativeAmounts[parseInt(index)] || 0,
-          cumulative_coverage_percentage: newCumulativeCoverage[parseInt(index)] || 0
-        }))
-      };
+  const getCurrentLayerData = () => {
+    if (!selectedDate) return null;
 
-      saveLayer(layerData).catch(error => {
-        console.error('Error saving layer:', error);
-        toast.error('Failed to save hedge layer data');
-      });
-    }
-  }, [forecasts, hedgeRatio, hedgeLayer, hedgeId, selectedDate, saveLayer, revenues, costs]);
+    return {
+      layer_number: 1,
+      layer_percentage: parseFloat(hedgeLayer) || 0,
+      hedge_ratio: parseFloat(hedgeRatio) || 0,
+      start_month: format(selectedDate, 'yyyy-MM-dd'),
+      end_month: format(addMonths(selectedDate, 11), 'yyyy-MM-dd'),
+      monthly_data: Object.keys(forecasts).map(index => ({
+        month_index: parseInt(index),
+        revenue: revenues[parseInt(index)] || 0,
+        costs: costs[parseInt(index)] || 0,
+        net_income: forecasts[parseInt(index)] || 0,
+        hedged_exposure: hedgedExposures[parseInt(index)] || 0,
+        hedge_layer_amount: hedgeAmounts[parseInt(index)] || 0,
+        indicative_coverage_percentage: indicativeCoverage[parseInt(index)] || 0,
+        cumulative_layer_amount: cumulativeAmounts[parseInt(index)] || 0,
+        cumulative_coverage_percentage: cumulativeCoverage[parseInt(index)] || 0
+      }))
+    };
+  };
 
   return {
     revenues,
@@ -100,6 +96,7 @@ export const useExposureCalculations = (hedgeId: string | undefined) => {
     cumulativeCoverage,
     selectedDate,
     setSelectedDate,
-    loading
+    loading,
+    getCurrentLayerData
   };
 };

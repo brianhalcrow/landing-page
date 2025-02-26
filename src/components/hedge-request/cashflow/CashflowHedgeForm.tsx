@@ -1,4 +1,3 @@
-
 import { FormHeader } from "./components/FormHeader";
 import { FormSection } from "./components/FormSection";
 import { useFormState } from "./hooks/useFormState";
@@ -12,11 +11,13 @@ import HedgingInstrumentSection from "./sections/HedgingInstrumentSection";
 import AssessmentMonitoringSection from "./sections/AssessmentMonitoringSection";
 import ExposureDetailsSection from "./sections/ExposureDetailsSection";
 import type { ExistingHedgeRequest } from "./types";
-import { useState } from "react";
+import type { HedgeLayerDetails } from "./types/hedge-layer";
+import { useState, useRef } from "react";
 
 const CashflowHedgeForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const exposureDetailsRef = useRef<{ getCurrentLayerData: () => HedgeLayerDetails | null }>();
   
   const {
     minimizedSections,
@@ -41,6 +42,8 @@ const CashflowHedgeForm = () => {
 
   const onSaveDraft = async () => {
     try {
+      const hedgeLayerData = exposureDetailsRef.current?.getCurrentLayerData();
+
       await handleSaveDraft(
         generalInfo, 
         hedgingInstrument,
@@ -48,10 +51,10 @@ const CashflowHedgeForm = () => {
         hedgedItem,
         assessmentMonitoring,
         exposureDetails,
-        hedgeId
+        hedgeId,
+        hedgeLayerData || undefined
       );
       
-      // Update progress only after successful save
       const currentProgress = calculateProgress(
         generalInfo,
         riskManagement,
@@ -119,7 +122,6 @@ const CashflowHedgeForm = () => {
         })
       ]);
 
-      // Update progress after loading draft
       const currentProgress = calculateProgress(
         draft,
         { risk_management_description: draft.risk_management_description },
@@ -261,8 +263,8 @@ const CashflowHedgeForm = () => {
         isMinimized={minimizedSections.exposure}
         onToggle={toggleSection}
       >
-        {/* Exposure Details Section with hedgeId prop */}
         <ExposureDetailsSection 
+          ref={exposureDetailsRef}
           value={exposureDetails}
           onChange={setExposureDetails}
           documentationDate={generalInfo.documentation_date}
