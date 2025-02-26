@@ -94,6 +94,53 @@ export const useGeneralInformationForm = (onChange: (data: GeneralInformationDat
     }
   };
 
+  const handleCategoryChange = (level: 'L1' | 'L2' | 'L3' | 'strategy', value: string) => {
+    switch (level) {
+      case 'L1':
+        setSelectedExposureCategoryL1(value);
+        setSelectedExposureCategoryL2('');
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L2':
+        setSelectedExposureCategoryL2(value);
+        setSelectedExposureCategoryL3('');
+        setSelectedStrategy('');
+        break;
+      case 'L3':
+        setSelectedExposureCategoryL3(value);
+        setSelectedStrategy('');
+        break;
+      case 'strategy':
+        setSelectedStrategy(value);
+        break;
+    }
+  };
+
+  const getCategoryOptions = (level: 'L1' | 'L2' | 'L3' | 'strategy') => {
+    if (!exposureConfigs) return [];
+
+    switch (level) {
+      case 'L1':
+        return [...new Set(exposureConfigs.map(config => config.exposure_category_l1))];
+      case 'L2':
+        return [...new Set(exposureConfigs
+          .filter(config => config.exposure_category_l1 === selectedExposureCategoryL1)
+          .map(config => config.exposure_category_l2))];
+      case 'L3':
+        return [...new Set(exposureConfigs
+          .filter(config => 
+            config.exposure_category_l1 === selectedExposureCategoryL1 &&
+            config.exposure_category_l2 === selectedExposureCategoryL2
+          )
+          .map(config => config.exposure_category_l3))];
+      case 'strategy':
+        return strategies?.map(s => s.strategy_name) || [];
+      default:
+        return [];
+    }
+  };
+
   // Effect to update parent component
   useEffect(() => {
     onChange({
