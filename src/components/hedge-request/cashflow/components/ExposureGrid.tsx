@@ -24,6 +24,11 @@ export const ExposureGrid = ({
   revenues,
   costs,
   forecasts,
+  hedgedExposures,
+  hedgeAmounts,
+  indicativeCoverage,
+  cumulativeAmounts,
+  cumulativeCoverage,
   onRevenueChange,
   onCostChange,
   onKeyDown,
@@ -82,6 +87,76 @@ export const ExposureGrid = ({
         inputRefs={[]}
         refStartIndex={24}
         formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Hedged Exposure"
+        sublabel="Long/(Short)"
+        values={hedgedExposures}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={3}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={36}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Hedge Layer Amount"
+        sublabel="Long/(Short)"
+        values={hedgeAmounts}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={4}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={48}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Indicative Coverage"
+        sublabel="%"
+        values={indicativeCoverage}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={5}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={60}
+        formatValue={(value) => `${Math.round(value)}%`}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Cumulative Layer Amount"
+        sublabel="Long/(Short)"
+        values={cumulativeAmounts}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={6}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={72}
+        formatValue={formatNumber}
+        readOnly
+      />
+
+      <GridInputRow
+        label="Cumulative Coverage"
+        sublabel="%"
+        values={cumulativeCoverage}
+        onChange={() => {}}
+        onKeyDown={() => {}}
+        rowIndex={7}
+        monthCount={12}
+        inputRefs={[]}
+        refStartIndex={84}
+        formatValue={(value) => `${Math.round(value)}%`}
         readOnly
       />
     </>

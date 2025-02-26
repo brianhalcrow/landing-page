@@ -1,8 +1,8 @@
 
-import { forwardRef, useImperativeHandle, KeyboardEvent, useRef, useState } from "react";
-import { format, differenceInMonths } from "date-fns";
+import { forwardRef, useRef, useState } from "react";
+import { format, differenceInMonths, addMonths } from "date-fns";
 import { HeaderControls } from "../components/HeaderControls";
-import { ExposureGrid } from "../components/ExposureGrid";
+import { SimplifiedExposureGrid } from "../components/SimplifiedExposureGrid";
 import { useExposureCalculations } from "../hooks/useExposureCalculations";
 
 interface ExposureForecastValue {
@@ -121,16 +121,11 @@ export const ExposureForecastSection = forwardRef<{}, ExposureForecastSectionPro
               <span className="text-sm text-gray-500">Loading hedge layer data...</span>
             </div>
           ) : (
-            <ExposureGrid
+            <SimplifiedExposureGrid
               months={months}
               revenues={revenues}
               costs={costs}
               forecasts={forecasts}
-              hedgedExposures={{}}
-              hedgeAmounts={{}}
-              indicativeCoverage={{}}
-              cumulativeAmounts={{}}
-              cumulativeCoverage={{}}
               onRevenueChange={handleRevenueChange}
               onCostChange={handleCostChange}
               onKeyDown={handleKeyDown}
