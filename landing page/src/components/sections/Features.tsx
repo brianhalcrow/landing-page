@@ -7,8 +7,8 @@ const features = [
     title: "Manage everyday business finances",
     description:
       "Unlimited free wires, ACH, and cards empower CFOs to operate their business with confidence.",
-    bgColor: "bg-[#f0f4f8]",
-    tagColor: "bg-[#e1eaf2] text-[#2d4a6d]",
+    bgColor: "bg-[#e0e8f0]",
+    tagColor: "bg-[#d1dce8] text-[#1d3a5d]",
   },
   {
     tag: "Trade",
@@ -16,8 +16,8 @@ const features = [
     title: "Unlock competitive yield with Treasury",
     description:
       "Invest in Money Market Funds and Treasury Bills that earn up to 4.57% net yield.",
-    bgColor: "bg-[#f5f3ef]",
-    tagColor: "bg-[#ebe7e0] text-[#6d4a2d]",
+    bgColor: "bg-[#e5e3df]",
+    tagColor: "bg-[#dbd7d0] text-[#5d3a1d]",
   },
   {
     tag: "Post-Trade",
@@ -25,8 +25,8 @@ const features = [
     title: "Outsource your debt raise",
     description:
       "Leverage Arc to find and negotiate a customized debt solution on your behalf.",
-    bgColor: "bg-[#eff5f3]",
-    tagColor: "bg-[#e0ebe7] text-[#2d6d4a]",
+    bgColor: "bg-[#dfe5e3]",
+    tagColor: "bg-[#d0dbd7] text-[#1d5d3a]",
   },
 ];
 
@@ -34,7 +34,7 @@ export function Features() {
   return (
     <section className="py-12 bg-white">
       <div className="container px-4 mx-auto">
-        <h2 className="text-4xl font-semibold text-center mb-16">
+        <h2 className="text-4xl sm:text-6xl font-normal tracking-tight text-[#1e1e1c] sm:leading-tight text-center mb-16">
           Fully integrated end-to-end workflows
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">

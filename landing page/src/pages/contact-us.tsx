@@ -72,13 +72,13 @@ export default function ContactUs() {
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] flex items-center justify-center py-12">
-      <Card className="w-[600px]">
+      <Card className="w-[600px] bg-white">
         <CardContent className="p-6">
           <div className="flex flex-col items-center mb-8">
             <img
               src="/sensefx-logo.svg"
               alt="SenseFX Logo"
-              className="h-16 w-auto mb-8"
+              className="h-16 w-auto mb-4"
             />
             <p className="text-base text-gray-600">
               Please provide your details and we will get back to you as soon as
@@ -101,7 +101,9 @@ export default function ContactUs() {
                   onBlur={() => handleBlur("firstName")}
                 />
                 {shouldShowError("firstName") && (
-                  <p className="text-sm text-red-500"></p>
+                  <p className="text-sm text-red-500">
+                    Please complete this required field.
+                  </p>
                 )}
               </div>
               <div className="space-y-1.5">
@@ -118,7 +120,9 @@ export default function ContactUs() {
                   onBlur={() => handleBlur("lastName")}
                 />
                 {shouldShowError("lastName") && (
-                  <p className="text-sm text-red-500"></p>
+                  <p className="text-sm text-red-500">
+                    Please complete this required field.
+                  </p>
                 )}
               </div>
             </div>

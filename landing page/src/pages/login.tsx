@@ -35,8 +35,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f3f3] flex items-center justify-center">
-      <Card className="w-[400px]">
+    <div className="min-h-screen bg-[#f3f3f3] flex items-center justify-center py-12">
+      <Card className="w-[600px] bg-white">
         <div className="flex justify-center mt-6">
           <img
             src="/sensefx-logo.svg"

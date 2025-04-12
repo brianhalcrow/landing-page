@@ -47,10 +47,10 @@ const steps = [
 
 export function Workflow() {
   return (
-    <section id="workflow" className="py-24">
+    <section id="workflow" className="py-24 bg-[#f8f9fa]">
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-4xl sm:text-6xl font-normal tracking-tight text-[#1e1e1c] sm:leading-tight">
             End-to-End Currency Risk Management
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">

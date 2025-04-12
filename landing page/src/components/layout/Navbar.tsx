@@ -17,16 +17,16 @@ export function Navbar() {
   }, []);
 
   const navItems = [
-    { label: "Why SenseFX?", href: "#whysensefx" },
-    { label: "Solution", href: "#solution" },
-    { label: "About", href: "#pricing" },
-    { label: "Blog", href: "#blog" },
+    { label: "Why SenseFX?", href: "/why-sensefx" },
+    { label: "Solution", href: "/solution" },
+    { label: "About", href: "/about-us" },
+    { label: "Blog", href: "/blog" },
   ];
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b transition-all duration-300",
+        "sticky top-0 z-50 w-full border-b border-gray-200 transition-all duration-300",
         scrolled ? "bg-white shadow-sm" : "bg-[#f3f3f3] border-transparent"
       )}
     >
@@ -51,13 +51,13 @@ export function Navbar() {
           <div className="flex-1 flex justify-center">
             <nav className="flex items-center gap-10 text-sm">
               {navItems.map((item, index) => (
-                <a
+                <Link
                   key={index}
-                  href={item.href}
-                  className="transition-colors hover:text-foreground/80 text-foreground/60 font-semibold"
+                  to={item.href}
+                  className="text-gray-600 hover:text-gray-900 font-semibold"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>

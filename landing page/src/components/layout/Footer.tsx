@@ -1,6 +1,9 @@
+import { FC } from "react";
 import { Link } from "react-router-dom";
+import logoInverse from "@/assets/images/sensefx-logo-inverse.svg";
+import { BookDemo } from "@/components/BookDemo";
 
-export function Footer() {
+export const Footer: FC = () => {
   return (
     <footer className="bg-black text-white">
       <div className="container mx-auto px-6 py-12">
@@ -33,19 +36,28 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Products</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/products" className="text-gray-400 hover:text-white">
-                  Features
+                <Link
+                  to="/solutions"
+                  className="text-gray-400 hover:text-white"
+                >
+                  Solutions
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-gray-400 hover:text-white">
-                  Pricing
+                <Link
+                  to="/why-sensefx"
+                  className="text-gray-400 hover:text-white"
+                >
+                  Why SenseFX?
                 </Link>
               </li>
               <li>
-                <Link to="/demo" className="text-gray-400 hover:text-white">
+                <BookDemo
+                  variant="link"
+                  className="text-gray-400 hover:text-white"
+                >
                   Book a Demo
-                </Link>
+                </BookDemo>
               </li>
             </ul>
           </div>
@@ -107,9 +119,12 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex justify-between items-center">
-            <p className="text-gray-400">
-              © {new Date().getFullYear()} SenseFX. All rights reserved.
-            </p>
+            <div className="flex items-center space-x-2">
+              <img src={logoInverse} alt="SenseFX" className="h-8 w-auto" />
+              <p className="text-gray-400">
+                © {new Date().getFullYear()} SenseFX. All rights reserved
+              </p>
+            </div>
             <div className="flex space-x-6">
               <a
                 href="https://twitter.com/sensefx"
@@ -133,4 +148,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+};

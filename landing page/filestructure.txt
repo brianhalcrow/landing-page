@@ -1,0 +1,78 @@
+|-- .gitignore
+|-- eslint.config.js
+|-- index.html
+|-- package-lock.json
+|-- package.json
+|-- postcss.config.js
+|-- public
+    |-- Arch_Amazon-Cognito_64.svg
+    |-- Arch_Amazon-RDS_64.svg
+    |-- Arch_Amazon-Redshift_64.svg
+    |-- Arch_Amazon-SageMaker_64.svg
+    |-- Arch_Amazon-Simple-Storage-Service_64.svg
+    |-- Arch_AWS-Well-Architected-Tool_64.svg
+    |-- logo-dark.png
+    |-- logo-light.png
+    |-- sensefx-logo.svg
+    |-- vite.svg
+|-- README.md
+|-- src
+    |-- App.tsx
+    |-- assets
+        |-- images
+            |-- 1-screenshot-dashboard-summary.png
+            |-- 2-screenshot-trade-request-ad-hoc.png
+            |-- 3-screenshot-trade-request-cashflow.png
+            |-- 4-screenshot-trade-execution-popup.png
+            |-- 5-screenshot-admin-config-entity.png
+            |-- sensefx (2).png
+            |-- sensefx-logo-black.svg
+            |-- sensefx-logo-inverse.svg
+            |-- sensefx-logo-white.svg
+        |-- react.svg
+    |-- components
+        |-- BookDemo.tsx
+        |-- layout
+            |-- Footer.d.ts
+            |-- Footer.tsx
+            |-- MainLayout.tsx
+            |-- Navbar.tsx
+        |-- sections
+            |-- CallToAction.tsx
+            |-- CloudInfrastructure.tsx
+            |-- Features.tsx
+            |-- Hero.tsx
+            |-- index.ts
+            |-- Workflow.tsx
+        |-- ui
+            |-- button.tsx
+            |-- card.tsx
+            |-- checkbox.tsx
+            |-- dialog.tsx
+            |-- form.tsx
+            |-- input.tsx
+            |-- label.tsx
+            |-- select.tsx
+            |-- textarea.tsx
+    |-- index.css
+    |-- lib
+        |-- countries.ts
+        |-- countryCodes.ts
+        |-- utils.ts
+    |-- main.tsx
+    |-- pages
+        |-- about-us.tsx
+        |-- blog.tsx
+        |-- contact-us.tsx
+        |-- get-access.tsx
+        |-- login.tsx
+        |-- solutions.tsx
+        |-- why-sensefx.tsx
+    |-- types
+        |-- images.d.ts
+    |-- vite-env.d.ts
+|-- tailwind.config.js
+|-- tsconfig.app.json
+|-- tsconfig.json
+|-- tsconfig.node.json
+|-- vite.config.ts
