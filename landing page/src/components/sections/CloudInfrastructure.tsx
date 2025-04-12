@@ -32,11 +32,9 @@ export function CloudInfrastructure() {
     <section className="py-24 bg-white">
       <div className="container px-4 mx-auto">
         <div className="text-center max-w-7xl mx-auto mb-16">
-          <h2 className="text-4xl sm:text-6xl font-normal tracking-tight text-[#1e1e1c] sm:leading-tight">
-            SenseFX is building on AWS,
+          <h2 className="text-xl sm:text-5xl font-normal tracking-tight text-[#1e1e1c] sm:leading-tight">
+            SenseFX is building on AWS
             <br />
-            ensuring the highest standards of scalability, security, and
-            performance
           </h2>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-12 max-w-6xl mx-auto mb-24">

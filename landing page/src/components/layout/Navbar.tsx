@@ -17,8 +17,9 @@ export function Navbar() {
   }, []);
 
   const navItems = [
+    { label: "Home", href: "/" },
     { label: "Why SenseFX?", href: "/why-sensefx" },
-    { label: "Solution", href: "/solution" },
+    { label: "Solution", href: "/solutions" },
     { label: "About", href: "/about-us" },
     { label: "Blog", href: "/blog" },
   ];

@@ -46,7 +46,7 @@ export function Hero() {
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <Button size="lg" className="px-6 min-w-[140px] font-medium">
-                  Get a demo
+                  Book a demo
                 </Button>
                 <Button
                   variant="outline"
