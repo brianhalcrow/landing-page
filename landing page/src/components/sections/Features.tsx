@@ -1,170 +1,125 @@
 import { Button } from "@/components/ui/button";
 
-/* Original features code preserved for reference
+// Pastel card features array
 const features = [
   {
     tag: "Pre-Trade",
     image: "/images/pre-trade.svg",
-    title: "Manage everyday business finances",
-    description:
-      "Unlimited free wires, ACH, and cards empower CFOs to operate their business with confidence.",
+    title: "Eliminate manual effort and risk of errors",
+    description: "",
+    bullets: [
+      "Exposure capture across all data sources",
+      "Automated validation workflows",
+      "Configure optimal hedging strategies",
+      "Monitor and forecast exposures",
+    ],
     bgColor: "bg-[#e0e8f0]",
     tagColor: "bg-[#d1dce8] text-[#1d3a5d]",
   },
   {
     tag: "Trade",
     image: "/images/trade.svg",
-    title: "Unlock competitive yield with Treasury",
-    description:
-      "Invest in Money Market Funds and Treasury Bills that earn up to 4.57% net yield.",
+    title: "Seamless execution without leaving the platform",
+    description: "",
+    bullets: [
+      "Integrated approval workflows",
+      "Automated compliance checks",
+      "One-click trade execution",
+      "Multi-bank integration",
+    ],
     bgColor: "bg-[#e5e3df]",
     tagColor: "bg-[#dbd7d0] text-[#5d3a1d]",
   },
   {
     tag: "Post-Trade",
     image: "/images/post-trade.svg",
-    title: "Outsource your debt raise",
-    description:
-      "Leverage Arc to find and negotiate a customized debt solution on your behalf.",
+    title: "Complete visibility of accounting and reporting",
+    description: "",
+    bullets: [
+      "Confirmation and settlement automation",
+      "IFRS9/ASC815 Hedge accounting",
+      "Real-time management reporting and analytics",
+    ],
     bgColor: "bg-[#dfe5e3]",
     tagColor: "bg-[#d0dbd7] text-[#1d5d3a]",
   },
 ];
-*/
 
-const newFeatures = [
-  {
-    icon: "database",
-    title: "Pre-Trade",
-    description:
-      "Our Exposure Configuration Assistant captures and validates exposures across all your data sources",
-  },
-  {
-    icon: "chart",
-    title: "Trade",
-    description:
-      "Choose the links that you care about in our Semantics Editor and incorporate your enterprise knowledge.",
-  },
-  {
-    icon: "document",
-    title: "Post-Trade",
-    description:
-      "Query your tabular data with a Semantic Query Language designed to improve LLMs accuracy and power data apps.",
-  },
-];
-
+// Only export the pastel card features section
 export function Features() {
   return (
     <section className="py-12 bg-white">
-      <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 max-w-6xl mx-auto">
-          {newFeatures.map((feature, index) => (
-            <div key={index} className="text-center">
-              <div className="mb-6 mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-[#f3f3f3]">
-                {feature.icon === "database" && (
-                  <svg
-                    className="w-8 h-8"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M4 5C4 3.89543 7.58172 3 12 3C16.4183 3 20 3.89543 20 5V19C20 20.1046 16.4183 21 12 21C7.58172 21 4 20.1046 4 19V5Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M4 12C4 13.1046 7.58172 14 12 14C16.4183 14 20 13.1046 20 12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M4 8C4 9.10457 7.58172 10 12 10C16.4183 10 20 9.10457 20 8"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M4 16C4 17.1046 7.58172 18 12 18C16.4183 18 20 17.1046 20 16"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                )}
-                {feature.icon === "chart" && (
-                  <svg
-                    className="w-8 h-8"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3 3V21H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M7 14L11 10L15 14L21 8"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M21 8V13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M16 8H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
-                {feature.icon === "document" && (
-                  <svg
-                    className="w-8 h-8"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M7 7H17"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M7 12H17"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M7 17H13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
+      <div className="w-full max-w-screen-2xl mx-auto px-8">
+        <h2 className="text-5xl sm:text-6xl font-normal tracking-tight text-[#1e1e1c] mb-12 text-center">
+          Modular currency management - designed around you
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 max-w-none mx-auto">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className={`rounded-2xl shadow-md p-8 text-left flex flex-col items-start min-h-[650px] ${feature.bgColor}`}
+            >
+              {/* Tag button */}
+              <div
+                className={`inline-block px-5 py-2 mb-6 rounded-full text-base font-bold ${feature.tagColor}`}
+              >
+                {feature.tag}
               </div>
-              <h3 className="text-2xl font-semibold mb-4 text-[#1e1e1c]">
-                {feature.title}
-              </h3>
-              <p className="text-[#3b5a82]/80 leading-relaxed">
+              {/* Card title */}
+              <h3 className="text-3xl mb-4 text-[#1e1e1c]">{feature.title}</h3>
+              <p className="text-[#3b5a82]/80 leading-relaxed mb-4 text-lg">
                 {feature.description}
               </p>
+              <ul className="text-[#3b5a82]/80 text-lg list-disc pl-6 space-y-2 mb-4">
+                {feature.bullets &&
+                  feature.bullets.map((bullet, i) => <li key={i}>{bullet}</li>)}
+              </ul>
+              {/* Placeholder for image at bottom and Learn More link */}
+              <div className="w-full flex flex-col mt-auto">
+                <div className="w-11/12 h-40 bg-white/60 border border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 text-base mx-auto">
+                  Image Placeholder
+                </div>
+                <div className="flex justify-end w-full mt-4">
+                  <a
+                    href={`/solutions/${feature.tag.toLowerCase().replace(/ /g, "-")}`}
+                    className="text-[#206d69] font-semibold cursor-pointer hover:underline"
+                  >
+                    Learn More
+                  </a>
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Early Access Section
+export function EarlyAccessSection() {
+  return (
+    <section className="py-20 bg-white">
+      <div className="w-full max-w-screen-lg mx-auto px-8 text-center">
+        <h2 className="text-4xl sm:text-5xl font-normal tracking-tight text-[#1e1e1c] mb-6">
+          Shape the Future of Currency Risk Management
+        </h2>
+        <p className="text-xl sm:text-2xl text-[#3b5a82]/80 mb-8">
+          Join our exclusive early access program and be among the first to
+          transform your FX operations
+        </p>
+        <ul className="text-lg text-left text-[#3b5a82]/80 list-disc pl-8 max-w-xl mx-auto mb-10 space-y-2">
+          <li>Direct influence on product development</li>
+          <li>Priority access with implementation support</li>
+          <li>Exclusive early adopter pricing</li>
+          <li>Limited spots available</li>
+        </ul>
+        <div className="flex justify-center">
+          <a href="/get-access">
+            <button className="bg-[#206d69] text-white text-lg font-semibold rounded-sm px-8 min-w-[170px] h-14">
+              + Apply for Early Access
+            </button>
+          </a>
         </div>
       </div>
     </section>

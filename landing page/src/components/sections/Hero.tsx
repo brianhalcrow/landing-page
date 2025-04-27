@@ -57,39 +57,33 @@ export function Hero() {
   }, [text, isDeleting, wordIndex, isTypingPaused]);
 
   return (
-    <div className="relative">
-      <div className="absolute inset-0 bg-[#f3f3f3] h-[95%]" />
-      <div className="absolute inset-0 bg-white top-[95%]" />
-      <div className="relative px-6 pt-8 lg:px-8">
-        <div className="mx-auto max-w-4xl py-8 sm:py-12">
-          <div className="text-center">
-            <h1 className="text-4xl font-normal tracking-tight text-[#1e1e1c] sm:text-6xl sm:leading-tight pt-4">
-              Currency Risk Management Without Limits
+    <div className="relative mb-0">
+      <div className="absolute inset-0 bg-[#f3f3f3] h-full" />
+      <div className="absolute inset-0 bg-white top-[100%]" />
+      <div className="relative px-8 pt-8">
+        <div className="mx-auto max-w-screen-2xl py-8 sm:py-12">
+          <div className="flex flex-col items-center justify-center gap-8 text-center">
+            <h1 className="text-5xl font-normal tracking-tight text-[#1e1e1c] sm:text-7xl sm:leading-tight pt-4">
+              Smart solutions for complex currency risks
             </h1>
-            <p className="mt-6 text-xl sm:text-2xl leading-8 text-[#3b5a82]/80 max-w-3xl mx-auto whitespace-nowrap">
-              Lightning fast hedging solutions for the modern finance team
+            <p className="mt-6 text-xl sm:text-3xl leading-8 text-[#3b5a82]/80 max-w-5xl mx-auto">
+              Intelligent workflows for finance teams that transform chaos into
+              clarity.
+              <br />
+              All in one platform.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <BookDemo size="lg" className="px-6 min-w-[140px] font-medium" />
+            <div className="mt-10 flex items-center justify-center">
               <Button
-                variant="outline"
+                variant="default"
                 size="lg"
-                className="border-[#cad2de] text-[#3b5a82] hover:bg-[#cad2de]/10 px-6 min-w-[140px] font-medium"
+                className="px-8 min-w-[170px] h-14 text-lg font-semibold rounded-sm"
                 asChild
               >
-                <Link to="/get-access">+ Get access</Link>
+                <Link to="/get-access">+ Apply to get access</Link>
               </Button>
             </div>
-
-            <div className="mt-16 mb-12 text-3xl sm:text-5xl font-normal tracking-tight text-[#1e1e1c] max-w-5xl mx-auto space-y-4">
-              <div>What if you could</div>
-              <div className="text-blue-600 relative h-[1.5em] flex items-center justify-center">
-                <span className="relative">
-                  {text}
-                  <span className="absolute ml-1 -mr-1 h-8 sm:h-10 w-[2px] bg-blue-600 animate-blink" />
-                </span>
-              </div>
-              <div>on a single platform?</div>
+            <div className="w-full max-w-[72rem] h-[31.2rem] border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-400 text-lg mx-auto mt-10">
+              Image Placeholder
             </div>
           </div>
         </div>

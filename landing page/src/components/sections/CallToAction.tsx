@@ -24,7 +24,7 @@ export function CallToAction() {
               className="border-[#cad2de] text-[#3b5a82] hover:bg-[#cad2de]/10 px-6 min-w-[140px] font-medium"
               asChild
             >
-              <Link to="/get-access">+ Get access</Link>
+              <Link to="/get-access">+ Apply to get access</Link>
             </Button>
           </div>
         </div>

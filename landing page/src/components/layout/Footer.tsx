@@ -48,7 +48,7 @@ export const Footer: FC = () => {
                   to="/why-sensefx"
                   className="text-gray-400 hover:text-white"
                 >
-                  Why SenseFX?
+                  Why
                 </Link>
               </li>
               <li>
