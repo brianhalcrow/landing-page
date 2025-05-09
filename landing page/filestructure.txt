@@ -1,3 +1,5 @@
+|-- .cursor
+    |-- how-it-works.md
 |-- .gitignore
 |-- eslint.config.js
 |-- index.html
@@ -25,10 +27,13 @@
             |-- 3-screenshot-trade-request-cashflow.png
             |-- 4-screenshot-trade-execution-popup.png
             |-- 5-screenshot-admin-config-entity.png
+            |-- database-52.svg
+            |-- erp-1.svg
             |-- sensefx (2).png
             |-- sensefx-logo-black.svg
             |-- sensefx-logo-inverse.svg
             |-- sensefx-logo-white.svg
+            |-- tms-1.svg
         |-- react.svg
     |-- components
         |-- BookDemo.tsx
@@ -42,6 +47,7 @@
             |-- CloudInfrastructure.tsx
             |-- Features.tsx
             |-- Hero.tsx
+            |-- HowItWorks.tsx
             |-- index.ts
             |-- Workflow.tsx
         |-- ui

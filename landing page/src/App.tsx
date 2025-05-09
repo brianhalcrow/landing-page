@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Hero } from "@/components/sections/Hero";
 import { Features, EarlyAccessSection } from "@/components/sections/Features";
+import { HowItWorks } from "@/components/sections/HowItWorks";
 import { Workflow } from "@/components/sections/Workflow";
 import { CallToAction } from "@/components/sections/CallToAction";
 import { CloudInfrastructure } from "@/components/sections/CloudInfrastructure";
@@ -18,8 +19,8 @@ function HomePage() {
     <>
       <Hero />
       <Features />
+      <HowItWorks />
       <EarlyAccessSection />
-      <Workflow />
       <CloudInfrastructure />
       <CallToAction />
     </>

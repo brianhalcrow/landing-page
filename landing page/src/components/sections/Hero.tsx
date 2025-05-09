@@ -60,9 +60,9 @@ export function Hero() {
     <div className="relative mb-0">
       <div className="absolute inset-0 bg-[#f3f3f3] h-full" />
       <div className="absolute inset-0 bg-white top-[100%]" />
-      <div className="relative px-8 pt-8">
+      <div className="relative px-8 pt-4">
         <div className="mx-auto max-w-screen-2xl py-8 sm:py-12">
-          <div className="flex flex-col items-center justify-center gap-8 text-center">
+          <div className="flex flex-col items-center justify-center gap-6 text-center">
             <h1 className="text-5xl font-normal tracking-tight text-[#1e1e1c] sm:text-7xl sm:leading-tight pt-4">
               Smart solutions for complex currency risks
             </h1>
@@ -82,7 +82,7 @@ export function Hero() {
                 <Link to="/get-access">+ Apply to get access</Link>
               </Button>
             </div>
-            <div className="w-full max-w-[72rem] h-[31.2rem] border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-400 text-lg mx-auto mt-10">
+            <div className="w-full max-w-[57.6rem] h-[25rem] border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-400 text-lg mx-auto mt-8">
               Image Placeholder
             </div>
           </div>

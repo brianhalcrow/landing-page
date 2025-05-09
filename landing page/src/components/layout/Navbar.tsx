@@ -54,16 +54,22 @@ export function Navbar() {
           <div className="flex-1 flex items-center justify-center h-full">
             <nav className="flex items-center gap-2 h-full">
               <Link
+                to="/why-sensefx"
+                className="px-6 min-w-[140px] text-lg font-semibold text-[#3b5a82] rounded-sm flex items-center justify-center transition-colors"
+              >
+                Why SenseFX?
+              </Link>
+              <Link
                 to="/solutions"
-                className="px-6 min-w-[140px] text-lg font-semibold text-[#3b5a82] rounded-sm flex items-center justify-center transition-colors hover:bg-gray-200"
+                className="px-6 min-w-[140px] text-lg font-semibold text-[#3b5a82] rounded-sm flex items-center justify-center transition-colors"
               >
                 Solution
               </Link>
               <Link
-                to="/why-sensefx"
-                className="px-6 min-w-[140px] text-lg font-semibold text-[#3b5a82] rounded-sm flex items-center justify-center transition-colors hover:bg-gray-200"
+                to="/blog"
+                className="px-6 min-w-[140px] text-lg font-semibold text-[#3b5a82] rounded-sm flex items-center justify-center transition-colors"
               >
-                Why SenseFX?
+                Blog
               </Link>
             </nav>
           </div>
